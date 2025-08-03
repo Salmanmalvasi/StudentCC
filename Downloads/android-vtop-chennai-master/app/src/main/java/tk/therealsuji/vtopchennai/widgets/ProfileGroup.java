@@ -34,8 +34,8 @@ public class ProfileGroup extends LinearLayout {
     public void initialize() {
         float pixelDensity = this.getContext().getResources().getDisplayMetrics().density;
 
-        TypedValue colorOnBackground = new TypedValue();
-        getContext().getTheme().resolveAttribute(R.attr.colorOnBackground, colorOnBackground, true);
+        TypedValue colorPrimary = new TypedValue();
+        getContext().getTheme().resolveAttribute(R.attr.colorPrimary, colorPrimary, true);
 
         this.title = new AppCompatTextView(this.getContext());
         this.title.setPadding(
@@ -45,7 +45,7 @@ public class ProfileGroup extends LinearLayout {
                 (int) (5 * pixelDensity)
         );
         this.title.setTextSize(15);
-        this.title.setTextColor(colorOnBackground.data);
+        this.title.setTextColor(colorPrimary.data);
         this.title.setTypeface(this.title.getTypeface(), Typeface.BOLD);
 
         this.addView(this.title);

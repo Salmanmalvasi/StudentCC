@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -145,6 +146,11 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
             return;
         }
 
+        if (TextUtils.isEmpty(grade)) {
+            gradeDropdown.setError("Grade is required");
+            return;
+        }
+
         double creditHours;
         try {
             creditHours = Double.parseDouble(creditHoursStr);
@@ -154,11 +160,6 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
             }
         } catch (NumberFormatException e) {
             creditHoursInput.setError("Invalid credit hours");
-            return;
-        }
-
-        if (TextUtils.isEmpty(grade)) {
-            gradeDropdown.setError("Grade is required");
             return;
         }
 

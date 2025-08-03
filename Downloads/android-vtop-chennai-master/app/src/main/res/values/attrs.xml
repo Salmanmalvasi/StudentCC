@@ -6,6 +6,8 @@
         <attr name="value" format="string" />
     </declare-styleable>
 
+
+
     <declare-styleable name="PerformanceCard">
         <attr name="title" format="string" />
         <attr name="score" format="float" />
@@ -21,4 +23,8 @@
         <attr name="end_time" format="string" />
         <attr name="start_time" format="string" />
     </declare-styleable>
+
+    <!-- Enhanced Attendance Attributes -->
+    <attr name="attendance_percentage_text_color" format="color" />
+    <attr name="attendance_subtext_color" format="color" />
 </resources>

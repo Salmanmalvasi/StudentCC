@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:paddingBottom="32dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,23 +13,22 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header -->
+        <!-- Modern Header Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardBackgroundColor="?attr/colorPrimaryContainer"
             app:cardCornerRadius="16dp"
-            app:cardElevation="6dp"
+            app:cardElevation="8dp"
             app:strokeColor="?attr/colorOutline"
-            app:strokeWidth="1dp"
-            android:background="@drawable/background_gpa_header">
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="24dp">
+                android:padding="20dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -38,16 +39,17 @@
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:layout_marginEnd="16dp"
+                        android:layout_marginEnd="12dp"
                         android:src="@drawable/ic_gpa_calculator"
                         app:tint="?attr/colorOnPrimaryContainer" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/gpa_calculator_header"
+                        android:layout_weight="1"
+                        android:text="@string/gpa_calculator"
                         android:textColor="?attr/colorOnPrimaryContainer"
-                        android:textSize="26sp"
+                        android:textSize="24sp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
@@ -55,31 +57,24 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:alpha="0.9"
+                    android:layout_marginTop="8dp"
+                    android:alpha="0.8"
                     android:text="@string/gpa_calculator_description"
                     android:textColor="?attr/colorOnPrimaryContainer"
-                    android:textSize="15sp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="16dp"
-                    android:background="?attr/colorOutline"
-                    android:alpha="0.3" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Course Input Section -->
+        <!-- Course Input Section - Redesigned -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardBackgroundColor="?attr/colorSurface"
             app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -87,29 +82,44 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/add_course"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/ic_assignments"
+                        app:tint="?attr/colorPrimary" />
 
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Add Course"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="12dp"
                     android:orientation="horizontal">
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/credit_hours_layout"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:hint="@string/credit_hours"
+                        android:hint="Credit Hours"
                         app:boxBackgroundColor="?attr/colorSurfaceVariant"
                         app:boxCornerRadiusBottomEnd="8dp"
                         app:boxCornerRadiusBottomStart="8dp"
@@ -133,7 +143,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:hint="@string/grade"
+                        android:hint="Grade"
                         app:boxBackgroundColor="?attr/colorSurfaceVariant"
                         app:boxCornerRadiusBottomEnd="8dp"
                         app:boxCornerRadiusBottomStart="8dp"
@@ -156,22 +166,25 @@
                     android:id="@+id/add_course_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/add_course"
-                    app:cornerRadius="8dp" />
+                    android:layout_marginTop="12dp"
+                    android:text="Add Course"
+                    android:textSize="14sp"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_add"
+                    app:iconGravity="textStart" />
 
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Courses List -->
+        <!-- Courses List - Redesigned -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardBackgroundColor="?attr/colorSurface"
             app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -179,20 +192,48 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Courses"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/ic_courses"
+                        app:tint="?attr/colorPrimary" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Courses Added"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/courses_count_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/circle_background"
+                        android:padding="8dp"
+                        android:text="0"
+                        android:textColor="?attr/colorOnPrimaryContainer"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/courses_recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:nestedScrollingEnabled="false" />
+                    android:layout_marginTop="12dp"
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never" />
 
                 <TextView
                     android:id="@+id/no_courses_text"
@@ -209,13 +250,10 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-
-
-        <!-- CGPA Calculator Section -->
+        <!-- CGPA Calculator Section - Redesigned -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             app:cardBackgroundColor="?attr/colorPrimaryContainer"
             app:cardCornerRadius="12dp"
@@ -225,7 +263,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -233,12 +271,20 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/ic_gpa_calculator"
+                        app:tint="?attr/colorOnPrimaryContainer" />
+
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:text="@string/cgpa_calculator"
                         android:textColor="?attr/colorOnPrimaryContainer"
-                        android:textSize="22sp"
+                        android:textSize="18sp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
@@ -246,31 +292,33 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:alpha="0.9"
+                    android:layout_marginTop="4dp"
+                    android:alpha="0.8"
                     android:text="@string/cgpa_calculator_description"
                     android:textColor="?attr/colorOnPrimaryContainer"
-                    android:textSize="14sp" />
+                    android:textSize="12sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:orientation="horizontal">
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical">
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/current_cgpa_layout"
-                        android:layout_width="0dp"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:layout_weight="1"
+                        android:layout_marginBottom="8dp"
                         android:hint="@string/current_cgpa"
                         app:boxBackgroundColor="?attr/colorSurface"
-                        app:boxCornerRadiusBottomEnd="8dp"
-                        app:boxCornerRadiusBottomStart="8dp"
-                        app:boxCornerRadiusTopEnd="8dp"
-                        app:boxCornerRadiusTopStart="8dp"
-                        app:hintTextColor="?attr/colorOnSurfaceVariant">
+                        app:boxCornerRadiusBottomEnd="4dp"
+                        app:boxCornerRadiusBottomStart="4dp"
+                        app:boxCornerRadiusTopEnd="4dp"
+                        app:boxCornerRadiusTopStart="4dp"
+                        app:hintTextColor="?attr/colorOnSurfaceVariant"
+                        app:startIconDrawable="@drawable/ic_gpa_calculator"
+                        app:startIconTint="?attr/colorOnSurfaceVariant">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/current_cgpa_input"
@@ -283,17 +331,19 @@
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/current_credits_layout"
-                        android:layout_width="0dp"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
+                        android:layout_marginBottom="8dp"
                         android:hint="@string/current_credits"
                         app:boxBackgroundColor="?attr/colorSurface"
-                        app:boxCornerRadiusBottomEnd="8dp"
-                        app:boxCornerRadiusBottomStart="8dp"
-                        app:boxCornerRadiusTopEnd="8dp"
-                        app:boxCornerRadiusTopStart="8dp"
-                        app:hintTextColor="?attr/colorOnSurfaceVariant">
+                        app:boxCornerRadiusBottomEnd="4dp"
+                        app:boxCornerRadiusBottomStart="4dp"
+                        app:boxCornerRadiusTopEnd="4dp"
+                        app:boxCornerRadiusTopStart="4dp"
+                        app:hintTextColor="?attr/colorOnSurfaceVariant"
+                        app:startIconDrawable="@drawable/ic_assignments"
+                        app:startIconTint="?attr/colorOnSurfaceVariant">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/current_credits_input"
@@ -310,36 +360,40 @@
                     android:id="@+id/credits_being_added_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:textColor="?attr/colorOnPrimaryContainer"
-                    android:textSize="14sp"
+                    android:textSize="11sp"
                     android:visibility="gone" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/calculate_cgpa_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/calculate_cgpa"
-                    app:cornerRadius="8dp" />
+                    android:textSize="14sp"
+                    app:cornerRadius="4dp"
+                    app:icon="@drawable/ic_done"
+                    app:iconGravity="textStart" />
 
                 <TextView
                     android:id="@+id/cgpa_result_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:textColor="?attr/colorOnPrimaryContainer"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:visibility="gone" />
 
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Action Buttons -->
+        <!-- Action Buttons - Redesigned -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="80dp"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
@@ -349,7 +403,10 @@
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
                 android:text="@string/calculate_gpa"
-                app:cornerRadius="8dp" />
+                android:textSize="14sp"
+                app:cornerRadius="8dp"
+                app:icon="@drawable/ic_gpa_calculator"
+                app:iconGravity="textStart" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/clear_all_button"
@@ -359,9 +416,18 @@
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:text="@string/clear_all"
-                app:cornerRadius="8dp" />
+                android:textSize="14sp"
+                app:cornerRadius="8dp"
+                app:icon="@drawable/ic_close"
+                app:iconGravity="textStart" />
 
         </LinearLayout>
+
+        <!-- Extra Spacing for Maximum Scrollability -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@android:color/transparent" />
 
     </LinearLayout>
 

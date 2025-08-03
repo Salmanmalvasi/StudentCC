@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.OptIn;
@@ -30,7 +29,9 @@ import java.util.Locale;
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.adapters.TimetableAdapter;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
-import tk.therealsuji.vtopchennai.widgets.InfoCard;
+import tk.therealsuji.vtopchennai.widgets.AttendanceInfoCard;
+import tk.therealsuji.vtopchennai.widgets.CircularProgressDrawable;
+import android.widget.ProgressBar;
 
 public class HomeFragment extends Fragment {
 
@@ -81,20 +82,14 @@ public class HomeFragment extends Fragment {
             getParentFragmentManager().setFragmentResult("customInsets2", result);
         });
 
-        appBarLayout.addOnOffsetChangedListener((appBarLayout1, verticalOffset) -> {
-            LinearLayout header = homeFragment.findViewById(R.id.linear_layout_header);
-
-            float alpha = 1 - ((float) (-1 * verticalOffset) / header.getHeight());
-            header.setAlpha(alpha);
-        });
-
         SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this.requireContext());
 
-        try {
-            TextView greeting = homeFragment.findViewById(R.id.text_view_greeting);
-            SimpleDateFormat hour24 = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
-            Calendar calendar = Calendar.getInstance();
+        // Greeting Logic
+        TextView greeting = homeFragment.findViewById(R.id.text_view_greeting);
+        SimpleDateFormat hour24 = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
+        Calendar calendar = Calendar.getInstance();
 
+        try {
             Date now = hour24.parse(hour24.format(calendar.getTime()));
             assert now != null;
 
@@ -107,12 +102,68 @@ public class HomeFragment extends Fragment {
             } else {
                 greeting.setText(R.string.evening_greeting);
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            // Fallback to morning greeting if parsing fails
+            greeting.setText(R.string.morning_greeting);
         }
 
         String name = sharedPreferences.getString("name", getString(R.string.name));
         ((TextView) homeFragment.findViewById(R.id.text_view_name)).setText(name);
 
+        // Attendance, Credits, CGPA Cards
+        CircularProgressDrawable attendanceProgress = homeFragment.findViewById(R.id.attendance_progress);
+        TextView attendancePercentage = homeFragment.findViewById(R.id.attendance_percentage);
+        TextView cgpaCircle = homeFragment.findViewById(R.id.cgpa_circle);
+        TextView creditsText = homeFragment.findViewById(R.id.credits_text);
+
+        int overallAttendance = sharedPreferences.getInt("overallAttendance", 0);
+        
+        // Get attended and total counts for toggle display
+        int attendedClasses = sharedPreferences.getInt("attendedClasses", 0);
+        int totalClasses = sharedPreferences.getInt("totalClasses", 0);
+        
+        android.util.Log.d("HomeFragment", "Real attendance data - Overall: " + overallAttendance + "%, Attended: " + attendedClasses + ", Total: " + totalClasses);
+        
+        // Make variables final for lambda expression
+        final int finalAttendedClasses = attendedClasses;
+        final int finalTotalClasses = totalClasses;
+        final int finalOverallAttendance = overallAttendance;
+        
+        attendanceProgress.setProgress(overallAttendance);
+        attendancePercentage.setText(overallAttendance + "%");
+        
+        // Add click listener to toggle between percentage and counts
+        attendanceProgress.setOnClickListener(v -> {
+            if (attendancePercentage.getText().toString().contains("%")) {
+                // Show counts
+                attendancePercentage.setText(finalAttendedClasses + "/" + finalTotalClasses);
+            } else {
+                // Show percentage
+                attendancePercentage.setText(finalOverallAttendance + "%");
+            }
+        });
+
+        float totalCredits;
+        try {
+            // Support old integer based credits
+            totalCredits = sharedPreferences.getInt("totalCredits", 0);
+        } catch (Exception ignored) {
+            totalCredits = sharedPreferences.getFloat("totalCredits", 0);
+        }
+
+        float cgpaValue = sharedPreferences.getFloat("cgpa", 0);
+        
+        // Format CGPA with 2 decimal places
+        String formattedCGPA = new DecimalFormat("#.00").format(cgpaValue);
+        cgpaCircle.setText(formattedCGPA);
+        
+        // Format credits text
+        String creditsDisplay = totalCredits == (int) totalCredits ? 
+            String.valueOf((int) totalCredits) + " Credits" : 
+            String.valueOf(totalCredits) + " Credits";
+        creditsText.setText(creditsDisplay);
+
+        // Spotlight Button
         View spotlightButton = homeFragment.findViewById(R.id.image_button_spotlight);
         TooltipCompat.setTooltipText(spotlightButton, spotlightButton.getContentDescription());
         spotlightButton.setOnClickListener(view -> SettingsRepository.openRecyclerViewFragment(
@@ -120,6 +171,29 @@ public class HomeFragment extends Fragment {
                 R.string.spotlight,
                 RecyclerViewFragment.TYPE_SPOTLIGHT
         ));
+
+        // Sync Button
+        View syncButton = homeFragment.findViewById(R.id.image_button_sync);
+        TooltipCompat.setTooltipText(syncButton, syncButton.getContentDescription());
+        syncButton.setOnClickListener(view -> {
+            // Start sync process using the same mechanism as profile page
+            syncButton.setEnabled(false);
+            syncButton.setAlpha(0.5f);
+            
+            // Trigger sync using fragment result (same as profile page)
+            getParentFragmentManager().setFragmentResult("syncData", new Bundle());
+            
+            // Listen for sync state changes
+            getParentFragmentManager().setFragmentResultListener("syncDataState", this, (requestKey, result) -> {
+                if (result.getBoolean("isLoading")) {
+                    syncButton.setEnabled(false);
+                    syncButton.setAlpha(0.5f);
+                } else {
+                    syncButton.setEnabled(true);
+                    syncButton.setAlpha(1.0f);
+                }
+            });
+        });
 
         BadgeDrawable spotlightBadge = BadgeDrawable.create(requireContext());
         spotlightBadge.setBadgeGravity(BadgeDrawable.TOP_END);
@@ -144,28 +218,7 @@ public class HomeFragment extends Fragment {
 
         getParentFragmentManager().setFragmentResult("getUnreadCount", new Bundle());
 
-        InfoCard attendance = homeFragment.findViewById(R.id.info_card_attendance);
-        InfoCard credits = homeFragment.findViewById(R.id.info_card_credits);
-        InfoCard cgpa = homeFragment.findViewById(R.id.info_card_cgpa);
-
-        float totalCredits;
-
-        try {
-            // Support old integer based credits
-            totalCredits = sharedPreferences.getInt("totalCredits", 0);
-        } catch (Exception ignored) {
-            totalCredits = sharedPreferences.getFloat("totalCredits", 0);
-        }
-
-        if (totalCredits == (int) totalCredits) {
-            credits.setValue(String.valueOf((int) totalCredits));
-        } else {
-            credits.setValue(String.valueOf(totalCredits));
-        }
-
-        attendance.setValue(sharedPreferences.getInt("overallAttendance", 0) + "%");
-        cgpa.setValue(new DecimalFormat("#.00").format(sharedPreferences.getFloat("cgpa", 0)));
-
+        // Timetable Setup
         TabLayout days = homeFragment.findViewById(R.id.tab_layout_days);
         String[] dayStrings = {
                 getString(R.string.sunday),
@@ -180,7 +233,10 @@ public class HomeFragment extends Fragment {
         timetable.setAdapter(new TimetableAdapter());
 
         new TabLayoutMediator(days, timetable, (tab, position) -> {
-            tab.setText(dayStrings[position].substring(0, 1));
+            // Use 3-letter day abbreviations
+            String[] dayAbbreviations = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+            String dayAbbreviation = dayAbbreviations[position];
+            tab.setText(dayAbbreviation);
             tab.view.setContentDescription(dayStrings[position]);
             TooltipCompat.setTooltipText(tab.view, dayStrings[position]);
         }).attach();
@@ -216,7 +272,27 @@ public class HomeFragment extends Fragment {
             }
         }
 
-        timetable.setCurrentItem(Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1);
+        // Set current day as default, but allow easy navigation to other days
+        int currentDayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1;
+        timetable.setCurrentItem(currentDayOfWeek);
+
+        // Add day selection listener for better UX
+        days.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                // Optional: Add any additional logic when a day is selected
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                // Optional: Add any cleanup logic
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                // Optional: Add logic for when the same tab is selected again
+            }
+        });
 
         return homeFragment;
     }

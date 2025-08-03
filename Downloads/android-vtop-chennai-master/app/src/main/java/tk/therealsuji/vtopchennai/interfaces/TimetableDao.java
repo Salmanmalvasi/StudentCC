@@ -15,19 +15,19 @@ public interface TimetableDao {
     default Single<List<Timetable.AllData>> get(int day) {
         switch (day) {
             case 1:
-                return getMonday();
+                return getMondayWithoutAttendance();
             case 2:
-                return getTuesday();
+                return getTuesdayWithoutAttendance();
             case 3:
-                return getWednesday();
+                return getWednesdayWithoutAttendance();
             case 4:
-                return getThursday();
+                return getThursdayWithoutAttendance();
             case 5:
-                return getFriday();
+                return getFridayWithoutAttendance();
             case 6:
-                return getSaturday();
+                return getSaturdayWithoutAttendance();
             default:
-                return getSunday();
+                return getSundayWithoutAttendance();
         }
     }
 
@@ -77,6 +77,37 @@ public interface TimetableDao {
 
     @Query("SELECT * FROM timetable")
     Single<List<Timetable>> getTimetable();
+
+    /*
+        Get timetable for a particular day (without attendance requirement)
+     */
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode " +
+            "FROM timetable, slots, courses WHERE sunday = slots.id AND slots.course_id = courses.id")
+    Single<List<Timetable.AllData>> getSundayWithoutAttendance();
+
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode " +
+            "FROM timetable, slots, courses WHERE monday = slots.id AND slots.course_id = courses.id")
+    Single<List<Timetable.AllData>> getMondayWithoutAttendance();
+
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode " +
+            "FROM timetable, slots, courses WHERE tuesday = slots.id AND slots.course_id = courses.id")
+    Single<List<Timetable.AllData>> getTuesdayWithoutAttendance();
+
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode " +
+            "FROM timetable, slots, courses WHERE wednesday = slots.id AND slots.course_id = courses.id")
+    Single<List<Timetable.AllData>> getWednesdayWithoutAttendance();
+
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode " +
+            "FROM timetable, slots, courses WHERE thursday = slots.id AND slots.course_id = courses.id")
+    Single<List<Timetable.AllData>> getThursdayWithoutAttendance();
+
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode " +
+            "FROM timetable, slots, courses WHERE friday = slots.id AND slots.course_id = courses.id")
+    Single<List<Timetable.AllData>> getFridayWithoutAttendance();
+
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode " +
+            "FROM timetable, slots, courses WHERE saturday = slots.id AND slots.course_id = courses.id")
+    Single<List<Timetable.AllData>> getSaturdayWithoutAttendance();
 
     /*
         Get timetable for a particular day

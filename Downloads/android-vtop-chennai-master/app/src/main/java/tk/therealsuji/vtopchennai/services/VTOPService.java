@@ -1349,7 +1349,11 @@ public class VTOPService extends Service {
                     overallAttendance = (attendedClasses * 100) / totalClasses;
                 }
 
+                android.util.Log.d("VTOPService", "Attendance calculation - Attended: " + attendedClasses + ", Total: " + totalClasses + ", Overall: " + overallAttendance + "%");
+
                 sharedPreferences.edit().putInt("overallAttendance", overallAttendance).apply();
+                sharedPreferences.edit().putInt("attendedClasses", attendedClasses).apply();
+                sharedPreferences.edit().putInt("totalClasses", totalClasses).apply();
 
                 AttendanceDao attendanceDao = appDatabase.attendanceDao();
                 Observable<Object> deleteObservable = Observable.fromCompletable(attendanceDao.delete());

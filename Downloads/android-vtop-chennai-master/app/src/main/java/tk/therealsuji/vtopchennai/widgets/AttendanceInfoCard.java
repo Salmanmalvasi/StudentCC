@@ -13,10 +13,10 @@ import androidx.core.content.ContextCompat;
 
 import tk.therealsuji.vtopchennai.R;
 
-public class InfoCard extends LinearLayout {
+public class AttendanceInfoCard extends LinearLayout {
     private final AppCompatTextView key, value;
 
-    public InfoCard(Context context) {
+    public AttendanceInfoCard(Context context) {
         super(context);
 
         this.key = new AppCompatTextView(context);
@@ -24,7 +24,7 @@ public class InfoCard extends LinearLayout {
         this.initialize(context);
     }
 
-    public InfoCard(Context context, @Nullable AttributeSet attrs) {
+    public AttendanceInfoCard(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
         this.key = new AppCompatTextView(context);
@@ -45,24 +45,32 @@ public class InfoCard extends LinearLayout {
     private void initialize(Context context) {
         float pixelDensity = context.getResources().getDisplayMetrics().density;
 
-        // Use theme colors
+        // Use theme colors instead of fixed green colors
         int primaryColor;
+        int surfaceColor;
         
         try {
+            // Get colors from theme attributes
             TypedValue primaryColorValue = new TypedValue();
-            boolean hasPrimaryColor = context.getTheme().resolveAttribute(R.attr.colorPrimary, primaryColorValue, true);
+            TypedValue surfaceColorValue = new TypedValue();
             
-            if (hasPrimaryColor) {
+            boolean hasPrimaryColor = context.getTheme().resolveAttribute(R.attr.colorPrimary, primaryColorValue, true);
+            boolean hasSurfaceColor = context.getTheme().resolveAttribute(R.attr.colorSurface, surfaceColorValue, true);
+            
+            if (hasPrimaryColor && hasSurfaceColor) {
                 primaryColor = primaryColorValue.data;
+                surfaceColor = surfaceColorValue.data;
             } else {
                 // Fallback to default colors
                 primaryColor = ContextCompat.getColor(context, R.color.colorPrimary);
+                surfaceColor = ContextCompat.getColor(context, R.color.colorSurface);
             }
         } catch (Exception e) {
             // Final fallback to default colors
             TypedValue colorPrimary = new TypedValue();
             getContext().getTheme().resolveAttribute(R.attr.colorPrimary, colorPrimary, true);
             primaryColor = colorPrimary.data;
+            surfaceColor = colorPrimary.data;
         }
 
         this.key.setTextColor(primaryColor);
@@ -70,6 +78,7 @@ public class InfoCard extends LinearLayout {
 
         this.value.setTextColor(primaryColor);
         this.value.setTextSize(42);
+        this.value.setTypeface(null, android.graphics.Typeface.BOLD);
 
         this.setGravity(Gravity.BOTTOM);
         this.setOrientation(VERTICAL);
@@ -80,6 +89,7 @@ public class InfoCard extends LinearLayout {
                 (int) (20 * pixelDensity)
         );
 
+        // Use theme surface color for background
         this.setBackground(ContextCompat.getDrawable(context, R.drawable.background_card));
         this.addView(this.value);
         this.addView(this.key);
@@ -92,4 +102,4 @@ public class InfoCard extends LinearLayout {
     public void setValue(String value) {
         this.value.setText(value);
     }
-}
+} 

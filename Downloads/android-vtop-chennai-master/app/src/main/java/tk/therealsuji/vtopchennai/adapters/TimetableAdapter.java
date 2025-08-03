@@ -53,7 +53,12 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.View
 
         AppDatabase appDatabase = AppDatabase.getInstance(this.applicationContext);
         TimetableDao timetableDao = appDatabase.timetableDao();
-        int day = holder.getAdapterPosition();
+        
+        // Convert 0-based position to the day system expected by the DAO
+        // DAO expects: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
+        // But the get() method uses: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
+        // So we need to map position 0->0, 1->1, 2->2, etc.
+        int day = position;
 
         timetableDao
                 .get(day)

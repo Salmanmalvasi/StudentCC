@@ -3,6 +3,7 @@ package tk.therealsuji.vtopchennai.activities;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
@@ -167,6 +168,32 @@ public class MainActivity extends AppCompatActivity {
         this.finish();
     }
 
+    private void applySelectedTheme() {
+        SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this);
+        int selectedTheme = sharedPreferences.getInt("selectedTheme", 0);
+        
+        switch (selectedTheme) {
+            case 1: // Red theme
+                setTheme(R.style.Theme_VTOP_Red);
+                break;
+            case 2: // Blue theme
+                setTheme(R.style.Theme_VTOP_Blue);
+                break;
+            case 3: // Purple theme
+                setTheme(R.style.Theme_VTOP_Purple);
+                break;
+            case 4: // Green theme
+                setTheme(R.style.Theme_VTOP_Green);
+                break;
+            case 5: // Black theme
+                setTheme(R.style.Theme_VTOP_Black);
+                break;
+            default: // Default white theme
+                setTheme(R.style.Theme_VTOP);
+                break;
+        }
+    }
+
     private void getUnreadCount() {
         AppDatabase appDatabase = AppDatabase.getInstance(this.getApplicationContext());
         Bundle unreadCount = new Bundle();
@@ -219,6 +246,10 @@ public class MainActivity extends AppCompatActivity {
         boolean amoledMode = SettingsRepository.getSharedPreferences(this).getBoolean("amoledMode", false);
         // Disable dynamic colors to use our custom black and white theme
         // SettingsRepository.applyDynamicColors(this, amoledMode);
+        
+        // Apply selected theme
+        applySelectedTheme();
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

@@ -157,6 +157,15 @@ public class ProfileFragment extends Fragment {
                     null
             ),
             new ItemData(
+                    R.drawable.ic_gpa_calculator,
+                    R.string.select_theme,
+                    context -> {
+                        Intent intent = new Intent(context, tk.therealsuji.vtopchennai.activities.ThemeSelectorActivity.class);
+                        context.startActivity(intent);
+                    },
+                    null
+            ),
+            new ItemData(
                     R.drawable.ic_notifications,
                     R.string.notifications,
                     context -> {

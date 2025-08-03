@@ -26,6 +26,8 @@
     <string name="spotlight">Spotlight</string>
     <string name="overall_attendance">Overall Attendance</string>
     <string name="total_credits">Overall Credits Earned</string>
+    <string name="credits">Credits</string>
+    <string name="academic_standing">Academic Standing</string>
     <string name="cgpa">CGPA</string>
     <string name="days">Days of the week</string>
     <string name="sunday">Sunday</string>
@@ -109,6 +111,8 @@
     <string name="sync_title">Data Sync Required</string>
     <string name="sync_message">You haven\'t refreshed your data in a while. It might be out of date.</string>
     <string name="sync">Sync Data</string>
+    <string name="syncing">Syncing...</string>
+    <string name="sync_complete">Sync Complete</string>
 
     <!-- Appearance Dialog Strings -->
     <string name="appearance">Appearance</string>
@@ -200,4 +204,5 @@
     <string name="new_cgpa">New CGPA: %s</string>
     <string name="credits_being_added">Credits being added: %.1f</string>
     <string name="enter_valid_values">Please enter valid values</string>
+    <string name="select_theme">Select Theme</string>
 </resources>

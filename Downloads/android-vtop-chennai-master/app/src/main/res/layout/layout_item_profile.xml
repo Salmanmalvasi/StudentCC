@@ -19,7 +19,7 @@
         android:background="@drawable/background_profile_item_icon"
         android:contentDescription="@null"
         android:padding="10dp"
-        app:tint="?attr/colorSecondary" />
+        app:tint="?attr/colorPrimary" />
 
     <TextView
         android:id="@+id/text_view_title"
@@ -28,7 +28,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="10dp"
         android:layout_weight="1"
-        android:textColor="?attr/colorOnBackground"
+        android:textColor="?attr/colorPrimary"
         android:textSize="18sp" />
 
     <RelativeLayout
