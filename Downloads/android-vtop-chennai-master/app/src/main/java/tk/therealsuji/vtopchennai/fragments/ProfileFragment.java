@@ -255,7 +255,7 @@ public class ProfileFragment extends Fragment {
     private final ItemData[] announcementItems = {
             new ItemData(
                     R.drawable.ic_whats_new,
-                    "VIT Student is now Open Source!",
+                    "StudentCC is now Open Source!",
                     "Click to view the source code.",
                     context -> SettingsRepository.openBrowser(context, SettingsRepository.GITHUB_BASE_URL)
             )
