@@ -1,4 +1,4 @@
-# 📱 VTOP Chennai Enhanced - StudentCC
+# 📱 StudentCC - VTOP Chennai Enhanced
 
 A modern, feature-rich Android application that transforms the VIT Chennai VTOP (VIT Online Teaching Platform) into a sleek, user-friendly mobile experience with advanced features and contemporary UI/UX design.
 
@@ -83,7 +83,7 @@ A modern, feature-rich Android application that transforms the VIT Chennai VTOP 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/StudentCC.git
+   git clone https://github.com/salmanmalvasi/StudentCC.git
    cd StudentCC
    ```
 
@@ -205,6 +205,7 @@ We welcome contributions! Please feel free to submit issues and enhancement requ
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ### Acknowledgments
+- **Salman Malvasi** - Lead Developer & Project Maintainer
 - Original VTOP Chennai application developers
 - Material Design team for design guidelines
 - Android community for libraries and tools
@@ -217,8 +218,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Community**: Join our development community
 
 ### Contact
-- **Repository**: [StudentCC](https://github.com/yourusername/StudentCC)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/StudentCC/issues)
+- **Repository**: [StudentCC](https://github.com/salmanmalvasi/StudentCC)
+- **Issues**: [GitHub Issues](https://github.com/salmanmalvasi/StudentCC/issues)
 
 ## 🚀 Future Roadmap
 
@@ -239,10 +240,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/StudentCC&type=Date)](https://star-history.com/#yourusername/StudentCC&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=salmanmalvasi/StudentCC&type=Date)](https://star-history.com/#salmanmalvasi/StudentCC&Date)
 
 ---
 
-**Made with ❤️ for VIT Chennai Students**
+**Made with ❤️ by Salman Malvasi for VIT Chennai Students**
 
 *This project enhances the original VTOP experience with modern design and advanced features while maintaining the core functionality that students rely on daily.*
+
+### 👨‍💻 **Developer**
+- **Name**: Salman Malvasi
+- **GitHub**: [@salmanmalvasi](https://github.com/salmanmalvasi)
+- **Project**: StudentCC - VTOP Chennai Enhanced
