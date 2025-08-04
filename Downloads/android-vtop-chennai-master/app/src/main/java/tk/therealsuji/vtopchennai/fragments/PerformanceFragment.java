@@ -16,7 +16,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.firebase.analytics.FirebaseAnalytics;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,11 +69,7 @@ public class PerformanceFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        // Firebase Analytics Logging
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "PerformanceFragment");
-        bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Performance");
-        FirebaseAnalytics.getInstance(this.requireContext()).logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+
     }
 
     @Override

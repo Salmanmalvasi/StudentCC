@@ -26,7 +26,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.firebase.analytics.FirebaseAnalytics;
+
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
@@ -428,11 +428,7 @@ public class AssignmentViewFragment extends Fragment implements SwipeRefreshLayo
     public void onResume() {
         super.onResume();
 
-        // Firebase Analytics Logging
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "AssignmentsViewFragment");
-        bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Assignments View");
-        FirebaseAnalytics.getInstance(this.requireContext()).logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+
     }
 
     @SuppressLint("ClickableViewAccessibility")

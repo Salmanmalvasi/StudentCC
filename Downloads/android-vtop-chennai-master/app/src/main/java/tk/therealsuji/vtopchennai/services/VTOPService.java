@@ -24,8 +24,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
+
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
@@ -368,9 +368,7 @@ public class VTOPService extends Service {
         Toast.makeText(getApplicationContext(), "Error " + errorCode + ". " + errorMessage, Toast.LENGTH_SHORT).show();
         this.reloadPage("/login", true);
 
-        // Firebase Crashlytics Logging
-        FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
-        crashlytics.log("VTOP error " + errorCode + ". " + errorMessage);
+
     }
 
     /**
@@ -2412,7 +2410,7 @@ public class VTOPService extends Service {
         this.sharedPreferences.edit().putLong("lastRefreshed", Calendar.getInstance().getTimeInMillis()).apply();
 
         // Firebase Analytics Logging
-        FirebaseAnalytics.getInstance(this).logEvent("data_sync", new Bundle());
+
 
         try {
             this.callback.onComplete();

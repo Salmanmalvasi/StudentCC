@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
-import com.google.firebase.analytics.FirebaseAnalytics;
+
 
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.activities.LoginActivity;
@@ -269,11 +269,7 @@ public class ProfileFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        // Firebase Analytics Logging
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "ProfileFragment");
-        bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Profile");
-        FirebaseAnalytics.getInstance(this.requireContext()).logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+
 
         getParentFragmentManager().setFragmentResultListener("launchSubFragment", this, (requestKey, result) -> {
             String subFragment = result.getString("subFragment");

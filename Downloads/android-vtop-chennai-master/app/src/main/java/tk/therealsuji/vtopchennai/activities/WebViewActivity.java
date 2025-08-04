@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
+
 
 import tk.therealsuji.vtopchennai.R;
 
@@ -40,10 +40,6 @@ public class WebViewActivity extends AppCompatActivity {
 
         String title = getIntent().getStringExtra("title") + "";
 
-        // Firebase Analytics Logging
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "WebViewActivity");
-        bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, title);
-        FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+
     }
 }

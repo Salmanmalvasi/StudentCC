@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
+
 
 import java.util.List;
 
@@ -134,11 +134,7 @@ public class RecyclerViewFragment extends Fragment {
             }
         }
 
-        // Firebase Analytics Logging
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "RecyclerViewFragment");
-        bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName);
-        FirebaseAnalytics.getInstance(this.requireContext()).logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
