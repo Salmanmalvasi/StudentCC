@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.OptIn;
 import androidx.appcompat.widget.TooltipCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -16,6 +17,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.badge.BadgeUtils;
 import com.google.android.material.badge.ExperimentalBadgeUtils;
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -37,6 +39,12 @@ public class HomeFragment extends Fragment {
 
     public HomeFragment() {
         // Required empty public constructor
+    }
+
+    private boolean isDarkMode() {
+        return (getResources().getConfiguration().uiMode &
+                android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+                android.content.res.Configuration.UI_MODE_NIGHT_YES;
     }
 
     @Override
@@ -113,21 +121,54 @@ public class HomeFragment extends Fragment {
         TextView creditsText = homeFragment.findViewById(R.id.credits_text);
 
         int overallAttendance = sharedPreferences.getInt("overallAttendance", 0);
-        
+
         // Get attended and total counts for toggle display
         int attendedClasses = sharedPreferences.getInt("attendedClasses", 0);
         int totalClasses = sharedPreferences.getInt("totalClasses", 0);
-        
+
         android.util.Log.d("HomeFragment", "Real attendance data - Overall: " + overallAttendance + "%, Attended: " + attendedClasses + ", Total: " + totalClasses);
-        
+
         // Make variables final for lambda expression
         final int finalAttendedClasses = attendedClasses;
         final int finalTotalClasses = totalClasses;
         final int finalOverallAttendance = overallAttendance;
-        
+
         attendanceProgress.setProgress(overallAttendance);
         attendancePercentage.setText(overallAttendance + "%");
-        
+
+        // Set different colors and backgrounds based on attendance level and current theme
+        View attendanceBackground = homeFragment.findViewById(R.id.attendance_background);
+        if (attendanceBackground != null) {
+            if (overallAttendance >= 85) {
+                // High attendance - Use theme primary color
+                attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_high);
+                // Use black text in dark mode for better visibility
+                if (isDarkMode()) {
+                    attendancePercentage.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
+                } else {
+                    attendancePercentage.setTextColor(MaterialColors.getColor(attendancePercentage, R.attr.colorOnPrimary));
+                }
+            } else if (overallAttendance >= 75) {
+                // Medium attendance - Use theme secondary color
+                attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_medium);
+                // Use black text in dark mode for better visibility
+                if (isDarkMode()) {
+                    attendancePercentage.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
+                } else {
+                    attendancePercentage.setTextColor(MaterialColors.getColor(attendancePercentage, R.attr.colorOnSecondary));
+                }
+            } else {
+                // Low attendance - Use theme error color
+                attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_low);
+                // Use black text in dark mode for better visibility
+                if (isDarkMode()) {
+                    attendancePercentage.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
+                } else {
+                    attendancePercentage.setTextColor(MaterialColors.getColor(attendancePercentage, R.attr.colorOnError));
+                }
+            }
+        }
+
         // Add click listener to toggle between percentage and counts
         attendanceProgress.setOnClickListener(v -> {
             if (attendancePercentage.getText().toString().contains("%")) {
@@ -148,14 +189,14 @@ public class HomeFragment extends Fragment {
         }
 
         float cgpaValue = sharedPreferences.getFloat("cgpa", 0);
-        
+
         // Format CGPA with 2 decimal places
         String formattedCGPA = new DecimalFormat("#.00").format(cgpaValue);
         cgpaCircle.setText(formattedCGPA);
-        
+
         // Format credits text
-        String creditsDisplay = totalCredits == (int) totalCredits ? 
-            String.valueOf((int) totalCredits) + " Credits" : 
+        String creditsDisplay = totalCredits == (int) totalCredits ?
+            String.valueOf((int) totalCredits) + " Credits" :
             String.valueOf(totalCredits) + " Credits";
         creditsText.setText(creditsDisplay);
 
@@ -175,10 +216,10 @@ public class HomeFragment extends Fragment {
             // Start sync process using the same mechanism as profile page
             syncButton.setEnabled(false);
             syncButton.setAlpha(0.5f);
-            
+
             // Trigger sync using fragment result (same as profile page)
             getParentFragmentManager().setFragmentResult("syncData", new Bundle());
-            
+
             // Listen for sync state changes
             getParentFragmentManager().setFragmentResultListener("syncDataState", this, (requestKey, result) -> {
                 if (result.getBoolean("isLoading")) {

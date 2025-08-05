@@ -48,15 +48,15 @@ public class AttendanceInfoCard extends LinearLayout {
         // Use theme colors instead of fixed green colors
         int primaryColor;
         int surfaceColor;
-        
+
         try {
             // Get colors from theme attributes
             TypedValue primaryColorValue = new TypedValue();
             TypedValue surfaceColorValue = new TypedValue();
-            
+
             boolean hasPrimaryColor = context.getTheme().resolveAttribute(R.attr.colorPrimary, primaryColorValue, true);
             boolean hasSurfaceColor = context.getTheme().resolveAttribute(R.attr.colorSurface, surfaceColorValue, true);
-            
+
             if (hasPrimaryColor && hasSurfaceColor) {
                 primaryColor = primaryColorValue.data;
                 surfaceColor = surfaceColorValue.data;
@@ -102,4 +102,4 @@ public class AttendanceInfoCard extends LinearLayout {
     public void setValue(String value) {
         this.value.setText(value);
     }
-} 
+}

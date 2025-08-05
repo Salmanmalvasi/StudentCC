@@ -53,16 +53,16 @@ public class CircularProgressDrawable extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        
+
         float centerX = getWidth() / 2f;
         float centerY = getHeight() / 2f;
         float radius = Math.min(centerX, centerY) - strokeWidth / 2f;
-        
+
         rectF.set(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
-        
+
         // Draw background circle
         canvas.drawArc(rectF, 0, 360, false, backgroundPaint);
-        
+
         // Draw progress arc - ensure we don't draw if progress is 0
         if (progress > 0) {
             float sweepAngle = (float) progress / max * 360f;
@@ -92,4 +92,4 @@ public class CircularProgressDrawable extends View {
         backgroundPaint.setColor(color);
         invalidate();
     }
-} 
+}

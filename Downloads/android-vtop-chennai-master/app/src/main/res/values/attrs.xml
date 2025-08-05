@@ -27,4 +27,7 @@
     <!-- Enhanced Attendance Attributes -->
     <attr name="attendance_percentage_text_color" format="color" />
     <attr name="attendance_subtext_color" format="color" />
+    <attr name="attendance_percentage_text_high_color" format="color" />
+    <attr name="attendance_percentage_text_medium_color" format="color" />
+    <attr name="attendance_percentage_text_low_color" format="color" />
 </resources>

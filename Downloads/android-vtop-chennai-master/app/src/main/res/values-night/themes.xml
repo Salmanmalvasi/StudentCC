@@ -36,10 +36,13 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
         <item name="android:fontFamily">@font/rubik</item>
-        
-        <!-- Enhanced Attendance Colors for Dark Theme -->
-        <item name="attendance_percentage_text_color">@color/attendance_percentage_text_dark</item>
-        <item name="attendance_subtext_color">@color/attendance_subtext_dark</item>
+
+            <!-- Enhanced Attendance Colors for Dark Theme -->
+    <item name="attendance_percentage_text_color">@color/attendance_percentage_text_dark</item>
+    <item name="attendance_subtext_color">@color/attendance_subtext_dark</item>
+    <item name="attendance_percentage_text_high_color">@color/attendance_percentage_text_high_dark</item>
+    <item name="attendance_percentage_text_medium_color">@color/attendance_percentage_text_medium_dark</item>
+    <item name="attendance_percentage_text_low_color">@color/attendance_percentage_text_low_dark</item>
     </style>
 
     <!-- Main Dark Theme -->

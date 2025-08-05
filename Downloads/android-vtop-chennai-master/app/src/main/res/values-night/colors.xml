@@ -137,6 +137,9 @@
     <!-- Enhanced Attendance Colors for Dark Mode -->
     <color name="attendance_card_background_dark">#004D40</color>
     <color name="attendance_percentage_text_dark">#B2FF59</color>
+    <color name="attendance_percentage_text_high_dark">#4CAF50</color>
+    <color name="attendance_percentage_text_medium_dark">#FF9800</color>
+    <color name="attendance_percentage_text_low_dark">#F44336</color>
     <color name="attendance_day_selected_indicator_dark">#B2FF59</color>
     <color name="attendance_day_background_dark">#1A2C1D</color>
     <color name="attendance_day_text_dark">#FFFFFF</color>
@@ -154,4 +157,4 @@
     <color name="progress_ring_color">#FFFFFF</color> <!-- Dark mode white -->
     <color name="progress_ring_background">#1C1C1C</color> <!-- Dark mode dark background -->
     <color name="progress_text_color">#FFFFFF</color> <!-- Dark mode white text -->
-</resources> 
+</resources>

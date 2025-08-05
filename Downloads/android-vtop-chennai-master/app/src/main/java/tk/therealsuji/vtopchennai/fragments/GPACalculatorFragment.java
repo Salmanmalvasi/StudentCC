@@ -56,7 +56,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+
         initializeViews(view);
         setupRecyclerView();
         setupGradeDropdown();
@@ -92,7 +92,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
     private void setupGradeDropdown() {
         String[] grades = GPACourse.getAvailableGrades();
         String[] gradeDisplayTexts = new String[grades.length];
-        
+
         for (int i = 0; i < grades.length; i++) {
             gradeDisplayTexts[i] = GPACourse.getGradeDisplayText(grades[i]);
         }
@@ -115,13 +115,13 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
 
     private void autoFillCurrentData() {
         SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(requireContext());
-        
+
         // Auto-fill current CGPA
         float currentCGPA = sharedPreferences.getFloat("cgpa", 0);
         if (currentCGPA > 0) {
             currentCGPAInput.setText(String.format("%.2f", currentCGPA));
         }
-        
+
         // Auto-fill current credits
         float totalCredits;
         try {
@@ -130,7 +130,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         } catch (Exception ignored) {
             totalCredits = sharedPreferences.getFloat("totalCredits", 0);
         }
-        
+
         if (totalCredits > 0) {
             currentCreditsInput.setText(String.format("%.1f", totalCredits));
         }
@@ -206,7 +206,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         courseAdapter.clearCourses();
         updateUI();
         updateCreditsDisplay();
-        
+
         // Clear result texts
         cgpaResultText.setVisibility(View.GONE);
     }
@@ -269,7 +269,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         for (GPACourse course : courses) {
             totalCredits += course.getCreditHours();
         }
-        
+
         if (totalCredits > 0) {
             creditsBeingAddedText.setText(getString(R.string.credits_being_added, totalCredits));
             creditsBeingAddedText.setVisibility(View.VISIBLE);
@@ -285,4 +285,4 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         updateUI();
         updateCreditsDisplay();
     }
-} 
+}

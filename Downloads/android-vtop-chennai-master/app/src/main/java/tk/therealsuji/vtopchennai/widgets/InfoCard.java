@@ -47,11 +47,11 @@ public class InfoCard extends LinearLayout {
 
         // Use theme colors
         int primaryColor;
-        
+
         try {
             TypedValue primaryColorValue = new TypedValue();
             boolean hasPrimaryColor = context.getTheme().resolveAttribute(R.attr.colorPrimary, primaryColorValue, true);
-            
+
             if (hasPrimaryColor) {
                 primaryColor = primaryColorValue.data;
             } else {

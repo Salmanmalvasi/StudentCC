@@ -99,4 +99,4 @@ public class GPACourseAdapter extends RecyclerView.Adapter<GPACourseAdapter.Cour
             });
         }
     }
-} 
+}

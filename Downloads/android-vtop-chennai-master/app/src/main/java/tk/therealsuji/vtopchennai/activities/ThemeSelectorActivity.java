@@ -23,21 +23,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAdapter.OnThemeClickListener {
-    
+
     private RecyclerView themeRecyclerView;
     private ThemeAdapter themeAdapter;
     private List<Theme> themes;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_theme_selector);
-        
+
         setupToolbar();
         setupThemes();
         setupRecyclerView();
     }
-    
+
     private void setupToolbar() {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -46,7 +46,7 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
             getSupportActionBar().setTitle(R.string.select_theme);
         }
     }
-    
+
     private void setupThemes() {
         // Create theme list with all available themes
         themes = Arrays.asList(
@@ -84,24 +84,17 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
                 R.style.Theme_VTOP_Green,
                 R.color.colorPrimaryGreen,
                 R.color.colorPrimaryContainerGreen
-            ),
-            new Theme(
-                "Black",
-                "Minimal and elegant",
-                R.style.Theme_VTOP_Black,
-                R.color.colorPrimaryBlack,
-                R.color.colorPrimaryContainerBlack
             )
         );
     }
-    
+
     private void setupRecyclerView() {
         themeRecyclerView = findViewById(R.id.theme_recycler_view);
         themeAdapter = new ThemeAdapter(themes, this);
         themeRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         themeRecyclerView.setAdapter(themeAdapter);
     }
-    
+
     @Override
     public void onThemeClick(Theme theme) {
         onThemeSelected(theme);
@@ -110,7 +103,7 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
     private void onThemeSelected(Theme theme) {
         SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        
+
         // Save theme selection as integer
         switch (theme.getName()) {
             case "Red":
@@ -133,17 +126,17 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
                 break;
         }
         editor.apply();
-        
+
         // Restart MainActivity to apply the new theme
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
     }
-    
+
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
     }
-} 
+}

@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
     private void applySelectedTheme() {
         SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this);
         int selectedTheme = sharedPreferences.getInt("selectedTheme", 0);
-        
+
         switch (selectedTheme) {
             case 1: // Red theme
                 setTheme(R.style.Theme_VTOP_Red);
@@ -246,10 +246,10 @@ public class MainActivity extends AppCompatActivity {
         boolean amoledMode = SettingsRepository.getSharedPreferences(this).getBoolean("amoledMode", false);
         // Disable dynamic colors to use our custom black and white theme
         // SettingsRepository.applyDynamicColors(this, amoledMode);
-        
+
         // Apply selected theme
         applySelectedTheme();
-        
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

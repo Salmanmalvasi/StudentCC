@@ -137,6 +137,12 @@
     <!-- Enhanced Attendance Colors for Light Mode -->
     <color name="attendance_card_background_light">#E8F5E8</color>
     <color name="attendance_percentage_text_light">#2E7D32</color>
+    <color name="attendance_percentage_text_high_light">#2E7D32</color>
+    <color name="attendance_percentage_text_medium_light">#F57C00</color>
+    <color name="attendance_percentage_text_low_light">#D32F2F</color>
+    <color name="attendance_percentage_text_high_dark">#4CAF50</color>
+    <color name="attendance_percentage_text_medium_dark">#FF9800</color>
+    <color name="attendance_percentage_text_low_dark">#F44336</color>
     <color name="attendance_day_selected_indicator_light">#4CAF50</color>
     <color name="attendance_day_background_light">#F1F8E9</color>
     <color name="attendance_day_text_light">#2E7D32</color>
@@ -154,4 +160,12 @@
     <color name="progress_ring_color">#000000</color> <!-- Light mode black -->
     <color name="progress_ring_background">#F5F5F5</color> <!-- Light mode white background -->
     <color name="progress_text_color">#000000</color> <!-- Light mode black text -->
+
+    <!-- Attendance Colors for Light Mode -->
+    <color name="attendance_card_background_dark">#E8F5E8</color>
+    <color name="attendance_percentage_text_dark">#2E7D32</color>
+    <color name="attendance_day_selected_indicator_dark">#4CAF50</color>
+    <color name="attendance_day_background_dark">#F1F8E9</color>
+    <color name="attendance_day_text_dark">#2E7D32</color>
+    <color name="attendance_subtext_dark">#666666</color>
 </resources>

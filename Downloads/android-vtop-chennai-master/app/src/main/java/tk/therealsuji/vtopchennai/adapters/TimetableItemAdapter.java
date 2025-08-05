@@ -173,11 +173,11 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                             } else {
                                 attendanceText.setText(new DecimalFormat("#'%'").format(course.attendancePercentage));
                                 attendanceProgress.setProgress(course.attendancePercentage);
-                                
+
                                 // Add click listener to toggle between percentage and attended/total format
                                 attendanceText.setOnClickListener(view -> {
                                     TextView attendanceText1 = (TextView) view;
-                                    
+
                                     if (attendanceText1.getText().toString().contains("%")) {
                                         // Switch to attended/total format
                                         attendanceText1.setText(String.format(Locale.ENGLISH, "%d/%d", course.attendanceAttended, course.attendanceTotal));
