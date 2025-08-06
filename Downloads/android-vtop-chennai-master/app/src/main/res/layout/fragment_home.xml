@@ -100,19 +100,23 @@
                     android:layout_marginEnd="20dp">
 
                     <FrameLayout
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:gravity="center">
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:gravity="center"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:contentDescription="Toggle attendance display">
 
                         <tk.therealsuji.vtopchennai.widgets.CircularProgressDrawable
                             android:id="@+id/attendance_progress"
-                            android:layout_width="80dp"
-                            android:layout_height="80dp" />
+                            android:layout_width="100dp"
+                            android:layout_height="100dp" />
 
                         <View
                             android:id="@+id/attendance_background"
-                            android:layout_width="60dp"
-                            android:layout_height="60dp"
+                            android:layout_width="75dp"
+                            android:layout_height="75dp"
                             android:layout_gravity="center"
                             android:background="@drawable/attendance_percentage_background" />
 
@@ -123,11 +127,14 @@
                             android:layout_gravity="center"
                             android:textSize="24sp"
                             android:textStyle="bold"
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:shadowColor="#80000000"
+                            android:textColor="@android:color/white"
+                            android:shadowColor="#CC000000"
                             android:shadowDx="0"
-                            android:shadowDy="2"
-                            android:shadowRadius="3"
+                            android:shadowDy="1"
+                            android:shadowRadius="4"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:minWidth="50dp"
                             android:text="96%" />
 
                     </FrameLayout>

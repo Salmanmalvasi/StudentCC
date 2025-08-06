@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salman Malvasi - Portfolio | CSE Student & Developer</title>
+    <meta name="description" content="Salman Malvasi - Computer Science student at VIT, Android developer, and tech enthusiast. Explore my projects including StudentCC app and GitHub contributions.">
+    <meta name="keywords" content="Salman Malvasi, Portfolio, Computer Science, VIT, Android Developer, StudentCC, GitHub, Java, Firebase">
+    <meta name="author" content="Salman Malvasi">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Salman Malvasi - Portfolio">
+    <meta property="og:description" content="Computer Science student at VIT, Android developer, and tech enthusiast. Building real-world projects and exploring new technologies.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://salmanmalvasi.github.io">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Salman Malvasi - Portfolio">
+    <meta name="twitter:description" content="Computer Science student at VIT, Android developer, and tech enthusiast.">
+    <link rel="stylesheet" href="style.css?v=1.1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💻</text></svg>">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container">
+            <a href="#" class="logo">Salman.</a>
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li><a href="#about" class="nav-link">About</a></li>
+                    <li><a href="#projects" class="nav-link">Projects</a></li>
+                    <li><a href="#skills" class="nav-link">Skills</a></li>
+                    <li><a href="app.html" class="nav-link">My App</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="hero section reveal">
+            <div class="container">
+                <canvas id="starfield-canvas"></canvas>
+                <div class="hero-content">
+                    <div class="hero-text">
+                <h1 class="hero-name">Salman Malvasi</h1>
+                <p class="hero-tagline">Computer Science Student | Developer | Tech Enthusiast</p>
+                <p class="hero-intro">
+                    CSE student at VIT, building real-world projects and exploring Android development, open source, and smart digital tools.
+                </p>
+                <div class="hero-links">
+                            <a href="https://github.com/Salmanmalvasi" target="_blank" class="social-link github-link">
+                                <i class="fab fa-github"></i> GitHub
+                                <span class="github-stats">
+                                    <span class="stat">7 repos</span>
+                                    <span class="stat">2 followers</span>
+                                </span>
+                            </a>
+                            <a href="https://www.linkedin.com/in/salman-malvasi/" target="_blank" class="social-link">
+                                <i class="fab fa-linkedin"></i> LinkedIn
+                            </a>
+
+                            <a href="mailto:salmanmalvasi3@gmail.com" class="social-link">
+                                <i class="fas fa-envelope"></i> Email
+                            </a>
+                            <a href="https://leetcode.com/salmanmalvasi" target="_blank" class="social-link">
+                                <i class="fas fa-code"></i> LeetCode
+                            </a>
+                        </div>
+                    </div>
+                    <div class="hero-visual">
+                        <div class="floating-card">
+                            <div class="card-content">
+                                <div class="profile-avatar">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <h3>StudentCC</h3>
+                                <p>My latest Android app</p>
+                                <a href="app.html" class="app-preview-btn" target="_blank">View App</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about section reveal">
+            <div class="container">
+                <h2 class="section-title">About Me</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <div class="about-intro">
+                            <h3>Hello, I'm Salman Malvasi! 👋</h3>
+                            <p class="intro-text">
+                                A passionate <strong>Computer Science and Engineering student</strong> at <strong>VIT Chennai</strong>, 
+                                where I combine academic excellence with real-world problem-solving. I believe in creating 
+                                technology that makes a genuine difference in people's lives.
+                            </p>
+                        </div>
+                        
+                        <div class="current-projects">
+                            <h4><i class="fas fa-rocket"></i> What I'm Building</h4>
+                            <div class="project-highlight">
+                                <div class="project-icon">
+                                    <i class="fab fa-android"></i>
+                                </div>
+                                <div class="project-details">
+                                    <h5>StudentCC - Android App</h5>
+                                    <p>Developing a comprehensive solution for VIT students to manage <strong>VTOP integration</strong>, 
+                                    <strong>attendance tracking</strong>, and <strong>CGPA monitoring</strong>. Built with Java and Firebase, 
+                                    this app aims to streamline the entire student academic experience.</p>
+                                </div>
+                            </div>
+                            <div class="project-highlight">
+                                <div class="project-icon">
+                                    <i class="fab fa-chrome"></i>
+                                </div>
+                                <div class="project-details">
+                                    <h5>Vocabulary Chrome Extension</h5>
+                                    <p>Created an intelligent Chrome extension that helps users improve their vocabulary 
+                                    through contextual learning and interactive features.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="learning-journey">
+                            <h4><i class="fas fa-brain"></i> Currently Learning</h4>
+                            <div class="learning-items">
+                                <span class="learning-badge"><i class="fab fa-flutter"></i> Flutter Development</span>
+                                <span class="learning-badge"><i class="fas fa-code-branch"></i> Open Source Contribution</span>
+                                <span class="learning-badge"><i class="fas fa-trophy"></i> Google Summer of Code Prep</span>
+                            </div>
+                        </div>
+                        <div class="github-highlight">
+                            <div class="github-card">
+                                <i class="fab fa-github"></i>
+                                <div class="github-info">
+                                    <h3>GitHub Activity</h3>
+                                    <p>Active contributor to open source projects</p>
+                                    <div class="github-stats-grid">
+                                        <div class="stat-item">
+                                            <span class="stat-number">7</span>
+                                            <span class="stat-label">Repositories</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-number">2</span>
+                                            <span class="stat-label">Followers</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-number">3</span>
+                                            <span class="stat-label">Following</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="club-logos">
+                        <div class="club-item">
+                            <i class="fab fa-android"></i>
+                            <span>Android Club</span>
+                        </div>
+                        <div class="club-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Cyscom</span>
+                        </div>
+
+                        <div class="club-item">
+                            <i class="fas fa-calculator"></i>
+                            <span>Mathematics Club</span>
+                        </div>
+                    </div>
+                    
+                    <div class="about-footer">
+                        <p class="about-quote">
+                            <i class="fas fa-quote-left"></i>
+                            "I'm passionate about using technology to solve real problems and create meaningful impact 
+                            in the student community. Always eager to learn, collaborate, and contribute to projects 
+                            that make a difference."
+                            <i class="fas fa-quote-right"></i>
+                        </p>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="projects section reveal">
+            <div class="container">
+                <h2 class="section-title">Featured Projects</h2>
+                <div class="projects-grid">
+                    <div class="project-card featured">
+                        <div class="project-header">
+                        <h3 class="project-title">StudentCC</h3>
+                            <span class="project-badge">Featured</span>
+                        </div>
+                        <p class="project-desc">An Android app to simplify VIT student life by integrating services like VTOP, attendance, and CGPA trackers. A personal passion project that aims to solve real student problems.</p>
+                        <div class="project-tech">
+                            <span class="tech-badge">Java</span>
+                            <span class="tech-badge">XML</span>
+                            <span class="tech-badge">Firebase</span>
+                            <span class="tech-badge">Android Studio</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/Salmanmalvasi/StudentCC" target="_blank" class="project-link">
+                                <i class="fab fa-github"></i> View on GitHub
+                            </a>
+                            <a href="app.html" class="project-link">
+                                <i class="fas fa-external-link-alt"></i> View App Page
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="project-card">
+                        <div class="project-header">
+                            <h3 class="project-title">JEE-Updates-App</h3>
+                            <span class="project-badge">Android App</span>
+                        </div>
+                        <p class="project-desc">An Android application to keep track of JEE updates, notifications, and important information for JEE aspirants.</p>
+                        <div class="project-tech">
+                            <span class="tech-badge">Kotlin</span>
+                            <span class="tech-badge">Android Studio</span>
+                            <span class="tech-badge">XML</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/Salmanmalvasi/JEE-Updates-App" target="_blank" class="project-link">
+                                <i class="fab fa-github"></i> View on GitHub
+                            </a>
+                        </div>
+                    </div>
+                    <div class="project-card">
+                        <div class="project-header">
+                            <h3 class="project-title">Hack-n-droid</h3>
+                            <span class="project-badge">Android App</span>
+                        </div>
+                        <p class="project-desc">An Android application focused on cybersecurity and ethical hacking concepts for educational purposes.</p>
+                        <div class="project-tech">
+                            <span class="tech-badge">Kotlin</span>
+                            <span class="tech-badge">Android Studio</span>
+                            <span class="tech-badge">XML</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/Salmanmalvasi/Hack-n-droid" target="_blank" class="project-link">
+                                <i class="fab fa-github"></i> View on GitHub
+                            </a>
+                        </div>
+                    </div>
+                    <div class="project-card">
+                        <div class="project-header">
+                            <h3 class="project-title">SafeNest</h3>
+                            <span class="project-badge">Android App</span>
+                        </div>
+                        <p class="project-desc">A security-focused Android application for personal safety and emergency situations.</p>
+                        <div class="project-tech">
+                            <span class="tech-badge">Kotlin</span>
+                            <span class="tech-badge">Android Studio</span>
+                            <span class="tech-badge">XML</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/Salmanmalvasi/SafeNest" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i> View on GitHub
+                        </a>
+                        </div>
+                    </div>
+                    <div class="project-card">
+                        <div class="project-header">
+                            <h3 class="project-title">synonyms</h3>
+                            <span class="project-badge">Web App</span>
+                        </div>
+                        <p class="project-desc">A web application for finding synonyms and improving vocabulary with interactive features.</p>
+                        <div class="project-tech">
+                            <span class="tech-badge">JavaScript</span>
+                            <span class="tech-badge">HTML</span>
+                            <span class="tech-badge">CSS</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/Salmanmalvasi/synonyms" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i> View on GitHub
+                        </a>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="view-all-projects">
+                    <a href="https://github.com/Salmanmalvasi" target="_blank" class="view-all-btn">
+                        <i class="fab fa-github"></i> View All Projects on GitHub
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="skills section reveal">
+            <div class="container">
+                <h2 class="section-title">Skills & Technologies</h2>
+                <div class="skills-grid">
+                    <div class="skills-category">
+                        <h3><i class="fas fa-code"></i> Programming Languages</h3>
+                        <div class="skills-list">
+                            <div class="skill-item">
+                                <span class="skill-name">Java</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 90%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span class="skill-name">Kotlin</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span class="skill-name">JavaScript</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 80%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span class="skill-name">HTML/CSS</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 85%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="skills-category">
+                        <h3><i class="fas fa-tools"></i> Tools & Platforms</h3>
+                        <div class="skills-list">
+                            <div class="skill-item">
+                                <span class="skill-name">Git & GitHub</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span class="skill-name">Android Studio</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 90%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span class="skill-name">Firebase</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 80%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span class="skill-name">VS Code</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 90%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="skills-category">
+                        <h3><i class="fas fa-mobile-alt"></i> Mobile Development</h3>
+                        <div class="skills-list">
+                            <div class="skill-item">
+                                <span class="skill-name">Android (Java)</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 90%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span class="skill-name">Android (Kotlin)</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span class="skill-name">XML Layouts</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 88%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="skills-category">
+                        <h3><i class="fas fa-brain"></i> Core Concepts</h3>
+                        <div class="skills-list">
+                            <div class="skill-item">
+                                <span class="skill-name">Data Structures</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 90%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span class="skill-name">Algorithms</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span class="skill-name">OOP</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 90%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span class="skill-name">Database Design</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="achievements" class="achievements section reveal">
+            <div class="container">
+                <h2 class="section-title">Achievements & Certifications</h2>
+                <div class="achievements-grid">
+                    <div class="achievement-card">
+                        <div class="achievement-icon">
+                            <i class="fab fa-google"></i>
+                        </div>
+                        <h3>Android Development Course</h3>
+                        <p>Google Developer Training</p>
+                        <span class="achievement-status">In Progress</span>
+                    </div>
+                    <div class="achievement-card">
+                        <div class="achievement-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3>7 Android Apps</h3>
+                        <p>Successfully developed and published</p>
+                        <span class="achievement-status">Completed</span>
+                    </div>
+                    <div class="achievement-card">
+                        <div class="achievement-icon">
+                        <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Club Memberships</h3>
+                        <p>Active member of Android Club, Cyscom & GLA</p>
+                        <span class="achievement-status">Ongoing</span>
+                    </div>
+                    <div class="achievement-card">
+                        <div class="achievement-icon">
+                        <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3>Google Summer of Code</h3>
+                        <p>Open Source Contribution</p>
+                        <span class="achievement-status">Preparing</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="contact" class="contact section reveal">
+            <div class="container">
+                <h2 class="section-title">Get In Touch</h2>
+                <p class="contact-intro">Let's build something amazing together. Feel free to reach out!</p>
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h3>Email</h3>
+                                <p>salmanmalvasi3@gmail.com</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fab fa-github"></i>
+                            <div>
+                                <h3>GitHub</h3>
+                                <p>github.com/Salmanmalvasi</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fab fa-linkedin"></i>
+                            <div>
+                                <h3>LinkedIn</h3>
+                                <p>linkedin.com/in/salman-malvasi</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h3>Location</h3>
+                                <p>Vellore, Tamil Nadu, India</p>
+                            </div>
+                        </div>
+                    </div>
+                    <form class="contact-form" action="#" method="POST">
+                        <div class="form-group">
+                    <input type="text" name="name" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-group">
+                    <input type="email" name="email" placeholder="Your Email" required>
+                        </div>
+                        <div class="form-group">
+                    <textarea name="message" placeholder="Your Message" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-paper-plane"></i> Send Message
+                        </button>
+                </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Salman Malvasi</h3>
+                    <p>Computer Science Student & Developer</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#projects">Projects</a></li>
+                        <li><a href="app.html">My App</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                                            <div class="social-links">
+                            <a href="https://github.com/Salmanmalvasi" target="_blank"><i class="fab fa-github"></i></a>
+                            <a href="https://www.linkedin.com/in/salman-malvasi/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                            <a href="mailto:salmanmalvasi3@gmail.com"><i class="fas fa-envelope"></i></a>
+                        </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+            <p>&copy; 2025 Salman Malvasi. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

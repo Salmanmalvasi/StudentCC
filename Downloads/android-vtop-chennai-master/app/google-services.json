@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "903476342662",
+    "project_id": "studentcc-16b86",
+    "storage_bucket": "studentcc-16b86.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903476342662:android:682ee8f20fc747c37b0607",
+        "android_client_info": {
+          "package_name": "tk.therealsuji.vtopchennai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDynV0CAWt45jas3rBh_qBL69I3gJ52vso"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

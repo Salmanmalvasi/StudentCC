@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -17,10 +18,20 @@ android {
         versionName "2.0.0"
     }
 
+    signingConfigs {
+        release {
+            storeFile file('studentcc.keystore')
+            storePassword 'studentcc123'
+            keyAlias 'studentcc'
+            keyPassword 'studentcc123'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     namespace 'tk.therealsuji.vtopchennai'
@@ -50,4 +61,12 @@ dependencies {
 
     annotationProcessor 'androidx.room:room-compiler:2.6.1'
     implementation 'com.google.mlkit:text-recognition:16.0.0'
+    
+    // Firebase dependencies
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-storage'
+    implementation 'com.google.firebase:firebase-messaging'
 }

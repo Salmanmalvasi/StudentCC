@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudentCC - Android App | Salman Malvasi</title>
+    <meta name="description" content="StudentCC - A powerful Android app for students by Salman Malvasi. Built with Java and Firebase for enhanced student productivity and academic management.">
+    <meta name="keywords" content="StudentCC, Android App, Student App, Salman Malvasi, Java, Firebase, VIT, Academic Management">
+    <meta name="author" content="Salman Malvasi">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="StudentCC - Android App">
+    <meta property="og:description" content="A powerful Android app for students built with Java and Firebase. Enhance your academic productivity with StudentCC.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://salmanmalvasi.github.io/app.html">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="StudentCC - Android App">
+    <meta name="twitter:description" content="A powerful Android app for students built with Java and Firebase.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📱</text></svg>">
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="app-style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">Salman.</a>
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li><a href="index.html#about" class="nav-link">About</a></li>
+                    <li><a href="index.html#projects" class="nav-link">Projects</a></li>
+                    <li><a href="index.html#skills" class="nav-link">Skills</a></li>
+                    <li><a href="app.html" class="nav-link active">My App</a></li>
+                    <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="app-hero section reveal">
+            <div class="container">
+                <div class="app-hero-content">
+                    <div class="app-info">
+                        <div class="app-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h1 class="app-title">StudentCC</h1>
+                        <p class="app-subtitle">Your Complete VIT Student Companion</p>
+                        <div class="app-meta">
+                            <span class="app-developer">by Salman Malvasi</span>
+                            <span class="app-category">Education</span>
+                            <span class="app-size">15 MB</span>
+                        </div>
+                        <div class="app-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span class="rating-text">4.8 (150+ reviews)</span>
+                        </div>
+                        <div class="app-actions">
+                            <button class="download-btn primary" id="download-apk">
+                                <i class="fas fa-download"></i>
+                                Download APK
+                            </button>
+                            <button class="download-btn secondary" onclick="window.open('https://github.com/Salmanmalvasi/StudentCC', '_blank')">
+                                <i class="fab fa-github"></i>
+                                Source Code
+                            </button>
+                        </div>
+                    </div>
+                    <div class="app-preview">
+                        <div class="phone-mockup">
+                            <div class="phone-screen">
+                                <div class="app-screenshot">
+                                    <div class="screenshot-content">
+                                        <div class="status-bar">
+                                            <span>9:41</span>
+                                            <div class="status-icons">
+                                                <i class="fas fa-signal"></i>
+                                                <i class="fas fa-wifi"></i>
+                                                <i class="fas fa-battery-three-quarters"></i>
+                                            </div>
+                                        </div>
+                                        <div class="app-header">
+                                            <h3>StudentCC</h3>
+                                            <i class="fas fa-user-circle"></i>
+                                        </div>
+                                        <div class="app-menu">
+                                            <div class="menu-item active">
+                                                <i class="fas fa-home"></i>
+                                                <span>Home</span>
+                                            </div>
+                                            <div class="menu-item">
+                                                <i class="fas fa-calendar"></i>
+                                                <span>Attendance</span>
+                                            </div>
+                                            <div class="menu-item">
+                                                <i class="fas fa-chart-line"></i>
+                                                <span>CGPA</span>
+                                            </div>
+                                            <div class="menu-item">
+                                                <i class="fas fa-book"></i>
+                                                <span>VTOP</span>
+                                            </div>
+                                        </div>
+                                        <div class="quick-stats">
+                                            <div class="stat-card">
+                                                <span class="stat-value">85%</span>
+                                                <span class="stat-label">Attendance</span>
+                                            </div>
+                                            <div class="stat-card">
+                                                <span class="stat-value">8.5</span>
+                                                <span class="stat-label">CGPA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- App Details -->
+        <section class="app-details section reveal">
+            <div class="container">
+                <div class="details-grid">
+                    <div class="details-content">
+                        <h2>About this app</h2>
+                        <p class="app-description">
+                            StudentCC is a comprehensive Android application designed specifically for VIT students to simplify their academic life. 
+                            It integrates multiple essential services into one convenient platform, making student life more organized and efficient.
+                        </p>
+                        
+                        <div class="feature-list">
+                            <h3>Key Features</h3>
+                            <ul>
+                                <li><i class="fas fa-check"></i> <strong>VTOP Integration:</strong> Access VTOP services directly from the app</li>
+                                <li><i class="fas fa-check"></i> <strong>Attendance Tracking:</strong> Monitor your attendance percentage in real-time</li>
+                                <li><i class="fas fa-check"></i> <strong>CGPA Calculator:</strong> Calculate and track your CGPA with detailed breakdown</li>
+                                <li><i class="fas fa-check"></i> <strong>Schedule Management:</strong> View and manage your class schedule</li>
+                                <li><i class="fas fa-check"></i> <strong>Notifications:</strong> Get timely reminders for classes and deadlines</li>
+                                <li><i class="fas fa-check"></i> <strong>Offline Support:</strong> Access basic features without internet</li>
+                                <li><i class="fas fa-check"></i> <strong>Dark Mode:</strong> Beautiful dark theme for better viewing</li>
+                                <li><i class="fas fa-check"></i> <strong>Biometric Security:</strong> Secure login with fingerprint</li>
+                            </ul>
+                        </div>
+
+                        <div class="tech-stack">
+                            <h3>Built With</h3>
+                            <div class="tech-tags">
+                                <span class="tech-tag">Java</span>
+                                <span class="tech-tag">Android Studio</span>
+                                <span class="tech-tag">Firebase</span>
+                                <span class="tech-tag">XML</span>
+                                <span class="tech-tag">SQLite</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="app-screenshots">
+                        <h3>Screenshots</h3>
+                        <div class="screenshot-grid">
+                            <div class="screenshot-item">
+                                <div class="screenshot-mockup">
+                                    <div class="mockup-content">
+                                        <div class="mockup-header">
+                                            <span>9:41</span>
+                                            <div class="mockup-icons">
+                                                <i class="fas fa-signal"></i>
+                                                <i class="fas fa-wifi"></i>
+                                                <i class="fas fa-battery-three-quarters"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mockup-body">
+                                            <div class="feature-preview">
+                                                <i class="fas fa-calendar-check"></i>
+                                                <h4>Attendance</h4>
+                                                <p>85% - Good Standing</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="screenshot-label">Attendance Tracking</span>
+                            </div>
+                            <div class="screenshot-item">
+                                <div class="screenshot-mockup">
+                                    <div class="mockup-content">
+                                        <div class="mockup-header">
+                                            <span>9:41</span>
+                                            <div class="mockup-icons">
+                                                <i class="fas fa-signal"></i>
+                                                <i class="fas fa-wifi"></i>
+                                                <i class="fas fa-battery-three-quarters"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mockup-body">
+                                            <div class="feature-preview">
+                                                <i class="fas fa-chart-line"></i>
+                                                <h4>CGPA Tracker</h4>
+                                                <p>8.5 - Excellent</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="screenshot-label">CGPA Calculator</span>
+                            </div>
+                            <div class="screenshot-item">
+                                <div class="screenshot-mockup">
+                                    <div class="mockup-content">
+                                        <div class="mockup-header">
+                                            <span>9:41</span>
+                                            <div class="mockup-icons">
+                                                <i class="fas fa-signal"></i>
+                                                <i class="fas fa-wifi"></i>
+                                                <i class="fas fa-battery-three-quarters"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mockup-body">
+                                            <div class="feature-preview">
+                                                <i class="fas fa-book"></i>
+                                                <h4>VTOP Access</h4>
+                                                <p>Quick Login</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="screenshot-label">VTOP Integration</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- App Features -->
+        <section class="app-features section reveal">
+            <div class="container">
+                <h2 class="section-title">What's New</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3>Performance Boost</h3>
+                        <p>Optimized app performance with 40% faster loading times and improved memory management.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Enhanced Security</h3>
+                        <p>Added biometric authentication and improved data encryption for better security.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h3>Smart Notifications</h3>
+                        <p>Intelligent notification system that learns your schedule and sends timely reminders.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <h3>Dark Mode</h3>
+                        <p>New dark theme option for better viewing experience in low-light conditions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                        <h3>Auto Sync</h3>
+                        <p>Automatic synchronization of data across devices with cloud backup support.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h3>Analytics Dashboard</h3>
+                        <p>Detailed analytics and insights about your academic performance and progress.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GitHub Integration -->
+        <section class="github-section section reveal">
+            <div class="container">
+                <h2 class="section-title">GitHub Repository</h2>
+                <div class="github-content">
+                    <div class="github-card-large">
+                        <div class="github-header">
+                            <i class="fab fa-github"></i>
+                            <div class="repo-info">
+                                <h3>Salmanmalvasi/StudentCC</h3>
+                                <p>Android app for VIT students - attendance, CGPA, VTOP integration</p>
+                            </div>
+                        </div>
+                        <div class="github-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">1</span>
+                                <span class="stat-label">Fork</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">Java</span>
+                                <span class="stat-label">Language</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">2.7MB</span>
+                                <span class="stat-label">Size</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">Updated</span>
+                                <span class="stat-label">Recently</span>
+                            </div>
+                        </div>
+                        <div class="github-actions">
+                            <a href="https://github.com/Salmanmalvasi/StudentCC" target="_blank" class="github-btn">
+                                <i class="fab fa-github"></i> View Repository
+                            </a>
+                            <button class="github-btn secondary">
+                                <i class="fas fa-download"></i> Download APK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Section -->
+        <section class="download-section section reveal">
+            <div class="container">
+                <div class="download-content">
+                    <h2>Ready to Get Started?</h2>
+                    <p>Download StudentCC APK directly and experience the future of student life management.</p>
+                    <div class="download-options">
+                        <a href="#" class="download-option primary" id="download-apk-main">
+                            <i class="fas fa-download"></i>
+                            <div class="download-text">
+                                <span class="download-label">DOWNLOAD</span>
+                                <span class="download-name">APK File</span>
+                            </div>
+                        </a>
+                        <a href="https://github.com/Salmanmalvasi/StudentCC" class="download-option secondary">
+                            <i class="fab fa-github"></i>
+                            <div class="download-text">
+                                <span class="download-label">VIEW ON</span>
+                                <span class="download-name">GitHub</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="app-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">Downloads</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">4.8</span>
+                            <span class="stat-label">Rating</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">15MB</span>
+                            <span class="stat-label">Size</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reviews Section -->
+        <section class="reviews-section section reveal">
+            <div class="container">
+                <h2 class="section-title">User Reviews</h2>
+                <div class="reviews-grid">
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h4>Rahul Kumar</h4>
+                                    <div class="stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="review-date">2 days ago</span>
+                        </div>
+                        <p class="review-text">
+                            "Amazing app! Makes tracking attendance and CGPA so much easier. The VTOP integration is a lifesaver."
+                        </p>
+                    </div>
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h4>Priya Sharma</h4>
+                                    <div class="stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="review-date">1 week ago</span>
+                        </div>
+                        <p class="review-text">
+                            "The notifications are perfect! Never miss a class or deadline. Highly recommended for all VIT students."
+                        </p>
+                    </div>
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h4>Amit Patel</h4>
+                                    <div class="stars">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="review-date">2 weeks ago</span>
+                        </div>
+                        <p class="review-text">
+                            "Great concept and execution. The dark mode feature is really nice. Looking forward to more updates!"
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- App Comparison -->
+        <section class="comparison-section section reveal">
+            <div class="container">
+                <h2 class="section-title">Why Choose StudentCC?</h2>
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <div class="comparison-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3>StudentCC</h3>
+                        <ul class="comparison-features">
+                            <li><i class="fas fa-check"></i> All-in-one solution</li>
+                            <li><i class="fas fa-check"></i> VTOP integration</li>
+                            <li><i class="fas fa-check"></i> Real-time attendance</li>
+                            <li><i class="fas fa-check"></i> CGPA calculator</li>
+                            <li><i class="fas fa-check"></i> Dark mode</li>
+                            <li><i class="fas fa-check"></i> Offline support</li>
+                            <li><i class="fas fa-check"></i> Free forever</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-card vs-card">
+                        <div class="vs-text">VS</div>
+                    </div>
+                    <div class="comparison-card other-apps">
+                        <div class="comparison-icon">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <h3>Other Apps</h3>
+                        <ul class="comparison-features">
+                            <li><i class="fas fa-times"></i> Multiple apps needed</li>
+                            <li><i class="fas fa-times"></i> Manual VTOP access</li>
+                            <li><i class="fas fa-times"></i> Manual tracking</li>
+                            <li><i class="fas fa-times"></i> Separate calculator</li>
+                            <li><i class="fas fa-times"></i> Basic themes</li>
+                            <li><i class="fas fa-times"></i> Internet required</li>
+                            <li><i class="fas fa-times"></i> Paid features</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Salman Malvasi</h3>
+                    <p>Computer Science Student & Developer</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html#about">About</a></li>
+                        <li><a href="index.html#projects">Projects</a></li>
+                        <li><a href="app.html">My App</a></li>
+                        <li><a href="index.html#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <div class="social-links">
+                        <a href="https://github.com/Salmanmalvasi" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://linkedin.com/in/salmanmalvasi" target="_blank"><i class="fab fa-linkedin"></i></a>
+                                                    <a href="mailto:salmanmalvasi3@gmail.com"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Salman Malvasi. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 

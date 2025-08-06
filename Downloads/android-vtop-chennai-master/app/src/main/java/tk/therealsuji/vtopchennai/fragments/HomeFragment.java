@@ -142,30 +142,18 @@ public class HomeFragment extends Fragment {
             if (overallAttendance >= 85) {
                 // High attendance - Use theme primary color
                 attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_high);
-                // Use black text in dark mode for better visibility
-                if (isDarkMode()) {
-                    attendancePercentage.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
-                } else {
-                    attendancePercentage.setTextColor(MaterialColors.getColor(attendancePercentage, R.attr.colorOnPrimary));
-                }
+                // Use theme-based text color
+                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnPrimary, android.R.color.white));
             } else if (overallAttendance >= 75) {
                 // Medium attendance - Use theme secondary color
                 attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_medium);
-                // Use black text in dark mode for better visibility
-                if (isDarkMode()) {
-                    attendancePercentage.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
-                } else {
-                    attendancePercentage.setTextColor(MaterialColors.getColor(attendancePercentage, R.attr.colorOnSecondary));
-                }
+                // Use theme-based text color
+                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSecondary, android.R.color.white));
             } else {
                 // Low attendance - Use theme error color
                 attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_low);
-                // Use black text in dark mode for better visibility
-                if (isDarkMode()) {
-                    attendancePercentage.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
-                } else {
-                    attendancePercentage.setTextColor(MaterialColors.getColor(attendancePercentage, R.attr.colorOnError));
-                }
+                // Use theme-based text color
+                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnError, android.R.color.white));
             }
         }
 
@@ -174,9 +162,25 @@ public class HomeFragment extends Fragment {
             if (attendancePercentage.getText().toString().contains("%")) {
                 // Show counts
                 attendancePercentage.setText(finalAttendedClasses + "/" + finalTotalClasses);
+                // Use theme-based text color based on attendance level
+                if (overallAttendance >= 85) {
+                    attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnPrimary, android.R.color.white));
+                } else if (overallAttendance >= 75) {
+                    attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSecondary, android.R.color.white));
+                } else {
+                    attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnError, android.R.color.white));
+                }
             } else {
                 // Show percentage
                 attendancePercentage.setText(finalOverallAttendance + "%");
+                // Use theme-based text color based on attendance level
+                if (overallAttendance >= 85) {
+                    attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnPrimary, android.R.color.white));
+                } else if (overallAttendance >= 75) {
+                    attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSecondary, android.R.color.white));
+                } else {
+                    attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnError, android.R.color.white));
+                }
             }
         });
 

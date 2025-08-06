@@ -77,19 +77,32 @@ public class GPACourseAdapter extends RecyclerView.Adapter<GPACourseAdapter.Cour
     }
 
     class CourseViewHolder extends RecyclerView.ViewHolder {
+        private TextView courseIconText;
+        private TextView courseTitleText;
         private TextView creditHoursText;
         private TextView gradeText;
         private ImageButton deleteButton;
 
         public CourseViewHolder(@NonNull View itemView) {
             super(itemView);
+            courseIconText = itemView.findViewById(R.id.course_icon_text);
+            courseTitleText = itemView.findViewById(R.id.course_title_text);
             creditHoursText = itemView.findViewById(R.id.credit_hours_text);
             gradeText = itemView.findViewById(R.id.grade_text);
             deleteButton = itemView.findViewById(R.id.delete_course_button);
         }
 
         public void bind(GPACourse course, int position) {
+            // Set course icon (you can customize this based on course type)
+            courseIconText.setText("📚");
+            
+            // Set course title
+            courseTitleText.setText("Course " + (position + 1));
+            
+            // Set credits badge
             creditHoursText.setText(String.format("%.1f credits", course.getCreditHours()));
+            
+            // Set grade badge
             gradeText.setText(GPACourse.getGradeDisplayText(course.getGrade()));
 
             deleteButton.setOnClickListener(v -> {
