@@ -1,13 +1,98 @@
 /* App Page Specific Styles */
 
+/* Import CSS Variables from main style */
+
+/* CRAZY Animations */
+@keyframes fire-burst {
+    0% {
+        transform: scale(1) rotate(0deg);
+        box-shadow: 0 0 20px rgba(255, 107, 53, 0.6);
+    }
+    25% {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 0 40px rgba(255, 107, 53, 0.8);
+    }
+    50% {
+        transform: scale(1.2) rotate(-5deg);
+        box-shadow: 0 0 60px rgba(255, 107, 53, 1);
+    }
+    75% {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 0 40px rgba(255, 107, 53, 0.8);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        box-shadow: 0 0 20px rgba(255, 107, 53, 0.6);
+    }
+}
+
+@keyframes neon-flicker {
+    0%, 100% {
+        text-shadow: 0 0 10px rgba(255, 107, 53, 0.8);
+    }
+    50% {
+        text-shadow: 0 0 20px rgba(255, 107, 53, 1), 0 0 30px rgba(255, 107, 53, 0.6);
+    }
+}
+
+@keyframes crazy-float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-10px) rotate(2deg);
+    }
+    50% {
+        transform: translateY(-20px) rotate(0deg);
+    }
+    75% {
+        transform: translateY(-10px) rotate(-2deg);
+    }
+}
+
+@keyframes fire-gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+:root {
+    --primary-color: #ff6b35;
+    --secondary-color: #888888;
+    --accent-color: #ff6b35;
+    --success-color: #00ff88;
+    --warning-color: #ffaa00;
+    --danger-color: #ff4444;
+    --bg-color: #000000;
+    --card-bg-color: #111111;
+    --text-color: #ffffff;
+    --text-light: #cccccc;
+    --heading-color: #ffffff;
+    --font-family: 'Poppins', sans-serif;
+    --gradient-primary: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+    --gradient-secondary: linear-gradient(135deg, #ff4444 0%, #ff6b35 100%);
+    --gradient-accent: linear-gradient(135deg, #ff6b35 0%, #ffaa00 100%);
+    --neon-orange: #ff6b35;
+    --neon-glow: 0 0 20px rgba(255, 107, 53, 0.8);
+    --crazy-shadow: 0 0 30px rgba(255, 107, 53, 0.6);
+    --fire-gradient: linear-gradient(45deg, #ff6b35, #ff8c42, #ffaa00, #ff6b35);
+}
+
 /* App Hero Section */
 .app-hero {
     min-height: 100vh;
     display: flex;
     align-items: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--fire-gradient);
+    background-size: 400% 400%;
     position: relative;
     overflow: hidden;
+    animation: fire-gradient 3s ease infinite;
 }
 
 .app-hero::before {
@@ -53,10 +138,13 @@
 }
 
 .app-title {
-    font-size: 3.5rem;
-    font-weight: 800;
+    font-size: 4rem;
+    font-weight: 900;
     margin-bottom: 0.5rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    animation: neon-flicker 2s ease-in-out infinite;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .app-subtitle {
@@ -125,14 +213,17 @@
 }
 
 .download-btn.primary {
-    background: #00d4ff;
+    background: var(--fire-gradient);
+    background-size: 400% 400%;
     color: #000;
-    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+    box-shadow: var(--neon-glow);
+    animation: fire-gradient 3s ease infinite;
 }
 
 .download-btn.primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 30px rgba(255, 107, 53, 0.8);
+    animation: fire-burst 0.5s ease-in-out;
 }
 
 .download-btn.secondary {
@@ -157,12 +248,13 @@
 .phone-mockup {
     width: 280px;
     height: 560px;
-    background: #1a1a1a;
+    background: #111111;
     border-radius: 40px;
     padding: 8px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--crazy-shadow);
     position: relative;
-    animation: float 6s ease-in-out infinite;
+    animation: crazy-float 6s ease-in-out infinite, fire-burst 4s ease-in-out infinite;
+    border: 2px solid rgba(255, 107, 53, 0.3);
 }
 
 .phone-mockup::before {
@@ -180,16 +272,27 @@
 .phone-screen {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--fire-gradient);
+    background-size: 400% 400%;
     border-radius: 32px;
     overflow: hidden;
     position: relative;
+    animation: fire-gradient 3s ease infinite;
 }
 
 .app-screenshot {
     width: 100%;
     height: 100%;
     position: relative;
+    transition: all 0.3s ease;
+    filter: brightness(1.1) contrast(1.1);
+    border-radius: 20px;
+}
+
+.app-screenshot:hover {
+    transform: scale(1.05);
+    filter: brightness(1.2) contrast(1.2) saturate(1.1);
+    box-shadow: var(--neon-glow);
 }
 
 .screenshot-content {
