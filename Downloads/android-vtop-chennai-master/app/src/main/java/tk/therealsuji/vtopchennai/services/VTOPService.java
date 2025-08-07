@@ -457,36 +457,166 @@ public class VTOPService extends Service {
                 byte[] decodedString = Base64.decode(base64Captcha, Base64.DEFAULT);
                 Bitmap decodedImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
-                // ML Kit OCR integration
-                InputImage image = InputImage.fromBitmap(decodedImage, 0);
-                TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-                recognizer.process(image)
-                        .addOnSuccessListener(visionText -> {
-                            String ocrText = visionText.getText().replaceAll("[^A-Za-z0-9]", "").trim();
-                            if (!ocrText.isEmpty()) {
-                                // Auto-submit the recognized captcha
-                                signIn(ocrText);
-                            } else {
-                                // Fallback: show the captcha to the user if OCR fails
-                                try {
-                                    this.callback.onRequestCaptcha(CAPTCHA_DEFAULT, decodedImage, null);
-                                } catch (Exception ignored) {
-                                    this.endService(true);
-                                }
-                            }
-                        })
-                        .addOnFailureListener(e -> {
-                            // Fallback: show the captcha to the user if OCR fails
-                            try {
-                                this.callback.onRequestCaptcha(CAPTCHA_DEFAULT, decodedImage, null);
-                            } catch (Exception ignored) {
-                                this.endService(true);
-                            }
-                        });
+                // Enhanced OCR processing with multiple attempts
+                processCaptchaWithEnhancedOCR(decodedImage);
             } catch (Exception e) {
                 error(105, e.getLocalizedMessage());
             }
         });
+    }
+
+    /**
+     * Enhanced OCR processing with multiple preprocessing attempts
+     */
+    private void processCaptchaWithEnhancedOCR(Bitmap originalImage) {
+        // First attempt: Original image
+        processImageWithOCR(originalImage, 0, () -> {
+            // Second attempt: Enhanced contrast
+            Bitmap enhancedImage = enhanceImageContrast(originalImage);
+            processImageWithOCR(enhancedImage, 1, () -> {
+                // Third attempt: Grayscale with noise reduction
+                Bitmap grayscaleImage = convertToGrayscale(originalImage);
+                processImageWithOCR(grayscaleImage, 2, () -> {
+                    // Fourth attempt: Inverted colors
+                    Bitmap invertedImage = invertImageColors(originalImage);
+                    processImageWithOCR(invertedImage, 3, () -> {
+                        // Final fallback: show captcha to user
+                        try {
+                            this.callback.onRequestCaptcha(CAPTCHA_DEFAULT, originalImage, null);
+                        } catch (Exception ignored) {
+                            this.endService(true);
+                        }
+                    });
+                });
+            });
+        });
+    }
+
+    /**
+     * Process image with OCR and handle result
+     */
+    private void processImageWithOCR(Bitmap image, int attemptNumber, Runnable onFailure) {
+        InputImage inputImage = InputImage.fromBitmap(image, 0);
+        TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+        
+        recognizer.process(inputImage)
+                .addOnSuccessListener(visionText -> {
+                    String ocrText = cleanOCRText(visionText.getText());
+                    if (isValidCaptchaText(ocrText)) {
+                        // Auto-submit the recognized captcha
+                        signIn(ocrText);
+                    } else {
+                        // Try next preprocessing method
+                        onFailure.run();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Try next preprocessing method
+                    onFailure.run();
+                });
+    }
+
+    /**
+     * Clean OCR text by removing unwanted characters
+     */
+    private String cleanOCRText(String rawText) {
+        return rawText.replaceAll("[^A-Za-z0-9]", "").trim();
+    }
+
+    /**
+     * Validate if the OCR text looks like a valid captcha
+     */
+    private boolean isValidCaptchaText(String text) {
+        // Captcha typically contains 4-6 alphanumeric characters
+        return text != null && text.length() >= 3 && text.length() <= 8 && 
+               text.matches("[A-Za-z0-9]+");
+    }
+
+    /**
+     * Enhance image contrast for better OCR
+     */
+    private Bitmap enhanceImageContrast(Bitmap original) {
+        try {
+            Bitmap result = original.copy(original.getConfig(), true);
+            int width = result.getWidth();
+            int height = result.getHeight();
+            
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    int pixel = result.getPixel(x, y);
+                    int r = Color.red(pixel);
+                    int g = Color.green(pixel);
+                    int b = Color.blue(pixel);
+                    
+                    // Enhance contrast
+                    r = Math.max(0, Math.min(255, (r - 128) * 2 + 128));
+                    g = Math.max(0, Math.min(255, (g - 128) * 2 + 128));
+                    b = Math.max(0, Math.min(255, (b - 128) * 2 + 128));
+                    
+                    result.setPixel(x, y, Color.rgb(r, g, b));
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            return original;
+        }
+    }
+
+    /**
+     * Convert image to grayscale for better text recognition
+     */
+    private Bitmap convertToGrayscale(Bitmap original) {
+        try {
+            Bitmap result = original.copy(original.getConfig(), true);
+            int width = result.getWidth();
+            int height = result.getHeight();
+            
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    int pixel = result.getPixel(x, y);
+                    int r = Color.red(pixel);
+                    int g = Color.green(pixel);
+                    int b = Color.blue(pixel);
+                    
+                    // Convert to grayscale
+                    int gray = (r + g + b) / 3;
+                    result.setPixel(x, y, Color.rgb(gray, gray, gray));
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            return original;
+        }
+    }
+
+    /**
+     * Invert image colors for better text recognition
+     */
+    private Bitmap invertImageColors(Bitmap original) {
+        try {
+            Bitmap result = original.copy(original.getConfig(), true);
+            int width = result.getWidth();
+            int height = result.getHeight();
+            
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    int pixel = result.getPixel(x, y);
+                    int r = Color.red(pixel);
+                    int g = Color.green(pixel);
+                    int b = Color.blue(pixel);
+                    
+                    // Invert colors
+                    r = 255 - r;
+                    g = 255 - g;
+                    b = 255 - b;
+                    
+                    result.setPixel(x, y, Color.rgb(r, g, b));
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            return original;
+        }
     }
 
     /**

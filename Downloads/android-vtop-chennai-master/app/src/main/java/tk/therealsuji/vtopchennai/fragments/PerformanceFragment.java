@@ -159,14 +159,14 @@ public class PerformanceFragment extends Fragment {
                             TooltipCompat.setTooltipText(tab.view, course.courseTitle);
                             tab.view.setContentDescription(course.courseTitle);
 
-                            if (courses.get(position).unreadMarkCount != 0) {
+                            if (course.unreadMarkCount != 0) {
                                 BadgeDrawable badgeDrawable = tab.getOrCreateBadge();
                                 badgeDrawable.setBadgeGravity(BadgeDrawable.TOP_END);
-                                badgeDrawable.setNumber(courses.get(position).unreadMarkCount);
+                                badgeDrawable.setNumber(course.unreadMarkCount);
                                 badgeDrawable.setHorizontalOffset((int) (6 * pixelDensity));
                                 badgeDrawable.setVerticalOffset((int) (-6 * pixelDensity));
 
-                                if (courses.get(position).unreadMarkCount > 9) {
+                                if (course.unreadMarkCount > 9) {
                                     badgeDrawable.setHorizontalOffset((int) (5 * pixelDensity));
                                 }
                             }

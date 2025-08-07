@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +39,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
     private MaterialButton clearAllButton;
     private MaterialButton calculateCGPAButton;
     private RecyclerView coursesRecyclerView;
-    private TextView noCoursesText;
+    private LinearLayout noCoursesText;
     private TextView creditsBeingAddedText;
     private TextInputEditText currentCGPAInput;
     private TextInputEditText currentCreditsInput;
@@ -123,7 +124,6 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         clearAllButton.setOnClickListener(v -> clearAll());
         calculateCGPAButton.setOnClickListener(v -> calculateCGPA());
         estimateCGPAButton.setOnClickListener(v -> estimateRequiredGPA());
-        updateCreditsDisplay();
     }
 
     private void autoFillCurrentData() {
@@ -189,7 +189,6 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         gradeDropdown.setText("");
 
         updateUI();
-        updateCreditsDisplay();
     }
 
     private void calculateGPA() {
@@ -215,13 +214,21 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
     }
 
     private void clearAll() {
-        courses.clear();
-        courseAdapter.clearCourses();
-        updateUI();
-        updateCreditsDisplay();
+        try {
+            courses.clear();
+            courseAdapter.clearCourses();
+            updateUI();
 
-        // Clear result texts
-        cgpaResultText.setVisibility(View.GONE);
+            // Clear result texts
+            if (cgpaResultText != null) {
+                cgpaResultText.setVisibility(View.GONE);
+            }
+            if (estimateResultText != null) {
+                estimateResultText.setVisibility(View.GONE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void calculateCGPA() {
@@ -275,6 +282,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
             noCoursesText.setVisibility(View.GONE);
             coursesRecyclerView.setVisibility(View.VISIBLE);
         }
+        updateCreditsDisplay();
     }
 
     private void updateCreditsDisplay() {
@@ -353,6 +361,5 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         courses.remove(position);
         courseAdapter.removeCourse(position);
         updateUI();
-        updateCreditsDisplay();
     }
 }

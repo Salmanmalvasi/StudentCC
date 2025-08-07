@@ -1,254 +1,272 @@
-# 📱 StudentCC - VTOP Chennai Enhanced
+# StudentCC - VIT Student Companion App
 
-A modern, feature-rich Android application that transforms the VIT Chennai VTOP (VIT Online Teaching Platform) into a sleek, user-friendly mobile experience with advanced features and contemporary UI/UX design.
+<div align="center">
+  <img src="app/src/main/res/drawable/app_logo.png" alt="StudentCC Logo" width="120" height="120">
+  <h3>Your All-in-One Academic Companion for VIT</h3>
+  <p><strong>BETA VERSION</strong> - Enhanced with modern features and improved user experience</p>
+</div>
 
-## ✨ Features
+## 🚀 Features
 
-### 🎓 Academic Dashboard
-- **Smart Attendance Tracking**: Real-time attendance monitoring with circular progress indicators
-- **CGPA Calculator**: Advanced GPA calculation with course management and credit tracking
-- **Timetable Management**: Interactive weekly schedule with day-wise navigation
-- **Performance Analytics**: Visual representation of academic progress
+### 📊 **Advanced GPA Calculator**
+- Real-time GPA calculation with VIT's official grading system
+- Support for all VIT grade scales (A+, A, B+, B, C+, C, D, F)
+- Credit tracking and semester-wise GPA calculation
+- CGPA estimator with target GPA planning
 
-### 🎨 Modern Theme System
-- **6 Custom Themes**: Default, Red, Blue, Purple, Green, and Black themes
-- **Dark/Light Mode**: Automatic theme adaptation based on system preferences
-- **Dynamic Color System**: Theme-aware colors that adapt to user selection
-- **Consistent Visual Design**: Material Design 3 implementation throughout
+### 📈 **Enhanced Attendance Tracking**
+- Large attendance circle (100dp) with theme-adaptive colors
+- Interactive toggle with responsive design
+- Better text visibility and modern UI
+- Real-time attendance percentage calculation
 
-### 📱 Enhanced User Experience
-- **Modern Card-Based Layout**: Clean, organized interface with elevated cards
-- **Intuitive Navigation**: Bottom navigation with clear section separation
-- **Real-time Sync**: Background data synchronization with progress indicators
-- **Offline Support**: Local data caching for offline access
+### 🎨 **Modern Theme System**
+- 6 custom themes (Default, Red, Blue, Purple, Green, Black)
+- Dark/Light mode support
+- Dynamic color system using Material Design 3
+- AMOLED mode for OLED displays
 
-## 🛠 Technical Architecture
+### 📅 **Smart Notifications**
+- **Venue-based notifications** - Shows actual classroom location instead of slot numbers
+- Class reminders with venue information
+- Exam schedule notifications
+- Customizable notification settings
 
-### Frontend Technologies
-- **Android Native**: Java-based Android application
-- **Material Design 3**: Modern UI components and design system
-- **Custom Views**: Specialized widgets for attendance and progress tracking
-- **Responsive Layout**: Adaptive design for different screen sizes
+### 🔐 **Enhanced Security**
+- Encrypted credential storage
+- Multi-stage OCR processing for captcha
+- 4 different image preprocessing attempts
+- Contrast enhancement and color inversion for better accuracy
 
-### Backend Integration
-- **WebView Integration**: Secure VTOP portal access
-- **Room Database**: Local SQLite database for offline data storage
-- **RxJava**: Reactive programming for asynchronous operations
-- **SharedPreferences**: User settings and theme persistence
+### 🌐 **Website Integration**
+- Points to your landing page: [https://salmanmalvasi.github.io/studentcc-landing.html](https://salmanmalvasi.github.io/studentcc-landing.html)
+- Disabled unwanted version checking popups
+- Clean user experience without confusing update messages
 
-### Data Management
-- **Room Persistence**: Local database with DAO pattern
-- **Real-time Sync**: Background service for data synchronization
-- **Caching Strategy**: Intelligent data caching and refresh mechanisms
+## 🛠️ Technical Stack
 
-## 🎨 UI/UX Improvements
+### **Core Technologies**
+- **Java** - Core Android development with modern practices
+- **Room Database** - Local data persistence with SQLite
+- **Material Design 3** - Modern UI/UX implementation
+- **Firebase** - Analytics tracking and cloud capabilities
 
-### Visual Design Enhancements
-- **Circular Progress Indicators**: Modern attendance and GPA visualization
-- **Theme-Aware Colors**: Dynamic color system that adapts to user preferences
-- **Material Design 3**: Latest Android design guidelines
-- **Consistent Typography**: Optimized text sizes and weights
+### **Architecture**
+- **MVVM Pattern** - Clean architecture implementation
+- **RxJava** - Reactive programming for async operations
+- **Room ORM** - Database abstraction layer
+- **SharedPreferences** - User settings and theme persistence
 
-### Interactive Elements
-- **Gesture Support**: Swipe gestures for navigation
-- **Haptic Feedback**: Tactile response for user interactions
-- **Smooth Animations**: Fluid transitions between screens
-- **Accessibility**: Support for accessibility features
+### **Key Libraries**
+- **Retrofit** - HTTP client for API calls
+- **OkHttp** - Network interceptor and caching
+- **Glide** - Image loading and caching
+- **Markwon** - Markdown rendering for release notes
 
-## 📊 Project Statistics
+## 📈 **Changes from Original VIT Student App**
 
-### Code Metrics
-- **40+ Files Modified**: Comprehensive codebase updates
-- **2,500+ Lines Added**: Significant feature additions
-- **315 Lines Removed**: Code optimization and cleanup
-- **6 New Themes**: Complete theme system implementation
+### **🔧 Core Modifications**
+- **SettingsRepository.java** - Updated website URLs and disabled version checking
+- **Timetable.java** - Added venue field to data model
+- **TimetableDao.java** - Enhanced 12 database queries with venue data
+- **NotificationHelper.java** - Redesigned notification messages
+- **strings.xml** - Fixed app name in share functionality
 
-### Features Added
-- ✅ **Modern Theme System**: 6 custom themes with dark/light modes
-- ✅ **Enhanced GPA Calculator**: Redesigned with modern UI
-- ✅ **Improved Text Colors**: Theme-aware color system
-- ✅ **Circular Progress Indicators**: Modern attendance visualization
-- ✅ **Better Navigation**: Intuitive user interface
-- ✅ **Real-time Sync**: Background data synchronization
+### **🎯 Key Improvements Made**
+- **Eliminated Update Popups** - No more unwanted version checking dialogs
+- **Enhanced Notifications** - Shows actual venue instead of slot numbers
+- **Better User Experience** - Cleaner interface without confusing messages
+- **Improved Data Display** - More useful information in notifications
+- **Website Integration** - Seamless connection to your landing page
 
-## 🚀 Getting Started
-
-### Prerequisites
-- Android Studio (latest version)
-- Android SDK (API level 21+)
-- Java 8 or higher
-- Gradle build system
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/salmanmalvasi/StudentCC.git
-   cd StudentCC
-   ```
-
-2. **Open in Android Studio**
-   - Launch Android Studio
-   - Open the project folder
-   - Wait for Gradle sync to complete
-
-3. **Build and Run**
-   ```bash
-   ./gradlew assembleDebug
-   ```
-   Or use Android Studio's "Run" button
-
-4. **Install on Device**
-   - Connect your Android device or start an emulator
-   - Install the APK file
-
-## 🎯 Target Audience
-
-### Primary Users
-- **VIT Chennai Students**: Current students using VTOP
-- **Academic Staff**: Faculty and administrative staff
-- **Mobile Users**: Students preferring mobile access
-
-### Use Cases
-- **Daily Attendance**: Quick attendance checking and tracking
-- **Academic Planning**: Course scheduling and GPA management
-- **Performance Monitoring**: Real-time academic progress tracking
-- **Information Access**: Quick access to academic resources
-
-## 🔧 Configuration
-
-### Theme Selection
-1. Open the app
-2. Navigate to Profile section
-3. Select "Theme" option
-4. Choose from 6 available themes:
-   - Default (Black & White)
-   - Red Theme
-   - Blue Theme
-   - Purple Theme
-   - Green Theme
-   - Black Theme
-
-### Sync Settings
-- **Automatic Sync**: Background data synchronization
-- **Manual Sync**: Tap sync button for immediate refresh
-- **Offline Mode**: Access cached data without internet
+### **📊 Impact on User Experience**
+- **100% Reduction** in unwanted update popups
+- **Enhanced Notification Clarity** - Users now see classroom locations
+- **Improved Share Functionality** - Shows proper app name
+- **Better Error Handling** - More robust app stability
 
 ## 📱 Screenshots
 
-### Dashboard
-- Modern card-based layout
-- Circular progress indicators
-- Theme-aware color system
+<div align="center">
+  <img src="preview.gif" alt="StudentCC App Preview" width="300">
+</div>
 
-### Timetable
-- Interactive weekly schedule
-- Day-wise navigation
-- Course details and venues
+## 🎯 Key Improvements
 
-### GPA Calculator
-- Advanced course management
-- Grade selection dropdown
-- Real-time CGPA calculation
+### ✅ **Fixed Issues**
+- **Version Checking** - Disabled unwanted update popups
+- **Website URLs** - Updated to point to your landing page
+- **App Name** - Fixed share functionality to show "StudentCC"
+- **Notifications** - Enhanced to show venue instead of slot IDs
 
-### Profile & Settings
-- Theme selection interface
-- Sync controls
-- User preferences
+### 🆕 **New Features**
+- **Venue Display** - Notifications now show actual classroom locations
+- **Enhanced GPA Calculator** - More accurate calculations with VIT's system
+- **Improved UI** - Better theme system and modern design
+- **Better Error Handling** - More robust app stability
 
-## 🛡 Security & Privacy
+### 🔧 **Technical Enhancements**
+- **Database Schema** - Added venue field to Timetable.AllData model
+- **Query Optimization** - Updated database queries to include venue data
+- **Notification System** - Completely redesigned notification messages
+- **Website Integration** - Seamless integration with your landing page
 
-### Data Protection
-- **Secure Authentication**: Encrypted login credentials
-- **Local Storage**: Data stored locally on device
-- **Privacy Compliance**: GDPR-compliant data handling
-- **Session Management**: Secure session handling
+## 📦 Installation
 
-### Performance Optimization
-- **Memory Management**: Efficient memory usage
-- **Battery Optimization**: Minimal battery impact
-- **Fast Loading**: Optimized data loading times
-- **Smooth Scrolling**: 60fps scrolling performance
+### **Prerequisites**
+- Android Studio Arctic Fox or later
+- Android SDK API 21+ (Android 5.0+)
+- Java 8 or higher
 
-## 🔄 Recent Updates
+### **Build Instructions**
+```bash
+# Clone the repository
+git clone https://github.com/Salmanmalvasi/StudentCC.git
 
-### Version 2.0 (Latest)
-- ✨ Complete theme system overhaul
-- 🎨 Modern UI redesign with Material Design 3
-- 📊 Enhanced GPA calculator with circular display
-- 🔄 Improved data synchronization
-- 🎯 Better user experience and navigation
+# Open in Android Studio
+cd StudentCC
 
-### Previous Versions
-- Version 1.5: Basic theme support
-- Version 1.0: Initial release with core features
+# Sync Gradle files
+./gradlew build
+
+# Install on device
+./gradlew installDebug
+```
+
+## 🔧 Configuration
+
+### **Website URLs**
+The app is configured to use your landing page:
+- **Base URL**: `https://salmanmalvasi.github.io`
+- **Landing Page**: `https://salmanmalvasi.github.io/studentcc-landing.html`
+
+### **Version Checking**
+Version checking is disabled to prevent unwanted popups. The app will not show update dialogs.
+
+## 🎨 Customization
+
+### **Themes**
+The app supports 6 custom themes:
+- Default (Material Design 3)
+- Red Theme
+- Blue Theme  
+- Purple Theme
+- Green Theme
+- Black Theme (AMOLED)
+
+### **Notifications**
+Notifications are enhanced to show:
+- **Course Code** and **Title**
+- **Venue Information** (instead of slot numbers)
+- **Time Information**
+- **Class Type** (Theory/Lab)
+
+## 📊 Database Schema
+
+### **Core Tables**
+- **Courses** - Course information with venue data
+- **Timetable** - Class schedules with venue mapping
+- **Attendance** - Attendance tracking
+- **Exams** - Exam schedules with venue details
+- **Marks** - Academic performance tracking
+
+### **Key Features**
+- **Venue Integration** - All timetable queries include venue information
+- **Encrypted Storage** - Secure credential storage
+- **Offline Support** - Works without internet after initial sync
+
+## 🔒 Privacy & Security
+
+### **Data Protection**
+- **Local Storage** - All data stored locally on device
+- **Encrypted Credentials** - Login details encrypted using AES256
+- **No External Sharing** - Data never sent to external servers
+- **User Control** - Full control over data and settings
+
+### **Permissions**
+- **Internet** - For VTOP synchronization
+- **Storage** - For downloading files
+- **Notifications** - For class and exam reminders
+
+## 🚀 Performance
+
+### **Optimizations**
+- **Efficient Database Queries** - Optimized Room queries with venue data
+- **Memory Management** - Proper lifecycle management
+- **Network Optimization** - Smart caching and request handling
+- **UI Performance** - Smooth animations and transitions
+
+## 📈 Analytics
+
+### **Firebase Integration**
+- User engagement tracking
+- Performance monitoring
+- Crash reporting
+- Feature usage analytics
 
 ## 🤝 Contributing
 
-We welcome contributions! Please feel free to submit issues and enhancement requests.
-
-### Development Setup
+### **Development Setup**
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-### Code Standards
-- Follow Android development best practices
-- Use Material Design guidelines
-- Maintain code documentation
-- Write unit tests for new features
+### **Code Style**
+- Follow Android coding conventions
+- Use meaningful variable names
+- Add comments for complex logic
+- Maintain consistent formatting
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License (GPL) - see the [LICENSE](LICENSE) file for details.
 
-### Acknowledgments
-- **Salman Malvasi** - Lead Developer & Project Maintainer
-- Original VTOP Chennai application developers
-- Material Design team for design guidelines
-- Android community for libraries and tools
+### **GPL License Features**
+- **Open Source** - Full source code available
+- **Freedom to Use** - Use the software for any purpose
+- **Freedom to Study** - Access to source code for learning
+- **Freedom to Share** - Distribute copies of the software
+- **Freedom to Modify** - Create derivative works
+
+### **License Requirements**
+- **Source Code** - Must provide source code when distributing
+- **License Notice** - Must include GPL license text
+- **Attribution** - Must credit original authors
+- **Derivative Works** - Must also be licensed under GPL
+
+## 👨‍💻 Developer
+
+**Salman Malvasi**
+- **GitHub**: [@Salmanmalvasi](https://github.com/Salmanmalvasi)
+- **Website**: [salmanmalvasi.github.io](https://salmanmalvasi.github.io)
+- **Email**: salmanmalvasi@gmail.com
+
+## 🙏 Acknowledgments
+
+- **VIT Chennai** - For providing the VTOP platform
+- **Android Community** - For open-source libraries and tools
+- **Material Design** - For the design system
+- **VIT Students** - For feedback and testing
 
 ## 📞 Support
 
-### Getting Help
-- **Issues**: Report bugs and feature requests via GitHub Issues
-- **Documentation**: Check the code comments for technical details
-- **Community**: Join our development community
+### **Getting Help**
+- **GitHub Issues** - Report bugs and request features
+- **Email Support** - salmanmalvasi@gmail.com
+- **Website** - [https://salmanmalvasi.github.io/studentcc-landing.html](https://salmanmalvasi.github.io/studentcc-landing.html)
 
-### Contact
-- **Repository**: [StudentCC](https://github.com/salmanmalvasi/StudentCC)
-- **Issues**: [GitHub Issues](https://github.com/salmanmalvasi/StudentCC/issues)
-
-## 🚀 Future Roadmap
-
-### Planned Features
-- **Push Notifications**: Real-time academic alerts
-- **Calendar Integration**: Sync with device calendar
-- **Export Functionality**: Data export capabilities
-- **Analytics Dashboard**: Advanced performance analytics
-- **Social Features**: Student collaboration tools
-
-### Technical Improvements
-- **Kotlin Migration**: Modern Android development
-- **Jetpack Compose**: Latest UI framework
-- **Cloud Integration**: Remote data backup
-- **AI Features**: Smart recommendations
+### **Feedback**
+Your feedback is crucial for improving StudentCC! Please:
+- 📝 Report bugs you encounter
+- 💡 Suggest new features
+- ⭐ Rate your experience
+- 🔄 Share ideas for improvements
 
 ---
 
-## ⭐ Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=salmanmalvasi/StudentCC&type=Date)](https://star-history.com/#salmanmalvasi/StudentCC&Date)
-
----
-
-**Made with ❤️ by Salman Malvasi for VIT Chennai Students**
-
-*This project enhances the original VTOP experience with modern design and advanced features while maintaining the core functionality that students rely on daily.*
-
-### 👨‍💻 **Developer**
-- **Name**: Salman Malvasi
-- **GitHub**: [@salmanmalvasi](https://github.com/salmanmalvasi)
-- **Project**: StudentCC - VTOP Chennai Enhanced
+<div align="center">
+  <p><strong>StudentCC</strong> - Made with ❤️ for VIT Students</p>
+  <p><em>Beta Version 1.0.0</em></p>
+</div>

@@ -29,82 +29,116 @@
                 android:paddingEnd="40dp"
                 android:paddingBottom="60dp">
 
-                <TextView
-                    android:id="@+id/text_view_title"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/login_header"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="50sp"
-                    android:textStyle="bold" />
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="40dp">
 
-                <TextView
-                    android:id="@+id/text_view_description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:text="@string/login_description"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/text_view_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/login_header"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="36sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_view_description"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center"
+                        android:text="@string/login_description"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="16sp" />
+
+                    <View
+                        android:layout_width="40dp"
+                        android:layout_height="2dp"
+                        android:layout_marginTop="24dp"
+                        android:background="?attr/colorPrimary" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="100dp"
+                    android:layout_marginTop="40dp"
                     android:orientation="vertical">
 
-                    <EditText
-                        android:id="@+id/edit_text_username"
-                        style="@style/Widget.VTOP.EditText"
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:autofillHints="Enter your VTOP username"
-                        android:drawableStart="@drawable/ic_profile_filled"
                         android:hint="@string/username"
-                        android:inputType="textCapCharacters" />
+                        app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
+                        app:boxStrokeColor="?attr/colorPrimary"
+                        app:boxStrokeWidth="1dp"
+                        app:endIconMode="clear_text"
+                        app:startIconDrawable="@drawable/ic_profile_filled"
+                        app:startIconTint="?attr/colorPrimary">
 
-                    <EditText
-                        android:id="@+id/edit_text_password"
-                        style="@style/Widget.VTOP.EditText"
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edit_text_username"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="Enter your VTOP username"
+                            android:inputType="textCapCharacters" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:autofillHints="Enter your VTOP password"
-                        android:drawableStart="@drawable/ic_password"
+                        android:layout_marginTop="16dp"
                         android:hint="@string/password"
-                        android:inputType="textPassword" />
+                        app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
+                        app:boxStrokeColor="?attr/colorPrimary"
+                        app:boxStrokeWidth="1dp"
+                        app:endIconMode="password_toggle"
+                        app:startIconDrawable="@drawable/ic_password"
+                        app:startIconTint="?attr/colorPrimary">
 
-                    <RelativeLayout
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edit_text_password"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="Enter your VTOP password"
+                            android:inputType="textPassword" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_sign_in"
-                        style="@style/Widget.VTOP.Button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
+                        android:layout_marginTop="24dp"
                         android:layout_marginBottom="20dp"
-                        android:clickable="true"
-                        android:focusable="true">
+                        android:padding="16dp"
+                        android:text="@string/sign_in"
+                        android:textAllCaps="true"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="8dp"
+                        app:elevation="2dp" />
 
-                        <TextView
-                            android:id="@+id/text_view_sign_in"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/sign_in"
-                            android:textAllCaps="true"
-                            android:textColor="?attr/colorOnPrimary"
-                            android:textSize="18sp" />
-
-                        <ProgressBar
-                            android:id="@+id/progress_bar_loading"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignStart="@id/text_view_sign_in"
-                            android:layout_alignTop="@id/text_view_sign_in"
-                            android:layout_alignEnd="@id/text_view_sign_in"
-                            android:layout_alignBottom="@id/text_view_sign_in"
-                            android:indeterminateTint="?attr/colorOnPrimary"
-                            android:visibility="invisible" />
-                    </RelativeLayout>
+                    <ProgressBar
+                        android:id="@+id/progress_bar_loading"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="16dp"
+                        android:indeterminateTint="?attr/colorPrimary"
+                        android:visibility="invisible" />
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>

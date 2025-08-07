@@ -80,14 +80,12 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onLoading(boolean isLoading) {
                 if (isLoading) {
-                    findViewById(R.id.text_view_sign_in).setVisibility(View.INVISIBLE);
                     findViewById(R.id.progress_bar_loading).setVisibility(View.VISIBLE);
 
                     findViewById(R.id.button_sign_in).setEnabled(false);
                     findViewById(R.id.edit_text_username).setEnabled(false);
                     findViewById(R.id.edit_text_password).setEnabled(false);
                 } else {
-                    findViewById(R.id.text_view_sign_in).setVisibility(View.VISIBLE);
                     findViewById(R.id.progress_bar_loading).setVisibility(View.INVISIBLE);
 
                     findViewById(R.id.button_sign_in).setEnabled(true);
