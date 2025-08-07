@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!DOCTYPE resources [<!ENTITY app_name "StudentCC">]>
 
 <resources>
-    <string name="app_name">&app_name;</string>
+    <string name="app_name">StudentCC(Beta Version)</string>
 
     <!-- LoginActivity Strings -->
     <string name="login_header">Login</string>
@@ -103,7 +103,7 @@
 
     <!-- Update Dialog Strings -->
     <string name="update_title">Update Available</string>
-    <string name="update_message">A new version of &app_name; (&lt;b>%s&lt;/b>) has been released! The Update button bellow will take you to the download page.</string>
+    <string name="update_message">A new version of StudentCC (&lt;b>%s&lt;/b>) has been released! The Update button bellow will take you to the download page.</string>
     <string name="cancel_update">I\'ll do this later</string>
     <string name="download_update">Download Update</string>
 
@@ -135,12 +135,12 @@
 
     <!-- Sign Out BottomSheet Strings -->
     <string name="sign_out_moodle">Sign out of Moodle</string>
-    <string name="sign_out_app">Sign out of &app_name;</string>
+    <string name="sign_out_app">Sign out of StudentCC</string>
 
     <!-- Share Intent Strings -->
-    <string name="share_subject">Get the &app_name; android app</string>
-    <string name="share_text">Visit %s to download the latest version of &app_name;.</string>
-    <string name="share_title">Share \"&app_name;\" via</string>
+    <string name="share_subject">Get the StudentCC android app</string>
+    <string name="share_text">Check out StudentCC - a modern VIT student app! 📱✨\n\nDownload: %s\n\nLanding Page: https://salmanmalvasi.github.io/studentcc-landing.html\n\nDeveloper Website: salmanmalvasi.github.io\n\nFeatures:\n• GPA Calculator &amp; CGPA Estimator\n• Attendance Tracking\n• Course Management\n• Exam Schedule\n• Modern UI with Dark/Light themes\n\n🎉 Beta Version - Try the latest features!</string>
+    <string name="share_title">Share \"StudentCC\" via</string>
 
     <!-- Empty State String -->
     <string name="fetch_assignments">Fetching your assignments</string>

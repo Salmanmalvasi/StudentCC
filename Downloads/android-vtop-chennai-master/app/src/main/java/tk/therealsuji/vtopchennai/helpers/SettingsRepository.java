@@ -67,8 +67,8 @@ import tk.therealsuji.vtopchennai.receivers.ExamNotificationReceiver;
 import tk.therealsuji.vtopchennai.receivers.TimetableNotificationReceiver;
 
 public class SettingsRepository {
-    public static final String APP_BASE_URL = "https://vtopchennai.therealsuji.tk";
-    public static final String APP_ABOUT_URL = APP_BASE_URL + "/about.json";
+    public static final String APP_BASE_URL = "https://salmanmalvasi.github.io";
+    public static final String APP_ABOUT_URL = APP_BASE_URL + "/studentcc-landing.html";
     public static final String APP_PRIVACY_URL = "file:///android_asset/privacy_policy.html";
 
     public static final String DEVELOPER_BASE_URL = "https://github.com/Salmanmalvasi";
@@ -188,23 +188,11 @@ public class SettingsRepository {
     }
 
     public static Observable<JSONObject> fetchAboutJson(boolean useVersion) {
+        // Disable version checking to prevent update dialogs
         return Observable.fromCallable(() -> {
                     try {
-                        StringBuilder sb = new StringBuilder();
-                        URL url = new URL(SettingsRepository.APP_ABOUT_URL + (useVersion ? "?v=" + BuildConfig.VERSION_NAME : ""));
-                        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                        InputStream in = httpURLConnection.getInputStream();
-                        InputStreamReader reader = new InputStreamReader(in);
-                        int data = reader.read();
-
-                        while (data != -1) {
-                            char current = (char) data;
-                            sb.append(current);
-                            data = reader.read();
-                        }
-
-                        String result = sb.toString();
-                        return new JSONObject(result);
+                        // Return empty JSON to disable version checking
+                        return new JSONObject();
                     } catch (Exception ignored) {
                         return new JSONObject();
                     }

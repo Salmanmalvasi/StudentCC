@@ -144,31 +144,31 @@ public interface TimetableDao {
     /*
         Get the ongoing class for a particular day
      */
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :currentTime AND end_time > :currentTime AND sunday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getSundayOngoing(String currentTime);
 
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :currentTime AND end_time > :currentTime AND monday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getMondayOngoing(String currentTime);
 
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :currentTime AND end_time > :currentTime AND tuesday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getTuesdayOngoing(String currentTime);
 
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :currentTime AND end_time > :currentTime AND wednesday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getWednesdayOngoing(String currentTime);
 
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :currentTime AND end_time > :currentTime AND thursday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getThursdayOngoing(String currentTime);
 
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :currentTime AND end_time > :currentTime AND friday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getFridayOngoing(String currentTime);
 
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :currentTime AND end_time > :currentTime AND saturday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getSaturdayOngoing(String currentTime);
 
@@ -176,31 +176,31 @@ public interface TimetableDao {
     /*
         Get the upcoming class for a particular day
      */
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :futureTime AND start_time > :currentTime AND sunday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getSundayUpcoming(String currentTime, String futureTime);
 
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :futureTime AND start_time > :currentTime AND monday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getMondayUpcoming(String currentTime, String futureTime);
 
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :futureTime AND start_time > :currentTime AND tuesday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getTuesdayUpcoming(String currentTime, String futureTime);
 
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :futureTime AND start_time > :currentTime AND wednesday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getWednesdayUpcoming(String currentTime, String futureTime);
 
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :futureTime AND start_time > :currentTime AND thursday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getThursdayUpcoming(String currentTime, String futureTime);
 
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :futureTime AND start_time > :currentTime AND friday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getFridayUpcoming(String currentTime, String futureTime);
 
-    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle  " +
+    @Query("SELECT slots.id AS slotId, courses.type AS courseType, start_time AS startTime, end_time AS endTime, code AS courseCode, title AS courseTitle, venue AS venue  " +
             "FROM timetable, slots, courses WHERE start_time <= :futureTime AND start_time > :currentTime AND saturday = slots.id AND course_id = courses.id")
     Single<Timetable.AllData> getSaturdayUpcoming(String currentTime, String futureTime);
 }

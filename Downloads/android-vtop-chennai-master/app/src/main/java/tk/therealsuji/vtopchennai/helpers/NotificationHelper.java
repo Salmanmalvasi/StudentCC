@@ -131,7 +131,7 @@ public class NotificationHelper extends ContextWrapper {
         String title = "Upcoming: " +
                 SettingsRepository.getSystemFormattedTime(this, timetableItem.startTime) + " - " +
                 SettingsRepository.getSystemFormattedTime(this, timetableItem.endTime);
-        String message = timetableItem.courseCode + " - " + timetableItem.courseTitle;
+        String message = timetableItem.courseCode + " - " + timetableItem.courseTitle + " (Venue: " + (timetableItem.venue != null ? timetableItem.venue : "TBA") + ")";
 
         if (timetableItem.courseType.equals("lab")) {
             largeIcon = ContextCompat.getDrawable(this, R.drawable.ic_lab);
@@ -171,7 +171,7 @@ public class NotificationHelper extends ContextWrapper {
         String title = "Ongoing: " +
                 SettingsRepository.getSystemFormattedTime(this, timetableItem.startTime) + " - " +
                 SettingsRepository.getSystemFormattedTime(this, timetableItem.endTime);
-        String message = timetableItem.courseCode + " - " + timetableItem.courseTitle;
+        String message = timetableItem.courseCode + " - " + timetableItem.courseTitle + " (Venue: " + (timetableItem.venue != null ? timetableItem.venue : "TBA") + ")";
 
         if (timetableItem.courseType.equals("lab")) {
             largeIcon = ContextCompat.getDrawable(this, R.drawable.ic_lab);
