@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Dark Mode Theme -->
+    <style name="Base.Theme.VTOP" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+
+        <!-- Dark Mode Color Palette -->
+        <item name="colorPrimary">@color/colorPrimaryBlack</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryBlack</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainerBlack</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainerBlack</item>
+
+        <item name="colorSecondary">@color/colorSecondaryBlack</item>
+        <item name="colorOnSecondary">@color/colorOnSecondaryBlack</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainerBlack</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainerBlack</item>
+
+        <item name="colorSurface">@color/colorSurfaceBlack</item>
+        <item name="colorOnSurface">@color/colorOnSurfaceBlack</item>
+        <item name="colorSurfaceVariant">@color/colorSecondaryContainerBlack</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSecondaryContainerBlack</item>
+
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+        <item name="colorErrorContainer">@color/colorErrorContainer</item>
+        <item name="colorOnErrorContainer">@color/colorOnErrorContainer</item>
+
+        <item name="colorOutline">@color/colorOutline</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariant</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+        <item name="android:fontFamily">@font/rubik</item>
+
+            <!-- Enhanced Attendance Colors for Dark Theme -->
+    <item name="attendance_percentage_text_color">@color/attendance_percentage_text_dark</item>
+    <item name="attendance_subtext_color">@color/attendance_subtext_dark</item>
+    <item name="attendance_percentage_text_high_color">@color/attendance_percentage_text_high_dark</item>
+    <item name="attendance_percentage_text_medium_color">@color/attendance_percentage_text_medium_dark</item>
+    <item name="attendance_percentage_text_low_color">@color/attendance_percentage_text_low_dark</item>
+    </style>
+
+    <!-- Main Dark Theme -->
+    <style name="Theme.VTOP" parent="Base.Theme.VTOP">
+        <item name="android:windowBackground">@color/colorBackgroundBlack</item>
+        <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+    </style>
+
+    <style name="Theme.VTOP_Black" parent="Base.Theme.VTOP">
+        <item name="android:windowBackground">@color/colorBackgroundBlack</item>
+        <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+    </style>
+
+    <style name="Theme.VTOP.Login" parent="Base.Theme.VTOP">
+        <item name="android:windowBackground">@color/colorPrimaryContainerBlack</item>
+    </style>
+
+</resources>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Red Theme Colors (Light Mode) -->
+    <color name="colorPrimaryRed">#D32F2F</color>
+    <color name="colorOnPrimaryRed">#FFFFFF</color>
+    <color name="colorPrimaryContainerRed">#FFEBEE</color>
+    <color name="colorOnPrimaryContainerRed">#000000</color>
+    <color name="colorSecondaryRed">#424242</color>
+    <color name="colorOnSecondaryRed">#FFFFFF</color>
+    <color name="colorSecondaryContainerRed">#F5F5F5</color>
+    <color name="colorOnSecondaryContainerRed">#000000</color>
+    <color name="colorSurfaceRed">#FFFFFF</color>
+    <color name="colorOnSurfaceRed">#D32F2F</color>
+    <color name="colorSurfaceVariantRed">#F5F5F5</color>
+    <color name="colorOnSurfaceVariantRed">#D32F2F</color>
+    <color name="colorBackgroundRed">#FAFAFA</color>
+    <color name="colorErrorRed">#D32F2F</color>
+    <color name="colorOnErrorRed">#FFFFFF</color>
+    <color name="colorErrorContainerRed">#FFEBEE</color>
+    <color name="colorOnErrorContainerRed">#000000</color>
+    <color name="colorOutlineRed">#E0E0E0</color>
+    <color name="colorOutlineVariantRed">#F5F5F5</color>
+
+    <!-- Blue Theme Colors (Light Mode) -->
+    <color name="colorPrimaryBlue">#1976D2</color>
+    <color name="colorOnPrimaryBlue">#FFFFFF</color>
+    <color name="colorPrimaryContainerBlue">#E3F2FD</color>
+    <color name="colorOnPrimaryContainerBlue">#000000</color>
+    <color name="colorSecondaryBlue">#424242</color>
+    <color name="colorOnSecondaryBlue">#FFFFFF</color>
+    <color name="colorSecondaryContainerBlue">#F5F5F5</color>
+    <color name="colorOnSecondaryContainerBlue">#000000</color>
+    <color name="colorSurfaceBlue">#FFFFFF</color>
+    <color name="colorOnSurfaceBlue">#1976D2</color>
+    <color name="colorSurfaceVariantBlue">#F5F5F5</color>
+    <color name="colorOnSurfaceVariantBlue">#1976D2</color>
+    <color name="colorBackgroundBlue">#FAFAFA</color>
+    <color name="colorErrorBlue">#1976D2</color>
+    <color name="colorOnErrorBlue">#FFFFFF</color>
+    <color name="colorErrorContainerBlue">#E3F2FD</color>
+    <color name="colorOnErrorContainerBlue">#000000</color>
+    <color name="colorOutlineBlue">#E0E0E0</color>
+    <color name="colorOutlineVariantBlue">#F5F5F5</color>
+
+    <!-- Purple Theme Colors (Light Mode) -->
+    <color name="colorPrimaryPurple">#7B1FA2</color>
+    <color name="colorOnPrimaryPurple">#FFFFFF</color>
+    <color name="colorPrimaryContainerPurple">#F3E5F5</color>
+    <color name="colorOnPrimaryContainerPurple">#000000</color>
+    <color name="colorSecondaryPurple">#424242</color>
+    <color name="colorOnSecondaryPurple">#FFFFFF</color>
+    <color name="colorSecondaryContainerPurple">#F5F5F5</color>
+    <color name="colorOnSecondaryContainerPurple">#000000</color>
+    <color name="colorSurfacePurple">#FFFFFF</color>
+    <color name="colorOnSurfacePurple">#7B1FA2</color>
+    <color name="colorSurfaceVariantPurple">#F5F5F5</color>
+    <color name="colorOnSurfaceVariantPurple">#7B1FA2</color>
+    <color name="colorBackgroundPurple">#FAFAFA</color>
+    <color name="colorErrorPurple">#7B1FA2</color>
+    <color name="colorOnErrorPurple">#FFFFFF</color>
+    <color name="colorErrorContainerPurple">#F3E5F5</color>
+    <color name="colorOnErrorContainerPurple">#000000</color>
+    <color name="colorOutlinePurple">#E0E0E0</color>
+    <color name="colorOutlineVariantPurple">#F5F5F5</color>
+
+    <!-- Green Theme Colors (Light Mode) -->
+    <color name="colorPrimaryGreen">#0f9d58</color>
+    <color name="colorOnPrimaryGreen">#FFFFFF</color>
+    <color name="colorPrimaryContainerGreen">#e6f4ea</color>
+    <color name="colorOnPrimaryContainerGreen">#000000</color>
+    <color name="colorSecondaryGreen">#424242</color>
+    <color name="colorOnSecondaryGreen">#FFFFFF</color>
+    <color name="colorSecondaryContainerGreen">#F5F5F5</color>
+    <color name="colorOnSecondaryContainerGreen">#000000</color>
+    <color name="colorSurfaceGreen">#F0FFF0</color>
+    <color name="colorOnSurfaceGreen">#0f9d58</color>
+    <color name="colorSurfaceVariantGreen">#F5FFF5</color>
+    <color name="colorOnSurfaceVariantGreen">#0f9d58</color>
+    <color name="colorBackgroundGreen">#FAFAFA</color>
+    <color name="colorErrorGreen">#0f9d58</color>
+    <color name="colorOnErrorGreen">#FFFFFF</color>
+    <color name="colorErrorContainerGreen">#e6f4ea</color>
+    <color name="colorOnErrorContainerGreen">#000000</color>
+    <color name="colorOutlineGreen">#E0FFE0</color>
+    <color name="colorOutlineVariantGreen">#F0FFF0</color>
+
+    <!-- Black Theme Colors (Light Mode) -->
+    <color name="colorPrimaryBlack">#000000</color>
+    <color name="colorOnPrimaryBlack">#FFFFFF</color>
+    <color name="colorPrimaryContainerBlack">#F5F5F5</color>
+    <color name="colorOnPrimaryContainerBlack">#000000</color>
+    <color name="colorSecondaryBlack">#424242</color>
+    <color name="colorOnSecondaryBlack">#FFFFFF</color>
+    <color name="colorSecondaryContainerBlack">#F5F5F5</color>
+    <color name="colorOnSecondaryContainerBlack">#000000</color>
+    <color name="colorSurfaceBlack">#FFFFFF</color>
+    <color name="colorOnSurfaceBlack">#000000</color>
+    <color name="colorSurfaceVariantBlack">#F5F5F5</color>
+    <color name="colorOnSurfaceVariantBlack">#000000</color>
+    <color name="colorBackgroundBlack">#FAFAFA</color>
+    <color name="colorErrorBlack">#000000</color>
+    <color name="colorOnErrorBlack">#FFFFFF</color>
+    <color name="colorErrorContainerBlack">#F5F5F5</color>
+    <color name="colorOnErrorContainerBlack">#000000</color>
+    <color name="colorOutlineBlack">#E0E0E0</color>
+    <color name="colorOutlineVariantBlack">#F5F5F5</color>
+
+    <!-- Default Theme Colors (Light Mode) - Black and White -->
+    <color name="colorPrimary">#000000</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorPrimaryContainer">#F5F5F5</color>
+    <color name="colorOnPrimaryContainer">#000000</color>
+    <color name="colorSecondary">#424242</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorSecondaryContainer">#F5F5F5</color>
+    <color name="colorOnSecondaryContainer">#000000</color>
+    <color name="colorSurface">#FFFFFF</color>
+    <color name="colorOnSurface">#000000</color>
+    <color name="colorSurfaceVariant">#F5F5F5</color>
+    <color name="colorOnSurfaceVariant">#000000</color>
+    <color name="colorBackground">#FAFAFA</color>
+    <color name="colorError">#000000</color>
+    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorErrorContainer">#F5F5F5</color>
+    <color name="colorOnErrorContainer">#000000</color>
+    <color name="colorOutline">#E0E0E0</color>
+    <color name="colorOutlineVariant">#F5F5F5</color>
+
+    <!-- Additional Colors for Better Readability -->
+    <color name="attendance_attended">#66BB6A</color>
+    <color name="attendance_missed">#EF5350</color>
+    <color name="attendance_pending">#FFB74D</color>
+    <color name="attendance_low">#FF8A65</color>
+    <color name="attendance_medium">#FFB74D</color>
+    <color name="attendance_high">#66BB6A</color>
+
+    <!-- Enhanced Attendance Colors for Light Mode -->
+    <color name="attendance_card_background_light">#E8F5E8</color>
+    <color name="attendance_percentage_text_light">#2E7D32</color>
+    <color name="attendance_percentage_text_high_light">#2E7D32</color>
+    <color name="attendance_percentage_text_medium_light">#F57C00</color>
+    <color name="attendance_percentage_text_low_light">#D32F2F</color>
+    <color name="attendance_percentage_text_high_dark">#4CAF50</color>
+    <color name="attendance_percentage_text_medium_dark">#FF9800</color>
+    <color name="attendance_percentage_text_low_dark">#F44336</color>
+    <color name="attendance_day_selected_indicator_light">#4CAF50</color>
+    <color name="attendance_day_background_light">#F1F8E9</color>
+    <color name="attendance_day_text_light">#2E7D32</color>
+    <color name="attendance_subtext_light">#666666</color>
+
+    <!-- Muted Colors for Better Contrast -->
+    <color name="muted_red">#EF5350</color>
+    <color name="muted_green">#66BB6A</color>
+    <color name="muted_blue">#42A5F5</color>
+    <color name="muted_purple">#AB47BC</color>
+    <color name="muted_orange">#FF7043</color>
+    <color name="muted_teal">#26A69A</color>
+
+    <!-- Progress Ring Colors -->
+    <color name="progress_ring_color">#000000</color> <!-- Light mode black -->
+    <color name="progress_ring_background">#F5F5F5</color> <!-- Light mode white background -->
+    <color name="progress_text_color">#000000</color> <!-- Light mode black text -->
+
+    <!-- Attendance Colors for Light Mode -->
+    <color name="attendance_card_background_dark">#E8F5E8</color>
+    <color name="attendance_percentage_text_dark">#2E7D32</color>
+    <color name="attendance_day_selected_indicator_dark">#4CAF50</color>
+    <color name="attendance_day_background_dark">#F1F8E9</color>
+    <color name="attendance_day_text_dark">#2E7D32</color>
+    <color name="attendance_subtext_dark">#666666</color>
+    
+    <!-- App Icon Background -->
+    <color name="ic_launcher_background">#FFFFFF</color>
+    
+    <!-- VTOP Timetable Colors -->
+    <color name="vtop_timetable_occupied">#FC6C85</color>
+</resources>

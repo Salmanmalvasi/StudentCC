@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.VTOP.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/colorSurface</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_screen_icon</item>
+        <item name="postSplashScreenTheme">@style/Theme.VTOP</item>
+    </style>
+
+    <!-- Base Theme - Light Mode -->
+    <style name="Base.Theme.VTOP" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+
+        <!-- Light Mode Color Palette -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainer</item>
+
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainer</item>
+
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariant</item>
+
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+        <item name="colorErrorContainer">@color/colorErrorContainer</item>
+        <item name="colorOnErrorContainer">@color/colorOnErrorContainer</item>
+
+        <item name="colorOutline">@color/colorOutline</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariant</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+        <item name="android:fontFamily">@font/rubik</item>
+    </style>
+
+    <!-- Red Theme -->
+    <style name="Base.Theme.VTOP_Red" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+
+        <item name="colorPrimary">@color/colorPrimaryRed</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryRed</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainerRed</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainerRed</item>
+
+        <item name="colorSecondary">@color/colorSecondaryRed</item>
+        <item name="colorOnSecondary">@color/colorOnSecondaryRed</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainerRed</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainerRed</item>
+
+        <item name="colorSurface">@color/colorSurfaceRed</item>
+        <item name="colorOnSurface">@color/colorOnSurfaceRed</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariant</item>
+
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+        <item name="colorErrorContainer">@color/colorErrorContainer</item>
+        <item name="colorOnErrorContainer">@color/colorOnErrorContainer</item>
+
+        <item name="colorOutline">@color/colorOutline</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariant</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+        <item name="android:fontFamily">@font/rubik</item>
+    </style>
+
+    <!-- Blue Theme -->
+    <style name="Base.Theme.VTOP_Blue" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+        <item name="colorPrimary">@color/colorPrimaryBlue</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryBlue</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainerBlue</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainerBlue</item>
+        <item name="colorSecondary">@color/colorSecondaryBlue</item>
+        <item name="colorOnSecondary">@color/colorOnSecondaryBlue</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainerBlue</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainerBlue</item>
+        <item name="colorSurface">@color/colorSurfaceBlue</item>
+        <item name="colorOnSurface">@color/colorOnSurfaceBlue</item>
+        <item name="colorSurfaceVariant">@color/colorSecondaryContainerBlue</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSecondaryContainerBlue</item>
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+        <item name="colorErrorContainer">@color/colorErrorContainer</item>
+        <item name="colorOnErrorContainer">@color/colorOnErrorContainer</item>
+        <item name="colorOutline">@color/colorOutline</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariant</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+        <item name="android:fontFamily">@font/rubik</item>
+        <item name="android:windowBackground">@color/colorBackgroundBlue</item>
+    </style>
+
+    <!-- Purple Theme -->
+    <style name="Base.Theme.VTOP_Purple" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+        <item name="colorPrimary">@color/colorPrimaryPurple</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryPurple</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainerPurple</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainerPurple</item>
+        <item name="colorSecondary">@color/colorSecondaryPurple</item>
+        <item name="colorOnSecondary">@color/colorOnSecondaryPurple</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainerPurple</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainerPurple</item>
+        <item name="colorSurface">@color/colorSurfacePurple</item>
+        <item name="colorOnSurface">@color/colorOnSurfacePurple</item>
+        <item name="colorSurfaceVariant">@color/colorSecondaryContainerPurple</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSecondaryContainerPurple</item>
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+        <item name="colorErrorContainer">@color/colorErrorContainer</item>
+        <item name="colorOnErrorContainer">@color/colorOnErrorContainer</item>
+        <item name="colorOutline">@color/colorOutline</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariant</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+        <item name="android:fontFamily">@font/rubik</item>
+        <item name="android:windowBackground">@color/colorBackgroundPurple</item>
+    </style>
+
+    <!-- Green Theme -->
+    <style name="Base.Theme.VTOP_Green" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+        <item name="colorPrimary">@color/colorPrimaryGreen</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryGreen</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainerGreen</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainerGreen</item>
+        <item name="colorSecondary">@color/colorSecondaryGreen</item>
+        <item name="colorOnSecondary">@color/colorOnSecondaryGreen</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainerGreen</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainerGreen</item>
+        <item name="colorSurface">@color/colorSurfaceGreen</item>
+        <item name="colorOnSurface">@color/colorOnSurfaceGreen</item>
+        <item name="colorSurfaceVariant">@color/colorSecondaryContainerGreen</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSecondaryContainerGreen</item>
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+        <item name="colorErrorContainer">@color/colorErrorContainer</item>
+        <item name="colorOnErrorContainer">@color/colorOnErrorContainer</item>
+        <item name="colorOutline">@color/colorOutline</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariant</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+        <item name="android:fontFamily">@font/rubik</item>
+        <item name="android:windowBackground">@color/colorBackgroundGreen</item>
+    </style>
+
+    <!-- Black Theme -->
+    <style name="Base.Theme.VTOP_Black" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+        <item name="colorPrimary">@color/colorPrimaryBlack</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryBlack</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainerBlack</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainerBlack</item>
+        <item name="colorSecondary">@color/colorSecondaryBlack</item>
+        <item name="colorOnSecondary">@color/colorOnSecondaryBlack</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainerBlack</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainerBlack</item>
+        <item name="colorSurface">@color/colorSurfaceBlack</item>
+        <item name="colorOnSurface">@color/colorOnSurfaceBlack</item>
+        <item name="colorSurfaceVariant">@color/colorSecondaryContainerBlack</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSecondaryContainerBlack</item>
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+        <item name="colorErrorContainer">@color/colorErrorContainer</item>
+        <item name="colorOnErrorContainer">@color/colorOnErrorContainer</item>
+        <item name="colorOutline">@color/colorOutline</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariant</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+        <item name="android:fontFamily">@font/rubik</item>
+        <item name="android:windowBackground">@color/colorBackgroundBlack</item>
+    </style>
+
+    <!-- Main Themes -->
+    <style name="Theme.VTOP" parent="Base.Theme.VTOP">
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+    </style>
+
+    <style name="Theme.VTOP_Red" parent="Base.Theme.VTOP_Red">
+        <item name="android:windowBackground">@color/colorBackgroundRed</item>
+        <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+    </style>
+
+    <style name="Theme.VTOP_Blue" parent="Base.Theme.VTOP_Blue">
+        <item name="android:windowBackground">@color/colorBackgroundBlue</item>
+        <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+    </style>
+
+    <style name="Theme.VTOP_Purple" parent="Base.Theme.VTOP_Purple">
+        <item name="android:windowBackground">@color/colorBackgroundPurple</item>
+        <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+    </style>
+
+    <style name="Theme.VTOP_Green" parent="Base.Theme.VTOP_Green">
+        <item name="android:windowBackground">@color/colorBackgroundGreen</item>
+        <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+    </style>
+
+    <style name="Theme.VTOP_Black" parent="Base.Theme.VTOP_Black">
+        <item name="android:windowBackground">@color/colorBackgroundBlack</item>
+        <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+    </style>
+
+    <style name="Theme.VTOP.Login" parent="Base.Theme.VTOP">
+        <item name="android:windowBackground">@color/colorPrimaryContainer</item>
+    </style>
+
+    <style name="ThemeOverlay.VTOP.Amoled" parent="ThemeOverlay.Material3.DynamicColors.DayNight" />
+</resources>

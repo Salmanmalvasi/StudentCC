@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/attendance_day_selected_indicator_dark" />
+            <stroke android:width="2dp" android:color="@color/attendance_day_selected_indicator_dark" />
+            <corners android:radius="@dimen/widget_corner_radius" />
+        </shape>
+    </item>
+
+    <item android:state_selected="false">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/attendance_day_background_dark" />
+            <corners android:radius="@dimen/widget_corner_radius" />
+        </shape>
+    </item>
+</selector>

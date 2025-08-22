@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE resources [<!ENTITY app_name "StudentCC">]>
+
+<resources>
+    <string name="app_name">StudentCC(Beta Version)</string>
+
+    <!-- LoginActivity Strings -->
+    <string name="login_header">Login</string>
+    <string name="login_description">Sign in using your VTOP credentials</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="privacy">Privacy Policy</string>
+
+    <!-- MainActivity Strings -->
+    <string name="home">Home</string>
+    <string name="performance">Performance</string>
+    <string name="assignments">Assignments</string>
+    <string name="gpa_calculator">GPA Calculator</string>
+    <string name="profile">Profile</string>
+
+    <!-- HomeFragment Strings -->
+    <string name="morning_greeting">Good Morning,</string>
+    <string name="afternoon_greeting">Good Afternoon,</string>
+    <string name="evening_greeting">Good Evening,</string>
+    <string name="name">JOHN DOE</string>
+    <string name="spotlight">Spotlight</string>
+    <string name="overall_attendance">Overall Attendance</string>
+    <string name="total_credits">Overall Credits Earned</string>
+    <string name="credits">Credits</string>
+    <string name="academic_standing">Academic Standing</string>
+    <string name="cgpa">CGPA</string>
+    <string name="days">Days of the week</string>
+    <string name="sunday">Sunday</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+
+    <!-- PerformanceFragment Strings -->
+    <string name="performance_header">Your Performance</string>
+    <string name="theory_weightage">Theory Weightage</string>
+    <string name="lab_weightage">Lab Weightage</string>
+    <string name="project_weightage">Project Weightage</string>
+    <string name="overall_course_score">Overall Course Score</string>
+    <string name="score">Score</string>
+    <string name="weightage">Weightage</string>
+    <string name="status">Status: &lt;b>%s&lt;/b></string>
+    <string name="average">Average: &lt;b>%f&lt;/b></string>
+
+    <!-- AssignmentsFragment Strings -->
+    <string name="assignments_header">Your Assignments</string>
+    <string name="moodle_sign_in">Sign In to Moodle</string>
+    <string name="moodle_login_description">Sign in using your Moodle credentials</string>
+    <string name="no_due_date">No Due Date</string>
+    <string name="no_description">No description provided.</string>
+    <string name="assignment_no_due">This assignment does not have a due date.</string>
+    <string name="assignment_due">This assignment is due in &lt;b>%s&lt;/b>.</string>
+    <string name="assignment_overdue">This assignment is overdue by &lt;b>%s&lt;/b>.</string>
+    <string name="late_submission">This assignment allows late submission for &lt;b>%s&lt;/b> after the deadline.</string>
+    <string name="no_late_submission">This assignment does not entertain late submission.</string>
+    <string name="your_submissions">Your Submissions</string>
+    <string name="add_submission">Add Submission</string>
+    <string name="submit_assignment">Submit Assignment</string>
+    <string name="submit_confirmation">You are about to submit &lt;b>%d files&lt;/b> for grading, are you sure you want to proceed?</string>
+
+    <!-- ProfileFragment Strings -->
+    <string name="profile_header">Your Profile</string>
+    <string name="personal">Personal</string>
+    <string name="application">Application</string>
+    <string name="courses">Courses</string>
+    <string name="exam_schedule">Exam Schedule</string>
+    <string name="receipts">Receipts</string>
+    <string name="staff">Staff</string>
+    <string name="sync_data">Sync Data</string>
+    <string name="notifications">Notifications</string>
+    <string name="share">Share App</string>
+
+    <!-- Download Strings: Strings used while downloading data -->
+    <string name="vtop_service_description">Downloads data from VTOP.</string>
+    <string name="solve_captcha">Solve the captcha</string>
+    <string name="enter_captcha">Enter Captcha</string>
+    <string name="captcha_description">Image that shows the captcha code.</string>
+    <string name="recaptcha">reCaptcha</string>
+    <string name="verifying_human">Verifying if you are human</string>
+    <string name="select_semester">Select a semester</string>
+    <string name="select">Select</string>
+    <string name="server_connect">Connecting to server</string>
+    <string name="captcha_wait">Waiting for captcha</string>
+    <string name="sign_in_attempt">Attempting to sign you in</string>
+    <string name="semester_wait">Waiting for semester</string>
+    <string name="downloading_profile">Downloading Profile</string>
+    <string name="downloading_timetable">Downloading Timetable</string>
+    <string name="downloading_courses">Downloading Course Info</string>
+    <string name="downloading_staff">Downloading Staff Info</string>
+    <string name="downloading_attendance">Downloading Attendance</string>
+    <string name="downloading_marks">Downloading Marks</string>
+    <string name="downloading_exam_schedule">Downloading Exam Schedule</string>
+    <string name="downloading_spotlight">Downloading Spotlight</string>
+    <string name="downloading_receipts">Downloading Receipts</string>
+    <string name="completing_sync">Completing sync</string>
+
+    <!-- Update Dialog Strings -->
+    <string name="update_title">Update Available</string>
+    <string name="update_message">A new version of StudentCC (&lt;b>%s&lt;/b>) has been released! The Update button bellow will take you to the download page.</string>
+    <string name="cancel_update">I\'ll do this later</string>
+    <string name="download_update">Download Update</string>
+
+    <!-- Sync Dialog Strings -->
+    <string name="sync_title">Data Sync Required</string>
+    <string name="sync_message">You haven\'t refreshed your data in a while. It might be out of date.</string>
+    <string name="sync">Sync Data</string>
+    <string name="syncing">Syncing...</string>
+    <string name="sync_complete">Sync Complete</string>
+
+    <!-- Appearance Dialog Strings -->
+    <string name="appearance">Appearance</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="system">Set by System</string>
+    <string name="amoled_mode">AMOLED Mode</string>
+
+    <!-- Sign Out Dialog Strings -->
+    <string name="sign_out">Sign Out</string>
+    <string name="moodle_sign_out_text">Are you sure you want to sign out of Moodle? You will no longer be able to view your assignments.</string>
+    <string name="sign_out_text">Are you sure you want to sign out of this application? You can switch semesters without having to sign out.</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Feedback BottomSheet Strings -->
+    <string name="send_feedback">Send Feedback</string>
+    <string name="contact_developer">Contact the developer</string>
+    <string name="open_issue">Open an issue</string>
+    <string name="request_feature">Request a feature</string>
+
+    <!-- Sign Out BottomSheet Strings -->
+    <string name="sign_out_moodle">Sign out of Moodle</string>
+    <string name="sign_out_app">Sign out of StudentCC</string>
+
+    <!-- Share Intent Strings -->
+    <string name="share_subject">Get the StudentCC android app</string>
+    <string name="share_text">Check out StudentCC - a modern VIT student app! 📱✨\n\nDownload: %s\n\nLanding Page: https://salmanmalvasi.github.io/studentcc-landing.html\n\nDeveloper Website: salmanmalvasi.github.io\n\nFeatures:\n• GPA Calculator &amp; CGPA Estimator\n• Attendance Tracking\n• Course Management\n• Exam Schedule\n• Modern UI with Dark/Light themes\n\n🎉 Beta Version - Try the latest features!</string>
+    <string name="share_title">Share \"StudentCC\" via</string>
+
+    <!-- Empty State String -->
+    <string name="fetch_assignments">Fetching your assignments</string>
+    <string name="no_assignments">Looks like you have no pending assignments :)</string>
+    <string name="no_classes">Looks like you have the day off :)</string>
+    <string name="no_data">There\'s nothing here :(</string>
+    <string name="no_marks">There\'s nothing here yet :(</string>
+    <string name="not_authenticated">Looks like you aren\'t signed in :(</string>
+
+    <!-- Other Strings & Strings used in multiple locations -->
+    <string name="lab">Lab</string>
+    <string name="project">Project</string>
+    <string name="theory">Theory</string>
+    <string name="go_back">Go Back</string>
+    <string name="submit">Submit</string>
+    <string name="faculty">Faculty: &lt;b>%s&lt;/b></string>
+    <string name="venue">Venue: &lt;b>%s&lt;/b></string>
+    <string name="date">Date: &lt;b>%s&lt;/b></string>
+    <string name="timings">Timings: &lt;b>%s - %s&lt;/b></string>
+    <string name="attendance">Attendance</string>
+    <string name="na">NA</string>
+    <string name="permission_granted">Permission Granted</string>
+    <string name="permission_denied">Permission Denied</string>
+    <string name="downloading_file">Downloading &lt;b>%s&lt;/b></string>
+
+    <!-- GPA Calculator Strings -->
+    <string name="gpa_calculator_header">VIT GPA Calculator</string>
+    <string name="gpa_calculator_description">Calculate your CGPA using VIT\'s grading system</string>
+    <string name="add_course">Add Course</string>
+    <string name="course_name">Course Name</string>
+    <string name="credit_hours">Credit Hours</string>
+    <string name="grade">Grade</string>
+    <string name="select_grade">Select Grade</string>
+    <string name="calculate_gpa">Calculate GPA</string>
+    <string name="clear_all">Clear All</string>
+    <string name="semester_gpa">Semester GPA: %s</string>
+    <string name="cumulative_gpa">Cumulative GPA: %s</string>
+    <string name="gpa_total_credits">Total Credits: %d</string>
+    <string name="total_grade_points">Total Grade Points: %.1f</string>
+    <string name="no_courses_added">No courses added yet</string>
+    <string name="add_at_least_one_course">Please add at least one course</string>
+    <string name="grade_s">S (10.0)</string>
+    <string name="grade_a">A (9.0)</string>
+    <string name="grade_b">B (8.0)</string>
+    <string name="grade_c">C (7.0)</string>
+    <string name="grade_d">D (6.0)</string>
+    <string name="grade_e">E (5.0)</string>
+    <string name="grade_f">F (0.0)</string>
+    <string name="gpa_prediction">GPA Prediction</string>
+    <string name="predict_gpa">Predict GPA</string>
+    <string name="target_gpa">Target GPA</string>
+    <string name="current_credits">Current Credits</string>
+    <string name="additional_credits">Additional Credits</string>
+    <string name="required_gpa">Required GPA for additional credits</string>
+    <string name="prediction_result">To achieve a target GPA of %s, you need an average GPA of %s in %d additional credits</string>
+    <string name="impossible_target">Target GPA is impossible to achieve with current credits</string>
+    <string name="cgpa_calculator">CGPA Calculator</string>
+    <string name="cgpa_calculator_description">Calculate your cumulative GPA using existing data</string>
+    <string name="current_cgpa">Current CGPA</string>
+    <string name="calculate_cgpa">Calculate CGPA</string>
+    <string name="new_cgpa">New CGPA: %s</string>
+    <string name="credits_being_added">Credits being added: %.1f</string>
+    <string name="enter_valid_values">Please enter valid values</string>
+    <string name="select_theme">Select Theme</string>
+</resources>

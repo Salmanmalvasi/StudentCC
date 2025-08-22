@@ -1,0 +1,72 @@
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+}
+
+android {
+    defaultConfig {
+        applicationId "tk.therealsuji.vtopchennai"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+        minSdkVersion 24
+        targetSdkVersion 34
+        compileSdk 34
+        versionCode 4
+        versionName "1.0.3"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('studentcc.keystore')
+            storePassword 'studentcc123'
+            keyAlias 'studentcc'
+            keyPassword 'studentcc123'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+    namespace 'tk.therealsuji.vtopchennai'
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation "androidx.core:core-splashscreen:1.0.1"
+    implementation 'androidx.room:room-runtime:2.6.1'
+    implementation 'androidx.room:room-rxjava3:2.6.1'
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    implementation 'com.google.android.material:material:1.8.0'
+
+    implementation 'com.squareup.retrofit2:adapter-rxjava3:2.9.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+
+    implementation 'commons-io:commons-io:2.6'
+
+    implementation 'io.noties.markwon:core:4.6.2'
+
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+
+    annotationProcessor 'androidx.room:room-compiler:2.6.1'
+    implementation 'com.google.mlkit:text-recognition:16.0.0'
+    
+    // Firebase dependencies
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-storage'
+    implementation 'com.google.firebase:firebase-messaging'
+}

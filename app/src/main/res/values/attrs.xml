@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="InfoCard">
+        <attr name="key" format="string" />
+        <attr name="value" format="string" />
+    </declare-styleable>
+
+
+
+    <declare-styleable name="PerformanceCard">
+        <attr name="title" format="string" />
+        <attr name="score" format="float" />
+        <attr name="total" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="TimetableItem">
+        <attr name="course_code" format="string" />
+        <attr name="course_type" format="enum">
+            <enum name="theory" value="0" />
+            <enum name="lab" value="1" />
+        </attr>
+        <attr name="end_time" format="string" />
+        <attr name="start_time" format="string" />
+    </declare-styleable>
+
+    <!-- Enhanced Attendance Attributes -->
+    <attr name="attendance_percentage_text_color" format="color" />
+    <attr name="attendance_subtext_color" format="color" />
+    <attr name="attendance_percentage_text_high_color" format="color" />
+    <attr name="attendance_percentage_text_medium_color" format="color" />
+    <attr name="attendance_percentage_text_low_color" format="color" />
+</resources>
