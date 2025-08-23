@@ -1,0 +1,63 @@
+name: Notify App Update
+
+on:
+  push:
+    branches: [ main, master ]
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - 'docs/**'
+
+jobs:
+  notify-users:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Get commit info
+      id: commit
+      run: |
+        echo "message=$(git log -1 --pretty=%B | head -1)" >> $GITHUB_OUTPUT
+        echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        echo "author=$(git log -1 --pretty=%an)" >> $GITHUB_OUTPUT
+        
+    - name: Send FCM Notification
+      run: |
+        curl -X POST https://fcm.googleapis.com/fcm/send \
+          -H "Authorization: key=${{ secrets.FCM_SERVER_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "to": "/topics/update_notifications",
+            "notification": {
+              "title": "StudentCC Update Available! 🚀",
+              "body": "New version with latest improvements. Visit our website to download!",
+              "icon": "ic_update_available",
+              "sound": "default"
+            },
+            "data": {
+              "type": "update_available",
+              "title": "StudentCC Update Available! 🚀",
+              "body": "Latest commit: ${{ steps.commit.outputs.message }} by ${{ steps.commit.outputs.author }}. Visit our website to download the latest version!",
+              "url": "https://salmanmalvasi.github.io/studentcc-landing.html",
+              "commit_sha": "${{ steps.commit.outputs.sha }}",
+              "commit_message": "${{ steps.commit.outputs.message }}",
+              "author": "${{ steps.commit.outputs.author }}"
+            },
+            "android": {
+              "priority": "high",
+              "notification": {
+                "channel_id": "update_notifications",
+                "priority": "high",
+                "default_sound": true,
+                "default_vibrate_timings": true
+              }
+            }
+          }'
+          
+    - name: Log notification sent
+      run: |
+        echo "🔔 Update notification sent for commit: ${{ steps.commit.outputs.sha }}"
+        echo "📝 Commit message: ${{ steps.commit.outputs.message }}"
+        echo "👤 Author: ${{ steps.commit.outputs.author }}"
