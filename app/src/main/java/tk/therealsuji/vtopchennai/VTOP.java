@@ -6,11 +6,17 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.material.color.DynamicColors;
 
+import tk.therealsuji.vtopchennai.helpers.FirebaseHelper;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 
 public class VTOP extends Application {
     @Override
     public void onCreate() {
+        super.onCreate();
+        
+        // Initialize Firebase services
+        FirebaseHelper.getInstance().initializeFirebase(this);
+        
         // Disable dynamic colors to use our custom black and white theme
         // DynamicColors.applyToActivitiesIfAvailable(this);
 
@@ -22,7 +28,5 @@ public class VTOP extends Application {
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         }
-
-        super.onCreate();
     }
 }

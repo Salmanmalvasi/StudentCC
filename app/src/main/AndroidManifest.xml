@@ -65,12 +65,26 @@
             android:foregroundServiceType="dataSync"
             android:label="VTOP" />
 
+        <service
+            android:name=".services.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
         <meta-data
             android:name="google_analytics_automatic_screen_reporting_enabled"
             android:value="false" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_update_available" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="update_notifications" />
 
         <receiver android:name=".receivers.ExamNotificationReceiver" />
         <receiver android:name=".receivers.TimetableNotificationReceiver" />

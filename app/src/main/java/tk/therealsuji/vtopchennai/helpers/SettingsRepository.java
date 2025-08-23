@@ -187,6 +187,21 @@ public class SettingsRepository {
         return hasPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
+    public static boolean hasNotificationPermission(Context context) {
+        // On android version 32 and below, notifications are always allowed
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+            return true;
+        }
+        return hasPermission(context, Manifest.permission.POST_NOTIFICATIONS);
+    }
+
+    public static boolean isNotificationPermissionGranted(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return hasPermission(context, Manifest.permission.POST_NOTIFICATIONS);
+        }
+        return true; // For Android 12 and below, notifications are enabled by default
+    }
+
     public static Observable<JSONObject> fetchAboutJson(boolean useVersion) {
         // Disable version checking to prevent update dialogs
         return Observable.fromCallable(() -> {

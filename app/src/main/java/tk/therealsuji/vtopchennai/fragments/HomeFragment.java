@@ -357,7 +357,9 @@ public class HomeFragment extends Fragment {
                                     case 3: // Work as Wednesday
                                     case 4: // Work as Thursday
                                     case 5: // Work as Friday
-                                        int targetDay = which - 1; // map to 1..5 (Mon..Fri)
+                                        // Fix: which=1 means Monday, which=2 means Tuesday, etc.
+                                        // So we need to map which=1->1 (Monday), which=2->2 (Tuesday), etc.
+                                        int targetDay = which; // map to 1..5 (Mon..Fri)
                                         sharedPreferences.edit()
                                                 .putBoolean("holiday_" + position, false)
                                                 .putInt("working_override_" + position, targetDay)
@@ -424,6 +426,8 @@ public class HomeFragment extends Fragment {
         }
 
         // Set current day as default, but allow easy navigation to other days
+        // Fix: Calendar.DAY_OF_WEEK returns 1=Sunday, 2=Monday, etc.
+        // We need: 0=Sunday, 1=Monday, etc.
         int currentDayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1;
         timetable.setCurrentItem(currentDayOfWeek);
 

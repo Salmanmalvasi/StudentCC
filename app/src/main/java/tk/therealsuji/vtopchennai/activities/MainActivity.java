@@ -51,6 +51,8 @@ import tk.therealsuji.vtopchennai.helpers.AppDatabase;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 import tk.therealsuji.vtopchennai.helpers.VTOPHelper;
 
+import android.Manifest;
+
 public class MainActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -64,9 +66,9 @@ public class MainActivity extends AppCompatActivity {
     ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    Toast.makeText(this, R.string.permission_granted, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.notification_permission_granted, Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(this, R.string.permission_denied, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.notification_permission_denied, Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -305,6 +307,13 @@ public class MainActivity extends AppCompatActivity {
         // getSupportFragmentManager().setFragmentResultListener("applyDynamicColors", this, (requestKey, result) -> this.recreate());
 
         this.getUnreadCount();
+
+        // Request for notification permissions on android 33 and above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (!SettingsRepository.hasNotificationPermission(this)) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
 
         this.bottomNavigationView.setOnItemSelectedListener(item -> {
             Fragment selectedFragment;

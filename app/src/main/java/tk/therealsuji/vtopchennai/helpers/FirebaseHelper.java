@@ -55,10 +55,71 @@ public class FirebaseHelper {
             // Initialize Firebase Messaging
             messaging = FirebaseMessaging.getInstance();
             
+            // Get FCM token for this device
+            initializeFCMToken(context);
+            
             Log.d(TAG, "Firebase services initialized successfully");
             
         } catch (Exception e) {
             Log.e(TAG, "Error initializing Firebase: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Initialize FCM token and save it
+     */
+    private void initializeFCMToken(Context context) {
+        messaging.getToken()
+            .addOnCompleteListener(task -> {
+                if (!task.isSuccessful()) {
+                    Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                    return;
+                }
+
+                // Get new FCM registration token
+                String token = task.getResult();
+                Log.d(TAG, "FCM Registration Token: " + token);
+                
+                // Save token to preferences
+                SettingsRepository.getSharedPreferences(context)
+                        .edit()
+                        .putString("fcm_token", token)
+                        .apply();
+                
+                // Subscribe to topic for update notifications
+                subscribeToUpdateTopic();
+            });
+    }
+    
+    /**
+     * Subscribe to update notifications topic
+     */
+    public void subscribeToUpdateTopic() {
+        if (messaging != null) {
+            messaging.subscribeToTopic("update_notifications")
+                .addOnCompleteListener(task -> {
+                    String msg = "Subscribed to update notifications";
+                    if (!task.isSuccessful()) {
+                        msg = "Failed to subscribe to update notifications";
+                    }
+                    Log.d(TAG, msg);
+                });
+        }
+    }
+    
+    /**
+     * Unsubscribe from update notifications topic
+     */
+    public void unsubscribeFromUpdateTopic() {
+        if (messaging != null) {
+            messaging.unsubscribeFromTopic("update_notifications")
+                .addOnCompleteListener(task -> {
+                    String msg = "Unsubscribed from update notifications";
+                    if (!task.isSuccessful()) {
+                        msg = "Failed to unsubscribe from update notifications";
+                    }
+                    Log.d(TAG, msg);
+                });
         }
     }
     

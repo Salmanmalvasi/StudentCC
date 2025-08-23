@@ -57,14 +57,13 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.View
         AppDatabase appDatabase = AppDatabase.getInstance(this.applicationContext);
         TimetableDao timetableDao = appDatabase.timetableDao();
 
-        // Convert 0-based position to the day system expected by the DAO
+        // Position mapping: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
         // DAO expects: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
-        // But the get() method uses: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
-        // So we need to map position 0->0, 1->1, 2->2, etc.
         int day = position;
 
-        // Weekend working override mapping (0=Sun, 6=Sat)
         SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this.applicationContext);
+        
+        // Weekend working override mapping (only for Sunday=0 and Saturday=6)
         if (position == 0 || position == 6) {
             int override = sharedPreferences.getInt("working_override_" + position, -1);
             if (override >= 0 && override <= 6) {
@@ -99,6 +98,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.View
                             return;
                         }
 
+                        // Calculate current day for status
                         int dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1;
                         int status = TimetableItemAdapter.STATUS_FUTURE;
 
