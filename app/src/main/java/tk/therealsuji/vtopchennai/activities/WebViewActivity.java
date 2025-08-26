@@ -2,6 +2,9 @@ package tk.therealsuji.vtopchennai.activities;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.graphics.Bitmap;
+import android.view.View;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
@@ -29,7 +32,20 @@ public class WebViewActivity extends AppCompatActivity {
         titleView.setText(title);
 
         WebView webView = findViewById(R.id.web_view);
-        webView.setWebViewClient(new WebViewClient());
+        View progressBar = findViewById(R.id.progress_bar);
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                progressBar.setVisibility(View.GONE);
+            }
+        });
+        webView.setWebChromeClient(new WebChromeClient());
         webView.getSettings().setJavaScriptEnabled(true);
         webView.loadUrl(url);
     }

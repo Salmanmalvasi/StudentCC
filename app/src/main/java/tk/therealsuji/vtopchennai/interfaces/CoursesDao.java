@@ -32,4 +32,7 @@ public interface CoursesDao {
     @Query("SELECT title AS courseTitle, type AS courseType, faculty, slot, venue, attended AS attendanceAttended, total AS attendanceTotal, percentage AS attendancePercentage " +
             "FROM courses LEFT JOIN slots ON slots.course_id = courses.id LEFT JOIN attendance ON attendance.course_id = courses.id WHERE code = :courseCode")
     Single<List<Course.AllData>> getCourse(String courseCode);
+
+    @Query("SELECT id FROM courses WHERE code = :courseCode LIMIT 1")
+    Single<Integer> getCourseIdByCode(String courseCode);
 }

@@ -57,7 +57,7 @@
     </style>
 
     <style name="Theme.VTOP.Login" parent="Base.Theme.VTOP">
-        <item name="android:windowBackground">@color/colorPrimaryContainerBlack</item>
+        <item name="android:windowBackground">@color/colorBackgroundBlack</item>
     </style>
 
 </resources>

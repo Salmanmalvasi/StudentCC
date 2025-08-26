@@ -207,4 +207,27 @@
     <string name="credits_being_added">Credits being added: %.1f</string>
     <string name="enter_valid_values">Please enter valid values</string>
     <string name="select_theme">Select Theme</string>
+    
+    <!-- VHelp Links -->
+    <string name="vhelp_study_material">VHelp - Study Material</string>
+    <string name="vhelp_pyqs">VHelp - PYQs</string>
+    <string name="vhelp_home">VHelp - Home</string>
+    <string name="loading">Loading…</string>
+
+    <!-- Attendance Calculator -->
+    <string name="attendance_calculator">Attendance Calculator</string>
+    <string name="total_classes_held">Total classes held till date</string>
+    <string name="total_classes_attended">Total classes attended till date</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="weekdays">Weekdays</string>
+    <string name="calculate">Calculate</string>
+    <string name="classes_before_absence">Classes before absence</string>
+    <string name="classes_missed">Classes missed in absence</string>
+    <string name="new_total_classes">New total classes</string>
+    <string name="classes_attended">Classes attended</string>
+    <string name="final_attendance_percent">Final attendance %%</string>
+    <string name="pick_date">Pick date</string>
+    <string name="invalid_input">Please enter valid numbers</string>
+    <string name="end_after_start">End date should be after start date</string>
 </resources>

@@ -87,8 +87,8 @@
     <!-- Black/Neutral Theme Colors (Dark Mode) -->
     <color name="colorPrimaryBlack">#FFFFFF</color>
     <color name="colorOnPrimaryBlack">#000000</color>
-    <color name="colorPrimaryContainerBlack">#9E9E9E</color>
-    <color name="colorOnPrimaryContainerBlack">#E0E0E0</color>
+    <color name="colorPrimaryContainerBlack">#000000</color>
+    <color name="colorOnPrimaryContainerBlack">#FFFFFF</color>
     <color name="colorSecondaryBlack">#9E9E9E</color>
     <color name="colorOnSecondaryBlack">#E0E0E0</color>
     <color name="colorSecondaryContainerBlack">#0d1117</color>

@@ -157,11 +157,55 @@ public class ProfileFragment extends Fragment {
                     null
             ),
             new ItemData(
+                    R.drawable.ic_link,
+                    R.string.vhelp_study_material,
+                    context -> SettingsRepository.openWebViewActivity(
+                            context,
+                            context.getString(R.string.vhelp_study_material),
+                            "https://www.vhelpcc.com/study-material"
+                    ),
+                    null
+            ),
+            new ItemData(
+                    R.drawable.ic_link,
+                    R.string.vhelp_pyqs,
+                    context -> SettingsRepository.openWebViewActivity(
+                            context,
+                            context.getString(R.string.vhelp_pyqs),
+                            "https://www.vhelpcc.com/pyqs"
+                    ),
+                    null
+            ),
+            new ItemData(
+                    R.drawable.ic_link,
+                    R.string.vhelp_home,
+                    context -> SettingsRepository.openWebViewActivity(
+                            context,
+                            context.getString(R.string.vhelp_home),
+                            "https://www.vhelpcc.com/"
+                    ),
+                    null
+            ),
+            new ItemData(
                     R.drawable.ic_gpa_calculator,
                     R.string.select_theme,
                     context -> {
                         Intent intent = new Intent(context, tk.therealsuji.vtopchennai.activities.ThemeSelectorActivity.class);
                         context.startActivity(intent);
+                    },
+                    null
+            ),
+            new ItemData(
+                    R.drawable.ic_gpa_calculator,
+                    R.string.attendance_calculator,
+                    context -> {
+                        FragmentActivity activity = (FragmentActivity) context;
+                        AttendanceCalculatorFragment fragment = new AttendanceCalculatorFragment();
+                        activity.getSupportFragmentManager().beginTransaction()
+                                .setCustomAnimations(R.anim.slide_in_right, 0, 0, R.anim.slide_out_right)
+                                .add(android.R.id.content, fragment)
+                                .addToBackStack(null)
+                                .commit();
                     },
                     null
             ),
