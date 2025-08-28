@@ -1,5 +1,7 @@
 package tk.therealsuji.vtopchennai.adapters;
 
+import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,8 +72,10 @@ public class EmptyStateAdapter extends RecyclerView.Adapter<EmptyStateAdapter.Vi
                 holder.setText(R.string.no_marks);
                 break;
             case TYPE_NO_TIMETABLE:
-                holder.setImage(R.drawable.image_no_classes);
+                holder.setImage(R.drawable.animated_day_off);
                 holder.setText(R.string.no_classes);
+                // Start the animation for day off
+                holder.startDayOffAnimation();
                 break;
             case TYPE_NOT_AUTHENTICATED:
                 holder.setImage(R.drawable.image_not_authenticated);
@@ -118,6 +122,14 @@ public class EmptyStateAdapter extends RecyclerView.Adapter<EmptyStateAdapter.Vi
                     0,
                     0
             );
+        }
+
+        public void startDayOffAnimation() {
+            Drawable[] drawables = this.noData.getCompoundDrawablesRelative();
+            if (drawables[1] instanceof AnimatedVectorDrawable) {
+                AnimatedVectorDrawable animatedDrawable = (AnimatedVectorDrawable) drawables[1];
+                animatedDrawable.start();
+            }
         }
 
         public void setText(@StringRes int stringId) {

@@ -32,9 +32,7 @@ import tk.therealsuji.vtopchennai.adapters.ProfileGroupAdapter;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 
 public class ProfileFragment extends Fragment {
-    /*
-        User Related Profile Items
-     */
+    
     private final ItemData[] personalProfileItems = {
             new ItemData(
                     R.drawable.ic_courses,
@@ -95,13 +93,85 @@ public class ProfileFragment extends Fragment {
                             }
                         });
                     }
+            ),
+            new ItemData(
+                    R.drawable.ic_gpa_calculator,
+                    R.string.attendance_calculator,
+                    context -> {
+                        FragmentActivity activity = (FragmentActivity) context;
+                        AttendanceCalculatorFragment fragment = new AttendanceCalculatorFragment();
+                        activity.getSupportFragmentManager().beginTransaction()
+                                .setCustomAnimations(R.anim.slide_in_right, 0, 0, R.anim.slide_out_right)
+                                .add(android.R.id.content, fragment)
+                                .addToBackStack(null)
+                                .commit();
+                    },
+                    null
+            ),
+            new ItemData(
+                    R.drawable.ic_link,
+                    R.string.important_links,
+                    context -> {
+                        // Create dialog with important links
+                        String[] links = {
+                                context.getString(R.string.vitol_freshers),
+                                context.getString(R.string.vitol_seniors),
+                                context.getString(R.string.lms),
+                                context.getString(R.string.ffcs)
+                        };
+                        
+                        String[] urls = {
+                                "https://vitolcc1.vit.ac.in/",
+                                "https://vitolcc.vit.ac.in/",
+                                "https://lms.vit.ac.in/login/index.php",
+                                "https://vtopregcc.vit.ac.in/RegistrationNew/"
+                        };
+                        
+                        new MaterialAlertDialogBuilder(context)
+                                .setTitle(R.string.important_links)
+                                .setItems(links, (dialog, which) -> {
+                                    SettingsRepository.openBrowser(context, urls[which]);
+                                })
+                                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+                                .show();
+                    },
+                    null
             )
     };
 
-    /*
-        Application Related Profile Items
-     */
-    private final ItemData[] applicationProfileItems = {
+    
+    private final ItemData[] vhelpProfileItems = {
+            new ItemData(
+                    R.drawable.ic_link,
+                    R.string.vhelp_home,
+                    context -> SettingsRepository.openBrowser(
+                            context,
+                            "https://www.vhelpcc.com/"
+                    ),
+                    null
+            ),
+            new ItemData(
+                    R.drawable.ic_link,
+                    R.string.vhelp_pyqs,
+                    context -> SettingsRepository.openBrowser(
+                            context,
+                            "https://www.vhelpcc.com/pyqs"
+                    ),
+                    null
+            ),
+            new ItemData(
+                    R.drawable.ic_link,
+                    R.string.vhelp_study_material,
+                    context -> SettingsRepository.openBrowser(
+                            context,
+                            "https://www.vhelpcc.com/study-material"
+                    ),
+                    null
+            )
+    };
+
+    
+    private final ItemData[] themesProfileItems = {
             new ItemData(
                     R.drawable.ic_appearance,
                     R.string.appearance,
@@ -128,10 +198,7 @@ public class ProfileFragment extends Fragment {
                         amoledSwitch.setChecked(sharedPreferences.getBoolean("amoledMode", false));
                         amoledSwitch.setOnCheckedChangeListener((compoundButton, isAmoledModeEnabled) -> {
                             sharedPreferences.edit().putBoolean("amoledMode", isAmoledModeEnabled).apply();
-                            // Disable dynamic colors to use our custom black and white theme
-                            // Bundle applyDynamicColors = new Bundle();
-                            // applyDynamicColors.putBoolean("amoledMode", isAmoledModeEnabled);
-                            // getParentFragmentManager().setFragmentResult("applyDynamicColors", applyDynamicColors);
+                            
                         });
 
                         new MaterialAlertDialogBuilder(context)
@@ -157,36 +224,6 @@ public class ProfileFragment extends Fragment {
                     null
             ),
             new ItemData(
-                    R.drawable.ic_link,
-                    R.string.vhelp_study_material,
-                    context -> SettingsRepository.openWebViewActivity(
-                            context,
-                            context.getString(R.string.vhelp_study_material),
-                            "https://www.vhelpcc.com/study-material"
-                    ),
-                    null
-            ),
-            new ItemData(
-                    R.drawable.ic_link,
-                    R.string.vhelp_pyqs,
-                    context -> SettingsRepository.openWebViewActivity(
-                            context,
-                            context.getString(R.string.vhelp_pyqs),
-                            "https://www.vhelpcc.com/pyqs"
-                    ),
-                    null
-            ),
-            new ItemData(
-                    R.drawable.ic_link,
-                    R.string.vhelp_home,
-                    context -> SettingsRepository.openWebViewActivity(
-                            context,
-                            context.getString(R.string.vhelp_home),
-                            "https://www.vhelpcc.com/"
-                    ),
-                    null
-            ),
-            new ItemData(
                     R.drawable.ic_gpa_calculator,
                     R.string.select_theme,
                     context -> {
@@ -194,21 +231,11 @@ public class ProfileFragment extends Fragment {
                         context.startActivity(intent);
                     },
                     null
-            ),
-            new ItemData(
-                    R.drawable.ic_gpa_calculator,
-                    R.string.attendance_calculator,
-                    context -> {
-                        FragmentActivity activity = (FragmentActivity) context;
-                        AttendanceCalculatorFragment fragment = new AttendanceCalculatorFragment();
-                        activity.getSupportFragmentManager().beginTransaction()
-                                .setCustomAnimations(R.anim.slide_in_right, 0, 0, R.anim.slide_out_right)
-                                .add(android.R.id.content, fragment)
-                                .addToBackStack(null)
-                                .commit();
-                    },
-                    null
-            ),
+            )
+    };
+
+    
+    private final ItemData[] otherProfileItems = {
             new ItemData(
                     R.drawable.ic_notifications,
                     R.string.notifications,
@@ -285,17 +312,19 @@ public class ProfileFragment extends Fragment {
 
     private final ItemData[][] profileItems = {
             personalProfileItems,
-            applicationProfileItems
+            themesProfileItems,
+            vhelpProfileItems,
+            otherProfileItems
     };
 
     private final int[] profileGroups = {
             R.string.personal,
-            R.string.application
+            R.string.themes,
+            R.string.vhelp,
+            R.string.other
     };
 
-    /*
-        App announcements
-     */
+    
     private final ItemData[] announcementItems = {
             new ItemData(
                     R.drawable.ic_whats_new,
@@ -306,7 +335,7 @@ public class ProfileFragment extends Fragment {
     };
 
     public ProfileFragment() {
-        // Required empty public constructor
+        
     }
 
     @Override
@@ -356,8 +385,7 @@ public class ProfileFragment extends Fragment {
                     (int) (bottomNavigationHeight + 20 * pixelDensity)
             );
 
-            // Only one listener can be added per requestKey, so we create a duplicate
-            getParentFragmentManager().setFragmentResult("customInsets2", result);
+            
         });
 
         RecyclerView announcements = profileFragment.findViewById(R.id.recycler_view_announcements);

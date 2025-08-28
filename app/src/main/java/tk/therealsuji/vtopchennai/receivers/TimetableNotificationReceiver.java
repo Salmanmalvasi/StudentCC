@@ -3,6 +3,7 @@ package tk.therealsuji.vtopchennai.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -37,7 +38,24 @@ public class TimetableNotificationReceiver extends BroadcastReceiver {
 
         SimpleDateFormat hour24 = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
 
-        int day = calendar.get(Calendar.DAY_OF_WEEK) - 1;
+        int day = calendar.get(Calendar.DAY_OF_WEEK) - 1; // 0=Sun..6=Sat
+
+        // Respect holiday flags and weekend working-day overrides
+        SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(context);
+        if (sharedPreferences != null) {
+            boolean isHoliday = sharedPreferences.getBoolean("holiday_" + day, false);
+            if (isHoliday) {
+                return;
+            }
+
+            // For weekend (Sun=0, Sat=6), allow mapping to Mon..Fri (1..5)
+            int workingOverride = sharedPreferences.getInt("working_override_" + day, -1);
+            if (workingOverride >= 1 && workingOverride <= 5) {
+                day = workingOverride; // map to weekday index used in TimetableDao.get* switches
+            }
+        }
+
+        final int effectiveDay = day;
         String currentTime = hour24.format(calendar.getTime());
         String futureTime = hour24.format(calendarFuture.getTime());
 
@@ -60,7 +78,7 @@ public class TimetableNotificationReceiver extends BroadcastReceiver {
                         }
 
                         timetableDao
-                                .getUpcoming(day, currentTime, futureTime)
+                                .getUpcoming(effectiveDay, currentTime, futureTime)
                                 .subscribeOn(Schedulers.single())
                                 .subscribe(new SingleObserver<Timetable.AllData>() {
                                     @Override
@@ -82,7 +100,7 @@ public class TimetableNotificationReceiver extends BroadcastReceiver {
                                     @Override
                                     public void onError(@NonNull Throwable e) {
                                         timetableDao
-                                                .getOngoing(day, currentTime)
+                                                .getOngoing(effectiveDay, currentTime)
                                                 .subscribeOn(Schedulers.single())
                                                 .subscribe(new SingleObserver<Timetable.AllData>() {
                                                     @Override

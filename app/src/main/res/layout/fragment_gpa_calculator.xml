@@ -40,6 +40,35 @@
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="16sp" />
 
+            <!-- Current CGPA and Credits Display -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:gravity="start">
+
+                <TextView
+                    android:id="@+id/current_cgpa_display"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Current CGPA: --"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="24dp" />
+
+                <TextView
+                    android:id="@+id/current_credits_display"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Credits: --"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
         <!-- Add Course Section - Single Horizontal Row -->
@@ -266,6 +295,40 @@
                 app:icon="@drawable/ic_done"
                 app:iconGravity="textStart" />
 
+            <!-- Calculate GPA and Clear All buttons below Calculate CGPA -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/calculate_gpa_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:text="@string/calculate_gpa"
+                    android:textSize="14sp"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_gpa_calculator"
+                    app:iconGravity="textStart" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/clear_all_button"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="@string/clear_all"
+                    android:textSize="14sp"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_close"
+                    app:iconGravity="textStart" />
+
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/cgpa_result_text"
                 android:layout_width="wrap_content"
@@ -369,39 +432,7 @@
 
         </LinearLayout>
 
-        <!-- Action Buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="100dp"
-            android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/calculate_gpa_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:text="@string/calculate_gpa"
-                android:textSize="14sp"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_gpa_calculator"
-                app:iconGravity="textStart" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/clear_all_button"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:text="@string/clear_all"
-                android:textSize="14sp"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_close"
-                app:iconGravity="textStart" />
-
-        </LinearLayout>
 
         <!-- Extra Spacing for Maximum Scrollability -->
         <View

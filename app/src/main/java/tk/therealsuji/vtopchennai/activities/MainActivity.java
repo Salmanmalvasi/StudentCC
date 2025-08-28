@@ -175,22 +175,22 @@ public class MainActivity extends AppCompatActivity {
         int selectedTheme = sharedPreferences.getInt("selectedTheme", 0);
 
         switch (selectedTheme) {
-            case 1: // Red theme
+            case 1:
                 setTheme(R.style.Theme_VTOP_Red);
                 break;
-            case 2: // Blue theme
+            case 2:
                 setTheme(R.style.Theme_VTOP_Blue);
                 break;
-            case 3: // Purple theme
+            case 3:
                 setTheme(R.style.Theme_VTOP_Purple);
                 break;
-            case 4: // Green theme
+            case 4:
                 setTheme(R.style.Theme_VTOP_Green);
                 break;
-            case 5: // Black theme
+            case 5:
                 setTheme(R.style.Theme_VTOP_Black);
                 break;
-            default: // Default white theme
+            default:
                 setTheme(R.style.Theme_VTOP);
                 break;
         }
@@ -246,10 +246,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         boolean amoledMode = SettingsRepository.getSharedPreferences(this).getBoolean("amoledMode", false);
-        // Disable dynamic colors to use our custom black and white theme
-        // SettingsRepository.applyDynamicColors(this, amoledMode);
-
-        // Apply selected theme
+        // Disable dynamic colors (use custom theme)
         applySelectedTheme();
 
         super.onCreate(savedInstanceState);
@@ -282,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
 
                     getSupportFragmentManager().setFragmentResult("customInsets", customInsets);
 
-                    // Send the bottom navigation height to all fragments when ready
+                    // Broadcast bottom navigation height
                     bottomNavigationView.post(() -> {
                         customInsets.putInt("bottomNavigationHeight", bottomNavigationView.getMeasuredHeight());
                         getSupportFragmentManager().setFragmentResult("customInsets", customInsets);
@@ -303,12 +300,11 @@ public class MainActivity extends AppCompatActivity {
         syncDataState.putBoolean("isLoading", false);
         getSupportFragmentManager().setFragmentResultListener("syncData", this, (requestKey, result) -> this.syncData());
         getSupportFragmentManager().setFragmentResultListener("getUnreadCount", this, (requestKey, result) -> this.getUnreadCount());
-        // Disable dynamic colors listener to use our custom black and white theme
-        // getSupportFragmentManager().setFragmentResultListener("applyDynamicColors", this, (requestKey, result) -> this.recreate());
+        // Dynamic colors listener disabled
 
         this.getUnreadCount();
 
-        // Request for notification permissions on android 33 and above
+        // Request notification permission (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (!SettingsRepository.hasNotificationPermission(this)) {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
@@ -396,9 +392,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /*
-            Check for updates
-         */
+        /* Keep legacy loading logic reference (collapsed) */
         Context context = this;
         SettingsRepository.fetchAboutJson(true)
                 .subscribe(new Observer<JSONObject>() {

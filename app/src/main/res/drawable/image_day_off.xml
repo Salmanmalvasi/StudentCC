@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Optional background circle -->
+    <path
+        android:fillColor="?attr/colorPrimaryContainer"
+        android:pathData="M100,0a100,100 0 1,0 0.1,0z" />
+
+    <!-- Bed base -->
+    <path
+        android:fillColor="?attr/colorSurface"
+        android:pathData="M30,140h140a10,10 0 0 1 10,10v20h-160v-20a10,10 0 0 1 10,-10z" />
+
+    <!-- Pillow -->
+    <path
+        android:fillColor="?attr/colorSurfaceVariant"
+        android:pathData="M30,120h40v20h-40z" />
+
+    <!-- Person's body -->
+    <path
+        android:fillColor="?attr/colorSecondary"
+        android:pathData="M70,120h80a10,10 0 0 1 10,10v10a10,10 0 0 1 -10,10h-80a10,10 0 0 1 -10,-10v-10a10,10 0 0 1 10,-10z" />
+
+    <!-- Person's head (circle) -->
+    <path
+        android:fillColor="?attr/colorTertiary"
+        android:pathData="M55,115a10,10 0 1,0 20,0a10,10 0 1,0 -20,0" />
+
+    <!-- Z's -->
+    <path
+        android:fillColor="?attr/colorOnSurfaceVariant"
+        android:pathData="M140,70l8,-8h-8l8,-8h-8" />
+    <path
+        android:fillColor="?attr/colorOnSurfaceVariant"
+        android:pathData="M155,50l6,-6h-6l6,-6h-6" />
+</vector>

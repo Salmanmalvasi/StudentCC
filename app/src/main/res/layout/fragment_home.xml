@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface">
 
+        <!-- Header Section -->
         <LinearLayout
             android:id="@+id/linear_layout_header"
             android:layout_width="match_parent"
@@ -19,88 +20,104 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
-            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:orientation="vertical"
+            android:background="@drawable/background_header_gradient"
+            android:padding="20dp"
+            android:elevation="4dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
+            <!-- Greeting and Name Section -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
 
-                <TextView
-                    android:id="@+id/text_view_greeting"
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/text_view_greeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/morning_greeting"
+                        android:textAllCaps="true"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_view_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/name"
+                        android:textAllCaps="true"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+                <!-- Action Buttons -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/morning_greeting"
-                    android:textAllCaps="true"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="15sp" />
+                    android:orientation="horizontal"
+                    android:background="@drawable/background_action_buttons"
+                    android:padding="8dp">
 
-                <TextView
-                    android:id="@+id/text_view_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/name"
-                    android:textAllCaps="true"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="30sp"
-                    android:textStyle="bold" />
+                    <ImageButton
+                        android:id="@+id/image_button_sync"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/sync"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_sync"
+                        app:tint="?attr/colorPrimary" />
+
+                    <ImageButton
+                        android:id="@+id/image_button_spotlight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/spotlight"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_spotlight"
+                        app:tint="?attr/colorPrimary" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
-            <ImageButton
-                android:id="@+id/image_button_sync"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/sync"
-                android:padding="12dp"
-                android:src="@drawable/ic_sync"
-                app:tint="?attr/colorPrimary" />
-
-            <ImageButton
-                android:id="@+id/image_button_spotlight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/spotlight"
-                android:padding="12dp"
-                android:src="@drawable/ic_spotlight"
-                app:tint="?attr/colorPrimary" />
-        </LinearLayout>
-
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
-            android:clipToPadding="false"
-            android:paddingStart="0dp"
-            android:paddingEnd="0dp"
-            android:scrollbars="none">
-
+            <!-- Quick Stats Row -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
+                <!-- Attendance Card -->
                 <LinearLayout
                     android:id="@+id/attendance_card"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="24dp"
-                    android:layout_marginEnd="20dp">
+                    android:padding="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/background_stats_card"
+                    android:elevation="2dp">
 
                     <FrameLayout
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
                         android:gravity="center"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
@@ -109,13 +126,13 @@
 
                         <tk.therealsuji.vtopchennai.widgets.CircularProgressDrawable
                             android:id="@+id/attendance_progress"
-                            android:layout_width="80dp"
-                            android:layout_height="80dp" />
+                            android:layout_width="60dp"
+                            android:layout_height="60dp" />
 
                         <View
                             android:id="@+id/attendance_background"
-                            android:layout_width="60dp"
-                            android:layout_height="60dp"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
                             android:layout_gravity="center"
                             android:background="@drawable/attendance_percentage_background" />
 
@@ -124,7 +141,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:textSize="18sp"
+                            android:textSize="14sp"
                             android:textStyle="bold"
                             android:textColor="@android:color/white"
                             android:shadowColor="#CC000000"
@@ -133,7 +150,7 @@
                             android:shadowRadius="4"
                             android:maxLines="1"
                             android:ellipsize="end"
-                            android:minWidth="40dp"
+                            android:minWidth="30dp"
                             android:text="96%" />
 
                     </FrameLayout>
@@ -144,67 +161,71 @@
                         android:layout_marginTop="8dp"
                         android:textSize="12sp"
                         android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold"
                         android:text="@string/overall_attendance" />
 
                 </LinearLayout>
 
+                <!-- Today's Classes Card -->
                 <LinearLayout
-                    android:id="@+id/academic_card"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="24dp"
-                    android:layout_marginStart="20dp">
+                    android:padding="16dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/background_stats_card"
+                    android:elevation="2dp">
 
-                    <FrameLayout
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/cgpa_circle"
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            android:gravity="center"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:shadowColor="#80000000"
-                            android:shadowDx="0"
-                            android:shadowDy="2"
-                            android:shadowRadius="3"
-                            android:background="@drawable/circle_background"
-                            android:text="8.75" />
-
-                    </FrameLayout>
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_courses"
+                        android:contentDescription="Today's classes"
+                        app:tint="?attr/colorPrimary" />
 
                     <TextView
-                        android:id="@+id/credits_text"
+                        android:id="@+id/todays_classes_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:textSize="18sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold"
+                        android:text="4" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
                         android:textSize="12sp"
                         android:textColor="?attr/colorOnSurface"
-                        android:text="38 Credits" />
+                        android:text="Today's Classes" />
 
                 </LinearLayout>
 
             </LinearLayout>
 
-        </HorizontalScrollView>
+        </LinearLayout>
 
+        <!-- Days Tab Layout -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout_days"
             style="@style/Widget.VTOP.AttendanceTabLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="?attr/colorSurface"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="16dp"
             android:contentDescription="@string/days"
             app:tabMaxWidth="80dp"
-            app:tabMinWidth="60dp" />
+            app:tabMinWidth="60dp"
+            app:tabTextColor="?attr/colorOnSurface"
+            app:tabSelectedTextColor="?attr/colorPrimary"
+            app:tabIndicatorColor="?attr/colorPrimary"
+            app:tabIndicatorHeight="3dp" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager2.widget.ViewPager2

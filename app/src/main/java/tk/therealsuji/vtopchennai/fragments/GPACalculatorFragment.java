@@ -45,6 +45,10 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
     private TextInputEditText currentCreditsInput;
     private TextView cgpaResultText;
     
+    // Current CGPA and Credits Display
+    private TextView currentCGPADisplay;
+    private TextView currentCreditsDisplay;
+    
     // CGPA Estimator UI elements
     private TextInputEditText targetCGPAInput;
     private TextInputEditText semesterCreditsInput;
@@ -85,6 +89,10 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         currentCGPAInput = view.findViewById(R.id.current_cgpa_input);
         currentCreditsInput = view.findViewById(R.id.current_credits_input);
         cgpaResultText = view.findViewById(R.id.cgpa_result_text);
+        
+        // Initialize Current CGPA and Credits Display
+        currentCGPADisplay = view.findViewById(R.id.current_cgpa_display);
+        currentCreditsDisplay = view.findViewById(R.id.current_credits_display);
         
         // Initialize CGPA Estimator UI elements
         targetCGPAInput = view.findViewById(R.id.target_cgpa_input);
@@ -133,6 +141,9 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         float currentCGPA = sharedPreferences.getFloat("cgpa", 0);
         if (currentCGPA > 0) {
             currentCGPAInput.setText(String.format("%.2f", currentCGPA));
+            currentCGPADisplay.setText(getString(R.string.current_cgpa_display, currentCGPA));
+        } else {
+            currentCGPADisplay.setText("Current CGPA: --");
         }
 
         // Auto-fill current credits
@@ -146,6 +157,9 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
 
         if (totalCredits > 0) {
             currentCreditsInput.setText(String.format("%.1f", totalCredits));
+            currentCreditsDisplay.setText(getString(R.string.current_credits_display, totalCredits));
+        } else {
+            currentCreditsDisplay.setText("Total Credits: --");
         }
     }
 

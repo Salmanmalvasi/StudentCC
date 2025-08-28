@@ -13,9 +13,9 @@
 
     <!-- MainActivity Strings -->
     <string name="home">Home</string>
-    <string name="performance">Performance</string>
+    <string name="performance">Marks</string>
     <string name="assignments">Assignments</string>
-    <string name="gpa_calculator">GPA Calculator</string>
+    <string name="gpa_calculator">GPA</string>
     <string name="profile">Profile</string>
 
     <!-- HomeFragment Strings -->
@@ -68,7 +68,9 @@
     <!-- ProfileFragment Strings -->
     <string name="profile_header">Your Profile</string>
     <string name="personal">Personal</string>
-    <string name="application">Application</string>
+    <string name="vhelp">VHelp</string>
+    <string name="themes">Themes</string>
+    <string name="other">Other</string>
     <string name="courses">Courses</string>
     <string name="exam_schedule">Exam Schedule</string>
     <string name="receipts">Receipts</string>
@@ -171,6 +173,13 @@
     <!-- GPA Calculator Strings -->
     <string name="gpa_calculator_header">VIT GPA Calculator</string>
     <string name="gpa_calculator_description">Calculate your CGPA using VIT\'s grading system</string>
+    <string name="current_cgpa_display">Current CGPA: %1$.2f</string>
+    <string name="current_credits_display">Total Credits: %1$.1f</string>
+    <string name="important_links">Important Links</string>
+    <string name="vitol_freshers">Vitol(Freshers)</string>
+    <string name="vitol_seniors">Vitol(Seniors)</string>
+    <string name="lms">LMS</string>
+    <string name="ffcs">FFCS</string>
     <string name="add_course">Add Course</string>
     <string name="course_name">Course Name</string>
     <string name="credit_hours">Credit Hours</string>
@@ -209,9 +218,9 @@
     <string name="select_theme">Select Theme</string>
     
     <!-- VHelp Links -->
-    <string name="vhelp_study_material">VHelp - Study Material</string>
-    <string name="vhelp_pyqs">VHelp - PYQs</string>
-    <string name="vhelp_home">VHelp - Home</string>
+    <string name="vhelp_home">Home</string>
+    <string name="vhelp_pyqs">PYQs</string>
+    <string name="vhelp_study_material">Study Material</string>
     <string name="loading">Loading…</string>
 
     <!-- Attendance Calculator -->

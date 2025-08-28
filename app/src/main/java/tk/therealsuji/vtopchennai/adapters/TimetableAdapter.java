@@ -57,13 +57,12 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.View
         AppDatabase appDatabase = AppDatabase.getInstance(this.applicationContext);
         TimetableDao timetableDao = appDatabase.timetableDao();
 
-        // Position mapping: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
-        // DAO expects: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
+        // Position/DAO mapping: 0..6 = Sun..Sat
         int day = position;
 
         SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this.applicationContext);
         
-        // Weekend working override mapping (only for Sunday=0 and Saturday=6)
+        // Weekend working override for Sun(0) and Sat(6)
         if (position == 0 || position == 6) {
             int override = sharedPreferences.getInt("working_override_" + position, -1);
             if (override >= 0 && override <= 6) {
@@ -71,14 +70,14 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.View
             }
         }
 
-        // Check if the selected (possibly overridden) day is marked as holiday
+        // Holiday check
         boolean isHoliday = sharedPreferences.getBoolean("holiday_" + position, false);
         if (isHoliday) {
             timetableView.setAdapter(new EmptyStateAdapter(EmptyStateAdapter.TYPE_NO_TIMETABLE, timetableView.getContext().getString(R.string.no_classes)));
             return;
         }
 
-        // Preserve computed day as effectively final for inner class usage
+        // Preserve computed day as effectively final
         final int finalDay = day;
 
         timetableDao
@@ -98,7 +97,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.View
                             return;
                         }
 
-                        // Calculate current day for status
+                        // Calculate status for current day
                         int dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1;
                         int status = TimetableItemAdapter.STATUS_FUTURE;
 

@@ -33,9 +33,13 @@ import java.util.Locale;
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.adapters.TimetableAdapter;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
+import tk.therealsuji.vtopchennai.helpers.AppDatabase;
 import tk.therealsuji.vtopchennai.widgets.AttendanceInfoCard;
 import tk.therealsuji.vtopchennai.widgets.CircularProgressDrawable;
 import android.widget.ProgressBar;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class HomeFragment extends Fragment {
 
@@ -133,13 +137,20 @@ public class HomeFragment extends Fragment {
         }
 
         String name = sharedPreferences.getString("name", getString(R.string.name));
-        ((TextView) homeFragment.findViewById(R.id.text_view_name)).setText(name);
+        TextView nameTextView = homeFragment.findViewById(R.id.text_view_name);
+        nameTextView.setText(name);
+        
+        // Set text colors to primary theme color
+        int primaryColor = MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, android.R.color.black);
+        greeting.setTextColor(primaryColor);
+        nameTextView.setTextColor(primaryColor);
 
-        // Attendance, Credits, CGPA Cards
+        // Attendance Card
         CircularProgressDrawable attendanceProgress = homeFragment.findViewById(R.id.attendance_progress);
         TextView attendancePercentage = homeFragment.findViewById(R.id.attendance_percentage);
-        TextView cgpaCircle = homeFragment.findViewById(R.id.cgpa_circle);
-        TextView creditsText = homeFragment.findViewById(R.id.credits_text);
+        
+        // Today's Classes Card
+        TextView todaysClassesCount = homeFragment.findViewById(R.id.todays_classes_count);
 
         int overallAttendance = sharedPreferences.getInt("overallAttendance", 0);
 
@@ -205,41 +216,32 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        float totalCredits;
-        try {
-            // Support old integer based credits
-            totalCredits = sharedPreferences.getInt("totalCredits", 0);
-        } catch (Exception ignored) {
-            totalCredits = sharedPreferences.getFloat("totalCredits", 0);
+        // Calculate today's classes count
+        Calendar today = Calendar.getInstance();
+        int dayOfWeek = today.get(Calendar.DAY_OF_WEEK);
+        // Convert to 1-based index (Sunday = 1, Monday = 2, etc.) for the DAO
+        int dayIndex = dayOfWeek;
+        
+        // Check if today is marked as holiday
+        boolean isTodayHoliday = sharedPreferences.getBoolean("holiday_" + (dayOfWeek - 1), false);
+        
+        if (isTodayHoliday) {
+            // Show "Holiday" instead of class count
+            todaysClassesCount.setText("Holiday");
+        } else {
+            // Get today's classes count from database
+            AppDatabase appDatabase = AppDatabase.getInstance(this.requireContext());
+            appDatabase.timetableDao().get(dayIndex)
+                    .subscribeOn(Schedulers.single())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(timetables -> {
+                        int classCount = timetables.size();
+                        todaysClassesCount.setText(String.valueOf(classCount));
+                    }, throwable -> {
+                        // Fallback to 0 if error
+                        todaysClassesCount.setText("0");
+                    });
         }
-
-        float cgpaValue = sharedPreferences.getFloat("cgpa", 0);
-
-        // Prepare values
-        String formattedCGPA = new DecimalFormat("#.00").format(cgpaValue);
-        String creditsNumberDisplay = totalCredits == (int) totalCredits ?
-                String.valueOf((int) totalCredits) :
-                String.valueOf(totalCredits);
-
-        // Default: show Credits in the circle, label beneath shows "Credits"
-        cgpaCircle.setText(creditsNumberDisplay);
-        creditsText.setText(getString(R.string.credits));
-
-        // Tap to toggle between Credits and CGPA
-        final boolean[] showingCredits = { true };
-        View.OnClickListener toggleAcademicCard = v -> {
-            showingCredits[0] = !showingCredits[0];
-            if (showingCredits[0]) {
-                cgpaCircle.setText(creditsNumberDisplay);
-                creditsText.setText(getString(R.string.credits));
-            } else {
-                cgpaCircle.setText(formattedCGPA);
-                creditsText.setText(getString(R.string.cgpa));
-            }
-        };
-        cgpaCircle.setOnClickListener(toggleAcademicCard);
-        View academicCard = homeFragment.findViewById(R.id.academic_card);
-        if (academicCard != null) academicCard.setOnClickListener(toggleAcademicCard);
 
         // Spotlight Button
         View spotlightButton = homeFragment.findViewById(R.id.image_button_spotlight);
@@ -317,6 +319,8 @@ public class HomeFragment extends Fragment {
             tab.setText(dayAbbreviation);
             tab.view.setContentDescription(dayStrings[position]);
             TooltipCompat.setTooltipText(tab.view, dayStrings[position]);
+            
+            // Tab text colors are handled by XML attributes in the layout
 
             // Indicate holiday state in tab appearance
             boolean isHoliday = sharedPreferences.getBoolean("holiday_" + position, false);

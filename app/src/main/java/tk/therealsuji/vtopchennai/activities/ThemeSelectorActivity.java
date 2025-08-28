@@ -48,7 +48,7 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
     }
 
     private void setupThemes() {
-        // Create theme list with all available themes
+        // Populate available themes
         themes = Arrays.asList(
             new Theme(
                 "Default",
@@ -104,7 +104,7 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
         SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        // Save theme selection as integer
+        // Persist selection
         switch (theme.getName()) {
             case "Red":
                 editor.putInt("selectedTheme", 1);
@@ -121,13 +121,13 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
             case "Black":
                 editor.putInt("selectedTheme", 5);
                 break;
-            default: // Default
+            default:
                 editor.putInt("selectedTheme", 0);
                 break;
         }
         editor.apply();
 
-        // Restart MainActivity to apply the new theme
+        // Restart to apply theme
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
