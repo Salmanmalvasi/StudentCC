@@ -1,5 +1,9 @@
 package tk.therealsuji.vtopchennai.fragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -53,11 +57,44 @@ public class HomeFragment extends Fragment {
                 android.content.res.Configuration.UI_MODE_NIGHT_YES;
     }
 
+    private BroadcastReceiver classCountReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("CLASS_COUNT_UPDATED".equals(intent.getAction())) {
+                int newCount = intent.getIntExtra("newCount", 0);
+                TextView todaysClassesCount = getView().findViewById(R.id.todays_classes_count);
+                if (todaysClassesCount != null) {
+                    if (newCount == 0) {
+                        todaysClassesCount.setText("0");
+                    } else {
+                        todaysClassesCount.setText(String.valueOf(newCount));
+                    }
+                }
+            }
+        }
+    };
+
     @Override
     public void onResume() {
         super.onResume();
-
-
+        // Register broadcast receiver
+        IntentFilter filter = new IntentFilter("CLASS_COUNT_UPDATED");
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            requireContext().registerReceiver(classCountReceiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireContext().registerReceiver(classCountReceiver, filter);
+        }
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Unregister broadcast receiver
+        try {
+            requireContext().unregisterReceiver(classCountReceiver);
+        } catch (Exception e) {
+            // Receiver might not be registered
+        }
     }
 
     @Override
@@ -219,11 +256,11 @@ public class HomeFragment extends Fragment {
         // Calculate today's classes count
         Calendar today = Calendar.getInstance();
         int dayOfWeek = today.get(Calendar.DAY_OF_WEEK);
-        // Convert to 1-based index (Sunday = 1, Monday = 2, etc.) for the DAO
-        int dayIndex = dayOfWeek;
+        // Convert to 0-based index (Sunday = 0, Monday = 1, etc.) for the DAO
+        int dayIndex = dayOfWeek - 1;
         
         // Check if today is marked as holiday
-        boolean isTodayHoliday = sharedPreferences.getBoolean("holiday_" + (dayOfWeek - 1), false);
+        boolean isTodayHoliday = sharedPreferences.getBoolean("holiday_" + dayIndex, false);
         
         if (isTodayHoliday) {
             // Show "Holiday" instead of class count
@@ -455,4 +492,6 @@ public class HomeFragment extends Fragment {
 
         return homeFragment;
     }
+    
+
 }

@@ -57,6 +57,8 @@
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="16sp" />
 
+                    
+
                     <View
                         android:layout_width="40dp"
                         android:layout_height="2dp"
@@ -131,6 +133,17 @@
                         android:textStyle="bold"
                         app:cornerRadius="8dp"
                         app:elevation="2dp" />
+
+                    <TextView
+                        android:id="@+id/text_view_thank_you"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center"
+                        android:text="@string/thank_you_1k_split"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="14sp" />
 
                     <ProgressBar
                         android:id="@+id/progress_bar_loading"

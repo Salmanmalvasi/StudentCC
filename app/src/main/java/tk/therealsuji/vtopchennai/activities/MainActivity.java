@@ -311,6 +311,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        // Start the class time monitor service
+        Intent serviceIntent = new Intent(this, tk.therealsuji.vtopchennai.services.ClassTimeMonitorService.class);
+        startService(serviceIntent);
+        
         this.bottomNavigationView.setOnItemSelectedListener(item -> {
             Fragment selectedFragment;
             String selectedFragmentTag;

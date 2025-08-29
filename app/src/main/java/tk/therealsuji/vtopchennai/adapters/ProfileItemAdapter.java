@@ -60,7 +60,13 @@ public class ProfileItemAdapter extends RecyclerView.Adapter<ProfileItemAdapter.
             TextView title = this.profileItem.findViewById(R.id.text_view_title);
 
             icon.setImageDrawable(ContextCompat.getDrawable(this.profileItem.getContext(), profileItem.iconId));
-            title.setText(profileItem.titleId);
+            if (profileItem.titleId != 0) {
+                title.setText(profileItem.titleId);
+            } else if (profileItem.title != null) {
+                title.setText(profileItem.title);
+            } else {
+                title.setText("");
+            }
             this.profileItem.setOnClickListener(view -> profileItem.onClickListener.onClick(this.profileItem.getContext()));
 
             if (profileItem.onInitListener != null) {

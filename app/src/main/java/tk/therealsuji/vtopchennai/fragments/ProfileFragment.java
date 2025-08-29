@@ -37,47 +37,37 @@ public class ProfileFragment extends Fragment {
             new ItemData(
                     R.drawable.ic_courses,
                     R.string.courses,
-                    context -> SettingsRepository.openViewPagerFragment(
-                            (FragmentActivity) context,
-                            R.string.courses,
-                            ViewPagerFragment.TYPE_COURSES
-                    ),
+                    context -> {
+                        if (!isAdded()) return;
+                        SettingsRepository.openViewPagerFragment(
+                                requireActivity(),
+                                R.string.courses,
+                                ViewPagerFragment.TYPE_COURSES
+                        );
+                    },
                     null
             ),
             new ItemData(
                     R.drawable.ic_exams,
                     R.string.exam_schedule,
-                    context -> SettingsRepository.openViewPagerFragment(
-                            (FragmentActivity) context,
-                            R.string.exam_schedule,
-                            ViewPagerFragment.TYPE_EXAMS
-                    ),
+                    context -> {
+                        if (!isAdded()) return;
+                        SettingsRepository.openViewPagerFragment(
+                                requireActivity(),
+                                R.string.exam_schedule,
+                                ViewPagerFragment.TYPE_EXAMS
+                        );
+                    },
                     null
             ),
-            new ItemData(
-                    R.drawable.ic_receipts,
-                    R.string.receipts,
-                    context -> SettingsRepository.openRecyclerViewFragment(
-                            (FragmentActivity) context,
-                            R.string.receipts,
-                            RecyclerViewFragment.TYPE_RECEIPTS
-                    ),
-                    null
-            ),
-            new ItemData(
-                    R.drawable.ic_staff,
-                    R.string.staff,
-                    context -> SettingsRepository.openViewPagerFragment(
-                            (FragmentActivity) context,
-                            R.string.staff,
-                            ViewPagerFragment.TYPE_STAFF
-                    ),
-                    null
-            ),
+            
             new ItemData(
                     R.drawable.ic_sync,
                     R.string.sync_data,
-                    context -> getParentFragmentManager().setFragmentResult("syncData", new Bundle()),
+                    context -> {
+                        if (!isAdded()) return;
+                        getParentFragmentManager().setFragmentResult("syncData", new Bundle());
+                    },
                     profileItem -> {
                         ProgressBar progressBar = new ProgressBar(profileItem.getContext());
                         RelativeLayout extraContainer = profileItem.findViewById(R.id.relative_layout_extra_container);
@@ -97,8 +87,9 @@ public class ProfileFragment extends Fragment {
             new ItemData(
                     R.drawable.ic_gpa_calculator,
                     R.string.attendance_calculator,
-                    context -> {
-                        FragmentActivity activity = (FragmentActivity) context;
+                    context -> {                        if (!isAdded()) return;
+
+                        FragmentActivity activity = requireActivity();
                         AttendanceCalculatorFragment fragment = new AttendanceCalculatorFragment();
                         activity.getSupportFragmentManager().beginTransaction()
                                 .setCustomAnimations(R.anim.slide_in_right, 0, 0, R.anim.slide_out_right)
@@ -110,8 +101,38 @@ public class ProfileFragment extends Fragment {
             ),
             new ItemData(
                     R.drawable.ic_link,
+                    R.string.vhelp,
+                    context -> {
+                        if (!isAdded()) return;
+                        // Create dialog with VHelp links
+                        String[] links = {
+                                context.getString(R.string.vhelp_home),
+                                context.getString(R.string.vhelp_pyqs),
+                                context.getString(R.string.vhelp_study_material)
+                        };
+
+                        String[] urls = {
+                                "https://www.vhelpcc.com/",
+                                "https://www.vhelpcc.com/pyqs",
+                                "https://www.vhelpcc.com/study-material"
+                        };
+
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle(R.string.vhelp)
+                                .setItems(links, (dialog, which) -> {
+                                    if (!isAdded()) return;
+                                    SettingsRepository.openBrowser(requireContext(), urls[which]);
+                                })
+                                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+                                .show();
+                    },
+                    null
+            ),
+            new ItemData(
+                    R.drawable.ic_link,
                     R.string.important_links,
                     context -> {
+                        if (!isAdded()) return;
                         // Create dialog with important links
                         String[] links = {
                                 context.getString(R.string.vitol_freshers),
@@ -127,10 +148,11 @@ public class ProfileFragment extends Fragment {
                                 "https://vtopregcc.vit.ac.in/RegistrationNew/"
                         };
                         
-                        new MaterialAlertDialogBuilder(context)
+                        new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle(R.string.important_links)
                                 .setItems(links, (dialog, which) -> {
-                                    SettingsRepository.openBrowser(context, urls[which]);
+                                    if (!isAdded()) return;
+                                    SettingsRepository.openBrowser(requireContext(), urls[which]);
                                 })
                                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                                 .show();
@@ -140,35 +162,7 @@ public class ProfileFragment extends Fragment {
     };
 
     
-    private final ItemData[] vhelpProfileItems = {
-            new ItemData(
-                    R.drawable.ic_link,
-                    R.string.vhelp_home,
-                    context -> SettingsRepository.openBrowser(
-                            context,
-                            "https://www.vhelpcc.com/"
-                    ),
-                    null
-            ),
-            new ItemData(
-                    R.drawable.ic_link,
-                    R.string.vhelp_pyqs,
-                    context -> SettingsRepository.openBrowser(
-                            context,
-                            "https://www.vhelpcc.com/pyqs"
-                    ),
-                    null
-            ),
-            new ItemData(
-                    R.drawable.ic_link,
-                    R.string.vhelp_study_material,
-                    context -> SettingsRepository.openBrowser(
-                            context,
-                            "https://www.vhelpcc.com/study-material"
-                    ),
-                    null
-            )
-    };
+    // VHelp group removed; handled via single dialog item in Personal section
 
     
     private final ItemData[] themesProfileItems = {
@@ -176,13 +170,14 @@ public class ProfileFragment extends Fragment {
                     R.drawable.ic_appearance,
                     R.string.appearance,
                     context -> {
+                        if (!isAdded()) return;
                         String[] themes = {
                                 context.getString(R.string.light),
                                 context.getString(R.string.dark),
                                 context.getString(R.string.system)
                         };
 
-                        SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(context);
+                        SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(requireContext());
 
                         int checkedItem = 2;
                         String theme = sharedPreferences.getString("appearance", "system");
@@ -201,7 +196,7 @@ public class ProfileFragment extends Fragment {
                             
                         });
 
-                        new MaterialAlertDialogBuilder(context)
+                        new MaterialAlertDialogBuilder(requireContext())
                                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                                 .setSingleChoiceItems(themes, checkedItem, (dialogInterface, i) -> {
                                     if (i == 0) {
@@ -226,9 +221,10 @@ public class ProfileFragment extends Fragment {
             new ItemData(
                     R.drawable.ic_gpa_calculator,
                     R.string.select_theme,
-                    context -> {
-                        Intent intent = new Intent(context, tk.therealsuji.vtopchennai.activities.ThemeSelectorActivity.class);
-                        context.startActivity(intent);
+                    context -> {                        if (!isAdded()) return;
+
+                        Intent intent = new Intent(requireContext(), tk.therealsuji.vtopchennai.activities.ThemeSelectorActivity.class);
+                        requireContext().startActivity(intent);
                     },
                     null
             )
@@ -237,39 +233,70 @@ public class ProfileFragment extends Fragment {
     
     private final ItemData[] otherProfileItems = {
             new ItemData(
+                    R.drawable.ic_receipts,
+                    R.string.receipts,
+                    context -> {
+                        if (!isAdded()) return;
+                        SettingsRepository.openRecyclerViewFragment(
+                                requireActivity(),
+                                R.string.receipts,
+                                RecyclerViewFragment.TYPE_RECEIPTS
+                        );
+                    },
+                    null
+            ),
+            new ItemData(
+                    R.drawable.ic_staff,
+                    R.string.staff,
+                    context -> {
+                        if (!isAdded()) return;
+                        SettingsRepository.openViewPagerFragment(
+                                requireActivity(),
+                                R.string.staff,
+                                ViewPagerFragment.TYPE_STAFF
+                        );
+                    },
+                    null
+            ),
+            new ItemData(
                     R.drawable.ic_notifications,
                     R.string.notifications,
-                    context -> {
+                    context -> {                        if (!isAdded()) return;
+
                         Intent intent = new Intent();
                         intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
                         intent.putExtra("app_package", context.getPackageName());
                         intent.putExtra("app_uid", context.getApplicationInfo().uid);
                         intent.putExtra("android.provider.extra.APP_PACKAGE", context.getPackageName());
 
-                        context.startActivity(intent);
+                        requireContext().startActivity(intent);
                     },
                     null
             ),
             new ItemData(
                     R.drawable.ic_privacy,
                     R.string.privacy,
-                    context -> SettingsRepository.openWebViewActivity(
-                            context,
-                            context.getString(R.string.privacy),
-                            SettingsRepository.APP_PRIVACY_URL
-                    ),
+                    context -> {
+                        if (!isAdded()) return;
+                        SettingsRepository.openWebViewActivity(
+                                requireContext(),
+                                getString(R.string.privacy),
+                                SettingsRepository.APP_PRIVACY_URL
+                        );
+                    },
                     null
             ),
             new ItemData(
                     R.drawable.ic_feedback,
                     R.string.send_feedback,
-                    context -> {
+                    context -> {                        if (!isAdded()) return;
+
                         View bottomSheetLayout = View.inflate(context, R.layout.layout_bottom_sheet_feedback, null);
                         bottomSheetLayout.findViewById(R.id.text_view_contact_developer).setOnClickListener(view -> SettingsRepository.openBrowser(context, SettingsRepository.DEVELOPER_BASE_URL));
                         bottomSheetLayout.findViewById(R.id.text_view_open_issue).setOnClickListener(view -> SettingsRepository.openBrowser(context, SettingsRepository.GITHUB_ISSUE_URL));
                         bottomSheetLayout.findViewById(R.id.text_view_request_feature).setOnClickListener(view -> SettingsRepository.openBrowser(context, SettingsRepository.GITHUB_FEATURE_URL));
 
-                        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+                        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
                         bottomSheetDialog.setContentView(bottomSheetLayout);
                         bottomSheetDialog.show();
                     },
@@ -278,34 +305,43 @@ public class ProfileFragment extends Fragment {
             new ItemData(
                     R.drawable.ic_share,
                     R.string.share,
-                    context -> {
+                    context -> {                        if (!isAdded()) return;
+
                         Intent intent = new Intent();
                         intent.setAction(Intent.ACTION_SEND);
-                        intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject));
-                        intent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.share_text, SettingsRepository.APP_BASE_URL));
+                        intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject));
+                        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text, SettingsRepository.APP_BASE_URL));
                         intent.setType("text/plain");
 
-                        Intent shareIntent = Intent.createChooser(intent, context.getString(R.string.share_title));
-                        context.startActivity(shareIntent);
+                        Intent shareIntent = Intent.createChooser(intent, getString(R.string.share_title));
+                        requireContext().startActivity(shareIntent);
                     },
                     null
             ),
             new ItemData(
+                    R.drawable.ic_whats_new,
+                    "Code",
+                    "View the source code",
+                    context -> {                        if (!isAdded()) return;
+                        SettingsRepository.openBrowser(context, SettingsRepository.GITHUB_BASE_URL);
+                    }
+            ),
+            new ItemData(
                     R.drawable.ic_sign_out,
                     R.string.sign_out,
-                    context -> {
-                        AlertDialog signOutDialog = new MaterialAlertDialogBuilder(context)
+                    context -> {                        if (!isAdded()) return;
+
+                        new MaterialAlertDialogBuilder(requireContext())
                                 .setMessage(R.string.sign_out_text)
                                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                                 .setPositiveButton(R.string.sign_out, (dialogInterface, i) -> {
-                                    SettingsRepository.signOut(context);
-                                    context.startActivity(new Intent(context, LoginActivity.class));
-                                    ((Activity) context).finish();
+                                    if (!isAdded()) return;
+                                    SettingsRepository.signOut(requireContext());
+                                    requireActivity().startActivity(new Intent(requireContext(), LoginActivity.class));
+                                    requireActivity().finish();
                                 })
                                 .setTitle(R.string.sign_out)
-                                .create();
-
-                        signOutDialog.show();
+                                .show();
                     },
                     null)
     };
@@ -313,26 +349,17 @@ public class ProfileFragment extends Fragment {
     private final ItemData[][] profileItems = {
             personalProfileItems,
             themesProfileItems,
-            vhelpProfileItems,
             otherProfileItems
     };
 
     private final int[] profileGroups = {
             R.string.personal,
             R.string.themes,
-            R.string.vhelp,
             R.string.other
     };
 
     
-    private final ItemData[] announcementItems = {
-            new ItemData(
-                    R.drawable.ic_whats_new,
-                    "StudentCC is now Open Source!",
-                    "Click to view the source code.",
-                    context -> SettingsRepository.openBrowser(context, SettingsRepository.GITHUB_BASE_URL)
-            )
-    };
+    private final ItemData[] announcementItems = {};
 
     public ProfileFragment() {
         

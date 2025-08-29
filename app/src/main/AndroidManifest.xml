@@ -66,6 +66,11 @@
             android:label="VTOP" />
 
         <service
+            android:name=".services.ClassTimeMonitorService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <service
             android:name=".services.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
