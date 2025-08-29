@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudentCC - Your All-in-One Academic Companion for VIT Chennai</title>
+    <meta name="description" content="StudentCC helps VIT Chennai students manage VTOP, attendance, CGPA, GPA calculator, and more in one place. Download the APK now!">
+    <meta name="keywords" content="StudentCC, VIT, VTOP, attendance tracker, CGPA calculator, Android app">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="StudentCC - Your All-in-One Academic Companion for VIT Chennai">
+    <meta property="og:description" content="Manage VTOP, attendance, CGPA, and more in one place. Download the APK now!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://salmanmalvasi.github.io/studentcc-landing.html">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="StudentCC - Your All-in-One Academic Companion for VIT Chennai">
+    <meta name="twitter:description" content="Manage VTOP, attendance, CGPA, and more in one place. Download the APK now!">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="studentcc-landing.css">
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="#" class="nav-logo">
+            <i class="fas fa-graduation-cap"></i>
+            <span>StudentCC</span>
+        </a>
+
+        <div class="nav-links-desktop">
+            <div class="nav-item dropdown">
+                <a href="#features" class="nav-link dropdown-toggle">Features <i class="fas fa-chevron-down"></i></a>
+                <div class="dropdown-menu">
+                    <a href="#features" class="dropdown-item">GPA & CGPA Toolkit</a>
+                    <a href="#features" class="dropdown-item">Attendance Tracking</a>
+                    <a href="#features" class="dropdown-item">Modern Theme System</a>
+                </div>
+            </div>
+            <a href="#screenshots">Screenshots</a>
+            <a href="#tech">Tech Stack</a>
+            <a href="#feedback">Feedback</a>
+            <a href="#contact">Contact</a>
+        </div>
+
+        <div class="nav-actions">
+            <a href="https://salmanmalvasi.github.io" target="_blank" class="portfolio-link">
+                <i class="fas fa-user"></i>
+                <span class="portfolio-text">My Portfolio</span>
+            </a>
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <span class="hamburger-bar"></span>
+                <span class="hamburger-bar"></span>
+                <span class="hamburger-bar"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="nav-links-mobile">
+        <div class="nav-item dropdown">
+            <a href="#features" class="nav-link dropdown-toggle">Features <i class="fas fa-chevron-down"></i></a>
+            <div class="dropdown-menu">
+                <a href="#features" class="dropdown-item">GPA & CGPA Toolkit</a>
+                <a href="#features" class="dropdown-item">Attendance Tracking</a>
+                <a href="#features" class="dropdown-item">Modern Theme System</a>
+            </div>
+        </div>
+        <a href="#screenshots">Screenshots</a>
+        <a href="#tech">Tech Stack</a>
+        <a href="#feedback">Feedback</a>
+        <a href="#contact">Contact</a>
+    </div>
+
+    <div class="mobile-nav-bg"></div>
+</nav>
+
+<!-- Firebase Integration -->
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB6w3h14hduch_UnrVtHncHqFNG1-wC6m8",
+    authDomain: "studentcc-web.firebaseapp.com",
+    projectId: "studentcc-web",
+    storageBucket: "studentcc-web.firebasestorage.app",
+    messagingSenderId: "119926305305",
+    appId: "1:119926305305:web:19a67ae3aa7722c6c0f088",
+    measurementId: "G-D2237S6ETM"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="app-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h1 class="app-title">StudentCC</h1>
+                <p class="app-tagline">Your all-in-one academic companion for VIT Chennai</p>
+                <div class="version-badge">
+                    <span class="version-text">VERSION 1.2.0</span>
+                </div>
+                <p class="app-description">
+                    Manage VTOP access, track attendance, calculate CGPA & GPA, and more - all in one powerful Android app designed specifically for VIT Chennai students. Now with enhanced UI, holiday marking, and improved CGPA toggle!
+                </p>
+                <div class="hero-buttons">
+                    <a href="StudentCC_v1.2.0.apk" class="download-btn primary" download>
+                        <i class="fab fa-google-play"></i>
+                        Download APK
+                    </a>
+                    <br>
+                    <br>
+                    <a href="#features" class="download-btn secondary">
+                        <i class="fas fa-info-circle"></i>
+                        Learn More
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">1000+</span>
+                        <span class="stat-label">Downloads</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">4.8</span>
+                        <span class="stat-label">Rating</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">50MB</span>
+                        <span class="stat-label">Size</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <img src="StudentCCUI.jpg" alt="StudentCC 1.2.0 App Screenshot" class="hero-screenshot">
+            </div>
+        </div>
+    </section>
+
+    <!-- Update Notice Section -->
+    <section id="latest-update" class="latest-update-section">
+    <div class="container">
+        <div class="update-header">
+            <div class="update-icon">
+                <i class="fas fa-magic"></i> </div>
+            <h2 class="section-title">✨ StudentCC Version 1.2.0 is Here!</h2>
+            <p class="update-description">
+                Experience the all-new **StudentCC 1.2.0** packed with exciting features and a fresh look.
+                We've listened to your feedback to deliver the best academic companion yet.
+            </p>
+            <div class="download-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p><strong>Important:</strong> Please uninstall any previous versions of the VIT Student app to avoid installation conflicts before downloading.</p>
+            </div>
+            <a href="StudentCC_v1.2.0.apk" class="download-btn primary large" download>
+                <i class="fas fa-cloud-download-alt"></i> Download Latest Version (51.2 MB)
+            </a>
+        </div>
+
+        <div class="divider"></div> <h2 class="whats-new-title">🚀 What's Inside This Update:</h2>
+        <div class="new-features-grid">
+            <div class="new-feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-desktop"></i> </div>
+                <h3>Sleek UI Redesign</h3>
+                <p>A completely overhauled interface with **Material Design 3**, improved color schemes, and enhanced user experience.</p>
+            </div>
+            <div class="new-feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-calendar-alt"></i> </div>
+                <h3>Holiday & Day Controls</h3>
+                <p>Intelligently mark holidays and toggle Saturday working days for precise attendance tracking.</p>
+            </div>
+            <div class="new-feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-pie"></i> </div>
+                <h3>Refined GPA & CGPA</h3>
+                <p>Improved **CGPA calculation toggle** and more accurate GPA predictions for better academic planning.</p>
+            </div>
+            <div class="new-feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bug"></i> </div>
+                <h3>Performance Boost & Fixes</h3>
+                <p>Multiple **bug fixes** and significant performance improvements for a smoother and more reliable app experience.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features">
+    <div class="container">
+        <h2 class="section-title">Why Choose StudentCC?</h2>
+        <p class="section-subtitle">Everything you need for your academic journey at VIT Chennai, all in one place.</p>
+        <div class="features-grid">
+            <!-- Feature 1: GPA & CGPA Toolkit -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-calculator"></i>
+                </div>
+                <h3>GPA & CGPA Toolkit</h3>
+                <p>Easily calculate your GPA for the semester and get an accurate estimate of your overall CGPA with our advanced tools.</p>
+            </div>
+
+            <!-- Feature 2: Enhanced Attendance Tracking -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h3>Enhanced Attendance Tracking</h3>
+                <p>Never miss a class. Our smart attendance tracker helps you stay on top of your requirements with ease.</p>
+            </div>
+
+            <!-- Feature 3: Modern Theme System -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <h3>Modern Theme System</h3>
+                <p>Customize your experience with 6 beautiful themes, complete with dark/light modes and dynamic colors.</p>
+            </div>
+
+            <!-- Feature 4: Enhanced Captcha System -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Enhanced Captcha System</h3>
+                <p>Our robust, multi-stage OCR captcha solver ensures you can access VTOP quickly and reliably every time.</p>
+            </div>
+
+            <!-- Feature 5: Offline Accessibility -->
+            <div class="feature-card">
+    <div class="feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em">
+            <path d="M12 3C7.47 3 3.48 4.79 1 7.64l1.41 1.41c2.1-2.43 5.23-3.8 8.59-3.8s6.49 1.37 8.59 3.8l1.41-1.41C20.52 4.79 16.53 3 12 3zm0 4c-3.33 0-6.18 1.4-8.08 3.59l1.41 1.41C6.98 10.38 9.33 9 12 9s5.02 1.38 6.67 3l1.41-1.41C18.18 8.4 15.33 7 12 7zm0 4c-1.9 0-3.6.84-4.82 2.18l1.41 1.41C9.53 13.67 10.7 13 12 13s2.47.67 3.41 1.59l1.41-1.41C15.6 11.84 13.9 11 12 11zm10.95 2.46l-1.41-1.41C20.17 13.42 18.27 13 16.24 13c-.24 0-.48.02-.72.05l-2.43 2.43c.9.29 1.86.46 2.86.46 2.37 0 4.54-.83 6.25-2.22l.75.75L24 16.05l-1.05-1.59zM1 16.05l11 11L13.41 24l-1.41-1.41L1.41 12.05 1 12.46l1.05 1.59L1 16.05zm15.24-4.05c-2.26 0-4.32.74-5.96 2.01l5.96 5.96L23 18.05l-1.41-1.41c-1.54-1.54-3.58-2.59-5.9-2.59z"/>
+        </svg>
+    </div>
+    <h3>Offline Accessibility</h3>
+    <p>Access your timetable, attendance records, and other essential data even when you're not connected to the internet.</p>
+</div>
+
+            <!-- Feature 6: Secure & Private -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3>Secure & Private</h3>
+                <p>Your data is stored securely on your device, ensuring your academic information remains private and confidential.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Screenshots Section -->
+    <section id="screenshots" class="screenshots">
+    <div class="container">
+        <h2 class="section-title">See StudentCC in Action</h2>
+        <div class="screenshots-container">
+
+            <div class="screenshot-item">
+                <p class="screenshot-label">Home Screen & UI</p>
+                <img src="StudentCCUI.jpg" alt="StudentCC Home Screen and UI" class="screenshot-img">
+            </div>
+
+            <div class="screenshot-item">
+                <p class="screenshot-label">Attendance & Holiday View</p>
+                <img src="StudentCCattendance.jpg" alt="StudentCC Attendance and Holiday View" class="screenshot-img">
+            </div>
+
+            <div class="screenshot-item">
+                <p class="screenshot-label">GPA & CGPA Calculator</p>
+                <img src="StudentCCGPA.jpg" alt="StudentCC GPA and CGPA Calculator" class="screenshot-img">
+            </div>
+
+            <div class="screenshot-item">
+                <p class="screenshot-label">Attendance Calculator</p>
+                <img src="StudentCCattendanceCalc.jpg" alt="StudentCC Attendance Calculator Tool" class="screenshot-img">
+            </div>
+
+            <div class="screenshot-item">
+                <p class="screenshot-label">User Profile Page</p>
+                <img src="StudentCCMainProfile.jpg" alt="StudentCC User Profile Page" class="screenshot-img">
+            </div>
+
+            <div class="screenshot-item">
+                <p class="screenshot-label">Important Links</p>
+                <img src="StudentCCLinks.jpg" alt="StudentCC Important Links Access" class="screenshot-img">
+            </div>
+
+            <div class="screenshot-item">
+                <p class="screenshot-label">V-Help & Themes</p>
+                <img src="StudentCCVhelp.jpg" alt="StudentCC V-Help and Theme Selection" class="screenshot-img">
+            </div>
+
+        </div>
+    </div>
+</section>
+
+    <!-- Tech Stack Section -->
+    <section id="tech" class="tech-stack">
+        <div class="container">
+            <h2 class="section-title">Built with Modern Technology</h2>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fab fa-java"></i>
+                    </div>
+                    <h3>Java</h3>
+                    <p>Core Android development with modern practices, Room database, and Material Design 3 implementation.</p>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fab fa-android"></i>
+                    </div>
+                    <h3>Android Studio</h3>
+                    <p>Professional development with enhanced debugging, modern architecture, and accessibility features.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download">
+        <div class="container">
+            <div class="download-content">
+                <h2>Ready to Transform Your Academic Experience?</h2>
+                <p>Download StudentCC now and take control of your academic journey at VIT Chennai.</p>
+                <a href="StudentCC_1.2.0.apk" class="download-btn primary large" download>
+                    <i class="fab fa-google-play"></i>
+                    Download APK
+                </a>
+                <p class="download-note">StudentCC Version 1.2.0 (51.2 MB)</p>
+                <p class="beta-note">⚠️ This is a beta version. Please report bugs and request new features!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feedback Section -->
+    <section id="feedback" class="feedback">
+        <div class="container">
+            <h2 class="section-title">Help Us Improve StudentCC!</h2>
+            <div class="feedback-content">
+                <div class="feedback-info">
+                    <h3>We Need Your Feedback</h3>
+                    <p>Since this is a beta version, your feedback is crucial for improving StudentCC. Help us make the app better by:</p>
+                    <ul class="feedback-list">
+                        <li>📝 Reporting bugs you encounter</li>
+                        <li>💡 Suggesting new features you'd like to see</li>
+                        <li>⭐ Rating your experience with the app</li>
+                        <li>🔄 Sharing ideas for improvements</li>
+                    </ul>
+                    <div class="feedback-form">
+                        <a href="https://forms.gle/y7G4zdDc8DHKFbEn6" class="feedback-btn" target="_blank">
+                            <i class="fas fa-comment-dots"></i>
+                            Submit Feedback
+                        </a>
+                        <p class="feedback-note">Your feedback helps us prioritize new features and fix issues!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Get in Touch</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Have Questions?</h3>
+                    <p>Reach out to us for support, feedback, or collaboration opportunities.</p>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:salmanmalvasi@gmail.com">salmanmalvasi@gmail.com</a>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fab fa-github"></i>
+                        <a href="https://github.com/Salmanmalvasi" target="_blank">GitHub</a>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fab fa-linkedin"></i>
+                        <a href="https://www.linkedin.com/in/salman-malvasi/" target="_blank">LinkedIn</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+<footer class="footer">
+    <div class="container footer-content-wrapper">
+        <div class="footer-brand">
+            <i class="fas fa-graduation-cap"></i>
+            <span>StudentCC</span>
+        </div>
+
+        <div class="footer-credits">
+            <p>Crafted with <i class="fas fa-heart"></i> by <a href="https://www.linkedin.com/in/salman-malvasi/" target="_blank">Salman Malvasi</a> & <a href="https://www.linkedin.com/in/mayuresh-rajesh-830b5231b/" target="_blank">Mayuresh Rajesh</a></p>
+        </div>
+
+        <div class="footer-navigation">
+            <a href="#features">Features</a>
+            <a href="#screenshots">Screenshots</a>
+            <a href="#tech-stack">Tech Stack</a>
+            <a href="#contact">Contact</a>
+        </div>
+
+        <div class="footer-portfolio">
+            <a href="#" class="portfolio-btn" target="_blank">
+                <i class="fas fa-briefcase"></i> View Portfolio
+            </a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2024 StudentCC. All rights reserved.</p>
+    </div>
+</footer>
+
+    <!-- JavaScript -->
+    <script src="studentcc-landing.js"></script>
+</body>
+</html> 
