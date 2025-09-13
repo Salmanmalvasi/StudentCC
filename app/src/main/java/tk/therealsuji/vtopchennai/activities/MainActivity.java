@@ -45,6 +45,7 @@ import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.fragments.HomeFragment;
 import tk.therealsuji.vtopchennai.fragments.PerformanceFragment;
 import tk.therealsuji.vtopchennai.fragments.GPACalculatorFragment;
+import tk.therealsuji.vtopchennai.fragments.HostelInfoFragment;
 import tk.therealsuji.vtopchennai.fragments.ProfileFragment;
 import tk.therealsuji.vtopchennai.fragments.dialogs.UpdateDialogFragment;
 import tk.therealsuji.vtopchennai.helpers.AppDatabase;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     static final String HOME_FRAGMENT_TAG = "HOME_FRAGMENT_TAG";
     static final String PERFORMANCE_FRAGMENT_TAG = "PERFORMANCE_FRAGMENT_TAG";
     static final String GPA_CALCULATOR_FRAGMENT_TAG = "GPA_CALCULATOR_FRAGMENT_TAG";
+    static final String HOSTEL_INFO_FRAGMENT_TAG = "HOSTEL_INFO_FRAGMENT_TAG";
     static final String PROFILE_FRAGMENT_TAG = "PROFILE_FRAGMENT_TAG";
 
     ActivityResultLauncher<String> requestPermissionLauncher =
@@ -162,6 +164,21 @@ public class MainActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    private void checkAndUpdateBottomNavigation() {
+        // Get student type from SharedPreferences
+        SharedPreferences encryptedSharedPreferences = getSharedPreferences("encrypted_prefs", MODE_PRIVATE);
+        String studentType = encryptedSharedPreferences.getString("student_type", "");
+        
+        // Find the hostel info menu item and hide it if user is day scholar
+        if ("day_scholar".equals(studentType)) {
+            // Hide the hostel info menu item
+            bottomNavigationView.getMenu().findItem(R.id.item_hostel_info).setVisible(false);
+        } else {
+            // Show the hostel info menu item for hostellers
+            bottomNavigationView.getMenu().findItem(R.id.item_hostel_info).setVisible(true);
+        }
     }
 
     private void signOut() {
@@ -315,6 +332,9 @@ public class MainActivity extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, tk.therealsuji.vtopchennai.services.ClassTimeMonitorService.class);
         startService(serviceIntent);
         
+        // Check student type and hide hostel info tab if day scholar
+        checkAndUpdateBottomNavigation();
+
         this.bottomNavigationView.setOnItemSelectedListener(item -> {
             Fragment selectedFragment;
             String selectedFragmentTag;
@@ -332,6 +352,27 @@ public class MainActivity extends AppCompatActivity {
 
                 if (selectedFragment == null) {
                     selectedFragment = new GPACalculatorFragment();
+                }
+            } else if (item.getItemId() == R.id.item_hostel_info) {
+                // Check if user is day scholar - if so, redirect to home
+                SharedPreferences encryptedSharedPreferences = getSharedPreferences("encrypted_prefs", MODE_PRIVATE);
+                String studentType = encryptedSharedPreferences.getString("student_type", "");
+                
+                if ("day_scholar".equals(studentType)) {
+                    // Redirect to home if day scholar tries to access hostel info
+                    selectedFragmentTag = HOME_FRAGMENT_TAG;
+                    selectedFragment = getSupportFragmentManager().findFragmentByTag(selectedFragmentTag);
+                    if (selectedFragment == null) {
+                        selectedFragment = new HomeFragment();
+                    }
+                    // Also update the selected item to home
+                    bottomNavigationView.setSelectedItemId(R.id.item_home);
+                } else {
+                    selectedFragmentTag = HOSTEL_INFO_FRAGMENT_TAG;
+                    selectedFragment = getSupportFragmentManager().findFragmentByTag(selectedFragmentTag);
+                    if (selectedFragment == null) {
+                        selectedFragment = new HostelInfoFragment();
+                    }
                 }
             } else if (item.getItemId() == R.id.item_profile) {
                 getSupportFragmentManager().setFragmentResult("syncDataState", syncDataState);
@@ -441,6 +482,13 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete() {
                     }
                 });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Update bottom navigation based on student type
+        checkAndUpdateBottomNavigation();
     }
 
     @Override

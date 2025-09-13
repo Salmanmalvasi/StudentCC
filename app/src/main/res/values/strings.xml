@@ -244,4 +244,24 @@
     <string name="pick_date">Pick date</string>
     <string name="invalid_input">Please enter valid numbers</string>
     <string name="end_after_start">End date should be after start date</string>
+
+    <!-- Hostel Selection Strings -->
+    <string name="student_type">Student Type</string>
+    <string name="day_scholar">Day Scholar</string>
+    <string name="hosteller">Hosteller</string>
+    <string name="select_gender">Select Gender</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="select_block">Select Hostel Block</string>
+    <string name="room_number">Room Number</string>
+    <string name="select_mess_type">Select Mess Type</string>
+    <string name="vegetarian">Vegetarian</string>
+    <string name="non_vegetarian">Non-Vegetarian</string>
+    <string name="special">Special</string>
+    <string name="mess_menu">Mess Menu</string>
+    <string name="laundry_schedule">Laundry Schedule</string>
+    <string name="hostel_info">Hostel</string>
+    <string name="todays_menu">Today\'s Menu</string>
+    <string name="your_laundry_schedule">Your Laundry Schedule</string>
+    <string name="no_laundry_today">No laundry scheduled for your room today</string>
 </resources>
