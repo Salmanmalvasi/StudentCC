@@ -16,6 +16,11 @@
         android:title="@string/gpa_calculator" />
 
     <item
+        android:id="@+id/item_hostel_info"
+        android:icon="@drawable/ic_hotel"
+        android:title="@string/hostel_info" />
+
+    <item
         android:id="@+id/item_profile"
         android:icon="@drawable/ic_profile"
         android:title="@string/profile" />
