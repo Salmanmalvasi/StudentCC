@@ -25,6 +25,7 @@ import com.google.android.material.color.MaterialColors;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -53,12 +54,94 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
     public static final int STATUS_PRESENT = 2;
     public static final int STATUS_FUTURE = 3;
 
-    private final List<Timetable.AllData> timetable;
+    private final List<CombinedTimetableItem> timetable;
     private final int status;
 
-    public TimetableItemAdapter(List<Timetable.AllData> timetable, int status) {
-        this.timetable = timetable;
+    public TimetableItemAdapter(List<Timetable.AllData> originalTimetable, int status) {
+        this.timetable = combineTimetableItems(originalTimetable);
         this.status = status;
+    }
+
+    // Class to represent combined timetable items
+    public static class CombinedTimetableItem {
+        public int slotId;
+        public String startTime;
+        public String endTime;
+        public String courseType;
+        public String courseCode;
+        public String courseTitle;
+        public String venue;
+        public Integer attendancePercentage;
+        public List<Integer> slotIds; // For combined items
+
+        public CombinedTimetableItem(Timetable.AllData original) {
+            this.slotId = original.slotId;
+            this.startTime = original.startTime;
+            this.endTime = original.endTime;
+            this.courseType = original.courseType;
+            this.courseCode = original.courseCode;
+            this.courseTitle = original.courseTitle;
+            this.venue = original.venue;
+            this.attendancePercentage = original.attendancePercentage;
+            this.slotIds = new ArrayList<>();
+            this.slotIds.add(original.slotId);
+        }
+    }
+
+    // Method to combine consecutive courses with the same course code
+    private List<CombinedTimetableItem> combineTimetableItems(List<Timetable.AllData> originalTimetable) {
+        List<CombinedTimetableItem> combinedList = new ArrayList<>();
+        
+        if (originalTimetable.isEmpty()) {
+            return combinedList;
+        }
+
+        android.util.Log.d("TimetableAdapter", "Original timetable size: " + originalTimetable.size());
+        CombinedTimetableItem currentItem = new CombinedTimetableItem(originalTimetable.get(0));
+        
+        for (int i = 1; i < originalTimetable.size(); i++) {
+            Timetable.AllData nextItem = originalTimetable.get(i);
+            
+            // Check if the next item has the same course code and is consecutive
+            if (currentItem.courseCode != null && 
+                currentItem.courseCode.equals(nextItem.courseCode) &&
+                areConsecutive(currentItem.endTime, nextItem.startTime)) {
+                
+                android.util.Log.d("TimetableAdapter", "Combining courses: " + currentItem.courseCode + " from " + currentItem.startTime + "-" + currentItem.endTime + " with " + nextItem.startTime + "-" + nextItem.endTime);
+                // Combine the items
+                currentItem.endTime = nextItem.endTime;
+                currentItem.slotIds.add(nextItem.slotId);
+            } else {
+                // Add the current item to the list and start a new one
+                combinedList.add(currentItem);
+                currentItem = new CombinedTimetableItem(nextItem);
+            }
+        }
+        
+        // Add the last item
+        combinedList.add(currentItem);
+        
+        android.util.Log.d("TimetableAdapter", "Combined timetable size: " + combinedList.size());
+        return combinedList;
+    }
+
+    // Check if two time slots are consecutive (allowing small gaps)
+    private boolean areConsecutive(String endTime, String startTime) {
+        try {
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            Date end = timeFormat.parse(endTime);
+            Date start = timeFormat.parse(startTime);
+            
+            if (end != null && start != null) {
+                long diffInMinutes = (start.getTime() - end.getTime()) / (1000 * 60);
+                android.util.Log.d("TimetableAdapter", "Time difference between " + endTime + " and " + startTime + ": " + diffInMinutes + " minutes");
+                // Consider courses consecutive if gap is 30 minutes or less (to account for break time)
+                return diffInMinutes >= 0 && diffInMinutes <= 30;
+            }
+        } catch (Exception e) {
+            android.util.Log.e("TimetableAdapter", "Error parsing times: " + endTime + " -> " + startTime, e);
+        }
+        return false;
     }
 
     @NonNull
@@ -93,53 +176,44 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
             this.classProgress = this.timetableItem.findViewById(R.id.progress_bar_timetable);
         }
 
-        public void setTimetableItem(Timetable.AllData timetableItem, int status) {
+        public void setTimetableItem(CombinedTimetableItem timetableItem, int status) {
             ImageView courseType = this.timetableItem.findViewById(R.id.image_view_course_type);
             TextView courseCode = this.timetableItem.findViewById(R.id.text_view_course_code);
             TextView courseName = this.timetableItem.findViewById(R.id.text_view_course_name);
 
+            // Debug: Log all available data
+            android.util.Log.d("TimetableAdapter", "=== Timetable Item Data ===");
+            android.util.Log.d("TimetableAdapter", "Course Code: " + timetableItem.courseCode);
+            android.util.Log.d("TimetableAdapter", "Course Title: " + timetableItem.courseTitle);
+            android.util.Log.d("TimetableAdapter", "Course Type: " + timetableItem.courseType);
+
             @DrawableRes int courseTypeId = R.drawable.ic_theory;
-            if (timetableItem.courseType.equals("lab")) {
+            if (timetableItem.courseType != null && timetableItem.courseType.equals("lab")) {
                 courseTypeId = R.drawable.ic_lab;
             }
             courseType.setImageDrawable(ContextCompat.getDrawable(this.timetableItem.getContext(), courseTypeId));
-            // Ensure primary line uses a high-contrast color and always shows something
-            int onSurface = MaterialColors.getColor(courseCode, com.google.android.material.R.attr.colorOnSurface, 0xFF000000);
-            courseCode.setTextColor(onSurface);
-            courseName.setVisibility(View.GONE);
-
-            // If we already have a title, show it; otherwise show code but try to fetch title
-            boolean hasTitle = timetableItem.courseTitle != null && !timetableItem.courseTitle.trim().isEmpty();
-            if (hasTitle) {
-                courseCode.setText(timetableItem.courseTitle);
+            
+            // Hide course code, show only course name
+            courseCode.setVisibility(View.GONE);
+            
+            // Set course name/title as the main display
+            if (timetableItem.courseTitle != null && !timetableItem.courseTitle.isEmpty() && !timetableItem.courseTitle.equals("null")) {
+                courseName.setText(timetableItem.courseTitle);
+                courseName.setVisibility(View.VISIBLE);
+                android.util.Log.d("TimetableAdapter", "✓ Using course title: " + timetableItem.courseTitle);
             } else {
-                courseCode.setText(timetableItem.courseCode != null ? timetableItem.courseCode : "");
-
-                // Attempt to resolve the title from DB using slotId and update UI when available
-                try {
-                    Context ctx = this.timetableItem.getContext().getApplicationContext();
-                    AppDatabase db = AppDatabase.getInstance(ctx);
-                    db.coursesDao()
-                            .getCourse(timetableItem.slotId)
-                            .subscribeOn(Schedulers.single())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new SingleObserver<Course.AllData>() {
-                                @Override
-                                public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {}
-
-                                @Override
-                                public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull Course.AllData course) {
-                                    if (course.courseTitle != null && !course.courseTitle.trim().isEmpty()) {
-                                        timetableItem.courseTitle = course.courseTitle;
-                                        courseCode.setText(course.courseTitle);
-                                    }
-                                }
-
-                                @Override
-                                public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {}
-                            });
-                } catch (Exception ignored) {}
+                // Fallback to course code if course title is not available
+                if (timetableItem.courseCode != null && !timetableItem.courseCode.isEmpty() && !timetableItem.courseCode.equals("null")) {
+                    courseName.setText(timetableItem.courseCode);
+                    courseName.setVisibility(View.VISIBLE);
+                    android.util.Log.d("TimetableAdapter", "⚠ Using course code fallback: " + timetableItem.courseCode);
+                } else {
+                    courseName.setText("Unknown Course");
+                    courseName.setVisibility(View.VISIBLE);
+                    android.util.Log.d("TimetableAdapter", "❌ No course data available, using fallback text");
+                }
             }
+            
             setTimings(timetableItem.startTime, timetableItem.endTime, status);
 
             float cgpa = SettingsRepository.getCGPA(this.timetableItem.getContext());
