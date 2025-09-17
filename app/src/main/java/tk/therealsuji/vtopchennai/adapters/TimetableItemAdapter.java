@@ -96,19 +96,53 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
         public void setTimetableItem(Timetable.AllData timetableItem, int status) {
             ImageView courseType = this.timetableItem.findViewById(R.id.image_view_course_type);
             TextView courseCode = this.timetableItem.findViewById(R.id.text_view_course_code);
+            TextView courseName = this.timetableItem.findViewById(R.id.text_view_course_name);
 
             @DrawableRes int courseTypeId = R.drawable.ic_theory;
-
             if (timetableItem.courseType.equals("lab")) {
                 courseTypeId = R.drawable.ic_lab;
             }
-
             courseType.setImageDrawable(ContextCompat.getDrawable(this.timetableItem.getContext(), courseTypeId));
-            courseCode.setText(timetableItem.courseCode);
+            // Ensure primary line uses a high-contrast color and always shows something
+            int onSurface = MaterialColors.getColor(courseCode, com.google.android.material.R.attr.colorOnSurface, 0xFF000000);
+            courseCode.setTextColor(onSurface);
+            courseName.setVisibility(View.GONE);
+
+            // If we already have a title, show it; otherwise show code but try to fetch title
+            boolean hasTitle = timetableItem.courseTitle != null && !timetableItem.courseTitle.trim().isEmpty();
+            if (hasTitle) {
+                courseCode.setText(timetableItem.courseTitle);
+            } else {
+                courseCode.setText(timetableItem.courseCode != null ? timetableItem.courseCode : "");
+
+                // Attempt to resolve the title from DB using slotId and update UI when available
+                try {
+                    Context ctx = this.timetableItem.getContext().getApplicationContext();
+                    AppDatabase db = AppDatabase.getInstance(ctx);
+                    db.coursesDao()
+                            .getCourse(timetableItem.slotId)
+                            .subscribeOn(Schedulers.single())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new SingleObserver<Course.AllData>() {
+                                @Override
+                                public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {}
+
+                                @Override
+                                public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull Course.AllData course) {
+                                    if (course.courseTitle != null && !course.courseTitle.trim().isEmpty()) {
+                                        timetableItem.courseTitle = course.courseTitle;
+                                        courseCode.setText(course.courseTitle);
+                                    }
+                                }
+
+                                @Override
+                                public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {}
+                            });
+                } catch (Exception ignored) {}
+            }
             setTimings(timetableItem.startTime, timetableItem.endTime, status);
 
             float cgpa = SettingsRepository.getCGPA(this.timetableItem.getContext());
-
             if (cgpa < 9 && timetableItem.attendancePercentage != null && timetableItem.attendancePercentage < 75) {
                 ImageView endDrawable = this.timetableItem.findViewById(R.id.image_view_failed_attendance);
                 endDrawable.setImageDrawable(ContextCompat.getDrawable(this.timetableItem.getContext(), R.drawable.ic_feedback));
@@ -117,7 +151,6 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                         MaterialColors.getColor(endDrawable, R.attr.colorError)
                 );
             }
-
             this.classProgress.setOnClickListener(view -> this.onClick(timetableItem.slotId));
         }
 

@@ -3,6 +3,9 @@ package tk.therealsuji.vtopchennai.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import java.util.Calendar;
 
 import java.util.List;
 
@@ -75,5 +78,20 @@ public class BootReceiver extends BroadcastReceiver {
                     public void onError(@NonNull Throwable e) {
                     }
                 });
+
+        // Schedule daily laundry check at 8 AM
+        try {
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent laundryIntent = new Intent(context, LaundryNotificationReceiver.class);
+            PendingIntent pi = PendingIntent.getBroadcast(context, 2011, laundryIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.HOUR_OF_DAY, 8);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            long trigger = cal.getTimeInMillis();
+            if (trigger < System.currentTimeMillis()) trigger += AlarmManager.INTERVAL_DAY;
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger, AlarmManager.INTERVAL_DAY, pi);
+        } catch (Exception ignored) {
+        }
     }
 }

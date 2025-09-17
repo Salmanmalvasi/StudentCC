@@ -26,6 +26,7 @@ import com.google.android.material.badge.ExperimentalBadgeUtils;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 
 import java.text.DecimalFormat;
@@ -46,6 +47,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class HomeFragment extends Fragment {
+
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -99,6 +102,7 @@ public class HomeFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(requireContext());
         View homeFragment = inflater.inflate(R.layout.fragment_home, container, false);
         float pixelDensity = this.getResources().getDisplayMetrics().density;
 
@@ -228,8 +232,10 @@ public class HomeFragment extends Fragment {
 
         // Add click listener to toggle between percentage and counts
         attendanceProgress.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
             if (attendancePercentage.getText().toString().contains("%")) {
                 // Show counts
+                bundle.putString("display_mode", "counts");
                 attendancePercentage.setText(finalAttendedClasses + "/" + finalTotalClasses);
                 // Use theme-based text color based on attendance level
                 if (overallAttendance >= 85) {
@@ -241,6 +247,7 @@ public class HomeFragment extends Fragment {
                 }
             } else {
                 // Show percentage
+                bundle.putString("display_mode", "percentage");
                 attendancePercentage.setText(finalOverallAttendance + "%");
                 // Use theme-based text color based on attendance level
                 if (overallAttendance >= 85) {
@@ -251,6 +258,7 @@ public class HomeFragment extends Fragment {
                     attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnError, android.R.color.white));
                 }
             }
+            mFirebaseAnalytics.logEvent("toggle_attendance_display", bundle);
         });
 
         // Calculate today's classes count
@@ -283,16 +291,23 @@ public class HomeFragment extends Fragment {
         // Spotlight Button
         View spotlightButton = homeFragment.findViewById(R.id.image_button_spotlight);
         TooltipCompat.setTooltipText(spotlightButton, spotlightButton.getContentDescription());
-        spotlightButton.setOnClickListener(view -> SettingsRepository.openRecyclerViewFragment(
+        spotlightButton.setOnClickListener(view -> {
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Spotlight");
+            mFirebaseAnalytics.logEvent("view_spotlight", bundle);
+            SettingsRepository.openRecyclerViewFragment(
                 this.requireActivity(),
                 R.string.spotlight,
                 RecyclerViewFragment.TYPE_SPOTLIGHT
-        ));
-
+            );
+        });
         // Sync Button
         View syncButton = homeFragment.findViewById(R.id.image_button_sync);
         TooltipCompat.setTooltipText(syncButton, syncButton.getContentDescription());
         syncButton.setOnClickListener(view -> {
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.SOURCE, "HomeFragment");
+            mFirebaseAnalytics.logEvent("sync_data", bundle);
             // Start sync process using the same mechanism as profile page
             syncButton.setEnabled(false);
             syncButton.setAlpha(0.5f);
@@ -369,6 +384,9 @@ public class HomeFragment extends Fragment {
 
             // Long press to configure day
             tab.view.setOnLongClickListener(v -> {
+                Bundle bundle = new Bundle();
+                bundle.putInt("day_of_week", position);
+                mFirebaseAnalytics.logEvent("configure_day", bundle);
                 // For Saturday (6) / Sunday (0) allow choosing a working day mapping
                 if (position == 0 || position == 6) {
                     String[] dayAbbreviationsFull = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
@@ -476,7 +494,9 @@ public class HomeFragment extends Fragment {
         days.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                // Optional: Add any additional logic when a day is selected
+                Bundle bundle = new Bundle();
+                bundle.putInt("day_of_week", tab.getPosition());
+                mFirebaseAnalytics.logEvent("select_day", bundle);
             }
 
             @Override
@@ -492,6 +512,4 @@ public class HomeFragment extends Fragment {
 
         return homeFragment;
     }
-    
-
 }

@@ -19,6 +19,12 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.core.app.NotificationCompat;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import androidx.core.app.NotificationCompat;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -122,6 +128,30 @@ public class MainActivity extends AppCompatActivity {
         FileUtils.copyInputStreamToFile(inputStream, file);
 
         return file.getPath();
+    }
+
+    private void sendLaundryCountdownNotification(int days, String room) {
+        final String CHANNEL_ID = "laundry_notifications";
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Laundry Notifications", NotificationManager.IMPORTANCE_DEFAULT);
+            nm.createNotificationChannel(channel);
+        }
+        String text;
+        if (days == 0) {
+            text = "Your laundry is scheduled today for room " + room;
+        } else if (days > 0) {
+            text = "Your laundry is in " + days + " day" + (days == 1 ? "" : "s") + " (Room " + room + ")";
+        } else {
+            text = "Laundry schedule info unavailable";
+        }
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(tk.therealsuji.vtopchennai.R.drawable.ic_update_available)
+                .setContentTitle("Laundry Reminder")
+                .setContentText(text)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true);
+        nm.notify(2013, builder.build());
     }
 
     public ActivityResultLauncher<String> getRequestPermissionLauncher() {
@@ -433,6 +463,19 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onComplete() {
+                // After a manual sync completes, push laundry countdown notification for hostellers
+                try {
+                    SharedPreferences enc = tk.therealsuji.vtopchennai.helpers.SettingsRepository.getEncryptedSharedPreferences(MainActivity.this);
+                    String student = enc.getString("student_type", "");
+                    if ("hosteller".equals(student)) {
+                        String block = enc.getString("hostel_block", "");
+                        String room = enc.getString("room_number", "");
+                        int days = tk.therealsuji.vtopchennai.helpers.HostelDataHelper.getInstance(MainActivity.this).getDaysUntilNextLaundry(block, room);
+                        sendLaundryCountdownNotification(days, room);
+                    }
+                } catch (Exception ignored) {
+                }
+
                 restartActivity();
             }
         });
