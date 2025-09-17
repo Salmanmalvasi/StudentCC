@@ -16,6 +16,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import tk.therealsuji.vtopchennai.models.Mark;
 import tk.therealsuji.vtopchennai.widgets.PerformanceCard;
 
 public class PerformanceFragment extends Fragment {
+    private FirebaseAnalytics mFirebaseAnalytics;
     AppBarLayout appBarLayout;
     ViewPager2 marks;
     View performanceCards;
@@ -74,6 +76,7 @@ public class PerformanceFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(requireContext());
         View performanceFragment = inflater.inflate(R.layout.fragment_performance, container, false);
 
         this.appBarLayout = performanceFragment.findViewById(R.id.app_bar);
@@ -220,6 +223,10 @@ public class PerformanceFragment extends Fragment {
                                 super.onPageSelected(position);
 
                                 final String courseCode = courses.get(position).courseCode;
+
+                                Bundle bundle = new Bundle();
+                                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, courseCode);
+                                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
 
                                 overall.setIndeterminate(true);
                                 theory.setIndeterminate(true);

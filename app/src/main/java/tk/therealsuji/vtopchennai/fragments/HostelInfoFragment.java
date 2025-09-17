@@ -61,7 +61,11 @@ public class HostelInfoFragment extends Fragment {
         if ("hosteller".equals(studentType)) {
             // Show both laundry schedule and mess menu directly
             showLaundrySchedule();
-            showMessMenu();
+            if (!"O".equals(messType)) {
+                showMessMenu();
+            } else {
+                recyclerViewMessMenu.setVisibility(View.GONE);
+            }
         } else {
             // Hide content for day scholars
             recyclerViewLaundry.setVisibility(View.GONE);

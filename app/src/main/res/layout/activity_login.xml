@@ -43,7 +43,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="@string/login_header"
-                        android:textColor="?attr/colorPrimary"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="36sp"
                         android:textStyle="bold" />
 
@@ -54,7 +54,7 @@
                         android:layout_marginTop="12dp"
                         android:gravity="center"
                         android:text="@string/login_description"
-                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="16sp" />
 
                     <!-- Student Type Selection -->
@@ -88,8 +88,9 @@
                             android:layout_marginEnd="8dp"
                             android:text="@string/day_scholar"
                             android:textAllCaps="false"
+                            android:textColor="?attr/colorOnSurface"
                             app:cornerRadius="8dp"
-                            app:strokeColor="?attr/colorPrimary"
+                            app:strokeColor="?attr/colorOnSurface"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -101,8 +102,9 @@
                             android:layout_marginStart="8dp"
                             android:text="@string/hosteller"
                             android:textAllCaps="false"
+                            android:textColor="?attr/colorOnSurface"
                             app:cornerRadius="8dp"
-                            app:strokeColor="?attr/colorPrimary"
+                            app:strokeColor="?attr/colorOnSurface"
                             app:strokeWidth="2dp" />
                         </LinearLayout>
                     </LinearLayout>
@@ -140,8 +142,9 @@
                             android:layout_marginEnd="8dp"
                             android:text="@string/male"
                             android:textAllCaps="false"
+                            android:textColor="?attr/colorOnSurface"
                             app:cornerRadius="8dp"
-                            app:strokeColor="?attr/colorPrimary"
+                            app:strokeColor="?attr/colorOnSurface"
                             app:strokeWidth="2dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -153,8 +156,9 @@
                             android:layout_marginStart="8dp"
                             android:text="@string/female"
                             android:textAllCaps="false"
+                            android:textColor="?attr/colorOnSurface"
                             app:cornerRadius="8dp"
-                            app:strokeColor="?attr/colorPrimary"
+                            app:strokeColor="?attr/colorOnSurface"
                             app:strokeWidth="2dp" />
                         </LinearLayout>
 
@@ -181,47 +185,75 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
-                                android:weightSum="3">
+                                android:weightSum="2">
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/button_veg"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="4dp"
-                            android:text="@string/vegetarian"
-                            android:textAllCaps="false"
-                            app:cornerRadius="8dp"
-                            app:strokeColor="?attr/colorPrimary"
-                            app:strokeWidth="2dp" />
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/button_non_veg"
+                                    style="@style/Widget.Material3.Button.OutlinedButton"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginEnd="8dp"
+                                    android:text="@string/non_vegetarian"
+                                    android:textAllCaps="false"
+                                    android:textSize="14sp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    app:cornerRadius="12dp"
+                                    app:strokeColor="?attr/colorOnSurface"
+                                    app:strokeWidth="3dp" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/button_non_veg"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginEnd="4dp"
-                            android:text="@string/non_vegetarian"
-                            android:textAllCaps="false"
-                            app:cornerRadius="8dp"
-                            app:strokeColor="?attr/colorPrimary"
-                            app:strokeWidth="2dp" />
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/button_veg"
+                                    style="@style/Widget.Material3.Button.OutlinedButton"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginStart="8dp"
+                                    android:text="@string/vegetarian"
+                                    android:textAllCaps="false"
+                                    android:textSize="14sp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    app:cornerRadius="12dp"
+                                    app:strokeColor="?attr/colorOnSurface"
+                                    app:strokeWidth="3dp" />
+                            </LinearLayout>
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/button_special"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="4dp"
-                            android:text="@string/special"
-                            android:textAllCaps="false"
-                            app:cornerRadius="8dp"
-                            app:strokeColor="?attr/colorPrimary"
-                            app:strokeWidth="2dp" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:orientation="horizontal"
+                                android:weightSum="2">
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/button_special"
+                                    style="@style/Widget.Material3.Button.OutlinedButton"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginEnd="8dp"
+                                    android:text="@string/special"
+                                    android:textAllCaps="false"
+                                    android:textSize="14sp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    app:cornerRadius="12dp"
+                                    app:strokeColor="?attr/colorOnSurface"
+                                    app:strokeWidth="3dp" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/button_others"
+                                    style="@style/Widget.Material3.Button.OutlinedButton"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginStart="8dp"
+                                    android:text="@string/others"
+                                    android:textAllCaps="false"
+                                    android:textSize="14sp"
+                                    android:textColor="?attr/colorOnSurface"
+                                    app:cornerRadius="12dp"
+                                    app:strokeColor="?attr/colorOnSurface"
+                                    app:strokeWidth="3dp" />
                             </LinearLayout>
                         </LinearLayout>
 
@@ -265,6 +297,7 @@
                                         android:layout_marginEnd="4dp"
                                         android:text="D1"
                                         android:textAllCaps="false"
+                                        android:textColor="?attr/colorOnSurface"
                                         app:cornerRadius="8dp" />
 
                                     <com.google.android.material.button.MaterialButton
@@ -277,6 +310,7 @@
                                         android:layout_marginEnd="4dp"
                                         android:text="D2"
                                         android:textAllCaps="false"
+                                        android:textColor="?attr/colorOnSurface"
                                         app:cornerRadius="8dp" />
 
                                     <com.google.android.material.button.MaterialButton
@@ -288,6 +322,7 @@
                                         android:layout_marginStart="4dp"
                                         android:text="A"
                                         android:textAllCaps="false"
+                                        android:textColor="?attr/colorOnSurface"
                                         app:cornerRadius="8dp" />
                                 </LinearLayout>
 
@@ -307,6 +342,7 @@
                                         android:layout_marginEnd="8dp"
                                         android:text="C"
                                         android:textAllCaps="false"
+                                        android:textColor="?attr/colorOnSurface"
                                         app:cornerRadius="8dp" />
 
                                     <com.google.android.material.button.MaterialButton
@@ -318,6 +354,7 @@
                                         android:layout_marginStart="8dp"
                                         android:text="E"
                                         android:textAllCaps="false"
+                                        android:textColor="?attr/colorOnSurface"
                                         app:cornerRadius="8dp" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -337,8 +374,9 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:layout_marginEnd="8dp"
-                                    android:text="CB"
+                                    android:text="B"
                                     android:textAllCaps="false"
+                                    android:textColor="?attr/colorOnSurface"
                                     app:cornerRadius="8dp" />
 
                                 <com.google.android.material.button.MaterialButton
@@ -348,8 +386,9 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:layout_marginStart="8dp"
-                                    android:text="CG"
+                                    android:text="C"
                                     android:textAllCaps="false"
+                                    android:textColor="?attr/colorOnSurface"
                                     app:cornerRadius="8dp" />
                             </LinearLayout>
                         </LinearLayout>
@@ -366,10 +405,10 @@
                             app:boxCornerRadiusBottomStart="8dp"
                             app:boxCornerRadiusTopEnd="8dp"
                             app:boxCornerRadiusTopStart="8dp"
-                            app:boxStrokeColor="?attr/colorPrimary"
+                            app:boxStrokeColor="?attr/colorOnSurface"
                             app:boxStrokeWidth="1dp"
                             app:startIconDrawable="@drawable/ic_home"
-                            app:startIconTint="?attr/colorPrimary">
+                            app:startIconTint="?attr/colorOnSurface">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/edit_text_room_number"
@@ -385,7 +424,7 @@
                         android:layout_width="40dp"
                         android:layout_height="2dp"
                         android:layout_marginTop="24dp"
-                        android:background="?attr/colorPrimary" />
+                        android:background="?attr/colorOnSurface" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -402,11 +441,11 @@
                         app:boxCornerRadiusBottomStart="8dp"
                         app:boxCornerRadiusTopEnd="8dp"
                         app:boxCornerRadiusTopStart="8dp"
-                        app:boxStrokeColor="?attr/colorPrimary"
+                        app:boxStrokeColor="?attr/colorOnSurface"
                         app:boxStrokeWidth="1dp"
                         app:endIconMode="clear_text"
                         app:startIconDrawable="@drawable/ic_profile_filled"
-                        app:startIconTint="?attr/colorPrimary">
+                        app:startIconTint="?attr/colorOnSurface">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edit_text_username"
@@ -426,11 +465,11 @@
                         app:boxCornerRadiusBottomStart="8dp"
                         app:boxCornerRadiusTopEnd="8dp"
                         app:boxCornerRadiusTopStart="8dp"
-                        app:boxStrokeColor="?attr/colorPrimary"
+                        app:boxStrokeColor="?attr/colorOnSurface"
                         app:boxStrokeWidth="1dp"
                         app:endIconMode="password_toggle"
                         app:startIconDrawable="@drawable/ic_password"
-                        app:startIconTint="?attr/colorPrimary">
+                        app:startIconTint="?attr/colorOnSurface">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edit_text_password"
@@ -451,6 +490,7 @@
                         android:text="@string/sign_in"
                         android:textAllCaps="true"
                         android:textColor="?attr/colorOnPrimary"
+                        android:backgroundTint="?attr/colorPrimary"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         app:cornerRadius="8dp"

@@ -8,6 +8,13 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.graphics.Color;
+import android.content.res.ColorStateList;
+import android.util.TypedValue;
+import android.content.res.Configuration;
+import androidx.core.app.NotificationCompat;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -44,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
     // UI Elements
     private MaterialButton buttonDayScholar, buttonHosteller;
     private MaterialButton buttonMale, buttonFemale;
-    private MaterialButton buttonVeg, buttonNonVeg, buttonSpecial;
+    private MaterialButton buttonVeg, buttonNonVeg, buttonSpecial, buttonOthers;
     private MaterialButton buttonD1, buttonD2, buttonA, buttonC, buttonE, buttonCB, buttonCG;
     private LinearLayout layoutHostelSelection, layoutRoomNumber, layoutMessTypeSelection, layoutBlockSelection;
     private LinearLayout layoutMaleBlocks, layoutFemaleBlocks;
@@ -77,6 +84,33 @@ public class LoginActivity extends AppCompatActivity {
 
         this.vtopHelper.bind();
         this.vtopHelper.start();
+
+        // Also schedule laundry notifications immediately after login
+        try {
+            android.app.AlarmManager am = (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent laundryIntent = new Intent(this, tk.therealsuji.vtopchennai.receivers.LaundryNotificationReceiver.class);
+            android.app.PendingIntent pi = android.app.PendingIntent.getBroadcast(this, 2011, laundryIntent, android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE);
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 8);
+            cal.set(java.util.Calendar.MINUTE, 0);
+            cal.set(java.util.Calendar.SECOND, 0);
+            long trigger = cal.getTimeInMillis();
+            if (trigger < System.currentTimeMillis()) trigger += android.app.AlarmManager.INTERVAL_DAY;
+            am.setInexactRepeating(android.app.AlarmManager.RTC_WAKEUP, trigger, android.app.AlarmManager.INTERVAL_DAY, pi);
+        } catch (Exception ignored) {
+        }
+
+        // Show immediate countdown notification after login
+        try {
+            String student = encryptedSharedPreferences.getString("student_type", "");
+            if ("hosteller".equals(student)) {
+                String block = encryptedSharedPreferences.getString("hostel_block", "");
+                String room = encryptedSharedPreferences.getString("room_number", "");
+                int days = tk.therealsuji.vtopchennai.helpers.HostelDataHelper.getInstance(this).getDaysUntilNextLaundry(block, room);
+                sendLaundryCountdownNotification(days, room);
+            }
+        } catch (Exception ignored) {
+        }
     }
     
     private void initializeViews() {
@@ -92,6 +126,7 @@ public class LoginActivity extends AppCompatActivity {
         buttonVeg = findViewById(R.id.button_veg);
         buttonNonVeg = findViewById(R.id.button_non_veg);
         buttonSpecial = findViewById(R.id.button_special);
+        buttonOthers = findViewById(R.id.button_others);
         
         // Block buttons
         buttonD1 = findViewById(R.id.button_d1_block);
@@ -127,6 +162,7 @@ public class LoginActivity extends AppCompatActivity {
         buttonVeg.setOnClickListener(v -> selectMessType("V"));
         buttonNonVeg.setOnClickListener(v -> selectMessType("N"));
         buttonSpecial.setOnClickListener(v -> selectMessType("S"));
+        buttonOthers.setOnClickListener(v -> selectMessType("O"));
         
         // Block selection
         buttonD1.setOnClickListener(v -> selectBlock("D1"));
@@ -141,41 +177,28 @@ public class LoginActivity extends AppCompatActivity {
     private void selectStudentType(String type) {
         studentType = type;
         
-        // Update button states with visual feedback
-        if ("day_scholar".equals(type)) {
-            buttonDayScholar.setSelected(true);
-            buttonDayScholar.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_light));
-            buttonHosteller.setSelected(false);
-            buttonHosteller.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-            layoutHostelSelection.setVisibility(View.GONE);
-        } else {
-            buttonDayScholar.setSelected(false);
-            buttonDayScholar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-            buttonHosteller.setSelected(true);
-            buttonHosteller.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_light));
-            layoutHostelSelection.setVisibility(View.VISIBLE);
-        }
+        // Theme-aware selection styling
+        boolean isDayScholar = "day_scholar".equals(type);
+        buttonDayScholar.setSelected(isDayScholar);
+        buttonHosteller.setSelected(!isDayScholar);
+        styleOutlinedSelection(buttonDayScholar, isDayScholar);
+        styleOutlinedSelection(buttonHosteller, !isDayScholar);
+
+        layoutHostelSelection.setVisibility(isDayScholar ? View.GONE : View.VISIBLE);
     }
     
     private void selectGender(String selectedGender) {
         gender = selectedGender;
         
-        // Update button states with visual feedback
-        if ("male".equals(selectedGender)) {
-            buttonMale.setSelected(true);
-            buttonMale.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_light));
-            buttonFemale.setSelected(false);
-            buttonFemale.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-            layoutMaleBlocks.setVisibility(View.VISIBLE);
-            layoutFemaleBlocks.setVisibility(View.GONE);
-        } else {
-            buttonMale.setSelected(false);
-            buttonMale.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-            buttonFemale.setSelected(true);
-            buttonFemale.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_light));
-            layoutMaleBlocks.setVisibility(View.GONE);
-            layoutFemaleBlocks.setVisibility(View.VISIBLE);
-        }
+        // Theme-aware selection styling
+        boolean isMale = "male".equals(selectedGender);
+        buttonMale.setSelected(isMale);
+        buttonFemale.setSelected(!isMale);
+        styleOutlinedSelection(buttonMale, isMale);
+        styleOutlinedSelection(buttonFemale, !isMale);
+
+        layoutMaleBlocks.setVisibility(isMale ? View.VISIBLE : View.GONE);
+        layoutFemaleBlocks.setVisibility(isMale ? View.GONE : View.VISIBLE);
         
         layoutMessTypeSelection.setVisibility(View.VISIBLE);
     }
@@ -185,19 +208,22 @@ public class LoginActivity extends AppCompatActivity {
         
         // Update button states with visual feedback
         buttonVeg.setSelected("V".equals(selectedMessType));
-        buttonVeg.setBackgroundColor("V".equals(selectedMessType) ? 
-            getResources().getColor(android.R.color.holo_blue_light) : 
-            getResources().getColor(android.R.color.transparent));
-        
+        boolean vegSel = "V".equals(selectedMessType);
+        styleOutlinedSelection(buttonVeg, vegSel);
+
         buttonNonVeg.setSelected("N".equals(selectedMessType));
-        buttonNonVeg.setBackgroundColor("N".equals(selectedMessType) ? 
-            getResources().getColor(android.R.color.holo_blue_light) : 
-            getResources().getColor(android.R.color.transparent));
-        
+        boolean nonSel = "N".equals(selectedMessType);
+        styleOutlinedSelection(buttonNonVeg, nonSel);
+
         buttonSpecial.setSelected("S".equals(selectedMessType));
-        buttonSpecial.setBackgroundColor("S".equals(selectedMessType) ? 
-            getResources().getColor(android.R.color.holo_blue_light) : 
-            getResources().getColor(android.R.color.transparent));
+        boolean spSel = "S".equals(selectedMessType);
+        styleOutlinedSelection(buttonSpecial, spSel);
+
+        if (buttonOthers != null) {
+            boolean oSel = "O".equals(selectedMessType);
+            buttonOthers.setSelected(oSel);
+            styleOutlinedSelection(buttonOthers, oSel);
+        }
         
         layoutBlockSelection.setVisibility(View.VISIBLE);
     }
@@ -220,9 +246,70 @@ public class LoginActivity extends AppCompatActivity {
     
     private void updateBlockButton(MaterialButton button, boolean isSelected) {
         button.setSelected(isSelected);
-        button.setBackgroundColor(isSelected ? 
-            getResources().getColor(android.R.color.holo_blue_light) : 
-            getResources().getColor(android.R.color.transparent));
+        styleOutlinedSelection(button, isSelected);
+    }
+
+    private void styleOutlinedSelection(MaterialButton button, boolean selected) {
+        // Theme-aware selection styling for good contrast in light/dark
+        boolean night = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+
+        int colorOnSurface = getAttrColor(com.google.android.material.R.attr.colorOnSurface);
+        int colorSurface = getAttrColor(com.google.android.material.R.attr.colorSurface);
+
+        int stroke = adjustAlpha(colorOnSurface, 200); // visible outline
+        int unselectedText = adjustAlpha(colorOnSurface, 230);
+
+        if (selected) {
+            // Fill with contrasting surface/onSurface pair
+            int fill = night ? colorOnSurface : colorOnSurface; // white in dark, black in light (our palette)
+            int text = night ? colorSurface : colorSurface; // dark text when background is light
+            button.setBackgroundTintList(ColorStateList.valueOf(fill));
+            button.setStrokeColor(ColorStateList.valueOf(fill));
+            button.setStrokeWidth(0);
+            button.setTextColor(text);
+            button.setTypeface(button.getTypeface(), android.graphics.Typeface.BOLD);
+        } else {
+            button.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
+            button.setStrokeColor(ColorStateList.valueOf(stroke));
+            button.setStrokeWidth(3);
+            button.setTextColor(unselectedText);
+            button.setTypeface(button.getTypeface(), android.graphics.Typeface.NORMAL);
+        }
+    }
+
+    private int getAttrColor(int attr) {
+        TypedValue tv = new TypedValue();
+        getTheme().resolveAttribute(attr, tv, true);
+        return tv.data;
+    }
+
+    private int adjustAlpha(int color, int alpha) {
+        return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
+    }
+
+    private void sendLaundryCountdownNotification(int days, String room) {
+        final String CHANNEL_ID = "laundry_notifications";
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Laundry Notifications", NotificationManager.IMPORTANCE_DEFAULT);
+            nm.createNotificationChannel(channel);
+        }
+        String text;
+        if (days == 0) {
+            text = "Your laundry is scheduled today for room " + room;
+        } else if (days > 0) {
+            text = "Your laundry is in " + days + " day" + (days == 1 ? "" : "s") + " (Room " + room + ")";
+        } else {
+            // Unknown/NA
+            text = "Laundry schedule info unavailable";
+        }
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(tk.therealsuji.vtopchennai.R.drawable.ic_update_available)
+                .setContentTitle("Laundry Reminder")
+                .setContentText(text)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true);
+        nm.notify(2012, builder.build());
     }
 
     private void hideKeyboard(View view) {
@@ -282,6 +369,18 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onComplete() {
+                // After full sync completes, send laundry countdown notification as well
+                try {
+                    String student = encryptedSharedPreferences.getString("student_type", "");
+                    if ("hosteller".equals(student)) {
+                        String block = encryptedSharedPreferences.getString("hostel_block", "");
+                        String room = encryptedSharedPreferences.getString("room_number", "");
+                        int days = tk.therealsuji.vtopchennai.helpers.HostelDataHelper.getInstance(LoginActivity.this).getDaysUntilNextLaundry(block, room);
+                        sendLaundryCountdownNotification(days, room);
+                    }
+                } catch (Exception ignored) {
+                }
+
                 startMainActivity();
             }
         });

@@ -93,6 +93,7 @@
 
         <receiver android:name=".receivers.ExamNotificationReceiver" />
         <receiver android:name=".receivers.TimetableNotificationReceiver" />
+        <receiver android:name=".receivers.LaundryNotificationReceiver" />
         <receiver
             android:name=".receivers.BootReceiver"
             android:exported="true">
