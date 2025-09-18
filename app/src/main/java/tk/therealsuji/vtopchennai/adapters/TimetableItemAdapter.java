@@ -328,7 +328,19 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                                     }
 
                                     attendanceExcessText.setVisibility(View.VISIBLE);
-                                    attendanceExcessText.setText(new DecimalFormat("+#;-#").format(attendanceExcess));
+
+                                    // Format the text in a compact bubble-friendly way
+                                    String excessText;
+                                    int absValue = Math.abs((int) attendanceExcess);
+                                    if (attendanceExcess > 0) {
+                                        excessText = "You can skip " + absValue + " more";
+                                    } else if (attendanceExcess < 0) {
+                                        excessText = "You need to attend " + absValue + " more";
+                                    } else {
+                                        excessText = "Perfect 75%";
+                                    }
+
+                                    attendanceExcessText.setText(excessText);
 
                                     if (attendanceExcess < 0) {
                                         attendanceExcessText.setTextColor(MaterialColors.getColor(attendanceExcessText, R.attr.colorError));
