@@ -70,16 +70,23 @@
                 android:gravity="center_horizontal"
                 android:orientation="vertical">
 
+                <!-- Compact Attendance Status Bubble -->
                 <TextView
                     android:id="@+id/text_view_attendance_excess"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
-                    android:layout_marginBottom="-8dp"
-                    android:textAlignment="textEnd"
+                    android:layout_marginBottom="8dp"
+                    android:textAlignment="center"
                     android:textColor="?attr/colorPrimary"
                     android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
+                    android:background="@drawable/attendance_bubble_background"
+                    android:maxLines="2"
+                    android:ellipsize="end" />
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
