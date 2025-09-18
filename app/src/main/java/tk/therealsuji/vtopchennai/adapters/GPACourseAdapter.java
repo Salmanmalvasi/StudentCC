@@ -95,13 +95,13 @@ public class GPACourseAdapter extends RecyclerView.Adapter<GPACourseAdapter.Cour
         public void bind(GPACourse course, int position) {
             // Set course icon (you can customize this based on course type)
             courseIconText.setText("📚");
-            
+
             // Set course title
             courseTitleText.setText("Course " + (position + 1));
-            
+
             // Set credits badge
             creditHoursText.setText(String.format("%.1f credits", course.getCreditHours()));
-            
+
             // Set grade badge
             gradeText.setText(GPACourse.getGradeDisplayText(course.getGrade()));
 

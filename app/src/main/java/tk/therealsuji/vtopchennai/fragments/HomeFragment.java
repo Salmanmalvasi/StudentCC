@@ -88,7 +88,7 @@ public class HomeFragment extends Fragment {
             requireContext().registerReceiver(classCountReceiver, filter);
         }
     }
-    
+
     @Override
     public void onPause() {
         super.onPause();
@@ -180,16 +180,16 @@ public class HomeFragment extends Fragment {
         String name = sharedPreferences.getString("name", getString(R.string.name));
         TextView nameTextView = homeFragment.findViewById(R.id.text_view_name);
         nameTextView.setText(name);
-        
+
         // Set text colors to primary theme color
-        int primaryColor = MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, android.R.color.black);
+        int primaryColor = MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(requireContext(), android.R.color.black));
         greeting.setTextColor(primaryColor);
         nameTextView.setTextColor(primaryColor);
 
         // Attendance Card
         CircularProgressDrawable attendanceProgress = homeFragment.findViewById(R.id.attendance_progress);
         TextView attendancePercentage = homeFragment.findViewById(R.id.attendance_percentage);
-        
+
         // Today's Classes Card
         TextView todaysClassesCount = homeFragment.findViewById(R.id.todays_classes_count);
 
@@ -266,10 +266,10 @@ public class HomeFragment extends Fragment {
         int dayOfWeek = today.get(Calendar.DAY_OF_WEEK);
         // Convert to 0-based index (Sunday = 0, Monday = 1, etc.) for the DAO
         int dayIndex = dayOfWeek - 1;
-        
+
         // Check if today is marked as holiday
         boolean isTodayHoliday = sharedPreferences.getBoolean("holiday_" + dayIndex, false);
-        
+
         if (isTodayHoliday) {
             // Show "Holiday" instead of class count
             todaysClassesCount.setText("Holiday");
@@ -371,7 +371,7 @@ public class HomeFragment extends Fragment {
             tab.setText(dayAbbreviation);
             tab.view.setContentDescription(dayStrings[position]);
             TooltipCompat.setTooltipText(tab.view, dayStrings[position]);
-            
+
             // Tab text colors are handled by XML attributes in the layout
 
             // Indicate holiday state in tab appearance

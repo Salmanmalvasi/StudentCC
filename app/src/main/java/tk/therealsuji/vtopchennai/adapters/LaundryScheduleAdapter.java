@@ -15,11 +15,11 @@ import tk.therealsuji.vtopchennai.helpers.HostelDataHelper;
 
 public class LaundryScheduleAdapter extends RecyclerView.Adapter<LaundryScheduleAdapter.ViewHolder> {
     private List<HostelDataHelper.LaundrySchedule> schedules;
-    
+
     public LaundryScheduleAdapter(List<HostelDataHelper.LaundrySchedule> schedules) {
         this.schedules = schedules;
     }
-    
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -27,7 +27,7 @@ public class LaundryScheduleAdapter extends RecyclerView.Adapter<LaundrySchedule
                 .inflate(R.layout.item_laundry_schedule, parent, false);
         return new ViewHolder(view);
     }
-    
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if (schedules.isEmpty()) {
@@ -44,15 +44,15 @@ public class LaundryScheduleAdapter extends RecyclerView.Adapter<LaundrySchedule
             }
         }
     }
-    
+
     @Override
     public int getItemCount() {
         return Math.max(1, schedules.size()); // Always show at least one item
     }
-    
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewDate, textViewRoomNumber;
-        
+
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewDate = itemView.findViewById(R.id.text_view_date);

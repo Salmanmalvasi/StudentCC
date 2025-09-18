@@ -44,11 +44,11 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
     private TextInputEditText currentCGPAInput;
     private TextInputEditText currentCreditsInput;
     private TextView cgpaResultText;
-    
+
     // Current CGPA and Credits Display
     private TextView currentCGPADisplay;
     private TextView currentCreditsDisplay;
-    
+
     // CGPA Estimator UI elements
     private TextInputEditText targetCGPAInput;
     private TextInputEditText semesterCreditsInput;
@@ -89,11 +89,11 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         currentCGPAInput = view.findViewById(R.id.current_cgpa_input);
         currentCreditsInput = view.findViewById(R.id.current_credits_input);
         cgpaResultText = view.findViewById(R.id.cgpa_result_text);
-        
+
         // Initialize Current CGPA and Credits Display
         currentCGPADisplay = view.findViewById(R.id.current_cgpa_display);
         currentCreditsDisplay = view.findViewById(R.id.current_credits_display);
-        
+
         // Initialize CGPA Estimator UI elements
         targetCGPAInput = view.findViewById(R.id.target_cgpa_input);
         semesterCreditsInput = view.findViewById(R.id.semester_credits_input);
@@ -312,7 +312,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
             creditsBeingAddedText.setVisibility(View.GONE);
         }
     }
-    
+
     /**
      * Estimate the required GPA to achieve target CGPA
      */
@@ -322,7 +322,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         String currentCGPAStr = currentCGPAInput.getText() != null ? currentCGPAInput.getText().toString().trim() : "";
         String currentCreditsStr = currentCreditsInput.getText() != null ? currentCreditsInput.getText().toString().trim() : "";
 
-        if (TextUtils.isEmpty(targetCGPAStr) || TextUtils.isEmpty(semesterCreditsStr) || 
+        if (TextUtils.isEmpty(targetCGPAStr) || TextUtils.isEmpty(semesterCreditsStr) ||
             TextUtils.isEmpty(currentCGPAStr) || TextUtils.isEmpty(currentCreditsStr)) {
             Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
@@ -334,7 +334,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
             double currentCGPA = Double.parseDouble(currentCGPAStr);
             double currentCredits = Double.parseDouble(currentCreditsStr);
 
-            if (targetCGPA < 0 || targetCGPA > 10 || semesterCredits <= 0 || 
+            if (targetCGPA < 0 || targetCGPA > 10 || semesterCredits <= 0 ||
                 currentCGPA < 0 || currentCGPA > 10 || currentCredits <= 0) {
                 Toast.makeText(requireContext(), "Please enter valid values", Toast.LENGTH_SHORT).show();
                 return;
@@ -347,7 +347,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
 
             DecimalFormat df = new DecimalFormat("#.##");
             String result;
-            
+
             if (requiredGPA < 0) {
                 result = "Target CGPA is not achievable with current credits";
             } else if (requiredGPA > 10) {
@@ -357,10 +357,10 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
                         "Target CGPA: " + df.format(targetCGPA) + "\n" +
                         "Current CGPA: " + df.format(currentCGPA);
             }
-            
+
             estimateResultText.setText(result);
             estimateResultText.setVisibility(View.VISIBLE);
-            
+
             // Log to Firebase Analytics (commented out for now)
             // FirebaseHelper.getInstance().logEvent("cgpa_estimation", "target_cgpa", df.format(targetCGPA));
             // FirebaseHelper.getInstance().logEvent("cgpa_estimation", "required_gpa", df.format(requiredGPA));

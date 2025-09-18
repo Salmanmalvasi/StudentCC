@@ -13,10 +13,10 @@ public class VTOP extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        
+
         // Initialize Firebase services
         FirebaseHelper.getInstance().initializeFirebase(this);
-        
+
         // Disable dynamic colors to use our custom black and white theme
         // DynamicColors.applyToActivitiesIfAvailable(this);
 
