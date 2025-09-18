@@ -15,11 +15,11 @@ import tk.therealsuji.vtopchennai.helpers.HostelDataHelper;
 
 public class MessMenuAdapter extends RecyclerView.Adapter<MessMenuAdapter.ViewHolder> {
     private List<HostelDataHelper.MessMenu> menus;
-    
+
     public MessMenuAdapter(List<HostelDataHelper.MessMenu> menus) {
         this.menus = menus;
     }
-    
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -27,7 +27,7 @@ public class MessMenuAdapter extends RecyclerView.Adapter<MessMenuAdapter.ViewHo
                 .inflate(R.layout.item_mess_menu, parent, false);
         return new ViewHolder(view);
     }
-    
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if (menus.isEmpty()) {
@@ -45,15 +45,15 @@ public class MessMenuAdapter extends RecyclerView.Adapter<MessMenuAdapter.ViewHo
             holder.textViewDinner.setText(menu.getDinner());
         }
     }
-    
+
     @Override
     public int getItemCount() {
         return Math.max(1, menus.size()); // Always show at least one item
     }
-    
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewDay, textViewBreakfast, textViewLunch, textViewSnacks, textViewDinner;
-        
+
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewDay = itemView.findViewById(R.id.text_view_day);

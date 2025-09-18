@@ -35,19 +35,20 @@ import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.fragments.dialogs.UpdateDialogFragment;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 import tk.therealsuji.vtopchennai.helpers.VTOPHelper;
+import tk.therealsuji.vtopchennai.helpers.HostelDataHelper;
 
 public class LoginActivity extends AppCompatActivity {
     SharedPreferences encryptedSharedPreferences, sharedPreferences;
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     VTOPHelper vtopHelper;
-    
+
     // Student type and hostel selection
     private String studentType = ""; // "day_scholar" or "hosteller"
     private String gender = ""; // "male" or "female"
     private String selectedBlock = ""; // "A", "B", "CB", "CG", "D1", "D2", "E"
     private String messType = ""; // "V", "N", "S" (Vegetarian, Non-Veg, Special)
     private String roomNumber = ""; // User's room number
-    
+
     // UI Elements
     private MaterialButton buttonDayScholar, buttonHosteller;
     private MaterialButton buttonMale, buttonFemale;
@@ -69,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         // Save login credentials
         encryptedSharedPreferences.edit().putString("username", username).apply();
         encryptedSharedPreferences.edit().putString("password", password).apply();
-        
+
         // Save hostel information if hosteller
         if ("hosteller".equals(studentType)) {
             roomNumber = editTextRoomNumber.getText().toString();
@@ -112,22 +113,22 @@ public class LoginActivity extends AppCompatActivity {
         } catch (Exception ignored) {
         }
     }
-    
+
     private void initializeViews() {
         // Student type buttons
         buttonDayScholar = findViewById(R.id.button_day_scholar);
         buttonHosteller = findViewById(R.id.button_hosteller);
-        
+
         // Gender buttons
         buttonMale = findViewById(R.id.button_male);
         buttonFemale = findViewById(R.id.button_female);
-        
+
         // Mess type buttons
         buttonVeg = findViewById(R.id.button_veg);
         buttonNonVeg = findViewById(R.id.button_non_veg);
         buttonSpecial = findViewById(R.id.button_special);
         buttonOthers = findViewById(R.id.button_others);
-        
+
         // Block buttons
         buttonD1 = findViewById(R.id.button_d1_block);
         buttonD2 = findViewById(R.id.button_d2_block);
@@ -136,7 +137,7 @@ public class LoginActivity extends AppCompatActivity {
         buttonE = findViewById(R.id.button_e_block);
         buttonCB = findViewById(R.id.button_cb_block);
         buttonCG = findViewById(R.id.button_cg_block);
-        
+
         // Layouts
         layoutHostelSelection = findViewById(R.id.layout_hostel_selection);
         layoutRoomNumber = findViewById(R.id.layout_room_number);
@@ -144,26 +145,26 @@ public class LoginActivity extends AppCompatActivity {
         layoutBlockSelection = findViewById(R.id.layout_block_selection);
         layoutMaleBlocks = findViewById(R.id.layout_male_blocks);
         layoutFemaleBlocks = findViewById(R.id.layout_female_blocks);
-        
+
         // EditText
         editTextRoomNumber = findViewById(R.id.edit_text_room_number);
     }
-    
+
     private void setupClickListeners() {
         // Student type selection
         buttonDayScholar.setOnClickListener(v -> selectStudentType("day_scholar"));
         buttonHosteller.setOnClickListener(v -> selectStudentType("hosteller"));
-        
+
         // Gender selection
         buttonMale.setOnClickListener(v -> selectGender("male"));
         buttonFemale.setOnClickListener(v -> selectGender("female"));
-        
+
         // Mess type selection
         buttonVeg.setOnClickListener(v -> selectMessType("V"));
         buttonNonVeg.setOnClickListener(v -> selectMessType("N"));
         buttonSpecial.setOnClickListener(v -> selectMessType("S"));
         buttonOthers.setOnClickListener(v -> selectMessType("O"));
-        
+
         // Block selection
         buttonD1.setOnClickListener(v -> selectBlock("D1"));
         buttonD2.setOnClickListener(v -> selectBlock("D2"));
@@ -173,10 +174,10 @@ public class LoginActivity extends AppCompatActivity {
         buttonCB.setOnClickListener(v -> selectBlock("CB"));
         buttonCG.setOnClickListener(v -> selectBlock("CG"));
     }
-    
+
     private void selectStudentType(String type) {
         studentType = type;
-        
+
         // Theme-aware selection styling
         boolean isDayScholar = "day_scholar".equals(type);
         buttonDayScholar.setSelected(isDayScholar);
@@ -186,10 +187,10 @@ public class LoginActivity extends AppCompatActivity {
 
         layoutHostelSelection.setVisibility(isDayScholar ? View.GONE : View.VISIBLE);
     }
-    
+
     private void selectGender(String selectedGender) {
         gender = selectedGender;
-        
+
         // Theme-aware selection styling
         boolean isMale = "male".equals(selectedGender);
         buttonMale.setSelected(isMale);
@@ -199,13 +200,13 @@ public class LoginActivity extends AppCompatActivity {
 
         layoutMaleBlocks.setVisibility(isMale ? View.VISIBLE : View.GONE);
         layoutFemaleBlocks.setVisibility(isMale ? View.GONE : View.VISIBLE);
-        
+
         layoutMessTypeSelection.setVisibility(View.VISIBLE);
     }
-    
+
     private void selectMessType(String selectedMessType) {
         messType = selectedMessType;
-        
+
         // Update button states with visual feedback
         buttonVeg.setSelected("V".equals(selectedMessType));
         boolean vegSel = "V".equals(selectedMessType);
@@ -224,13 +225,13 @@ public class LoginActivity extends AppCompatActivity {
             buttonOthers.setSelected(oSel);
             styleOutlinedSelection(buttonOthers, oSel);
         }
-        
+
         layoutBlockSelection.setVisibility(View.VISIBLE);
     }
-    
+
     private void selectBlock(String block) {
         selectedBlock = block;
-        
+
         // Update all block button states with visual feedback
         updateBlockButton(buttonD1, "D1".equals(block));
         updateBlockButton(buttonD2, "D2".equals(block));
@@ -239,11 +240,11 @@ public class LoginActivity extends AppCompatActivity {
         updateBlockButton(buttonE, "E".equals(block));
         updateBlockButton(buttonCB, "CB".equals(block));
         updateBlockButton(buttonCG, "CG".equals(block));
-        
+
         // Show room number input after block selection
         layoutRoomNumber.setVisibility(View.VISIBLE);
     }
-    
+
     private void updateBlockButton(MaterialButton button, boolean isSelected) {
         button.setSelected(isSelected);
         styleOutlinedSelection(button, isSelected);
@@ -369,10 +370,13 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onComplete() {
-                // After full sync completes, send laundry countdown notification as well
+                // After full sync completes, sync hostel data and send laundry countdown notification as well
                 try {
                     String student = encryptedSharedPreferences.getString("student_type", "");
                     if ("hosteller".equals(student)) {
+                        // Sync hostel data (laundry and mess menu) after login
+                        HostelDataHelper.getInstance(LoginActivity.this).syncHostelData();
+
                         String block = encryptedSharedPreferences.getString("hostel_block", "");
                         String room = encryptedSharedPreferences.getString("room_number", "");
                         int days = tk.therealsuji.vtopchennai.helpers.HostelDataHelper.getInstance(LoginActivity.this).getDaysUntilNextLaundry(block, room);

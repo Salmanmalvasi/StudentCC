@@ -107,7 +107,7 @@ public class AttendanceCalculatorFragment extends Fragment {
 
         // Collect all timetable data for the date range first
         List<Single<List<Timetable.AllData>>> timetableRequests = new ArrayList<>();
-        
+
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(startDateUtc);
         while (c.getTimeInMillis() <= endDateUtc) {
@@ -144,10 +144,10 @@ public class AttendanceCalculatorFragment extends Fragment {
                         coursePreview.addView(tv);
                     }
                     buttonApply.setEnabled(!lastCourseMissed.isEmpty());
-                    
+
                     // Log for debugging
                     android.util.Log.d("AttendanceCalc", "Found courses: " + lastCourseMissed.keySet());
-                    
+
                     if (lastCourseMissed.isEmpty()) {
                         Toast.makeText(requireContext(), "No classes found for selected date range", Toast.LENGTH_SHORT).show();
                     } else {
@@ -178,33 +178,33 @@ public class AttendanceCalculatorFragment extends Fragment {
             String courseCode = entry.getKey();
             int missed = entry.getValue();
             totalMissedClasses[0] += missed;
-            
+
             android.util.Log.d("AttendanceCalc", "Processing course: " + courseCode + " with " + missed + " missed classes");
-            
+
             disposables.add(
                     coursesDao.getCourse(courseCode)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(list -> {
                                 android.util.Log.d("AttendanceCalc", "Got course data for " + courseCode + ": " + (list != null ? list.size() : "null"));
-                                
+
                                 if (list == null || list.isEmpty()) {
                                     android.util.Log.w("AttendanceCalc", "No course data found for " + courseCode);
                                     processedCourses[0]++;
                                     checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
                                     return;
                                 }
-                                
+
                                 tk.therealsuji.vtopchennai.models.Course.AllData data = list.get(0);
                                 android.util.Log.d("AttendanceCalc", "Course " + courseCode + " - Total: " + data.attendanceTotal + ", Attended: " + data.attendanceAttended);
-                                
+
                                 if (data.attendanceTotal == null || data.attendanceAttended == null) {
                                     android.util.Log.w("AttendanceCalc", "Null attendance data for " + courseCode);
                                     processedCourses[0]++;
                                     checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
                                     return;
                                 }
-                                
+
                                 int newTotal = Math.max(0, data.attendanceTotal + missed);
                                 int newPercentage = newTotal == 0 ? 0 : (int) Math.ceil((data.attendanceAttended * 100.0) / newTotal);
 
@@ -212,14 +212,14 @@ public class AttendanceCalculatorFragment extends Fragment {
 
                                 // Always try the original course code first
                                 final String courseCodeToTry = courseCode;
-                                
+
                                 disposables.add(
                                         coursesDao.getCourseIdByCode(courseCodeToTry)
                                                 .subscribeOn(Schedulers.io())
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe(courseId -> {
                                                     android.util.Log.d("AttendanceCalc", "Got course ID for " + courseCode + ": " + courseId);
-                                                    
+
                                                     if (courseId != null) {
                                                         disposables.add(
                                                                 attendanceDao.updateTotals(courseId, newTotal, newPercentage)
@@ -306,29 +306,29 @@ public class AttendanceCalculatorFragment extends Fragment {
         android.content.SharedPreferences sp = tk.therealsuji.vtopchennai.helpers.SettingsRepository.getSharedPreferences(requireContext());
         int currentTotal = sp.getInt("totalClasses", 0);
         int currentAttended = sp.getInt("attendedClasses", 0);
-        
+
         int newTotal = currentTotal + missedClasses;
         int newOverallAttendance = newTotal == 0 ? 0 : (int) Math.ceil((currentAttended * 100.0) / newTotal);
-        
+
         sp.edit()
                 .putInt("totalClasses", newTotal)
                 .putInt("overallAttendance", newOverallAttendance)
                 .apply();
-        
-        android.util.Log.d("AttendanceCalc", "Updated shared preferences - Total: " + currentTotal + " -> " + newTotal + 
+
+        android.util.Log.d("AttendanceCalc", "Updated shared preferences - Total: " + currentTotal + " -> " + newTotal +
                           ", Overall: " + sp.getInt("overallAttendance", 0) + "%");
-        
+
         // Force refresh the home page attendance display
         refreshHomePageAttendance();
     }
-    
+
     private void refreshHomePageAttendance() {
         // This will trigger a refresh of the home page attendance display
         android.util.Log.d("AttendanceCalc", "Requesting home page attendance refresh");
         if (getContext() != null) {
             android.widget.Toast.makeText(
-                getContext(), 
-                "Attendance updated! Please refresh the home page to see changes.", 
+                getContext(),
+                "Attendance updated! Please refresh the home page to see changes.",
                 android.widget.Toast.LENGTH_LONG
             ).show();
         }
@@ -370,5 +370,3 @@ public class AttendanceCalculatorFragment extends Fragment {
 
 
 }
-
-

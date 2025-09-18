@@ -61,7 +61,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.View
         int day = position;
 
         SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this.applicationContext);
-        
+
         // Weekend working override for Sun(0) and Sat(6)
         if (position == 0 || position == 6) {
             int override = sharedPreferences.getInt("working_override_" + position, -1);

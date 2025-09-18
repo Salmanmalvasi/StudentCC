@@ -32,7 +32,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        
+
         Log.d(TAG, "From: " + remoteMessage.getFrom());
 
         // Check if message contains a data payload
@@ -52,13 +52,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onNewToken(@NonNull String token) {
         super.onNewToken(token);
         Log.d(TAG, "Refreshed token: " + token);
-        
+
         // Save token to preferences
         SettingsRepository.getSharedPreferences(this)
                 .edit()
                 .putString("fcm_token", token)
                 .apply();
-        
+
         // Send token to your server if needed
         sendTokenToServer(token);
     }
@@ -77,14 +77,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void handleNotificationMessage(RemoteMessage remoteMessage) {
         String title = remoteMessage.getNotification().getTitle();
         String body = remoteMessage.getNotification().getBody();
-        
+
         // Default to app launch
         showUpdateNotification(title, body, SettingsRepository.APP_BASE_URL);
     }
 
     private void showUpdateNotification(String title, String body, String url) {
         Intent intent;
-        
+
         if (url != null && !url.isEmpty()) {
             // Open website
             intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -95,9 +95,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         PendingIntent pendingIntent = PendingIntent.getActivity(
-                this, 
-                0, 
-                intent, 
+                this,
+                0,
+                intent,
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
         );
 
@@ -135,7 +135,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // TODO: Implement sending token to your server/Firebase Firestore
         // For now, we'll just log it
         Log.d(TAG, "Token to send to server: " + token);
-        
+
         // You could store this in Firestore for sending targeted notifications
         // FirebaseFirestore.getInstance()
         //     .collection("fcm_tokens")

@@ -221,7 +221,7 @@
     <string name="credits_being_added">Credits being added: %.1f</string>
     <string name="enter_valid_values">Please enter valid values</string>
     <string name="select_theme">Select Theme</string>
-    
+
     <!-- VHelp Links -->
     <string name="vhelp_home">Home</string>
     <string name="vhelp_pyqs">PYQs</string>

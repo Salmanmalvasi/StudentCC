@@ -168,10 +168,10 @@
     <color name="attendance_day_background_dark">#F1F8E9</color>
     <color name="attendance_day_text_dark">#2E7D32</color>
     <color name="attendance_subtext_dark">#666666</color>
-    
+
     <!-- App Icon Background -->
     <color name="ic_launcher_background">#FFFFFF</color>
-    
+
     <!-- VTOP Timetable Colors -->
     <color name="vtop_timetable_occupied">#FC6C85</color>
 </resources>

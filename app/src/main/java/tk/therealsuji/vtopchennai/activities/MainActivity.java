@@ -22,9 +22,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.core.app.NotificationCompat;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import androidx.core.app.NotificationCompat;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -49,6 +46,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import tk.therealsuji.vtopchennai.BuildConfig;
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.fragments.HomeFragment;
+import tk.therealsuji.vtopchennai.helpers.HostelDataHelper;
 import tk.therealsuji.vtopchennai.fragments.PerformanceFragment;
 import tk.therealsuji.vtopchennai.fragments.GPACalculatorFragment;
 import tk.therealsuji.vtopchennai.fragments.HostelInfoFragment;
@@ -200,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         // Get student type from SharedPreferences
         SharedPreferences encryptedSharedPreferences = getSharedPreferences("encrypted_prefs", MODE_PRIVATE);
         String studentType = encryptedSharedPreferences.getString("student_type", "");
-        
+
         // Find the hostel info menu item and hide it if user is day scholar
         if ("day_scholar".equals(studentType)) {
             // Hide the hostel info menu item
@@ -361,7 +359,7 @@ public class MainActivity extends AppCompatActivity {
         // Start the class time monitor service
         Intent serviceIntent = new Intent(this, tk.therealsuji.vtopchennai.services.ClassTimeMonitorService.class);
         startService(serviceIntent);
-        
+
         // Check student type and hide hostel info tab if day scholar
         checkAndUpdateBottomNavigation();
 
@@ -387,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
                 // Check if user is day scholar - if so, redirect to home
                 SharedPreferences encryptedSharedPreferences = getSharedPreferences("encrypted_prefs", MODE_PRIVATE);
                 String studentType = encryptedSharedPreferences.getString("student_type", "");
-                
+
                 if ("day_scholar".equals(studentType)) {
                     // Redirect to home if day scholar tries to access hostel info
                     selectedFragmentTag = HOME_FRAGMENT_TAG;
@@ -463,11 +461,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onComplete() {
-                // After a manual sync completes, push laundry countdown notification for hostellers
+                // After a manual sync completes, sync hostel data and push laundry countdown notification for hostellers
                 try {
                     SharedPreferences enc = tk.therealsuji.vtopchennai.helpers.SettingsRepository.getEncryptedSharedPreferences(MainActivity.this);
                     String student = enc.getString("student_type", "");
                     if ("hosteller".equals(student)) {
+                        // Sync hostel data (laundry and mess menu)
+                        HostelDataHelper.getInstance(MainActivity.this).syncHostelData();
+
                         String block = enc.getString("hostel_block", "");
                         String room = enc.getString("room_number", "");
                         int days = tk.therealsuji.vtopchennai.helpers.HostelDataHelper.getInstance(MainActivity.this).getDaysUntilNextLaundry(block, room);

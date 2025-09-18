@@ -32,7 +32,7 @@ import tk.therealsuji.vtopchennai.adapters.ProfileGroupAdapter;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 
 public class ProfileFragment extends Fragment {
-    
+
     private final ItemData[] personalProfileItems = {
             new ItemData(
                     R.drawable.ic_courses,
@@ -60,7 +60,7 @@ public class ProfileFragment extends Fragment {
                     },
                     null
             ),
-            
+
             new ItemData(
                     R.drawable.ic_sync,
                     R.string.sync_data,
@@ -140,14 +140,14 @@ public class ProfileFragment extends Fragment {
                                 context.getString(R.string.lms),
                                 context.getString(R.string.ffcs)
                         };
-                        
+
                         String[] urls = {
                                 "https://vitolcc1.vit.ac.in/",
                                 "https://vitolcc.vit.ac.in/",
                                 "https://lms.vit.ac.in/login/index.php",
                                 "https://vtopregcc.vit.ac.in/RegistrationNew/"
                         };
-                        
+
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle(R.string.important_links)
                                 .setItems(links, (dialog, which) -> {
@@ -161,10 +161,10 @@ public class ProfileFragment extends Fragment {
             )
     };
 
-    
+
     // VHelp group removed; handled via single dialog item in Personal section
 
-    
+
     private final ItemData[] themesProfileItems = {
             new ItemData(
                     R.drawable.ic_appearance,
@@ -193,7 +193,7 @@ public class ProfileFragment extends Fragment {
                         amoledSwitch.setChecked(sharedPreferences.getBoolean("amoledMode", false));
                         amoledSwitch.setOnCheckedChangeListener((compoundButton, isAmoledModeEnabled) -> {
                             sharedPreferences.edit().putBoolean("amoledMode", isAmoledModeEnabled).apply();
-                            
+
                         });
 
                         new MaterialAlertDialogBuilder(requireContext())
@@ -230,7 +230,7 @@ public class ProfileFragment extends Fragment {
             )
     };
 
-    
+
     private final ItemData[] otherProfileItems = {
             new ItemData(
                     R.drawable.ic_receipts,
@@ -358,11 +358,11 @@ public class ProfileFragment extends Fragment {
             R.string.other
     };
 
-    
+
     private final ItemData[] announcementItems = {};
 
     public ProfileFragment() {
-        
+
     }
 
     @Override
@@ -412,7 +412,7 @@ public class ProfileFragment extends Fragment {
                     (int) (bottomNavigationHeight + 20 * pixelDensity)
             );
 
-            
+
         });
 
         RecyclerView announcements = profileFragment.findViewById(R.id.recycler_view_announcements);

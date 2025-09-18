@@ -515,7 +515,7 @@ public class VTOPService extends Service {
     private void processImageWithOCR(Bitmap image, int attemptNumber, Runnable onFailure) {
         InputImage inputImage = InputImage.fromBitmap(image, 0);
         TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-        
+
         recognizer.process(inputImage)
                 .addOnSuccessListener(visionText -> {
                     String ocrText = cleanOCRText(visionText.getText());
@@ -545,7 +545,7 @@ public class VTOPService extends Service {
      */
     private boolean isValidCaptchaText(String text) {
         // Captcha typically contains 4-6 alphanumeric characters
-        return text != null && text.length() >= 3 && text.length() <= 8 && 
+        return text != null && text.length() >= 3 && text.length() <= 8 &&
                text.matches("[A-Za-z0-9]+");
     }
 
@@ -557,19 +557,19 @@ public class VTOPService extends Service {
             Bitmap result = original.copy(original.getConfig(), true);
             int width = result.getWidth();
             int height = result.getHeight();
-            
+
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
                     int pixel = result.getPixel(x, y);
                     int r = Color.red(pixel);
                     int g = Color.green(pixel);
                     int b = Color.blue(pixel);
-                    
+
                     // Enhance contrast
                     r = Math.max(0, Math.min(255, (r - 128) * 2 + 128));
                     g = Math.max(0, Math.min(255, (g - 128) * 2 + 128));
                     b = Math.max(0, Math.min(255, (b - 128) * 2 + 128));
-                    
+
                     result.setPixel(x, y, Color.rgb(r, g, b));
                 }
             }
@@ -587,14 +587,14 @@ public class VTOPService extends Service {
             Bitmap result = original.copy(original.getConfig(), true);
             int width = result.getWidth();
             int height = result.getHeight();
-            
+
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
                     int pixel = result.getPixel(x, y);
                     int r = Color.red(pixel);
                     int g = Color.green(pixel);
                     int b = Color.blue(pixel);
-                    
+
                     // Convert to grayscale
                     int gray = (r + g + b) / 3;
                     result.setPixel(x, y, Color.rgb(gray, gray, gray));
@@ -614,19 +614,19 @@ public class VTOPService extends Service {
             Bitmap result = original.copy(original.getConfig(), true);
             int width = result.getWidth();
             int height = result.getHeight();
-            
+
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
                     int pixel = result.getPixel(x, y);
                     int r = Color.red(pixel);
                     int g = Color.green(pixel);
                     int b = Color.blue(pixel);
-                    
+
                     // Invert colors
                     r = 255 - r;
                     g = 255 - g;
                     b = 255 - b;
-                    
+
                     result.setPixel(x, y, Color.rgb(r, g, b));
                 }
             }

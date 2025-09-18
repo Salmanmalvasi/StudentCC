@@ -20,7 +20,7 @@ public interface AttendanceDao {
 
     @Query("UPDATE attendance SET total = :newTotal, percentage = :newPercentage WHERE course_id = :courseId")
     Completable updateTotals(int courseId, int newTotal, int newPercentage);
-    
+
     @Query("SELECT * FROM attendance WHERE course_id = :courseId LIMIT 1")
     Single<tk.therealsuji.vtopchennai.models.Attendance> getAttendanceByCourseId(int courseId);
 }

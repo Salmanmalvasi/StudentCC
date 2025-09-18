@@ -91,22 +91,22 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
     // Method to combine consecutive courses with the same course code
     private List<CombinedTimetableItem> combineTimetableItems(List<Timetable.AllData> originalTimetable) {
         List<CombinedTimetableItem> combinedList = new ArrayList<>();
-        
+
         if (originalTimetable.isEmpty()) {
             return combinedList;
         }
 
         android.util.Log.d("TimetableAdapter", "Original timetable size: " + originalTimetable.size());
         CombinedTimetableItem currentItem = new CombinedTimetableItem(originalTimetable.get(0));
-        
+
         for (int i = 1; i < originalTimetable.size(); i++) {
             Timetable.AllData nextItem = originalTimetable.get(i);
-            
+
             // Check if the next item has the same course code and is consecutive
-            if (currentItem.courseCode != null && 
+            if (currentItem.courseCode != null &&
                 currentItem.courseCode.equals(nextItem.courseCode) &&
                 areConsecutive(currentItem.endTime, nextItem.startTime)) {
-                
+
                 android.util.Log.d("TimetableAdapter", "Combining courses: " + currentItem.courseCode + " from " + currentItem.startTime + "-" + currentItem.endTime + " with " + nextItem.startTime + "-" + nextItem.endTime);
                 // Combine the items
                 currentItem.endTime = nextItem.endTime;
@@ -117,10 +117,10 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                 currentItem = new CombinedTimetableItem(nextItem);
             }
         }
-        
+
         // Add the last item
         combinedList.add(currentItem);
-        
+
         android.util.Log.d("TimetableAdapter", "Combined timetable size: " + combinedList.size());
         return combinedList;
     }
@@ -131,7 +131,7 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
             SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
             Date end = timeFormat.parse(endTime);
             Date start = timeFormat.parse(startTime);
-            
+
             if (end != null && start != null) {
                 long diffInMinutes = (start.getTime() - end.getTime()) / (1000 * 60);
                 android.util.Log.d("TimetableAdapter", "Time difference between " + endTime + " and " + startTime + ": " + diffInMinutes + " minutes");
@@ -192,10 +192,10 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                 courseTypeId = R.drawable.ic_lab;
             }
             courseType.setImageDrawable(ContextCompat.getDrawable(this.timetableItem.getContext(), courseTypeId));
-            
+
             // Hide course code, show only course name
             courseCode.setVisibility(View.GONE);
-            
+
             // Set course name/title as the main display
             if (timetableItem.courseTitle != null && !timetableItem.courseTitle.isEmpty() && !timetableItem.courseTitle.equals("null")) {
                 courseName.setText(timetableItem.courseTitle);
@@ -213,7 +213,7 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                     android.util.Log.d("TimetableAdapter", "❌ No course data available, using fallback text");
                 }
             }
-            
+
             setTimings(timetableItem.startTime, timetableItem.endTime, status);
 
             float cgpa = SettingsRepository.getCGPA(this.timetableItem.getContext());

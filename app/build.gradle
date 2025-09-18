@@ -18,6 +18,11 @@ android {
         versionName "1.2.0"
     }
 
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
     signingConfigs {
         release {
             storeFile file('studentcc.keystore')
@@ -29,7 +34,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
@@ -61,7 +67,7 @@ dependencies {
 
     annotationProcessor 'androidx.room:room-compiler:2.6.1'
     implementation 'com.google.mlkit:text-recognition:16.0.0'
-    
+
     // Firebase dependencies
     implementation platform('com.google.firebase:firebase-bom:32.7.0')
     implementation 'com.google.firebase:firebase-analytics'

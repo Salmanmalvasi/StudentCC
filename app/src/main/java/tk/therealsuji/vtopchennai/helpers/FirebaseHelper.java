@@ -16,25 +16,25 @@ import com.google.firebase.storage.FirebaseStorage;
  */
 public class FirebaseHelper {
     private static final String TAG = "FirebaseHelper";
-    
+
     private static FirebaseHelper instance;
     private FirebaseAnalytics firebaseAnalytics;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firestore;
     private FirebaseStorage storage;
     private FirebaseMessaging messaging;
-    
+
     private FirebaseHelper() {
         // Private constructor for singleton
     }
-    
+
     public static FirebaseHelper getInstance() {
         if (instance == null) {
             instance = new FirebaseHelper();
         }
         return instance;
     }
-    
+
     /**
      * Initialize Firebase services
      */
@@ -42,29 +42,29 @@ public class FirebaseHelper {
         try {
             // Initialize Firebase Analytics
             firebaseAnalytics = FirebaseAnalytics.getInstance(context);
-            
+
             // Initialize Firebase Auth
             firebaseAuth = FirebaseAuth.getInstance();
-            
+
             // Initialize Firestore
             firestore = FirebaseFirestore.getInstance();
-            
+
             // Initialize Firebase Storage
             storage = FirebaseStorage.getInstance();
-            
+
             // Initialize Firebase Messaging
             messaging = FirebaseMessaging.getInstance();
-            
+
             // Get FCM token for this device
             initializeFCMToken(context);
-            
+
             Log.d(TAG, "Firebase services initialized successfully");
-            
+
         } catch (Exception e) {
             Log.e(TAG, "Error initializing Firebase: " + e.getMessage());
         }
     }
-    
+
     /**
      * Initialize FCM token and save it
      */
@@ -79,18 +79,18 @@ public class FirebaseHelper {
                 // Get new FCM registration token
                 String token = task.getResult();
                 Log.d(TAG, "FCM Registration Token: " + token);
-                
+
                 // Save token to preferences
                 SettingsRepository.getSharedPreferences(context)
                         .edit()
                         .putString("fcm_token", token)
                         .apply();
-                
+
                 // Subscribe to topic for update notifications
                 subscribeToUpdateTopic();
             });
     }
-    
+
     /**
      * Subscribe to update notifications topic
      */
@@ -106,7 +106,7 @@ public class FirebaseHelper {
                 });
         }
     }
-    
+
     /**
      * Unsubscribe from update notifications topic
      */
@@ -122,42 +122,42 @@ public class FirebaseHelper {
                 });
         }
     }
-    
+
     /**
      * Get Firebase Analytics instance
      */
     public FirebaseAnalytics getAnalytics() {
         return firebaseAnalytics;
     }
-    
+
     /**
      * Get Firebase Auth instance
      */
     public FirebaseAuth getAuth() {
         return firebaseAuth;
     }
-    
+
     /**
      * Get Firestore instance
      */
     public FirebaseFirestore getFirestore() {
         return firestore;
     }
-    
+
     /**
      * Get Firebase Storage instance
      */
     public FirebaseStorage getStorage() {
         return storage;
     }
-    
+
     /**
      * Get Firebase Messaging instance
      */
     public FirebaseMessaging getMessaging() {
         return messaging;
     }
-    
+
     /**
      * Log custom event to Firebase Analytics
      */
@@ -168,25 +168,25 @@ public class FirebaseHelper {
             firebaseAnalytics.logEvent(eventName, bundle);
         }
     }
-    
+
     /**
      * Log user login event
      */
     public void logUserLogin(String userId) {
         logEvent("user_login", "user_id", userId);
     }
-    
+
     /**
      * Log GPA calculation event
      */
     public void logGPACalculation(String gpaValue) {
         logEvent("gpa_calculation", "gpa_value", gpaValue);
     }
-    
+
     /**
      * Log attendance view event
      */
     public void logAttendanceView(String attendancePercentage) {
         logEvent("attendance_view", "attendance_percentage", attendancePercentage);
     }
-} 
+}

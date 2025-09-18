@@ -14,7 +14,9 @@ import tk.therealsuji.vtopchennai.interfaces.AssignmentsDao;
 import tk.therealsuji.vtopchennai.interfaces.AttendanceDao;
 import tk.therealsuji.vtopchennai.interfaces.CoursesDao;
 import tk.therealsuji.vtopchennai.interfaces.ExamsDao;
+import tk.therealsuji.vtopchennai.interfaces.LaundryScheduleDao;
 import tk.therealsuji.vtopchennai.interfaces.MarksDao;
+import tk.therealsuji.vtopchennai.interfaces.MessMenuDao;
 import tk.therealsuji.vtopchennai.interfaces.ReceiptsDao;
 import tk.therealsuji.vtopchennai.interfaces.SpotlightDao;
 import tk.therealsuji.vtopchennai.interfaces.StaffDao;
@@ -25,7 +27,9 @@ import tk.therealsuji.vtopchennai.models.Attendance;
 import tk.therealsuji.vtopchennai.models.Course;
 import tk.therealsuji.vtopchennai.models.CumulativeMark;
 import tk.therealsuji.vtopchennai.models.Exam;
+import tk.therealsuji.vtopchennai.models.LaundrySchedule;
 import tk.therealsuji.vtopchennai.models.Mark;
+import tk.therealsuji.vtopchennai.models.MessMenu;
 import tk.therealsuji.vtopchennai.models.Receipt;
 import tk.therealsuji.vtopchennai.models.Slot;
 import tk.therealsuji.vtopchennai.models.Spotlight;
@@ -40,16 +44,19 @@ import tk.therealsuji.vtopchennai.models.Timetable;
                 Course.class,
                 CumulativeMark.class,
                 Exam.class,
+                LaundrySchedule.class,
                 Mark.class,
+                MessMenu.class,
                 Receipt.class,
                 Slot.class,
                 Spotlight.class,
                 Staff.class,
                 Timetable.class
         },
-        version = 3,
+        version = 4,
         autoMigrations = {
                 @AutoMigration(from = 1, to = 2),
+                @AutoMigration(from = 3, to = 4),
         }
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -94,6 +101,10 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract StaffDao staffDao();
 
     public abstract TimetableDao timetableDao();
+
+    public abstract LaundryScheduleDao laundryScheduleDao();
+
+    public abstract MessMenuDao messMenuDao();
 
     // Manual Migrations
     static final Migration MIGRATION_2_3 = new Migration(2, 3) {
