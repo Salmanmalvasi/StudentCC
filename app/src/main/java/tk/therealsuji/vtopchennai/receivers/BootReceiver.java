@@ -79,7 +79,7 @@ public class BootReceiver extends BroadcastReceiver {
                     }
                 });
 
-        // Schedule daily laundry check at 8 AM
+        // Schedule daily laundry check at 8 AM for "today" notifications
         try {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent laundryIntent = new Intent(context, LaundryNotificationReceiver.class);
@@ -93,5 +93,7 @@ public class BootReceiver extends BroadcastReceiver {
             am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger, AlarmManager.INTERVAL_DAY, pi);
         } catch (Exception ignored) {
         }
+
+
     }
 }

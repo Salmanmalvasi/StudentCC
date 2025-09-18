@@ -39,7 +39,7 @@ public class LaundryScheduleAdapter extends RecyclerView.Adapter<LaundrySchedule
                 holder.textViewDate.setText(schedule.getDate());
                 holder.textViewRoomNumber.setText("Your next laundry schedule");
             } else {
-                holder.textViewDate.setText("Today's Laundry Schedule");
+                holder.textViewDate.setText("You have laundry today");
                 holder.textViewRoomNumber.setText("Room Numbers: " + schedule.getRoomNumber());
             }
         }

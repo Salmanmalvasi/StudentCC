@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat;
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.helpers.HostelDataHelper;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
+import tk.therealsuji.vtopchennai.helpers.FirebaseAnalyticsHelper;
 
 public class LaundryNotificationReceiver extends BroadcastReceiver {
 
@@ -28,6 +29,9 @@ public class LaundryNotificationReceiver extends BroadcastReceiver {
         HostelDataHelper helper = HostelDataHelper.getInstance(context);
         HostelDataHelper.LaundrySchedule today = helper.getTodaysLaundrySchedule(block, room);
         if (today == null) return;
+
+        // Track laundry notification sent
+        FirebaseAnalyticsHelper.trackLaundryNotification(context, "notification_sent");
 
         createChannel(context);
 
