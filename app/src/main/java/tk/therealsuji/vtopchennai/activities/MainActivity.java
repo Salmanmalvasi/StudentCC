@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -47,6 +48,7 @@ import tk.therealsuji.vtopchennai.BuildConfig;
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.fragments.HomeFragment;
 import tk.therealsuji.vtopchennai.helpers.HostelDataHelper;
+import tk.therealsuji.vtopchennai.helpers.FirebaseAnalyticsHelper;
 import tk.therealsuji.vtopchennai.fragments.PerformanceFragment;
 import tk.therealsuji.vtopchennai.fragments.GPACalculatorFragment;
 import tk.therealsuji.vtopchennai.fragments.HostelInfoFragment;
@@ -195,21 +197,51 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkAndUpdateBottomNavigation() {
-        // Get student type from SharedPreferences
-        SharedPreferences encryptedSharedPreferences = getSharedPreferences("encrypted_prefs", MODE_PRIVATE);
-        String studentType = encryptedSharedPreferences.getString("student_type", "");
-
-        // Find the hostel info menu item and hide it if user is day scholar
-        if ("day_scholar".equals(studentType)) {
-            // Hide the hostel info menu item
-            bottomNavigationView.getMenu().findItem(R.id.item_hostel_info).setVisible(false);
+        // Get student type from encrypted SharedPreferences using SettingsRepository
+        SharedPreferences encryptedSharedPreferences = SettingsRepository.getEncryptedSharedPreferences(this);
+        
+        if (encryptedSharedPreferences != null) {
+            String studentType = encryptedSharedPreferences.getString("student_type", "");
+            android.util.Log.d("MainActivity", "Student type: '" + studentType + "' (length: " + studentType.length() + ")");
+            
+            // Check all student type related data for debugging
+            String username = encryptedSharedPreferences.getString("username", "");
+            String gender = encryptedSharedPreferences.getString("gender", "");
+            android.util.Log.d("MainActivity", "Username: '" + username + "', Gender: '" + gender + "'");
+            
+            // Always hide hostel tab for day scholars, use contains to be safe
+            if ("day_scholar".equals(studentType) || studentType.contains("day_scholar") || studentType.isEmpty()) {
+                // Hide the hostel info menu item
+                MenuItem hostelItem = bottomNavigationView.getMenu().findItem(R.id.item_hostel_info);
+                if (hostelItem != null) {
+                    hostelItem.setVisible(false);
+                    android.util.Log.d("MainActivity", "Hiding hostel tab for day scholar or empty student type");
+                } else {
+                    android.util.Log.e("MainActivity", "Hostel menu item not found!");
+                }
+            } else {
+                // Show the hostel info menu item for hostellers only
+                MenuItem hostelItem = bottomNavigationView.getMenu().findItem(R.id.item_hostel_info);
+                if (hostelItem != null) {
+                    hostelItem.setVisible(true);
+                    android.util.Log.d("MainActivity", "Showing hostel tab for hosteller");
+                } else {
+                    android.util.Log.e("MainActivity", "Hostel menu item not found!");
+                }
+                android.util.Log.d("MainActivity", "Equality check: " + "day_scholar".equals(studentType));
+            }
         } else {
-            // Show the hostel info menu item for hostellers
-            bottomNavigationView.getMenu().findItem(R.id.item_hostel_info).setVisible(true);
+            android.util.Log.e("MainActivity", "Encrypted SharedPreferences is null - hiding hostel tab by default");
+            // If we can't get the preferences, hide the hostel tab by default
+            MenuItem hostelItem = bottomNavigationView.getMenu().findItem(R.id.item_hostel_info);
+            if (hostelItem != null) {
+                hostelItem.setVisible(false);
+            }
         }
     }
 
     private void signOut() {
+        FirebaseAnalyticsHelper.trackLogout(this);
         SettingsRepository.signOut(this);
         this.startActivity(new Intent(this, LoginActivity.class));
         this.finish();
@@ -297,6 +329,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize Firebase Analytics
+        FirebaseAnalyticsHelper.initialize(this);
+        FirebaseAnalyticsHelper.trackScreenView(this, "MainActivity", "MainActivity");
+
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
 
@@ -368,6 +404,7 @@ public class MainActivity extends AppCompatActivity {
             String selectedFragmentTag;
 
             if (item.getItemId() == R.id.item_performance) {
+                FirebaseAnalyticsHelper.trackTabSwitch(this, "Performance");
                 selectedFragmentTag = PERFORMANCE_FRAGMENT_TAG;
                 selectedFragment = getSupportFragmentManager().findFragmentByTag(selectedFragmentTag);
 
@@ -375,6 +412,7 @@ public class MainActivity extends AppCompatActivity {
                     selectedFragment = new PerformanceFragment();
                 }
             } else if (item.getItemId() == R.id.item_gpa_calculator) {
+                FirebaseAnalyticsHelper.trackTabSwitch(this, "GPA Calculator");
                 selectedFragmentTag = GPA_CALCULATOR_FRAGMENT_TAG;
                 selectedFragment = getSupportFragmentManager().findFragmentByTag(selectedFragmentTag);
 
@@ -382,12 +420,14 @@ public class MainActivity extends AppCompatActivity {
                     selectedFragment = new GPACalculatorFragment();
                 }
             } else if (item.getItemId() == R.id.item_hostel_info) {
+                FirebaseAnalyticsHelper.trackTabSwitch(this, "Hostel Info");
                 // Check if user is day scholar - if so, redirect to home
                 SharedPreferences encryptedSharedPreferences = getSharedPreferences("encrypted_prefs", MODE_PRIVATE);
                 String studentType = encryptedSharedPreferences.getString("student_type", "");
 
                 if ("day_scholar".equals(studentType)) {
                     // Redirect to home if day scholar tries to access hostel info
+                    FirebaseAnalyticsHelper.trackCustomEvent(this, "day_scholar_hostel_access_attempt", new Bundle());
                     selectedFragmentTag = HOME_FRAGMENT_TAG;
                     selectedFragment = getSupportFragmentManager().findFragmentByTag(selectedFragmentTag);
                     if (selectedFragment == null) {
@@ -403,6 +443,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             } else if (item.getItemId() == R.id.item_profile) {
+                FirebaseAnalyticsHelper.trackTabSwitch(this, "Profile");
                 getSupportFragmentManager().setFragmentResult("syncDataState", syncDataState);
 
                 selectedFragmentTag = PROFILE_FRAGMENT_TAG;
@@ -412,6 +453,7 @@ public class MainActivity extends AppCompatActivity {
                     selectedFragment = new ProfileFragment();
                 }
             } else {
+                FirebaseAnalyticsHelper.trackTabSwitch(this, "Home");
                 selectedFragmentTag = HOME_FRAGMENT_TAG;
                 selectedFragment = getSupportFragmentManager().findFragmentByTag(selectedFragmentTag);
 
