@@ -407,6 +407,8 @@
                             app:boxCornerRadiusTopStart="8dp"
                             app:boxStrokeColor="?attr/colorOnSurface"
                             app:boxStrokeWidth="1dp"
+                            app:helperText="Required only for laundry notifications"
+                            app:helperTextTextColor="?attr/colorOnSurfaceVariant"
                             app:startIconDrawable="@drawable/ic_home"
                             app:startIconTint="?attr/colorOnSurface">
 
@@ -485,7 +487,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
-                        android:layout_marginBottom="20dp"
+                        android:layout_marginBottom="12dp"
                         android:padding="16dp"
                         android:text="@string/sign_in"
                         android:textAllCaps="true"
@@ -495,6 +497,20 @@
                         android:textStyle="bold"
                         app:cornerRadius="8dp"
                         app:elevation="2dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_privacy_policy"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/privacy_policy"
+                        android:textAllCaps="false"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="14sp"
+                        app:cornerRadius="4dp" />
 
                     <TextView
                         android:id="@+id/text_view_thank_you"

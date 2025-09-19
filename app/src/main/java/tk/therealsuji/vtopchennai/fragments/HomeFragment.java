@@ -49,6 +49,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class HomeFragment extends Fragment {
 
     private FirebaseAnalytics mFirebaseAnalytics;
+    private BadgeDrawable spotlightBadge;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -58,6 +59,97 @@ public class HomeFragment extends Fragment {
         return (getResources().getConfiguration().uiMode &
                 android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
                 android.content.res.Configuration.UI_MODE_NIGHT_YES;
+    }
+    
+    private void createFallbackBadge(View spotlightButton) {
+        try {
+            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("StudentCC", Context.MODE_PRIVATE);
+            boolean eventsViewed = sharedPreferences.getBoolean("has_viewed_events_announcement", false);
+            
+            if (eventsViewed) {
+                // Don't show fallback badge if events have been viewed
+                return;
+            }
+            
+            // Remove any existing custom badges first
+            removeCustomBadges(spotlightButton);
+            
+            // Create a red badge as fallback
+            android.widget.TextView fallbackBadge = new android.widget.TextView(requireContext());
+            fallbackBadge.setText("Events");
+            fallbackBadge.setTextColor(android.graphics.Color.WHITE);
+            fallbackBadge.setTextSize(10);
+            fallbackBadge.setPadding(8, 4, 8, 4);
+            fallbackBadge.setTag("custom_events_badge"); // Tag for easy identification
+            
+            // Create a rounded background programmatically
+            android.graphics.drawable.GradientDrawable background = new android.graphics.drawable.GradientDrawable();
+            background.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+            background.setCornerRadius(12);
+            background.setColor(android.graphics.Color.RED);
+            fallbackBadge.setBackground(background);
+            
+            // Position the badge
+            android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.gravity = android.view.Gravity.TOP | android.view.Gravity.END;
+            params.setMargins(0, (int) (4 * getResources().getDisplayMetrics().density), 
+                            (int) (4 * getResources().getDisplayMetrics().density), 0);
+            
+            fallbackBadge.setLayoutParams(params);
+            fallbackBadge.setGravity(android.view.Gravity.CENTER);
+            
+            // Add to parent if it's a FrameLayout
+            if (spotlightButton.getParent() instanceof android.widget.FrameLayout) {
+                ((android.widget.FrameLayout) spotlightButton.getParent()).addView(fallbackBadge);
+            }
+        } catch (Exception e) {
+            // Silently handle badge creation errors
+        }
+    }
+
+    private void removeCustomBadges(View spotlightButton) {
+        try {
+            if (spotlightButton.getParent() instanceof android.widget.FrameLayout) {
+                android.widget.FrameLayout parent = (android.widget.FrameLayout) spotlightButton.getParent();
+                for (int i = parent.getChildCount() - 1; i >= 0; i--) {
+                    View child = parent.getChildAt(i);
+                    if (child instanceof android.widget.TextView && "custom_events_badge".equals(child.getTag())) {
+                        parent.removeView(child);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Silently handle badge removal errors
+        }
+    }
+
+    @OptIn(markerClass = ExperimentalBadgeUtils.class)
+    private void attachMaterialBadge(View spotlightButton) {
+        try {
+            BadgeUtils.attachBadgeDrawable(spotlightBadge, spotlightButton);
+        } catch (Exception e) {
+            // Silently handle material badge attachment errors
+        }
+    }
+
+    private boolean hasExistingEventsBadge(View spotlightButton) {
+        try {
+            if (spotlightButton.getParent() instanceof android.widget.FrameLayout) {
+                android.widget.FrameLayout parent = (android.widget.FrameLayout) spotlightButton.getParent();
+                for (int i = 0; i < parent.getChildCount(); i++) {
+                    View child = parent.getChildAt(i);
+                    if (child instanceof android.widget.TextView && "custom_events_badge".equals(child.getTag())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private BroadcastReceiver classCountReceiver = new BroadcastReceiver() {
@@ -301,6 +393,11 @@ public class HomeFragment extends Fragment {
                 sharedPreferences.edit().putBoolean("has_viewed_events_announcement", true).apply();
                 TextView eventsBadgeClick = homeFragment.findViewById(R.id.text_events_badge);
                 eventsBadgeClick.setVisibility(View.GONE); // Hide the text badge
+                
+                // Hide the spotlight badge and custom badges
+                spotlightBadge.setVisible(false);
+                removeCustomBadges(spotlightButton);
+                
                 // Track that user clicked on the events announcement
                 Bundle eventsBundle = new Bundle();
                 eventsBundle.putString("action", "events_badge_clicked");
@@ -339,51 +436,42 @@ public class HomeFragment extends Fragment {
             });
         });
 
-        BadgeDrawable spotlightBadge = BadgeDrawable.create(requireContext());
+        spotlightBadge = BadgeDrawable.create(requireContext());
         spotlightBadge.setBadgeGravity(BadgeDrawable.TOP_END);
-        spotlightBadge.setHorizontalOffset((int) (24 * pixelDensity));
-        spotlightBadge.setVerticalOffset((int) (24 * pixelDensity));
-
-        // Check if Events badge should be shown
-        boolean hasViewedEvents = sharedPreferences.getBoolean("has_viewed_events_announcement", false);
+        spotlightBadge.setHorizontalOffset((int) (8 * pixelDensity));
+        spotlightBadge.setVerticalOffset((int) (8 * pixelDensity));
+        spotlightBadge.setBackgroundColor(android.graphics.Color.RED);
+        spotlightBadge.setBadgeTextColor(android.graphics.Color.WHITE);
+        spotlightBadge.setMaxCharacterCount(6); // Increased to fit "Events"
+        
+        // Set initial state - will be updated by fragment result listener
         TextView eventsBadge = homeFragment.findViewById(R.id.text_events_badge);
-
-        if (!hasViewedEvents) {
-            // Show "1" notification badge instead of Events text badge
-            eventsBadge.setVisibility(View.GONE); // Hide the text badge
-            spotlightBadge.setNumber(1); // Show "1" notification
-            spotlightBadge.setVisible(true);
-        } else {
-            eventsBadge.setVisibility(View.GONE);
-            spotlightBadge.setVisible(false);
-        }
-
-        spotlightButton.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @OptIn(markerClass = ExperimentalBadgeUtils.class)
-            @Override
-            public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
-                BadgeUtils.attachBadgeDrawable(spotlightBadge, spotlightButton);
-                spotlightButton.removeOnLayoutChangeListener(this);
-            }
-        });
+        eventsBadge.setVisibility(View.GONE); // Hide the text badge
 
         getParentFragmentManager().setFragmentResultListener("unreadCount", this, (requestKey, result) -> {
             int spotlightCount = result.getInt("spotlight");
             boolean eventsViewed = sharedPreferences.getBoolean("has_viewed_events_announcement", false);
 
             if (!eventsViewed) {
-                // Keep showing Events text badge regardless of spotlight count
-                eventsBadge.setVisibility(View.VISIBLE);
-                spotlightBadge.setVisible(false); // Hide dot badge when showing text badge
-            } else if (spotlightCount > 0) {
-                // Show number badge for unread spotlight items (though this is disabled now)
+                // Show "Events" badge for events announcement (handled by createFallbackBadge)
                 eventsBadge.setVisibility(View.GONE);
+                // Only create the badge if it doesn't already exist
+                if (!hasExistingEventsBadge(spotlightButton)) {
+                    createFallbackBadge(spotlightButton);
+                }
+            } else if (spotlightCount > 0) {
+                // Show number badge for unread spotlight items using Material badge
+                eventsBadge.setVisibility(View.GONE);
+                // Remove custom badge and use Material badge for numbers
+                removeCustomBadges(spotlightButton);
                 spotlightBadge.setNumber(spotlightCount);
                 spotlightBadge.setVisible(true);
+                attachMaterialBadge(spotlightButton);
             } else {
                 // No events badge and no unread items
                 eventsBadge.setVisibility(View.GONE);
                 spotlightBadge.setVisible(false);
+                removeCustomBadges(spotlightButton);
             }
         });
 

@@ -841,13 +841,27 @@ public class VTOPService extends Service {
                 JSONArray semesterArray = response.getJSONArray("semesters");
                 this.semesters = new HashMap<>();
 
+                // Store available semesters for later use
+                StringBuilder availableSemesters = new StringBuilder();
+                
                 for (int i = 0; i < semesterArray.length(); ++i) {
                     JSONObject semesterObject = semesterArray.getJSONObject(i);
-                    this.semesters.put(semesterObject.getString("name"), semesterObject.getString("id"));
+                    String semesterName = semesterObject.getString("name");
+                    this.semesters.put(semesterName, semesterObject.getString("id"));
+                    
+                    if (i > 0) availableSemesters.append(",");
+                    availableSemesters.append(semesterName);
                 }
+                
+                // Save available semesters to SharedPreferences
+                this.sharedPreferences.edit().putString("availableSemesters", availableSemesters.toString()).apply();
 
-                // Automatically select the current semester (assume first in the list is current)
-                if (semesterArray.length() > 0) {
+                // Check if user has a preferred semester, otherwise use first one
+                String preferredSemester = this.sharedPreferences.getString("semester", "");
+                if (!preferredSemester.isEmpty() && this.semesters.containsKey(preferredSemester)) {
+                    setSemester(preferredSemester);
+                } else if (semesterArray.length() > 0) {
+                    // Automatically select the current semester (assume first in the list is current)
                     JSONObject currentSemester = semesterArray.getJSONObject(0);
                     setSemester(currentSemester.getString("name"));
                 } else {
@@ -1480,7 +1494,7 @@ public class VTOPService extends Service {
                     attendanceItem.total = this.getIntegerValue(attendanceObject, "total");
 
                     if (attendanceItem.attended != null && attendanceItem.total != null && attendanceItem.total != 0) {
-                        attendanceItem.percentage = (int) Math.ceil((attendanceItem.attended * 100.0) / attendanceItem.total);
+                        attendanceItem.percentage = calculateAttendancePercentage(attendanceItem.attended, attendanceItem.total);
                         attendedClasses += attendanceItem.attended;
                         totalClasses += attendanceItem.total;
                     }
@@ -1491,7 +1505,7 @@ public class VTOPService extends Service {
                 int overallAttendance = 0;
 
                 if (totalClasses != 0) {
-                    overallAttendance = (attendedClasses * 100) / totalClasses;
+                    overallAttendance = calculateAttendancePercentage(attendedClasses, totalClasses);
                 }
 
                 android.util.Log.d("VTOPService", "Attendance calculation - Attended: " + attendedClasses + ", Total: " + totalClasses + ", Overall: " + overallAttendance + "%");
@@ -2753,6 +2767,19 @@ public class VTOPService extends Service {
     }
 
     private enum PageState {LANDING, LOGIN, HOME}
+
+    /**
+     * Calculate attendance percentage with proper ceiling logic.
+     * 9.xx becomes 9 (floor behavior), not 10 (ceiling behavior).
+     * This matches the original StudentCC logic.
+     */
+    private int calculateAttendancePercentage(int attended, int total) {
+        if (total == 0) return 0;
+        
+        double percentage = (attended * 100.0) / total;
+        // Use floor instead of ceiling - 9.99 becomes 9, not 10
+        return (int) Math.floor(percentage);
+    }
 }
 
 /*

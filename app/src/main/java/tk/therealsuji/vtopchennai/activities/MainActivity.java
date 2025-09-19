@@ -55,6 +55,7 @@ import tk.therealsuji.vtopchennai.fragments.HostelInfoFragment;
 import tk.therealsuji.vtopchennai.fragments.ProfileFragment;
 import tk.therealsuji.vtopchennai.fragments.dialogs.UpdateDialogFragment;
 import tk.therealsuji.vtopchennai.helpers.AppDatabase;
+
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 import tk.therealsuji.vtopchennai.helpers.VTOPHelper;
 
@@ -306,14 +307,14 @@ public class MainActivity extends AppCompatActivity {
                         int homeCount = unreadCount.getInt("spotlight");
                         int performanceCount = unreadCount.getInt("marks");
 
-                        BadgeDrawable homeBadge = bottomNavigationView.getOrCreateBadge(R.id.item_home);
+                        // Only show badge on performance tab, not home tab (spotlight badge is handled in HomeFragment)
                         BadgeDrawable performanceBadge = bottomNavigationView.getOrCreateBadge(R.id.item_performance);
-
-                        homeBadge.setNumber(homeCount);
-                        homeBadge.setVisible(homeCount != 0);
 
                         performanceBadge.setNumber(performanceCount);
                         performanceBadge.setVisible(performanceCount != 0);
+                        
+                        // Remove any existing badge from home tab
+                        bottomNavigationView.removeBadge(R.id.item_home);
 
                         getSupportFragmentManager().setFragmentResult("unreadCount", unreadCount);
                     }
@@ -568,6 +569,8 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete() {
                     }
                 });
+        
+
     }
 
     @Override
@@ -575,6 +578,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         // Update bottom navigation based on student type
         checkAndUpdateBottomNavigation();
+        
+
     }
 
     @Override
@@ -609,4 +614,8 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         compositeDisposable.dispose();
     }
+
+
+
+
 }

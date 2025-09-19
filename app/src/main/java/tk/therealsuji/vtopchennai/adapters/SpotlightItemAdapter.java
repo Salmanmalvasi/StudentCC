@@ -82,6 +82,11 @@ public class SpotlightItemAdapter extends RecyclerView.Adapter<SpotlightItemAdap
         public void setSpotlightItem(Spotlight spotlightItem) {
             TextView announcement = this.spotlightItem.findViewById(R.id.text_view_announcement);
             announcement.setText(spotlightItem.announcement);
+            
+            // Ensure proper text color for visibility
+            announcement.setTextColor(com.google.android.material.color.MaterialColors.getColor(
+                announcement, com.google.android.material.R.attr.colorOnSurface, 
+                android.graphics.Color.BLACK));
 
             if (spotlightItem.link == null) {
                 this.setType(R.drawable.ic_announcement);
@@ -135,8 +140,13 @@ public class SpotlightItemAdapter extends RecyclerView.Adapter<SpotlightItemAdap
                 float pixelDensity = announcementType.getContext().getResources().getDisplayMetrics().density;
                 BadgeDrawable announcementBadge = BadgeDrawable.create(announcementType.getContext());
                 announcementBadge.setBadgeGravity(BadgeDrawable.TOP_END);
-                announcementBadge.setHorizontalOffset((int) (10 * pixelDensity));
-                announcementBadge.setVerticalOffset((int) (10 * pixelDensity));
+                announcementBadge.setHorizontalOffset((int) (8 * pixelDensity));
+                announcementBadge.setVerticalOffset((int) (8 * pixelDensity));
+                announcementBadge.setNumber(1);
+                announcementBadge.setBackgroundColor(com.google.android.material.color.MaterialColors.getColor(
+                    announcementType, com.google.android.material.R.attr.colorError, 
+                    android.graphics.Color.RED));
+                announcementBadge.setBadgeTextColor(android.graphics.Color.WHITE);
 
                 announcementType.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                     @OptIn(markerClass = ExperimentalBadgeUtils.class)

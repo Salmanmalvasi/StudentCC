@@ -12,6 +12,7 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="sign_in">Sign In</string>
+    <string name="privacy_policy">Privacy Policy</string>
 
     <!-- MainActivity Strings -->
     <string name="home">Home</string>
@@ -90,7 +91,10 @@
     <string name="recaptcha">reCaptcha</string>
     <string name="verifying_human">Verifying if you are human</string>
     <string name="select_semester">Select a semester</string>
+    <string name="change_semester">Change Semester</string>
     <string name="select">Select</string>
+    
+
     <string name="server_connect">Connecting to server</string>
     <string name="captcha_wait">Waiting for captcha</string>
     <string name="sign_in_attempt">Attempting to sign you in</string>
@@ -164,7 +168,7 @@
     <string name="faculty">Faculty: &lt;b>%s&lt;/b></string>
     <string name="venue">Venue: &lt;b>%s&lt;/b></string>
     <string name="date">Date: &lt;b>%s&lt;/b></string>
-    <string name="timings">Timings: &lt;b>%s - %s&lt;/b></string>
+    <string name="timings" formatted="false">Timings: &lt;b>%s - %s&lt;/b></string>
     <string name="attendance">Attendance</string>
     <string name="na">NA</string>
     <string name="permission_granted">Permission Granted</string>
@@ -209,7 +213,7 @@
     <string name="current_credits">Current Credits</string>
     <string name="additional_credits">Additional Credits</string>
     <string name="required_gpa">Required GPA for additional credits</string>
-    <string name="prediction_result">To achieve a target GPA of %s, you need an average GPA of %s in %d additional credits</string>
+    <string name="prediction_result" formatted="false">To achieve a target GPA of %s, you need an average GPA of %s in %d additional credits</string>
     <string name="impossible_target">Target GPA is impossible to achieve with current credits</string>
     <string name="cgpa_calculator">CGPA Calculator</string>
     <string name="cgpa_calculator_description">Calculate your cumulative GPA using existing data</string>
@@ -251,7 +255,7 @@
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="select_block">Select Hostel Block</string>
-    <string name="room_number">Room Number</string>
+    <string name="room_number">Room Number (for laundry schedule)</string>
     <string name="select_mess_type">Select Mess Type</string>
     <string name="vegetarian">veg</string>
     <string name="non_vegetarian">non-veg</string>
