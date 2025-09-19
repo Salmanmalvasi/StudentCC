@@ -82,15 +82,39 @@
                         android:src="@drawable/ic_sync"
                         app:tint="?attr/colorPrimary" />
 
-                    <ImageButton
-                        android:id="@+id/image_button_spotlight"
+                    <FrameLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/spotlight"
-                        android:padding="12dp"
-                        android:src="@drawable/ic_spotlight"
-                        app:tint="?attr/colorPrimary" />
+                        android:layout_height="wrap_content">
+
+                        <ImageButton
+                            android:id="@+id/image_button_spotlight"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/spotlight"
+                            android:padding="12dp"
+                            android:src="@drawable/ic_announcement"
+                            app:tint="?attr/colorPrimary" />
+
+                        <TextView
+                            android:id="@+id/text_events_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|end"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginEnd="2dp"
+                            android:background="@drawable/rounded_background"
+                            android:paddingStart="6dp"
+                            android:paddingTop="2dp"
+                            android:paddingEnd="6dp"
+                            android:paddingBottom="2dp"
+                            android:text="Events"
+                            android:textColor="?attr/colorOnPrimary"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+
+                    </FrameLayout>
 
                 </LinearLayout>
 
@@ -110,7 +134,7 @@
                     android:layout_weight="1"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="16dp"
+                    android:padding="20dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/background_stats_card"
                     android:elevation="2dp">
@@ -143,7 +167,7 @@
                             android:gravity="center"
                             android:textSize="14sp"
                             android:textStyle="bold"
-                            android:textColor="@android:color/white"
+                            android:textColor="?attr/attendance_percentage_text_color"
                             android:shadowColor="#CC000000"
                             android:shadowDx="0"
                             android:shadowDy="1"
@@ -157,10 +181,11 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="6dp"
                         android:textSize="12sp"
-                        android:textColor="?attr/colorOnSurface"
+                        android:textColor="?attr/attendance_subtext_color"
                         android:textStyle="bold"
+                        android:gravity="center"
                         android:text="@string/overall_attendance" />
 
                 </LinearLayout>
@@ -172,15 +197,15 @@
                     android:layout_weight="1"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="16dp"
+                    android:padding="20dp"
                     android:layout_marginStart="8dp"
                     android:background="@drawable/background_stats_card"
                     android:elevation="2dp">
 
                     <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/ic_courses"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_clock"
                         android:contentDescription="Today's classes"
                         app:tint="?attr/colorPrimary" />
 
@@ -188,19 +213,20 @@
                         android:id="@+id/todays_classes_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="4dp"
                         android:textSize="18sp"
-                        android:textColor="?attr/colorOnSurface"
+                        android:textColor="?attr/attendance_subtext_color"
                         android:textStyle="bold"
                         android:text="4" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
                         android:textSize="12sp"
-                        android:textColor="?attr/colorOnSurface"
-                        android:text="Today's Classes" />
+                        android:textColor="?attr/attendance_subtext_color"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:text="Today's\nClasses" />
 
                 </LinearLayout>
 
@@ -220,9 +246,6 @@
             android:contentDescription="@string/days"
             app:tabMaxWidth="80dp"
             app:tabMinWidth="60dp"
-            app:tabTextColor="?attr/colorOnSurface"
-            app:tabSelectedTextColor="?attr/colorPrimary"
-            app:tabIndicatorColor="?attr/colorPrimary"
             app:tabIndicatorHeight="3dp" />
 
     </com.google.android.material.appbar.AppBarLayout>

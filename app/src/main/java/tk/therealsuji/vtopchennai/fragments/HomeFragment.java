@@ -213,20 +213,20 @@ public class HomeFragment extends Fragment {
         View attendanceBackground = homeFragment.findViewById(R.id.attendance_background);
         if (attendanceBackground != null) {
             if (overallAttendance >= 85) {
-                // High attendance - Use theme primary color
+                // High attendance - Use theme primary color background
                 attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_high);
-                // Use theme-based text color
-                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnPrimary, android.R.color.white));
+                // Use appropriate text color for contrast against colored background
+                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnPrimary, android.graphics.Color.WHITE));
             } else if (overallAttendance >= 75) {
-                // Medium attendance - Use theme secondary color
+                // Medium attendance - Use theme secondary color background
                 attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_medium);
-                // Use theme-based text color
-                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSecondary, android.R.color.white));
+                // Use appropriate text color for contrast against colored background
+                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSecondary, android.graphics.Color.WHITE));
             } else {
-                // Low attendance - Use theme error color
+                // Low attendance - Use theme error color background
                 attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_low);
-                // Use theme-based text color
-                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnError, android.R.color.white));
+                // Use appropriate text color for contrast against colored background
+                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnError, android.graphics.Color.WHITE));
             }
         }
 
@@ -295,6 +295,18 @@ public class HomeFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Spotlight");
             mFirebaseAnalytics.logEvent("view_spotlight", bundle);
+
+            // Hide the Events badge and mark as viewed
+            if (!sharedPreferences.getBoolean("has_viewed_events_announcement", false)) {
+                sharedPreferences.edit().putBoolean("has_viewed_events_announcement", true).apply();
+                TextView eventsBadgeClick = homeFragment.findViewById(R.id.text_events_badge);
+                eventsBadgeClick.setVisibility(View.GONE); // Hide the text badge
+                // Track that user clicked on the events announcement
+                Bundle eventsBundle = new Bundle();
+                eventsBundle.putString("action", "events_badge_clicked");
+                mFirebaseAnalytics.logEvent("events_announcement_interaction", eventsBundle);
+            }
+
             SettingsRepository.openRecyclerViewFragment(
                 this.requireActivity(),
                 R.string.spotlight,
@@ -331,7 +343,20 @@ public class HomeFragment extends Fragment {
         spotlightBadge.setBadgeGravity(BadgeDrawable.TOP_END);
         spotlightBadge.setHorizontalOffset((int) (24 * pixelDensity));
         spotlightBadge.setVerticalOffset((int) (24 * pixelDensity));
-        spotlightBadge.setVisible(false);
+
+        // Check if Events badge should be shown
+        boolean hasViewedEvents = sharedPreferences.getBoolean("has_viewed_events_announcement", false);
+        TextView eventsBadge = homeFragment.findViewById(R.id.text_events_badge);
+
+        if (!hasViewedEvents) {
+            // Show "1" notification badge instead of Events text badge
+            eventsBadge.setVisibility(View.GONE); // Hide the text badge
+            spotlightBadge.setNumber(1); // Show "1" notification
+            spotlightBadge.setVisible(true);
+        } else {
+            eventsBadge.setVisibility(View.GONE);
+            spotlightBadge.setVisible(false);
+        }
 
         spotlightButton.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @OptIn(markerClass = ExperimentalBadgeUtils.class)
@@ -344,8 +369,22 @@ public class HomeFragment extends Fragment {
 
         getParentFragmentManager().setFragmentResultListener("unreadCount", this, (requestKey, result) -> {
             int spotlightCount = result.getInt("spotlight");
-            spotlightBadge.setNumber(spotlightCount);
-            spotlightBadge.setVisible(spotlightCount != 0);
+            boolean eventsViewed = sharedPreferences.getBoolean("has_viewed_events_announcement", false);
+
+            if (!eventsViewed) {
+                // Keep showing Events text badge regardless of spotlight count
+                eventsBadge.setVisibility(View.VISIBLE);
+                spotlightBadge.setVisible(false); // Hide dot badge when showing text badge
+            } else if (spotlightCount > 0) {
+                // Show number badge for unread spotlight items (though this is disabled now)
+                eventsBadge.setVisibility(View.GONE);
+                spotlightBadge.setNumber(spotlightCount);
+                spotlightBadge.setVisible(true);
+            } else {
+                // No events badge and no unread items
+                eventsBadge.setVisibility(View.GONE);
+                spotlightBadge.setVisible(false);
+            }
         });
 
         getParentFragmentManager().setFragmentResult("getUnreadCount", new Bundle());

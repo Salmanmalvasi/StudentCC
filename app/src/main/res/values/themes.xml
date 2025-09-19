@@ -42,6 +42,18 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
         <item name="android:fontFamily">@font/rubik</item>
+
+        <!-- Enhanced Attendance Colors for Default Theme (Black & White) -->
+        <item name="attendance_percentage_text_color">@android:color/white</item>
+        <item name="attendance_subtext_color">@color/colorSecondaryBlack</item>
+        <item name="attendance_day_text_color">@color/colorSecondaryBlack</item>
+        <item name="attendance_percentage_text_high_color">@android:color/white</item>
+        <item name="attendance_percentage_text_medium_color">@android:color/white</item>
+        <item name="attendance_percentage_text_low_color">@android:color/white</item>
+
+        <!-- Calendar Day Text Colors - Default Theme (Black & White) -->
+        <item name="calendar_day_text_color">@color/colorSecondaryBlack</item>
+        <item name="calendar_subtext_color">@color/colorSecondaryBlack</item>
     </style>
 
     <!-- Red Theme -->
@@ -78,6 +90,11 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
         <item name="android:fontFamily">@font/rubik</item>
+
+        <!-- Red Theme Attendance Colors -->
+        <item name="attendance_percentage_text_color">@color/colorPrimaryRed</item>
+        <item name="attendance_subtext_color">@color/colorPrimaryRed</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryRed</item>
     </style>
 
     <!-- Blue Theme -->
@@ -109,6 +126,11 @@
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
         <item name="android:fontFamily">@font/rubik</item>
         <item name="android:windowBackground">@color/colorBackgroundBlue</item>
+
+        <!-- Blue Theme Attendance Colors -->
+        <item name="attendance_percentage_text_color">@color/colorPrimaryBlue</item>
+        <item name="attendance_subtext_color">@color/colorPrimaryBlue</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryBlue</item>
     </style>
 
     <!-- Purple Theme -->
@@ -140,6 +162,11 @@
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
         <item name="android:fontFamily">@font/rubik</item>
         <item name="android:windowBackground">@color/colorBackgroundPurple</item>
+
+        <!-- Purple Theme Attendance Colors -->
+        <item name="attendance_percentage_text_color">@color/colorPrimaryPurple</item>
+        <item name="attendance_subtext_color">@color/colorPrimaryPurple</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryPurple</item>
     </style>
 
     <!-- Green Theme -->
@@ -171,6 +198,11 @@
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
         <item name="android:fontFamily">@font/rubik</item>
         <item name="android:windowBackground">@color/colorBackgroundGreen</item>
+
+        <!-- Green Theme Attendance Colors -->
+        <item name="attendance_percentage_text_color">@color/colorPrimaryGreen</item>
+        <item name="attendance_subtext_color">@color/colorPrimaryGreen</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryGreen</item>
     </style>
 
     <!-- Black Theme -->
@@ -202,6 +234,11 @@
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
         <item name="android:fontFamily">@font/rubik</item>
         <item name="android:windowBackground">@color/colorBackgroundBlack</item>
+
+        <!-- Black Theme Attendance Colors -->
+        <item name="attendance_percentage_text_color">@color/colorSecondaryBlack</item>
+        <item name="attendance_subtext_color">@color/colorSecondaryBlack</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryBlack</item>
     </style>
 
     <!-- Main Themes -->
@@ -213,26 +250,51 @@
     <style name="Theme.VTOP_Red" parent="Base.Theme.VTOP_Red">
         <item name="android:windowBackground">@color/colorBackgroundRed</item>
         <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryRed</item>
+        <item name="attendance_subtext_color">@color/colorPrimaryRed</item>
+        <item name="attendance_percentage_text_color">@color/colorPrimaryRed</item>
+        <item name="calendar_day_text_color">@color/calendar_day_text_red_light</item>
+        <item name="calendar_subtext_color">@color/calendar_subtext_red_light</item>
     </style>
 
     <style name="Theme.VTOP_Blue" parent="Base.Theme.VTOP_Blue">
         <item name="android:windowBackground">@color/colorBackgroundBlue</item>
         <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryBlue</item>
+        <item name="attendance_subtext_color">@color/colorPrimaryBlue</item>
+        <item name="attendance_percentage_text_color">@color/colorPrimaryBlue</item>
+        <item name="calendar_day_text_color">@color/calendar_day_text_blue_light</item>
+        <item name="calendar_subtext_color">@color/calendar_subtext_blue_light</item>
     </style>
 
     <style name="Theme.VTOP_Purple" parent="Base.Theme.VTOP_Purple">
         <item name="android:windowBackground">@color/colorBackgroundPurple</item>
         <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryPurple</item>
+        <item name="attendance_subtext_color">@color/colorPrimaryPurple</item>
+        <item name="attendance_percentage_text_color">@color/colorPrimaryPurple</item>
+        <item name="calendar_day_text_color">@color/calendar_day_text_purple_light</item>
+        <item name="calendar_subtext_color">@color/calendar_subtext_purple_light</item>
     </style>
 
     <style name="Theme.VTOP_Green" parent="Base.Theme.VTOP_Green">
         <item name="android:windowBackground">@color/colorBackgroundGreen</item>
         <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryGreen</item>
+        <item name="attendance_subtext_color">@color/colorPrimaryGreen</item>
+        <item name="attendance_percentage_text_color">@color/colorPrimaryGreen</item>
+        <item name="calendar_day_text_color">@color/calendar_day_text_green_light</item>
+        <item name="calendar_subtext_color">@color/calendar_subtext_green_light</item>
     </style>
 
     <style name="Theme.VTOP_Black" parent="Base.Theme.VTOP_Black">
         <item name="android:windowBackground">@color/colorBackgroundBlack</item>
         <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryBlack</item>
+        <item name="attendance_subtext_color">@color/colorSecondaryBlack</item>
+        <item name="attendance_percentage_text_color">@color/colorSecondaryBlack</item>
+        <item name="calendar_day_text_color">@color/calendar_day_text_black_light</item>
+        <item name="calendar_subtext_color">@color/calendar_subtext_black_light</item>
     </style>
 
     <style name="Theme.VTOP.Login" parent="Base.Theme.VTOP">
