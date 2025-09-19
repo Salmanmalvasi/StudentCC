@@ -38,6 +38,7 @@ import tk.therealsuji.vtopchennai.interfaces.TimetableDao;
 import tk.therealsuji.vtopchennai.interfaces.CoursesDao;
 import tk.therealsuji.vtopchennai.interfaces.AttendanceDao;
 import tk.therealsuji.vtopchennai.models.Timetable;
+import tk.therealsuji.vtopchennai.helpers.FirebaseAnalyticsHelper;
 
 public class AttendanceCalculatorFragment extends Fragment {
 
@@ -57,6 +58,9 @@ public class AttendanceCalculatorFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_attendance_calculator, container, false);
 
+        // Track screen view
+        FirebaseAnalyticsHelper.trackScreenView(requireContext(), "AttendanceCalculator", "AttendanceCalculatorFragment");
+
         inputStart = view.findViewById(R.id.input_start_date);
         inputEnd = view.findViewById(R.id.input_end_date);
 
@@ -71,6 +75,8 @@ public class AttendanceCalculatorFragment extends Fragment {
         MaterialButton calculate = view.findViewById(R.id.button_calculate);
         calculate.setOnClickListener(v -> {
             try {
+                FirebaseAnalyticsHelper.trackButtonPress(requireContext(), "Calculate Attendance", "AttendanceCalculator");
+
                 if (startDateUtc == null || endDateUtc == null) {
                     Toast.makeText(requireContext(), "Please pick both start and end dates", Toast.LENGTH_SHORT).show();
                     return;
@@ -92,7 +98,10 @@ public class AttendanceCalculatorFragment extends Fragment {
             }
         });
 
-        buttonApply.setOnClickListener(v -> applyChanges());
+        buttonApply.setOnClickListener(v -> {
+            FirebaseAnalyticsHelper.trackButtonPress(requireContext(), "Apply Attendance Changes", "AttendanceCalculator");
+            applyChanges();
+        });
 
         return view;
     }
@@ -122,13 +131,15 @@ public class AttendanceCalculatorFragment extends Fragment {
         // Process all timetable data together
         disposables.add(
                 Single.zip(timetableRequests, objects -> {
-                    // Combine all timetable data
+                    // Combine all timetable data - use courseCode like original
                     for (Object obj : objects) {
                         @SuppressWarnings("unchecked")
                         List<Timetable.AllData> dayData = (List<Timetable.AllData>) obj;
                         for (Timetable.AllData item : dayData) {
-                            if (item.courseCode == null) continue;
-                            lastCourseMissed.put(item.courseCode, lastCourseMissed.getOrDefault(item.courseCode, 0) + 1);
+                            // Use courseCode for grouping (original behavior)
+                            String courseKey = item.courseCode;
+                            if (courseKey == null) continue;
+                            lastCourseMissed.put(courseKey, lastCourseMissed.getOrDefault(courseKey, 0) + 1);
                         }
                     }
                     return lastCourseMissed;
@@ -173,7 +184,7 @@ public class AttendanceCalculatorFragment extends Fragment {
         final int totalCourses = lastCourseMissed.size();
         final int[] totalMissedClasses = {0};
 
-        // For each course code, fetch id and update totals: total += missed, percentage recomputed conservatively using existing attended
+        // For each course code, directly update attendance
         for (Map.Entry<String, Integer> entry : lastCourseMissed.entrySet()) {
             String courseCode = entry.getKey();
             int missed = entry.getValue();
@@ -181,27 +192,29 @@ public class AttendanceCalculatorFragment extends Fragment {
 
             android.util.Log.d("AttendanceCalc", "Processing course: " + courseCode + " with " + missed + " missed classes");
 
-            disposables.add(
-                    coursesDao.getCourse(courseCode)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(list -> {
-                                android.util.Log.d("AttendanceCalc", "Got course data for " + courseCode + ": " + (list != null ? list.size() : "null"));
+            // Process course directly using course code
+            processCourseByCode(courseCode, missed, processedCourses, totalCourses, totalMissedClasses[0], db);
 
-                                if (list == null || list.isEmpty()) {
-                                    android.util.Log.w("AttendanceCalc", "No course data found for " + courseCode);
-                                    processedCourses[0]++;
-                                    checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                    return;
-                                }
 
-                                tk.therealsuji.vtopchennai.models.Course.AllData data = list.get(0);
-                                android.util.Log.d("AttendanceCalc", "Course " + courseCode + " - Total: " + data.attendanceTotal + ", Attended: " + data.attendanceAttended);
+        }
+        Toast.makeText(requireContext(), "Applied simulated changes", Toast.LENGTH_SHORT).show();
+    }
+
+    private void processCourseByCode(String courseCode, int missed, int[] processedCourses, int totalCourses, int totalMissedClasses, AppDatabase db) {
+        android.util.Log.d("AttendanceCalc", "Processing course code: " + courseCode + " with " + missed + " missed classes");
+
+        disposables.add(
+                db.coursesDao().getCourse(courseCode)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(courseDataList -> {
+                            if (courseDataList != null && !courseDataList.isEmpty()) {
+                                tk.therealsuji.vtopchennai.models.Course.AllData data = courseDataList.get(0);
 
                                 if (data.attendanceTotal == null || data.attendanceAttended == null) {
                                     android.util.Log.w("AttendanceCalc", "Null attendance data for " + courseCode);
                                     processedCourses[0]++;
-                                    checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
+                                    checkCompletion(processedCourses[0], totalCourses, totalMissedClasses);
                                     return;
                                 }
 
@@ -210,86 +223,49 @@ public class AttendanceCalculatorFragment extends Fragment {
 
                                 android.util.Log.d("AttendanceCalc", "Course " + courseCode + " - New Total: " + newTotal + ", New Percentage: " + newPercentage);
 
-                                // Always try the original course code first
-                                final String courseCodeToTry = courseCode;
-
+                                // Update attendance using the course code
                                 disposables.add(
-                                        coursesDao.getCourseIdByCode(courseCodeToTry)
+                                        db.coursesDao().getCourseIdByCode(courseCode)
                                                 .subscribeOn(Schedulers.io())
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe(courseId -> {
-                                                    android.util.Log.d("AttendanceCalc", "Got course ID for " + courseCode + ": " + courseId);
-
                                                     if (courseId != null) {
                                                         disposables.add(
-                                                                attendanceDao.updateTotals(courseId, newTotal, newPercentage)
+                                                                db.attendanceDao().updateTotals(courseId, newTotal, newPercentage)
                                                                         .subscribeOn(Schedulers.io())
                                                                         .observeOn(AndroidSchedulers.mainThread())
                                                                         .subscribe(() -> {
                                                                             android.util.Log.d("AttendanceCalc", "Successfully updated attendance for " + courseCode);
                                                                             processedCourses[0]++;
-                                                                            checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
+                                                                            checkCompletion(processedCourses[0], totalCourses, totalMissedClasses);
                                                                         }, err -> {
                                                                             android.util.Log.e("AttendanceCalc", "Error updating attendance for " + courseCode, err);
                                                                             processedCourses[0]++;
-                                                                            checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
+                                                                            checkCompletion(processedCourses[0], totalCourses, totalMissedClasses);
                                                                         })
                                                         );
                                                     } else {
-                                                        // If course ID is null and we tried a modified code, try the original
-                                                        if (!courseCodeToTry.equals(courseCode)) {
-                                                            android.util.Log.d("AttendanceCalc", "Trying original course code: " + courseCode);
-                                                            disposables.add(
-                                                                    coursesDao.getCourseIdByCode(courseCode)
-                                                                            .subscribeOn(Schedulers.io())
-                                                                            .observeOn(AndroidSchedulers.mainThread())
-                                                                            .subscribe(originalCourseId -> {
-                                                                                if (originalCourseId != null) {
-                                                                                    disposables.add(
-                                                                                            attendanceDao.updateTotals(originalCourseId, newTotal, newPercentage)
-                                                                                                    .subscribeOn(Schedulers.io())
-                                                                                                    .observeOn(AndroidSchedulers.mainThread())
-                                                                                                    .subscribe(() -> {
-                                                                                                        android.util.Log.d("AttendanceCalc", "Successfully updated attendance for " + courseCode);
-                                                                                                        processedCourses[0]++;
-                                                                                                        checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                                                                                    }, err -> {
-                                                                                                        android.util.Log.e("AttendanceCalc", "Error updating attendance for " + courseCode, err);
-                                                                                                        processedCourses[0]++;
-                                                                                                        checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                                                                                    })
-                                                                                    );
-                                                                                } else {
-                                                                                    android.util.Log.w("AttendanceCalc", "Null course ID for both " + courseCodeToTry + " and " + courseCode);
-                                                                                    processedCourses[0]++;
-                                                                                    checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                                                                }
-                                                                            }, err -> {
-                                                                                android.util.Log.e("AttendanceCalc", "Error getting course ID for " + courseCode, err);
-                                                                                processedCourses[0]++;
-                                                                                checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                                                            })
-                                                            );
-                                                        } else {
-                                                            android.util.Log.w("AttendanceCalc", "Null course ID for " + courseCode);
-                                                            processedCourses[0]++;
-                                                            checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                                        }
+                                                        android.util.Log.w("AttendanceCalc", "Null course ID for " + courseCode);
+                                                        processedCourses[0]++;
+                                                        checkCompletion(processedCourses[0], totalCourses, totalMissedClasses);
                                                     }
                                                 }, err -> {
                                                     android.util.Log.e("AttendanceCalc", "Error getting course ID for " + courseCode, err);
                                                     processedCourses[0]++;
-                                                    checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
+                                                    checkCompletion(processedCourses[0], totalCourses, totalMissedClasses);
                                                 })
                                 );
-                            }, err -> {
-                                android.util.Log.e("AttendanceCalc", "Error getting course data for " + courseCode, err);
+                            } else {
+                                android.util.Log.w("AttendanceCalc", "No course data found for code: " + courseCode);
                                 processedCourses[0]++;
-                                checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                            })
-            );
-        }
-        Toast.makeText(requireContext(), "Applied simulated changes", Toast.LENGTH_SHORT).show();
+                                checkCompletion(processedCourses[0], totalCourses, totalMissedClasses);
+                            }
+                        }, err -> {
+                            android.util.Log.e("AttendanceCalc", "Error getting course data for code: " + courseCode, err);
+                            processedCourses[0]++;
+                            checkCompletion(processedCourses[0], totalCourses, totalMissedClasses);
+                        })
+        );
     }
 
     private void checkCompletion(int processedCourses, int totalCourses, int totalMissedClasses) {

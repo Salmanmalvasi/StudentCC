@@ -37,12 +37,17 @@
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
         <item name="android:fontFamily">@font/rubik</item>
 
-            <!-- Enhanced Attendance Colors for Dark Theme -->
-    <item name="attendance_percentage_text_color">@color/attendance_percentage_text_dark</item>
-    <item name="attendance_subtext_color">@color/attendance_subtext_dark</item>
-    <item name="attendance_percentage_text_high_color">@color/attendance_percentage_text_high_dark</item>
-    <item name="attendance_percentage_text_medium_color">@color/attendance_percentage_text_medium_dark</item>
-    <item name="attendance_percentage_text_low_color">@color/attendance_percentage_text_low_dark</item>
+            <!-- Enhanced Attendance Colors for Default Dark Theme (Black & White) -->
+    <item name="attendance_percentage_text_color">@android:color/white</item>
+    <item name="attendance_subtext_color">@color/colorSecondaryBlack</item>
+    <item name="attendance_day_text_color">@color/colorSecondaryBlack</item>
+    <item name="attendance_percentage_text_high_color">@android:color/white</item>
+    <item name="attendance_percentage_text_medium_color">@android:color/white</item>
+    <item name="attendance_percentage_text_low_color">@android:color/white</item>
+
+    <!-- Calendar Day Text Colors - Default Dark Theme (Black & White) -->
+    <item name="calendar_day_text_color">@color/colorSecondaryBlack</item>
+    <item name="calendar_subtext_color">@color/colorSecondaryBlack</item>
     </style>
 
     <!-- Main Dark Theme -->
@@ -51,9 +56,114 @@
         <item name="chipStyle">@style/Widget.VTOP.Chip</item>
     </style>
 
+    <!-- Red Theme Dark Mode -->
+    <style name="Theme.VTOP_Red" parent="Base.Theme.VTOP">
+        <item name="android:windowBackground">@color/colorBackgroundRed</item>
+        <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+        <item name="colorPrimary">@color/colorPrimaryRed</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryRed</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainerRed</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainerRed</item>
+        <item name="colorSecondary">@color/colorSecondaryRed</item>
+        <item name="colorOnSecondary">@color/colorOnSecondaryRed</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainerRed</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainerRed</item>
+        <item name="colorSurface">@color/colorSurfaceRed</item>
+        <item name="colorOnSurface">@color/colorOnSurfaceRed</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariantRed</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariantRed</item>
+        <item name="colorOutline">@color/colorOutlineRed</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariantRed</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryRed</item>
+        <item name="attendance_subtext_color">@color/colorPrimaryRed</item>
+        <item name="attendance_percentage_text_color">@color/colorPrimaryRed</item>
+        <item name="calendar_day_text_color">@color/calendar_day_text_red_dark</item>
+        <item name="calendar_subtext_color">@color/calendar_subtext_red_dark</item>
+    </style>
+
+    <!-- Blue Theme Dark Mode -->
+    <style name="Theme.VTOP_Blue" parent="Base.Theme.VTOP">
+        <item name="android:windowBackground">@color/colorBackgroundBlue</item>
+        <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+        <item name="colorPrimary">@color/colorPrimaryBlue</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryBlue</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainerBlue</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainerBlue</item>
+        <item name="colorSecondary">@color/colorSecondaryBlue</item>
+        <item name="colorOnSecondary">@color/colorOnSecondaryBlue</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainerBlue</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainerBlue</item>
+        <item name="colorSurface">@color/colorSurfaceBlue</item>
+        <item name="colorOnSurface">@color/colorOnSurfaceBlue</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariantBlue</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariantBlue</item>
+        <item name="colorOutline">@color/colorOutlineBlue</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariantBlue</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryBlue</item>
+        <item name="attendance_subtext_color">@color/colorPrimaryBlue</item>
+        <item name="attendance_percentage_text_color">@color/colorPrimaryBlue</item>
+        <item name="calendar_day_text_color">@color/calendar_day_text_blue_dark</item>
+        <item name="calendar_subtext_color">@color/calendar_subtext_blue_dark</item>
+    </style>
+
+    <!-- Green Theme Dark Mode -->
+    <style name="Theme.VTOP_Green" parent="Base.Theme.VTOP">
+        <item name="android:windowBackground">@color/colorBackgroundGreen</item>
+        <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+        <item name="colorPrimary">@color/colorPrimaryGreen</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryGreen</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainerGreen</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainerGreen</item>
+        <item name="colorSecondary">@color/colorSecondaryGreen</item>
+        <item name="colorOnSecondary">@color/colorOnSecondaryGreen</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainerGreen</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainerGreen</item>
+        <item name="colorSurface">@color/colorSurfaceGreen</item>
+        <item name="colorOnSurface">@color/colorOnSurfaceGreen</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariantGreen</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariantGreen</item>
+        <item name="colorOutline">@color/colorOutlineGreen</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariantGreen</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryGreen</item>
+        <item name="attendance_subtext_color">@color/colorPrimaryGreen</item>
+        <item name="attendance_percentage_text_color">@color/colorPrimaryGreen</item>
+        <item name="calendar_day_text_color">@color/calendar_day_text_green_dark</item>
+        <item name="calendar_subtext_color">@color/calendar_subtext_green_dark</item>
+    </style>
+
+    <!-- Purple Theme Dark Mode -->
+    <style name="Theme.VTOP_Purple" parent="Base.Theme.VTOP">
+        <item name="android:windowBackground">@color/colorBackgroundPurple</item>
+        <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+        <item name="colorPrimary">@color/colorPrimaryPurple</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryPurple</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainerPurple</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainerPurple</item>
+        <item name="colorSecondary">@color/colorSecondaryPurple</item>
+        <item name="colorOnSecondary">@color/colorOnSecondaryPurple</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainerPurple</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainerPurple</item>
+        <item name="colorSurface">@color/colorSurfacePurple</item>
+        <item name="colorOnSurface">@color/colorOnSurfacePurple</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariantPurple</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariantPurple</item>
+        <item name="colorOutline">@color/colorOutlinePurple</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariantPurple</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryPurple</item>
+        <item name="attendance_subtext_color">@color/colorPrimaryPurple</item>
+        <item name="attendance_percentage_text_color">@color/colorPrimaryPurple</item>
+        <item name="calendar_day_text_color">@color/calendar_day_text_purple_dark</item>
+        <item name="calendar_subtext_color">@color/calendar_subtext_purple_dark</item>
+    </style>
+
     <style name="Theme.VTOP_Black" parent="Base.Theme.VTOP">
         <item name="android:windowBackground">@color/colorBackgroundBlack</item>
         <item name="chipStyle">@style/Widget.VTOP.Chip</item>
+        <item name="attendance_day_text_color">@color/colorPrimaryBlack</item>
+        <item name="attendance_subtext_color">@color/colorSecondaryBlack</item>
+        <item name="attendance_percentage_text_color">@color/colorSecondaryBlack</item>
+        <item name="calendar_day_text_color">@color/calendar_day_text_black_dark</item>
+        <item name="calendar_subtext_color">@color/calendar_subtext_black_dark</item>
     </style>
 
     <style name="Theme.VTOP.Login" parent="Base.Theme.VTOP">

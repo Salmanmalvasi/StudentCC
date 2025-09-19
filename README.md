@@ -1,7 +1,21 @@
 # StudentCC - VIT Student Companion App
 
 <div align="center">
-  <img src="app/src/main/res/drawable/app_logo.png" alt="StudentCC Logo" width="120" height="120">
+  <img src="app/src/main/res/drawable/app_log### **🆕 New ### **🔧 Technical Enhancements**
+- **Database Schema** - Added venue field to Timetable.AllData model
+- **Query Optimization** - Updated database queries to include venue data
+- **Notification System** - Completely redesigned notification messages
+- **Website Integration** - Seamless integration with your landing page
+- **Color System Architecture** - Comprehensive theme attribute system with proper inheritance
+- **Material Design 3** - Full implementation with custom color palettes
+- **UI Component Styling** - Enhanced tab layouts, text views, and interactive elementsres**
+- **Venue Display** - Notifications now show actual classroom locations
+- **Enhanced GPA Calculator** - More accurate calculations with VIT's system
+- **Ultra-Modern Color System** - Sleek, Discord/Notion-inspired color palettes
+- **Theme-Aware Components** - Calendar days and attendance text adapt to selected themes
+- **Better Color Contrast** - WCAG-compliant colors for optimal readability
+- **Improved UI** - Better theme system and modern design
+- **Better Error Handling** - More robust app stability" alt="StudentCC Logo" width="120" height="120">
   <h3>Your All-in-One Academic Companion for VIT</h3>
   <p><strong>BETA VERSION</strong> - Enhanced with modern features and improved user experience</p>
 </div>
@@ -10,20 +24,23 @@
 
 ### 📊 **Advanced GPA Calculator**
 - Real-time GPA calculation with VIT's official grading system
-- Support for all VIT grade scales (A+, A, B+, B, C+, C, D, F)
+- Support for all VIT grade scales (S, A, B, C, D, E, F, N)
 - Credit tracking and semester-wise GPA calculation
 - CGPA estimator with target GPA planning
 
 ### 📈 **Enhanced Attendance Tracking**
 - Large attendance circle (100dp) with theme-adaptive colors
 - Interactive toggle with responsive design
-- Better text visibility and modern UI
-- Real-time attendance percentage calculation
+- Theme-aware text colors matching overall attendance display
+- Real-time attendance percentage calculation with high contrast visibility
+- Modern UI with proper shadows and readable text styling
 
-### 🎨 **Modern Theme System**
-- 6 custom themes (Default, Red, Blue, Purple, Green, Black)
-- Dark/Light mode support
+### 🎨 **Ultra-Modern Theme System**
+- 6 custom themes with sleek, modern color palettes (Default, Red, Blue, Purple, Green, Black)
+- Dark/Light mode support with perfect contrast ratios
 - Dynamic color system using Material Design 3
+- Theme-aware UI elements (calendar days, attendance text, percentage indicators)
+- Optimized readability with WCAG-compliant color combinations
 - AMOLED mode for OLED displays
 
 ### 📅 **Smart Notifications**
@@ -71,6 +88,9 @@
 - **TimetableDao.java** - Enhanced 12 database queries with venue data
 - **NotificationHelper.java** - Redesigned notification messages
 - **strings.xml** - Fixed app name in share functionality
+- **Theme System** - Complete overhaul with ultra-modern color palettes
+- **Color Attributes** - Added theme-aware calendar and attendance text colors
+- **UI Components** - Enhanced tab layouts and text styling for better readability
 
 ### **🎯 Key Improvements Made**
 - **Eliminated Update Popups** - No more unwanted version checking dialogs
@@ -146,13 +166,19 @@ Version checking is disabled to prevent unwanted popups. The app will not show u
 ## 🎨 Customization
 
 ### **Themes**
-The app supports 6 custom themes:
-- Default (Material Design 3)
-- Red Theme
-- Blue Theme  
-- Purple Theme
-- Green Theme
-- Black Theme (AMOLED)
+The app supports 6 ultra-modern custom themes with sleek color palettes:
+- **Default** - Clean black & white with optimal contrast
+- **Red Theme** - Modern red tones with proper accessibility
+- **Blue Theme** - Professional blue palette inspired by modern design systems
+- **Purple Theme** - Elegant purple gradients with excellent readability  
+- **Green Theme** - Fresh green colors with nature-inspired tones
+- **Black Theme** - Premium AMOLED-optimized dark theme
+
+**Color Features:**
+- Theme-aware calendar day labels (Mon, Tue, Wed, etc.)
+- Attendance text colors matching theme selection
+- High contrast ratios for accessibility (WCAG compliant)
+- Smooth transitions between themes
 
 ### **Notifications**
 Notifications are enhanced to show:
@@ -182,10 +208,11 @@ Notifications are enhanced to show:
 - **Encrypted Credentials** - Login details encrypted using AES256
 - **No External Sharing** - Data never sent to external servers
 - **User Control** - Full control over data and settings
+- **No Privacy Policy Required** - App operates entirely offline after initial sync
 
 ### **Permissions**
-- **Internet** - For VTOP synchronization
-- **Storage** - For downloading files
+- **Internet** - For VTOP synchronization only
+- **Storage** - For downloading files and caching
 - **Notifications** - For class and exam reminders
 
 ## 🚀 Performance
@@ -243,6 +270,20 @@ This project is licensed under the GNU General Public License (GPL) - see the [L
 - **Website**: [salmanmalvasi.github.io](https://salmanmalvasi.github.io)
 - **Email**: salmanmalvasi@gmail.com
 
+## 🤝 Collaboration & Partnerships
+
+### **Unmessify Integration - Hostel Mess Menu System**
+
+Special thanks to **Kanishka Chakraborty** and **Teesha Saxena** for opening up **Unmessify** to collaboration and contribution with the launch of **1.7.0**. Their amazing work on the mess menu system has been invaluable to the VIT student community.
+
+**Repository**: [https://github.com/Kanishka-Developer/unmessify](https://github.com/Kanishka-Developer/unmessify)
+
+**Example mess menu data** (Men's hostel Non-Veg, English): [https://kanishka-developer.github.io/unmessify/json/en/VITC-M-N.json](https://kanishka-developer.github.io/unmessify/json/en/VITC-M-N.json)
+
+We're grateful for their collaborative approach and encourage other developers to explore partnership opportunities!
+
+**Visit**: [kaffeine.tech/unmessify](https://kaffeine.tech/unmessify)
+
 ## 🙏 Acknowledgments
 
 - **VIT Chennai** - For providing the VTOP platform
@@ -268,5 +309,5 @@ Your feedback is crucial for improving StudentCC! Please:
 
 <div align="center">
   <p><strong>StudentCC</strong> - Made with ❤️ for VIT Students</p>
-  <p><em>Beta Version 1.0.0</em></p>
+  <p><em>Enhanced Version 1.3.0 - Now with Ultra-Modern Themes & Collaboration Features</em></p>
 </div>

@@ -6,14 +6,12 @@
     <!-- LoginActivity Strings -->
     <string name="login_header">Login</string>
     <string name="login_description">Sign in using your VTOP credentials</string>
-    <string name="thank_you_1k">Thank you for 1k users ❤️ — Salman Malvasi</string>
-    <string name="thank_you_1k_split">Thank you for 1k users ❤️\nSalman Malvasi</string>
-    <string name="thank_you_1k_multiline">Thank you for 1k users ❤️
-— Salman Malvasi</string>
+    <string name="thank_you_1k">StudentCC x Unmessify</string>
+    <string name="thank_you_1k_split">StudentCC x Unmessify</string>
+    <string name="thank_you_1k_multiline">StudentCC x Unmessify</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="sign_in">Sign In</string>
-    <string name="privacy">Privacy Policy</string>
 
     <!-- MainActivity Strings -->
     <string name="home">Home</string>

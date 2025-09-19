@@ -199,16 +199,16 @@ public class MainActivity extends AppCompatActivity {
     private void checkAndUpdateBottomNavigation() {
         // Get student type from encrypted SharedPreferences using SettingsRepository
         SharedPreferences encryptedSharedPreferences = SettingsRepository.getEncryptedSharedPreferences(this);
-        
+
         if (encryptedSharedPreferences != null) {
             String studentType = encryptedSharedPreferences.getString("student_type", "");
             android.util.Log.d("MainActivity", "Student type: '" + studentType + "' (length: " + studentType.length() + ")");
-            
+
             // Check all student type related data for debugging
             String username = encryptedSharedPreferences.getString("username", "");
             String gender = encryptedSharedPreferences.getString("gender", "");
             android.util.Log.d("MainActivity", "Username: '" + username + "', Gender: '" + gender + "'");
-            
+
             // Always hide hostel tab for day scholars, use contains to be safe
             if ("day_scholar".equals(studentType) || studentType.contains("day_scholar") || studentType.isEmpty()) {
                 // Hide the hostel info menu item
@@ -278,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
         Bundle unreadCount = new Bundle();
 
         Observable.concat(
-                        Observable.fromSingle(appDatabase.spotlightDao().getUnreadCount()),
+                        Observable.just(0), // Always return 0 for spotlight since we're using custom events announcement
                         Observable.fromSingle(appDatabase.marksDao().getMarksUnreadCount())
                 )
                 .subscribeOn(Schedulers.single())

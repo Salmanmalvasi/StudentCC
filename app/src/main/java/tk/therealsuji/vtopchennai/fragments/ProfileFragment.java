@@ -274,19 +274,6 @@ public class ProfileFragment extends Fragment {
                     null
             ),
             new ItemData(
-                    R.drawable.ic_privacy,
-                    R.string.privacy,
-                    context -> {
-                        if (!isAdded()) return;
-                        SettingsRepository.openWebViewActivity(
-                                requireContext(),
-                                getString(R.string.privacy),
-                                SettingsRepository.APP_PRIVACY_URL
-                        );
-                    },
-                    null
-            ),
-            new ItemData(
                     R.drawable.ic_feedback,
                     R.string.send_feedback,
                     context -> {                        if (!isAdded()) return;
