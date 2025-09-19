@@ -339,6 +339,9 @@ public class LoginActivity extends AppCompatActivity {
         setupClickListeners();
 
         findViewById(R.id.button_sign_in).setOnClickListener(view -> signIn());
+        findViewById(R.id.button_privacy_policy).setOnClickListener(view -> {
+            SettingsRepository.openBrowser(this, SettingsRepository.APP_PRIVACY_URL);
+        });
 
         this.vtopHelper = new VTOPHelper(this, new VTOPHelper.Initiator() {
             @Override

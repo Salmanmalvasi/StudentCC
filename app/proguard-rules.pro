@@ -5,17 +5,43 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Aggressive optimization for smaller APK
+-optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
+-optimizationpasses 5
+-allowaccessmodification
+-dontpreverify
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Remove debug information
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+    public static *** i(...);
+}
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Keep WebView JavaScript interface
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+# Keep Room database classes
+-keep class * extends androidx.room.RoomDatabase
+-keep @androidx.room.Entity class *
+-keep @androidx.room.Dao class *
+
+# Keep Firebase classes
+-keep class com.google.firebase.** { *; }
+
+# Keep Material Design components
+-keep class com.google.android.material.** { *; }
+
+# Remove unused code
+-assumenosideeffects class java.lang.System {
+    public static long currentTimeMillis();
+    static java.lang.Class getCallerClass();
+}
+
+# Optimize string operations
+-assumenosideeffects class java.lang.String {
+    public java.lang.String(...);
+    public static java.lang.String valueOf(...);
+}
