@@ -323,6 +323,22 @@ public class ProfileFragment extends Fragment {
                     }
             ),
             new ItemData(
+                    R.drawable.ic_link,
+                    "Unmessify",
+                    "Visit kaffeine.tech/unmessify",
+                    context -> {                        if (!isAdded()) return;
+                        SettingsRepository.openBrowser(context, "https://kaffeine.tech/unmessify");
+                    }
+            ),
+            new ItemData(
+                    R.drawable.ic_feedback,
+                    "StudentCC Community",
+                    "Join our WhatsApp community",
+                    context -> {                        if (!isAdded()) return;
+                        SettingsRepository.openBrowser(context, "https://chat.whatsapp.com/HgXMjKomvYyCSCrmbWFcbG");
+                    }
+            ),
+            new ItemData(
                     R.drawable.ic_sign_out,
                     R.string.sign_out,
                     context -> {                        if (!isAdded()) return;

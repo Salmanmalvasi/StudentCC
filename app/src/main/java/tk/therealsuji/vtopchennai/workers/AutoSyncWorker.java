@@ -13,46 +13,43 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
-// import androidx.work.Worker;
-// import androidx.work.WorkerParameters;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.activities.MainActivity;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 import tk.therealsuji.vtopchennai.helpers.VTOPHelper;
 
-public class AutoSyncWorker /* extends Worker */ {
+public class AutoSyncWorker extends Worker {
     private static final String TAG = "AutoSyncWorker";
     private static final String CHANNEL_ID = "auto_sync_channel";
     private static final int NOTIFICATION_ID = 1001;
-    
-    private Context context;
 
-    public AutoSyncWorker(@NonNull Context context, /* @NonNull WorkerParameters params */ Object params) {
-        // super(context, params);
-        this.context = context;
+    public AutoSyncWorker(@NonNull Context context, @NonNull WorkerParameters params) {
+        super(context, params);
     }
 
     @NonNull
-    // @Override
-    public Object doWork() {
+    @Override
+    public Result doWork() {
         Log.d(TAG, "Auto sync started");
         
         try {
             // Check if user is signed in using the correct method
-            boolean isSignedIn = SettingsRepository.isSignedIn(context);
+            boolean isSignedIn = SettingsRepository.isSignedIn(getApplicationContext());
             Log.d(TAG, "Sign-in status check: isSignedIn = " + isSignedIn);
             
             if (!isSignedIn) {
                 Log.d(TAG, "User not signed in, skipping auto sync");
-                return "success"; // Result.success();
+                return Result.success();
             }
 
             // Check if credentials exist
-            SharedPreferences encryptedPrefs = SettingsRepository.getEncryptedSharedPreferences(context);
+            SharedPreferences encryptedPrefs = SettingsRepository.getEncryptedSharedPreferences(getApplicationContext());
             if (encryptedPrefs == null) {
                 Log.d(TAG, "No encrypted preferences, skipping auto sync");
-                return "success"; // Result.success();
+                return Result.success();
             }
 
             String username = encryptedPrefs.getString("username", null);
@@ -63,23 +60,23 @@ public class AutoSyncWorker /* extends Worker */ {
             
             if (username == null || password == null) {
                 Log.d(TAG, "No credentials found, skipping auto sync");
-                return "success"; // Result.success();
+                return Result.success();
             }
 
             Log.d(TAG, "All checks passed, performing background sync");
             // Perform background sync
             performBackgroundSync();
             
-            return "success"; // Result.success();
+            return Result.success();
             
         } catch (Exception e) {
             Log.e(TAG, "Auto sync failed", e);
-            return "failure"; // Result.failure();
+            return Result.failure();
         }
     }
 
     private void performBackgroundSync() {
-        // Context context = getApplicationContext();
+        Context context = getApplicationContext();
         
         try {
             Log.d(TAG, "Performing direct VTOP sync from WorkManager");
@@ -118,7 +115,7 @@ public class AutoSyncWorker /* extends Worker */ {
         try {
             Log.d(TAG, "Starting TRUE background VTOP sync for user: " + username.substring(0, Math.min(3, username.length())) + "***");
             
-            // Context context = getApplicationContext();
+            Context context = getApplicationContext();
             SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(context);
             
             // Mark sync as in progress
@@ -152,7 +149,7 @@ public class AutoSyncWorker /* extends Worker */ {
         } catch (Exception e) {
             Log.e(TAG, "Error in direct VTOP sync", e);
             
-            SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(context);
+            SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(getApplicationContext());
             sharedPreferences.edit()
                     .putBoolean("autoSyncInProgress", false)
                     .putString("lastSyncStatus", "error: " + e.getMessage())
@@ -273,7 +270,7 @@ public class AutoSyncWorker /* extends Worker */ {
             Log.d(TAG, "Performing manual data refresh");
             
             // Update the last sync time to indicate a sync attempt was made
-            // Context context = getApplicationContext();
+            Context context = getApplicationContext();
             SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(context);
             sharedPreferences.edit()
                     .putLong("lastAutoSyncTime", System.currentTimeMillis())
@@ -288,7 +285,7 @@ public class AutoSyncWorker /* extends Worker */ {
     }
 
     private void showSuccessNotification() {
-        // Context context = getApplicationContext();
+        Context context = getApplicationContext();
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Create notification channel for Android O and above
@@ -343,7 +340,7 @@ public class AutoSyncWorker /* extends Worker */ {
 
     private void scheduleInAppNotification() {
         // Set a flag for in-app notification
-        SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(context);
+        SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(getApplicationContext());
         sharedPreferences.edit()
                 .putBoolean("showAutoSyncPopup", true)
                 .putLong("autoSyncCompletedTime", System.currentTimeMillis())
