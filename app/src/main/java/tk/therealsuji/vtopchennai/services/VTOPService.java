@@ -843,16 +843,16 @@ public class VTOPService extends Service {
 
                 // Store available semesters for later use
                 StringBuilder availableSemesters = new StringBuilder();
-                
+
                 for (int i = 0; i < semesterArray.length(); ++i) {
                     JSONObject semesterObject = semesterArray.getJSONObject(i);
                     String semesterName = semesterObject.getString("name");
                     this.semesters.put(semesterName, semesterObject.getString("id"));
-                    
+
                     if (i > 0) availableSemesters.append(",");
                     availableSemesters.append(semesterName);
                 }
-                
+
                 // Save available semesters to SharedPreferences
                 this.sharedPreferences.edit().putString("availableSemesters", availableSemesters.toString()).apply();
 
