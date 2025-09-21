@@ -60,20 +60,20 @@ public class HomeFragment extends Fragment {
                 android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
                 android.content.res.Configuration.UI_MODE_NIGHT_YES;
     }
-    
+
     private void createFallbackBadge(View spotlightButton) {
         try {
             SharedPreferences sharedPreferences = requireContext().getSharedPreferences("StudentCC", Context.MODE_PRIVATE);
             boolean eventsViewed = sharedPreferences.getBoolean("has_viewed_events_announcement", false);
-            
+
             if (eventsViewed) {
                 // Don't show fallback badge if events have been viewed
                 return;
             }
-            
+
             // Remove any existing custom badges first
             removeCustomBadges(spotlightButton);
-            
+
             // Create a red badge as fallback
             android.widget.TextView fallbackBadge = new android.widget.TextView(requireContext());
             fallbackBadge.setText("Events");
@@ -81,26 +81,26 @@ public class HomeFragment extends Fragment {
             fallbackBadge.setTextSize(10);
             fallbackBadge.setPadding(8, 4, 8, 4);
             fallbackBadge.setTag("custom_events_badge"); // Tag for easy identification
-            
+
             // Create a rounded background programmatically
             android.graphics.drawable.GradientDrawable background = new android.graphics.drawable.GradientDrawable();
             background.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
             background.setCornerRadius(12);
             background.setColor(android.graphics.Color.RED);
             fallbackBadge.setBackground(background);
-            
+
             // Position the badge
             android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
                 android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
                 android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
             );
             params.gravity = android.view.Gravity.TOP | android.view.Gravity.END;
-            params.setMargins(0, (int) (4 * getResources().getDisplayMetrics().density), 
+            params.setMargins(0, (int) (4 * getResources().getDisplayMetrics().density),
                             (int) (4 * getResources().getDisplayMetrics().density), 0);
-            
+
             fallbackBadge.setLayoutParams(params);
             fallbackBadge.setGravity(android.view.Gravity.CENTER);
-            
+
             // Add to parent if it's a FrameLayout
             if (spotlightButton.getParent() instanceof android.widget.FrameLayout) {
                 ((android.widget.FrameLayout) spotlightButton.getParent()).addView(fallbackBadge);
@@ -393,11 +393,11 @@ public class HomeFragment extends Fragment {
                 sharedPreferences.edit().putBoolean("has_viewed_events_announcement", true).apply();
                 TextView eventsBadgeClick = homeFragment.findViewById(R.id.text_events_badge);
                 eventsBadgeClick.setVisibility(View.GONE); // Hide the text badge
-                
+
                 // Hide the spotlight badge and custom badges
                 spotlightBadge.setVisible(false);
                 removeCustomBadges(spotlightButton);
-                
+
                 // Track that user clicked on the events announcement
                 Bundle eventsBundle = new Bundle();
                 eventsBundle.putString("action", "events_badge_clicked");
@@ -443,7 +443,7 @@ public class HomeFragment extends Fragment {
         spotlightBadge.setBackgroundColor(android.graphics.Color.RED);
         spotlightBadge.setBadgeTextColor(android.graphics.Color.WHITE);
         spotlightBadge.setMaxCharacterCount(6); // Increased to fit "Events"
-        
+
         // Set initial state - will be updated by fragment result listener
         TextView eventsBadge = homeFragment.findViewById(R.id.text_events_badge);
         eventsBadge.setVisibility(View.GONE); // Hide the text badge

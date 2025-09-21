@@ -473,19 +473,19 @@ public class ProfileFragment extends Fragment {
 
     private void changeSemester() {
         SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(requireContext());
-        
+
         // Get available semesters from shared preferences (stored during last sync)
         String availableSemesters = sharedPreferences.getString("availableSemesters", "");
         String currentSemester = sharedPreferences.getString("semester", "");
-        
+
         if (availableSemesters.isEmpty()) {
             Toast.makeText(requireContext(), "No semesters available. Please sync data first.", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         String[] semesters = availableSemesters.split(",");
         final int[] checkedItem = {0};
-        
+
         // Find current semester index
         for (int i = 0; i < semesters.length; i++) {
             if (semesters[i].equals(currentSemester)) {
@@ -493,7 +493,7 @@ public class ProfileFragment extends Fragment {
                 break;
             }
         }
-        
+
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.change_semester)
                 .setSingleChoiceItems(semesters, checkedItem[0], (dialog, which) -> {
@@ -502,13 +502,13 @@ public class ProfileFragment extends Fragment {
                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                 .setPositiveButton(R.string.select, (dialog, which) -> {
                     String selectedSemester = semesters[checkedItem[0]];
-                    
+
                     // Save the selected semester
                     sharedPreferences.edit().putString("semester", selectedSemester).apply();
-                    
+
                     // Show confirmation and suggest sync
                     Toast.makeText(requireContext(), "Semester changed to: " + selectedSemester, Toast.LENGTH_SHORT).show();
-                    
+
                     new MaterialAlertDialogBuilder(requireContext())
                             .setTitle("Semester Changed")
                             .setMessage("Would you like to sync data for the new semester?")

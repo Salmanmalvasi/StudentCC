@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
 
                         performanceBadge.setNumber(performanceCount);
                         performanceBadge.setVisible(performanceCount != 0);
-                        
+
                         // Remove any existing badge from home tab
                         bottomNavigationView.removeBadge(R.id.item_home);
 
@@ -569,7 +569,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete() {
                     }
                 });
-        
+
 
     }
 
@@ -578,7 +578,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         // Update bottom navigation based on student type
         checkAndUpdateBottomNavigation();
-        
+
 
     }
 
