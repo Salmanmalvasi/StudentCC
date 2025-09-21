@@ -1494,7 +1494,7 @@ public class VTOPService extends Service {
                     attendanceItem.total = this.getIntegerValue(attendanceObject, "total");
 
                     if (attendanceItem.attended != null && attendanceItem.total != null && attendanceItem.total != 0) {
-                        attendanceItem.percentage = calculateAttendancePercentage(attendanceItem.attended, attendanceItem.total);
+                        attendanceItem.percentage = (int) ((attendanceItem.attended * 100.0) / attendanceItem.total);
                         attendedClasses += attendanceItem.attended;
                         totalClasses += attendanceItem.total;
                     }
@@ -1505,7 +1505,7 @@ public class VTOPService extends Service {
                 int overallAttendance = 0;
 
                 if (totalClasses != 0) {
-                    overallAttendance = calculateAttendancePercentage(attendedClasses, totalClasses);
+                    overallAttendance = (attendedClasses * 100) / totalClasses;
                 }
 
                 android.util.Log.d("VTOPService", "Attendance calculation - Attended: " + attendedClasses + ", Total: " + totalClasses + ", Overall: " + overallAttendance + "%");
@@ -2767,19 +2767,6 @@ public class VTOPService extends Service {
     }
 
     private enum PageState {LANDING, LOGIN, HOME}
-
-    /**
-     * Calculate attendance percentage with proper ceiling logic.
-     * 9.xx becomes 9 (floor behavior), not 10 (ceiling behavior).
-     * This matches the original StudentCC logic.
-     */
-    private int calculateAttendancePercentage(int attended, int total) {
-        if (total == 0) return 0;
-        
-        double percentage = (attended * 100.0) / total;
-        // Use floor instead of ceiling - 9.99 becomes 9, not 10
-        return (int) Math.floor(percentage);
-    }
 }
 
 /*
