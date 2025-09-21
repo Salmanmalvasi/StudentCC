@@ -55,6 +55,12 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
     private MaterialButton estimateCGPAButton;
     private TextView estimateResultText;
 
+    // CGPA Predictor UI elements
+    private TextInputEditText expectedGPAInput;
+    private TextInputEditText semesterCreditsPredictorInput;
+    private MaterialButton predictCGPAButton;
+    private TextView predictionResultText;
+
     private GPACourseAdapter courseAdapter;
     private List<GPACourse> courses;
 
@@ -100,6 +106,12 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         estimateCGPAButton = view.findViewById(R.id.estimate_cgpa_button);
         estimateResultText = view.findViewById(R.id.estimate_result_text);
 
+        // Initialize CGPA Predictor UI elements
+        expectedGPAInput = view.findViewById(R.id.expected_gpa_input);
+        semesterCreditsPredictorInput = view.findViewById(R.id.semester_credits_predictor_input);
+        predictCGPAButton = view.findViewById(R.id.predict_cgpa_button);
+        predictionResultText = view.findViewById(R.id.prediction_result_text);
+
         courses = new ArrayList<>();
     }
 
@@ -132,6 +144,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         clearAllButton.setOnClickListener(v -> clearAll());
         calculateCGPAButton.setOnClickListener(v -> calculateCGPA());
         estimateCGPAButton.setOnClickListener(v -> estimateRequiredGPA());
+        predictCGPAButton.setOnClickListener(v -> predictNewCGPA());
     }
 
     private void autoFillCurrentData() {
@@ -364,6 +377,70 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
             // Log to Firebase Analytics (commented out for now)
             // FirebaseHelper.getInstance().logEvent("cgpa_estimation", "target_cgpa", df.format(targetCGPA));
             // FirebaseHelper.getInstance().logEvent("cgpa_estimation", "required_gpa", df.format(requiredGPA));
+
+        } catch (NumberFormatException e) {
+            Toast.makeText(requireContext(), "Please enter valid numbers", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void predictNewCGPA() {
+        try {
+            String currentCGPAStr = currentCGPAInput.getText().toString().trim();
+            String currentCreditsStr = currentCreditsInput.getText().toString().trim();
+            String expectedGPAStr = expectedGPAInput.getText().toString().trim();
+            String semesterCreditsStr = semesterCreditsPredictorInput.getText().toString().trim();
+
+            if (TextUtils.isEmpty(currentCGPAStr) || TextUtils.isEmpty(currentCreditsStr) || 
+                TextUtils.isEmpty(expectedGPAStr) || TextUtils.isEmpty(semesterCreditsStr)) {
+                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            double currentCGPA = Double.parseDouble(currentCGPAStr);
+            double currentCredits = Double.parseDouble(currentCreditsStr);
+            double expectedGPA = Double.parseDouble(expectedGPAStr);
+            double semesterCredits = Double.parseDouble(semesterCreditsStr);
+
+            // Validate inputs
+            if (currentCGPA < 0 || currentCGPA > 10) {
+                Toast.makeText(requireContext(), "Current CGPA must be between 0 and 10", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (expectedGPA < 0 || expectedGPA > 10) {
+                Toast.makeText(requireContext(), "Expected GPA must be between 0 and 10", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (currentCredits <= 0 || semesterCredits <= 0) {
+                Toast.makeText(requireContext(), "Credits must be greater than 0", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Calculate new CGPA
+            // New CGPA = (Current CGPA × Current Credits + Expected GPA × Semester Credits) / (Current Credits + Semester Credits)
+            double totalPoints = (currentCGPA * currentCredits) + (expectedGPA * semesterCredits);
+            double totalCredits = currentCredits + semesterCredits;
+            double newCGPA = totalPoints / totalCredits;
+
+            DecimalFormat df = new DecimalFormat("#.##");
+            String result = "New CGPA: " + df.format(newCGPA) + "\n" +
+                          "Current CGPA: " + df.format(currentCGPA) + "\n" +
+                          "Expected GPA: " + df.format(expectedGPA) + "\n" +
+                          "New Total Credits: " + df.format(totalCredits);
+
+            // Add color coding based on improvement
+            String changeText;
+            if (newCGPA > currentCGPA) {
+                double improvement = newCGPA - currentCGPA;
+                changeText = "\n✅ Improvement: +" + df.format(improvement);
+            } else if (newCGPA < currentCGPA) {
+                double decrease = currentCGPA - newCGPA;
+                changeText = "\n⚠️ Decrease: -" + df.format(decrease);
+            } else {
+                changeText = "\n➡️ No change";
+            }
+
+            predictionResultText.setText(result + changeText);
+            predictionResultText.setVisibility(View.VISIBLE);
 
         } catch (NumberFormatException e) {
             Toast.makeText(requireContext(), "Please enter valid numbers", Toast.LENGTH_SHORT).show();
