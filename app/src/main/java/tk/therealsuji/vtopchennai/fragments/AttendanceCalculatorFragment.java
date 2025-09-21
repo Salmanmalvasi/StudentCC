@@ -68,10 +68,6 @@ public class AttendanceCalculatorFragment extends Fragment {
 
         inputStart.setOnClickListener(v -> showDatePicker(inputStart));
         inputEnd.setOnClickListener(v -> showDatePicker(inputEnd));
-        
-        // Set hint text to guide user
-        inputStart.setHint("Tap to select start date");
-        inputEnd.setHint("Tap to select end date");
 
         MaterialButton calculate = view.findViewById(R.id.button_calculate);
         calculate.setOnClickListener(v -> {
