@@ -299,7 +299,6 @@ public class AttendanceCalculatorFragment extends Fragment {
                                                 })
                                 );
                             }, err -> {
-                                android.util.Log.e("AttendanceCalc", "Error getting course data for " + courseCode, err);
                                 processedCourses[0]++;
                                 checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
                             })
@@ -327,12 +326,7 @@ public class AttendanceCalculatorFragment extends Fragment {
         sp.edit()
                 .putInt("totalClasses", newTotal)
                 .putInt("overallAttendance", newOverallAttendance)
-                .apply();
-
-        android.util.Log.d("AttendanceCalc", "Updated shared preferences - Total: " + currentTotal + " -> " + newTotal +
-                          ", Overall: " + sp.getInt("overallAttendance", 0) + "%");
-
-        // Force refresh the home page attendance display
+                .apply();        // Force refresh the home page attendance display
         refreshHomePageAttendance();
     }
 
