@@ -46,6 +46,7 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import tk.therealsuji.vtopchennai.BuildConfig;
 import tk.therealsuji.vtopchennai.R;
+import tk.therealsuji.vtopchennai.activities.LoginActivity;
 import tk.therealsuji.vtopchennai.fragments.HomeFragment;
 import tk.therealsuji.vtopchennai.helpers.HostelDataHelper;
 import tk.therealsuji.vtopchennai.helpers.FirebaseAnalyticsHelper;
@@ -321,8 +322,51 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Check if the app has been updated and automatically log out the user if so.
+     * This ensures users must re-authenticate after app updates for security.
+     */
+    private void checkForAppUpdateAndLogout() {
+        // Use a dedicated preferences file for version tracking that is NOT cleared on logout
+        SharedPreferences versionPrefs = getSharedPreferences("app_version_prefs", MODE_PRIVATE);
+        int currentVersionCode = BuildConfig.VERSION_CODE;
+        int lastVersionCode = versionPrefs.getInt("lastVersionCode", 0);
+
+        // Check if user has credentials (is logged in)
+        SharedPreferences encryptedPrefs = SettingsRepository.getEncryptedSharedPreferences(this);
+        boolean hasCredentials = false;
+        
+        if (encryptedPrefs != null) {
+            String username = encryptedPrefs.getString("username", "");
+            hasCredentials = username != null && username.length() > 0;
+        }
+
+        // If this is NOT the first run AND version has changed AND user is logged in
+        if (lastVersionCode != 0 && lastVersionCode != currentVersionCode && hasCredentials) {
+            // Show toast to inform user about the security logout
+            Toast.makeText(this, "App updated - please log in again for security", Toast.LENGTH_SHORT).show();
+            
+            // Force complete logout for security
+            SettingsRepository.signOut(this);
+            
+            // Redirect to login activity
+            Intent loginIntent = new Intent(this, LoginActivity.class);
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(loginIntent);
+            finish();
+            return;
+        }
+
+        // Store current version code for next launch
+        versionPrefs.edit().putInt("lastVersionCode", currentVersionCode).apply();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // FIRST PRIORITY: Check for app update and auto-logout if version changed
+        // This must happen before anything else to ensure security
+        checkForAppUpdateAndLogout();
+        
         boolean amoledMode = SettingsRepository.getSharedPreferences(this).getBoolean("amoledMode", false);
         // Disable dynamic colors (use custom theme)
         applySelectedTheme();
