@@ -390,7 +390,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
             String expectedGPAStr = expectedGPAInput.getText().toString().trim();
             String semesterCreditsStr = semesterCreditsPredictorInput.getText().toString().trim();
 
-            if (TextUtils.isEmpty(currentCGPAStr) || TextUtils.isEmpty(currentCreditsStr) || 
+            if (TextUtils.isEmpty(currentCGPAStr) || TextUtils.isEmpty(currentCreditsStr) ||
                 TextUtils.isEmpty(expectedGPAStr) || TextUtils.isEmpty(semesterCreditsStr)) {
                 Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
                 return;

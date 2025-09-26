@@ -335,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
         // Check if user has credentials (is logged in)
         SharedPreferences encryptedPrefs = SettingsRepository.getEncryptedSharedPreferences(this);
         boolean hasCredentials = false;
-        
+
         if (encryptedPrefs != null) {
             String username = encryptedPrefs.getString("username", "");
             hasCredentials = username != null && username.length() > 0;
@@ -345,10 +345,10 @@ public class MainActivity extends AppCompatActivity {
         if (lastVersionCode != 0 && lastVersionCode != currentVersionCode && hasCredentials) {
             // Show toast to inform user about the security logout
             Toast.makeText(this, "App updated - please log in again for security", Toast.LENGTH_SHORT).show();
-            
+
             // Force complete logout for security
             SettingsRepository.signOut(this);
-            
+
             // Redirect to login activity
             Intent loginIntent = new Intent(this, LoginActivity.class);
             loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -366,7 +366,7 @@ public class MainActivity extends AppCompatActivity {
         // FIRST PRIORITY: Check for app update and auto-logout if version changed
         // This must happen before anything else to ensure security
         checkForAppUpdateAndLogout();
-        
+
         boolean amoledMode = SettingsRepository.getSharedPreferences(this).getBoolean("amoledMode", false);
         // Disable dynamic colors (use custom theme)
         applySelectedTheme();

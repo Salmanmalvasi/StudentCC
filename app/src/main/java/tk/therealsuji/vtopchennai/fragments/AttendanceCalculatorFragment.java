@@ -73,7 +73,7 @@ public class AttendanceCalculatorFragment extends Fragment {
         calculate.setOnClickListener(v -> {
             try {
                 android.util.Log.d("AttendanceCalc", "Calculate button clicked. Start: " + startDateUtc + ", End: " + endDateUtc);
-                
+
                 if (startDateUtc == null || endDateUtc == null) {
                     String missingDate = startDateUtc == null ? (endDateUtc == null ? "both start and end dates" : "start date") : "end date";
                     Toast.makeText(requireContext(), "Please pick " + missingDate, Toast.LENGTH_SHORT).show();
@@ -87,7 +87,7 @@ public class AttendanceCalculatorFragment extends Fragment {
                 // Calculate the date range for user feedback
                 long daysDiff = (endDateUtc - startDateUtc) / (1000 * 60 * 60 * 24) + 1;
                 android.util.Log.d("AttendanceCalc", "Calculating for " + daysDiff + " days");
-                
+
                 if (daysDiff > 365) {
                     Toast.makeText(requireContext(), "Date range too large (max 365 days)", Toast.LENGTH_SHORT).show();
                     return;
@@ -360,7 +360,7 @@ public class AttendanceCalculatorFragment extends Fragment {
             calendar.setTimeInMillis(selection);
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
             editText.setText(sdf.format(calendar.getTime()));
-            
+
             // Update the internal date variables based on which EditText was clicked
             long normalizedTime = normalizeToMidnight(selection);
             if (editText == inputStart) {
