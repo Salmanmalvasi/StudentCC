@@ -1,0 +1,106 @@
+package tk.therealsuji.vtopchennai.ui.attendance;
+
+import android.graphics.Color;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import tk.therealsuji.vtopchennai.R;
+import tk.therealsuji.vtopchennai.models.AttendanceRecord;
+
+public class DetailedAttendanceAdapter extends RecyclerView.Adapter<DetailedAttendanceAdapter.ViewHolder> {
+    private List<AttendanceRecord> attendanceRecords = new ArrayList<>();
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
+    public void submitList(List<AttendanceRecord> records) {
+        this.attendanceRecords = records != null ? records : new ArrayList<>();
+        notifyDataSetChanged();
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_detailed_attendance, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        AttendanceRecord record = attendanceRecords.get(position);
+
+        // Set date with course info
+        String dateText = "";
+        if (record.date != null) {
+            dateText = dateFormat.format(new Date(record.date));
+        } else if (record.dateString != null) {
+            dateText = record.dateString;
+        } else {
+            dateText = "Unknown Date";
+        }
+        
+        // Add course ID to help identify which course this is for
+        if (record.courseId != null) {
+            dateText += " (Course " + record.courseId + ")";
+        }
+        holder.textDate.setText(dateText);
+
+        // Set session
+        holder.textSession.setText(record.session != null ? record.session : "Class");
+
+        // Set status with color coding
+        holder.textStatus.setText(record.status);
+        switch (record.status.toLowerCase()) {
+            case "present":
+                holder.textStatus.setTextColor(Color.parseColor("#4CAF50")); // Green
+                break;
+            case "absent":
+                holder.textStatus.setTextColor(Color.parseColor("#F44336")); // Red
+                break;
+            case "od":
+                holder.textStatus.setTextColor(Color.parseColor("#FF9800")); // Orange
+                break;
+            default:
+                holder.textStatus.setTextColor(Color.parseColor("#757575")); // Gray
+                break;
+        }
+
+        // Set remarks
+        if (record.remarks != null && !record.remarks.isEmpty()) {
+            holder.textRemarks.setText(record.remarks);
+            holder.textRemarks.setVisibility(View.VISIBLE);
+        } else {
+            holder.textRemarks.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return attendanceRecords.size();
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView textDate;
+        TextView textSession;
+        TextView textStatus;
+        TextView textRemarks;
+
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            textDate = itemView.findViewById(R.id.text_date);
+            textSession = itemView.findViewById(R.id.text_session);
+            textStatus = itemView.findViewById(R.id.text_status);
+            textRemarks = itemView.findViewById(R.id.text_remarks);
+        }
+    }
+}

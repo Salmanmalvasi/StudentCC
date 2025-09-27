@@ -58,6 +58,10 @@
             android:name=".activities.ThemeSelectorActivity"
             android:theme="@style/Theme.VTOP"
             android:exported="false" />
+        <activity
+            android:name=".ui.attendance.DetailedAttendanceActivity"
+            android:theme="@style/Theme.VTOP"
+            android:exported="false" />
 
         <service
             android:name=".services.VTOPService"

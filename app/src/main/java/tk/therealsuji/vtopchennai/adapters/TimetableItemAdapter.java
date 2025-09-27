@@ -3,11 +3,13 @@ package tk.therealsuji.vtopchennai.adapters;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -349,6 +351,16 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                                     }
                                 }
                             }
+
+                            // Set up detailed attendance button
+                            Button btnDetailedAttendance = bottomSheetLayout.findViewById(R.id.btn_detailed_attendance);
+                            btnDetailedAttendance.setOnClickListener(v -> {
+                                Intent intent = new Intent(context, tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.class);
+                                intent.putExtra(tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.EXTRA_COURSE_CODE, course.courseCode);
+                                intent.putExtra(tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.EXTRA_COURSE_TITLE, course.courseTitle);
+                                context.startActivity(intent);
+                                bottomSheetDialog.dismiss();
+                            });
 
                             bottomSheetLayout.findViewById(R.id.progress_bar_loading).setVisibility(View.GONE);
                             bottomSheetLayout.findViewById(R.id.linear_layout_container).setVisibility(View.VISIBLE);

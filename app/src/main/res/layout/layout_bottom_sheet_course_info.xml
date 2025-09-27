@@ -130,5 +130,16 @@
                     android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
+
+        <!-- Detailed Attendance Button -->
+        <Button
+            android:id="@+id/btn_detailed_attendance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="View Detailed Attendance"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:textColor="?attr/colorPrimary" />
+
     </LinearLayout>
 </RelativeLayout>

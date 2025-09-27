@@ -63,6 +63,7 @@ import tk.therealsuji.vtopchennai.helpers.AppDatabase;
 import tk.therealsuji.vtopchennai.helpers.NotificationHelper;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 import tk.therealsuji.vtopchennai.interfaces.AttendanceDao;
+import tk.therealsuji.vtopchennai.interfaces.AttendanceRecordDao;
 import tk.therealsuji.vtopchennai.interfaces.CoursesDao;
 import tk.therealsuji.vtopchennai.interfaces.ExamsDao;
 import tk.therealsuji.vtopchennai.interfaces.MarksDao;
@@ -70,6 +71,7 @@ import tk.therealsuji.vtopchennai.interfaces.ReceiptsDao;
 import tk.therealsuji.vtopchennai.interfaces.StaffDao;
 import tk.therealsuji.vtopchennai.interfaces.TimetableDao;
 import tk.therealsuji.vtopchennai.models.Attendance;
+import tk.therealsuji.vtopchennai.models.AttendanceRecord;
 import tk.therealsuji.vtopchennai.models.Course;
 import tk.therealsuji.vtopchennai.models.CumulativeMark;
 import tk.therealsuji.vtopchennai.models.Exam;
@@ -1540,11 +1542,236 @@ public class VTOPService extends Service {
 
                             @Override
                             public void onComplete() {
-                                downloadMarks();
+                                downloadDetailedAttendance();
                             }
                         });
             } catch (Exception e) {
                 error(601, e.getLocalizedMessage());
+            }
+        });
+    }
+
+    /**
+     * Function to download detailed attendance records for each course.
+     * Based on UniCC's implementation approach.
+     */
+    private void downloadDetailedAttendance() {
+        updateProgress(R.string.downloading_attendance);
+
+        // First, get all the attendance data with view links
+        webView.evaluateJavascript("(function() {" +
+                "var data = '_csrf=' + $('input[name=\"_csrf\"]').val() + '&semesterSubId=' + '" + semesterID + "' + '&authorizedID=' + $('#authorizedIDX').val();" +
+                "var response = {" +
+                "    courses: []" +
+                "};" +
+                "$.ajax({" +
+                "    type : 'POST'," +
+                "    url : 'processViewStudentAttendance'," +
+                "    data : data," +
+                "    async: false," +
+                "    success : function(res) {" +
+                "        var doc = new DOMParser().parseFromString(res, 'text/html');" +
+                "        var table = doc.getElementById('getStudentDetails');" +
+                "        if (!table) return;" +
+                "        var rows = table.getElementsByTagName('tr');" +
+                "        for (var i = 1; i < rows.length; i++) {" +
+                "            var cells = rows[i].getElementsByTagName('td');" +
+                "            if (cells.length < 14) continue;" +
+                "            var courseCode = cells[1].innerText.trim();" +
+                "            var courseTitle = cells[2].innerText.trim();" +
+                "            var courseType = cells[3].innerText.trim();" +
+                "            var slot = cells[4].innerText.trim().split('+')[0].trim();" +
+                "            var viewLink = cells[13].getElementsByTagName('a')[0];" +
+                "            if (viewLink && viewLink.getAttribute('onclick')) {" +
+                "                var onclick = viewLink.getAttribute('onclick');" +
+                "                var match = onclick.match(/processViewAttendanceDetail\\('([^']+)','([^']+)'\\)/);" +
+                "                if (match) {" +
+                "                    response.courses.push({" +
+                "                        courseCode: courseCode," +
+                "                        courseTitle: courseTitle," +
+                "                        courseType: courseType," +
+                "                        slot: slot," +
+                "                        classId: match[1]," +
+                "                        slotName: match[2]" +
+                "                    });" +
+                "                }" +
+                "            }" +
+                "        }" +
+                "    }" +
+                "});" +
+                "return response;" +
+                "})();", responseString -> {
+            try {
+                JSONObject response = new JSONObject(responseString);
+                JSONArray coursesArray = response.getJSONArray("courses");
+
+                if (coursesArray.length() == 0) {
+                    // No detailed attendance data available, proceed to marks
+                    downloadMarks();
+                    return;
+                }
+
+                // Process each course's detailed attendance
+                processDetailedAttendanceForCourses(coursesArray, 0);
+
+            } catch (Exception e) {
+                android.util.Log.e("VTOPService", "Error processing detailed attendance courses", e);
+                downloadMarks(); // Continue with marks download on error
+            }
+        });
+    }
+
+    /**
+     * Recursively process detailed attendance for each course
+     */
+    private void processDetailedAttendanceForCourses(JSONArray coursesArray, int index) {
+        if (index >= coursesArray.length()) {
+            // All courses processed, proceed to marks download
+            downloadMarks();
+            return;
+        }
+
+        try {
+            JSONObject courseInfo = coursesArray.getJSONObject(index);
+            String classId = courseInfo.getString("classId");
+            String slotName = courseInfo.getString("slotName");
+            String slot = courseInfo.getString("slot");
+            String courseType = courseInfo.getString("courseType");
+
+            // Get course ID
+            int courseTypeInt = Course.TYPE_THEORY;
+            if (courseType.toLowerCase().contains("lab")) {
+                courseTypeInt = Course.TYPE_LAB;
+            }
+            Integer courseId = getCourseId(slot, courseTypeInt);
+
+            if (courseId == null) {
+                // Skip this course if we can't find the courseId
+                processDetailedAttendanceForCourses(coursesArray, index + 1);
+                return;
+            }
+
+            // Fetch detailed attendance for this course
+            fetchDetailedAttendanceForCourse(classId, slotName, courseId, () -> {
+                // Continue with next course
+                processDetailedAttendanceForCourses(coursesArray, index + 1);
+            });
+
+        } catch (Exception e) {
+            android.util.Log.e("VTOPService", "Error processing course at index " + index, e);
+            // Continue with next course on error
+            processDetailedAttendanceForCourses(coursesArray, index + 1);
+        }
+    }
+
+    /**
+     * Fetch detailed attendance for a specific course
+     */
+    private void fetchDetailedAttendanceForCourse(String classId, String slotName, Integer courseId, Runnable onComplete) {
+        webView.evaluateJavascript("(function() {" +
+                "var data = '_csrf=' + $('input[name=\"_csrf\"]').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&classId=' + '" + classId + "' + '&slotName=' + '" + slotName + "';" +
+                "var response = {" +
+                "    records: []" +
+                "};" +
+                "$.ajax({" +
+                "    type : 'POST'," +
+                "    url : 'processViewAttendanceDetail'," +
+                "    data : data," +
+                "    async: false," +
+                "    success : function(res) {" +
+                "        var doc = new DOMParser().parseFromString(res, 'text/html');" +
+                "        var tables = doc.getElementsByTagName('table');" +
+                "        for (var t = 0; t < tables.length; t++) {" +
+                "            var table = tables[t];" +
+                "            if (table.className && table.className.includes('table')) {" +
+                "                var rows = table.getElementsByTagName('tr');" +
+                "                for (var i = 1; i < rows.length; i++) {" +
+                "                    var cells = rows[i].getElementsByTagName('td');" +
+                "                    if (cells.length >= 5) {" +
+                "                        var dateStr = cells[1].innerText.trim();" +
+                "                        var status = cells[4].innerText.trim();" +
+                "                        if (dateStr && status && dateStr !== 'Date') {" +
+                "                            response.records.push({" +
+                "                                date: dateStr," +
+                "                                status: status" +
+                "                            });" +
+                "                        }" +
+                "                    }" +
+                "                }" +
+                "                break;" +
+                "            }" +
+                "        }" +
+                "    }" +
+                "});" +
+                "return response;" +
+                "})();", responseString -> {
+            try {
+                JSONObject response = new JSONObject(responseString);
+                JSONArray recordsArray = response.getJSONArray("records");
+                List<AttendanceRecord> attendanceRecords = new ArrayList<>();
+
+                for (int i = 0; i < recordsArray.length(); i++) {
+                    JSONObject recordObj = recordsArray.getJSONObject(i);
+
+                    AttendanceRecord record = new AttendanceRecord();
+                    record.courseId = courseId;
+                    record.dateString = recordObj.getString("date");
+                    record.status = recordObj.getString("status");
+
+                    // Try to parse date
+                    try {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+                        Date parsedDate = dateFormat.parse(record.dateString);
+                        if (parsedDate != null) {
+                            record.date = parsedDate.getTime();
+                        }
+                    } catch (Exception dateE) {
+                        // If date parsing fails, use current time as fallback
+                        record.date = System.currentTimeMillis();
+                    }
+
+                    // Set session info (could be enhanced later)
+                    record.session = "Class";
+
+                    attendanceRecords.add(record);
+                }
+
+                if (!attendanceRecords.isEmpty()) {
+                    // Save detailed attendance records to database
+                    AttendanceRecordDao attendanceRecordDao = appDatabase.attendanceRecordDao();
+                    Observable<Object> clearObservable = Observable.fromCompletable(attendanceRecordDao.clearByCourse(courseId));
+                    Observable<Object> insertObservable = Observable.fromCompletable(attendanceRecordDao.insertAll(attendanceRecords));
+
+                    Observable
+                            .concat(clearObservable, insertObservable)
+                            .subscribeOn(Schedulers.single())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Observer<Object>() {
+                                @Override
+                                public void onSubscribe(@NonNull Disposable d) {}
+
+                                @Override
+                                public void onNext(@NonNull Object o) {}
+
+                                @Override
+                                public void onError(@NonNull Throwable e) {
+                                    android.util.Log.e("VTOPService", "Error saving detailed attendance", e);
+                                    onComplete.run(); // Continue even on error
+                                }
+
+                                @Override
+                                public void onComplete() {
+                                    android.util.Log.d("VTOPService", "Saved " + attendanceRecords.size() + " detailed attendance records for course " + courseId);
+                                    onComplete.run();
+                                }
+                            });
+                } else {
+                    onComplete.run();
+                }
+
+            } catch (Exception e) {
+                android.util.Log.e("VTOPService", "Error processing detailed attendance response", e);
+                onComplete.run(); // Continue even on error
             }
         });
     }
