@@ -212,7 +212,6 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                 } else {
                     courseName.setText("Unknown Course");
                     courseName.setVisibility(View.VISIBLE);
-                    android.util.Log.d("TimetableAdapter", "❌ No course data available, using fallback text");
                 }
             }
 

@@ -190,7 +190,7 @@
 
                 </LinearLayout>
 
-                <!-- Today's Classes Card -->
+                <!-- OD Remaining Card -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -205,19 +205,19 @@
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:src="@drawable/ic_clock"
-                        android:contentDescription="Today's classes"
+                        android:src="@drawable/ic_notifications"
+                        android:contentDescription="OD remaining"
                         app:tint="?attr/colorPrimary" />
 
                     <TextView
-                        android:id="@+id/todays_classes_count"
+                        android:id="@+id/od_remaining_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:textSize="18sp"
                         android:textColor="?attr/attendance_subtext_color"
                         android:textStyle="bold"
-                        android:text="4" />
+                        android:text="45/48" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -226,7 +226,7 @@
                         android:textColor="?attr/attendance_subtext_color"
                         android:textStyle="bold"
                         android:gravity="center"
-                        android:text="Today's\nClasses" />
+                        android:text="OD\nRemaining" />
 
                 </LinearLayout>
 

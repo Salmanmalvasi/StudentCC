@@ -1626,8 +1626,13 @@ public class VTOPService extends Service {
      */
     private void processDetailedAttendanceForCourses(JSONArray coursesArray, int index) {
         if (index >= coursesArray.length()) {
-            // All courses processed, proceed to marks download
-            downloadMarks();
+            // All courses processed, now add fallback OD estimates for missing courses
+            addFallbackODEstimatesForMissingCourses(() -> {
+                // Then broadcast final OD count update
+                broadcastODCountUpdate();
+                // Proceed to marks download
+                downloadMarks();
+            });
             return;
         }
 
@@ -1662,6 +1667,107 @@ public class VTOPService extends Service {
             // Continue with next course on error
             processDetailedAttendanceForCourses(coursesArray, index + 1);
         }
+    }
+
+    /**
+     * Broadcast OD count update after processing detailed attendance
+     */
+    private void broadcastODCountUpdate() {
+        AppDatabase appDatabase = AppDatabase.getInstance(this);
+        appDatabase.attendanceRecordDao().getAll()
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(attendanceRecords -> {
+                    int odUsed = 0;
+
+                    for (AttendanceRecord record : attendanceRecords) {
+                        if (record.status != null) {
+                            String status = record.status.trim().toLowerCase();
+
+                            // Check for various OD patterns
+                            if (status.equals("od") ||
+                                status.equals("on duty") ||
+                                status.contains("od") ||
+                                status.contains("on duty") ||
+                                status.contains("duty")) {
+                                odUsed++;
+                            }
+                        }
+                    }
+
+                    Intent intent = new Intent("OD_COUNT_UPDATED");
+                    intent.putExtra("odUsed", odUsed);
+                    sendBroadcast(intent);
+                }, throwable -> {
+                    android.util.Log.e("VTOPService", "Error calculating OD count for broadcast", throwable);
+                });
+    }
+
+    /**
+     * Add fallback OD estimates for courses that don't have detailed attendance links
+     */
+    private void addFallbackODEstimatesForMissingCourses(Runnable onComplete) {
+        // Get current detailed attendance records count
+        AppDatabase appDatabase = AppDatabase.getInstance(this);
+        appDatabase.attendanceRecordDao().getAll()
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(currentRecords -> {
+                    // Get total classes from main attendance
+                    android.content.SharedPreferences sharedPreferences = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
+                    int totalClassesFromMain = sharedPreferences.getInt("totalClasses", 0);
+                    int attendedClassesFromMain = sharedPreferences.getInt("attendedClasses", 0);
+
+                    int currentDetailedRecords = currentRecords.size();
+                    int missingRecords = totalClassesFromMain - currentDetailedRecords;
+
+                    if (missingRecords > 0) {
+                        // For missing records, we can estimate that some might be OD
+                        // Based on the pattern from detailed records, estimate OD percentage
+                        int currentODCount = 0;
+                        for (AttendanceRecord record : currentRecords) {
+                            if (record.status != null && record.status.trim().toLowerCase().equals("on duty")) {
+                                currentODCount++;
+                            }
+                        }
+
+                        double odPercentageInDetailed = currentDetailedRecords > 0 ? (double) currentODCount / currentDetailedRecords : 0.1; // fallback 10%
+                        int estimatedAdditionalOD = (int) Math.round(missingRecords * odPercentageInDetailed);
+
+                        // Create dummy OD records for the estimated count
+                        if (estimatedAdditionalOD > 0) {
+                            List<AttendanceRecord> estimatedODRecords = new ArrayList<>();
+                            for (int i = 0; i < estimatedAdditionalOD; i++) {
+                                AttendanceRecord odRecord = new AttendanceRecord();
+                                odRecord.courseId = -1; // Special ID for estimated records
+                                odRecord.status = "On Duty";
+                                odRecord.session = "Estimated";
+                                odRecord.dateString = "Estimated-" + (i + 1);
+                                odRecord.date = System.currentTimeMillis();
+                                odRecord.remarks = "Estimated OD from course without detailed attendance";
+                                estimatedODRecords.add(odRecord);
+                            }
+
+                            // Insert estimated records
+                            appDatabase.attendanceRecordDao().insertAll(estimatedODRecords)
+                                    .subscribeOn(Schedulers.single())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(() -> {
+                                        onComplete.run();
+                                    }, error -> {
+                                        android.util.Log.e("VTOPService", "Error adding estimated OD records", error);
+                                        onComplete.run();
+                                    });
+                        } else {
+                            onComplete.run();
+                        }
+                    } else {
+                        onComplete.run();
+                    }
+                }, error -> {
+                    android.util.Log.e("VTOPService", "Error checking missing courses", error);
+                    onComplete.run();
+                });
     }
 
     /**

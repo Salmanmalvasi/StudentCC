@@ -28,6 +28,11 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import tk.therealsuji.vtopchennai.helpers.AppDatabase;
+import tk.therealsuji.vtopchennai.models.AttendanceRecord;
+
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -39,6 +44,7 @@ import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.adapters.TimetableAdapter;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 import tk.therealsuji.vtopchennai.helpers.AppDatabase;
+import tk.therealsuji.vtopchennai.models.AttendanceRecord;
 import tk.therealsuji.vtopchennai.widgets.AttendanceInfoCard;
 import tk.therealsuji.vtopchennai.widgets.CircularProgressDrawable;
 import android.widget.ProgressBar;
@@ -152,33 +158,85 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private BroadcastReceiver classCountReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver odCountReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if ("CLASS_COUNT_UPDATED".equals(intent.getAction())) {
-                int newCount = intent.getIntExtra("newCount", 0);
-                TextView todaysClassesCount = getView().findViewById(R.id.todays_classes_count);
-                if (todaysClassesCount != null) {
-                    if (newCount == 0) {
-                        todaysClassesCount.setText("0");
+            if ("OD_COUNT_UPDATED".equals(intent.getAction())) {
+                int odUsed = intent.getIntExtra("odUsed", 0);
+                android.util.Log.d("HomeFragment", "Received OD count broadcast: " + odUsed + " used");
+                TextView odRemainingCount = getView().findViewById(R.id.od_remaining_count);
+                if (odRemainingCount != null) {
+                    int odRemaining = 48 - odUsed;
+                    android.util.Log.d("HomeFragment", "Updating OD display: " + odRemaining + "/48");
+                    odRemainingCount.setText(odRemaining + "/48");
+
+                    // Update text color based on remaining OD classes
+                    if (odRemaining <= 5) {
+                        odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorError, ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark)));
+                    } else if (odRemaining <= 15) {
+                        odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorSecondary, ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)));
                     } else {
-                        todaysClassesCount.setText(String.valueOf(newCount));
+                        odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)));
                     }
                 }
             }
         }
     };
 
+    private void refreshODCount() {
+        AppDatabase appDatabase = AppDatabase.getInstance(requireContext());
+        appDatabase.attendanceRecordDao().getAll()
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(attendanceRecords -> {
+                    int odUsed = 0;
+
+                    for (AttendanceRecord record : attendanceRecords) {
+                        if (record.status != null) {
+                            String status = record.status.trim().toLowerCase();
+
+                            if (status.equals("od") ||
+                                status.equals("on duty") ||
+                                status.contains("od") ||
+                                status.contains("on duty") ||
+                                status.contains("duty")) {
+                                odUsed++;
+                            }
+                        }
+                    }
+
+                    TextView odRemainingCount = getView().findViewById(R.id.od_remaining_count);
+                    if (odRemainingCount != null) {
+                        int odRemaining = 48 - odUsed;
+                        odRemainingCount.setText(odRemaining + "/48");
+
+                        // Update text color based on remaining OD classes
+                        if (odRemaining <= 5) {
+                            odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorError, ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark)));
+                        } else if (odRemaining <= 15) {
+                            odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorSecondary, ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)));
+                        } else {
+                            odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)));
+                        }
+                    }
+                }, throwable -> {
+                    android.util.Log.e("HomeFragment", "Error in manual OD count update", throwable);
+                });
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         // Register broadcast receiver
-        IntentFilter filter = new IntentFilter("CLASS_COUNT_UPDATED");
+        IntentFilter filter = new IntentFilter("OD_COUNT_UPDATED");
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            requireContext().registerReceiver(classCountReceiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED);
+            requireContext().registerReceiver(odCountReceiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED);
         } else {
-            requireContext().registerReceiver(classCountReceiver, filter);
+            requireContext().registerReceiver(odCountReceiver, filter);
         }
+
+        // Manually refresh OD count when fragment resumes
+        refreshODCount();
     }
 
     @Override
@@ -186,7 +244,7 @@ public class HomeFragment extends Fragment {
         super.onPause();
         // Unregister broadcast receiver
         try {
-            requireContext().unregisterReceiver(classCountReceiver);
+            requireContext().unregisterReceiver(odCountReceiver);
         } catch (Exception e) {
             // Receiver might not be registered
         }
@@ -282,8 +340,8 @@ public class HomeFragment extends Fragment {
         CircularProgressDrawable attendanceProgress = homeFragment.findViewById(R.id.attendance_progress);
         TextView attendancePercentage = homeFragment.findViewById(R.id.attendance_percentage);
 
-        // Today's Classes Card
-        TextView todaysClassesCount = homeFragment.findViewById(R.id.todays_classes_count);
+        // OD Remaining Card
+        TextView odRemainingCount = homeFragment.findViewById(R.id.od_remaining_count);
 
         int overallAttendance = sharedPreferences.getInt("overallAttendance", 0);
 
@@ -353,32 +411,35 @@ public class HomeFragment extends Fragment {
             mFirebaseAnalytics.logEvent("toggle_attendance_display", bundle);
         });
 
-        // Calculate today's classes count
-        Calendar today = Calendar.getInstance();
-        int dayOfWeek = today.get(Calendar.DAY_OF_WEEK);
-        // Convert to 0-based index (Sunday = 0, Monday = 1, etc.) for the DAO
-        int dayIndex = dayOfWeek - 1;
+        // Calculate OD remaining count
+        AppDatabase appDatabase = AppDatabase.getInstance(this.requireContext());
+        appDatabase.attendanceRecordDao().getAll()
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(attendanceRecords -> {
+                    // Count OD classes from detailed attendance records
+                    int odUsed = 0;
+                    for (AttendanceRecord record : attendanceRecords) {
+                        if (record.status != null && record.status.toLowerCase().contains("od")) {
+                            odUsed++;
+                        }
+                    }
+                    int odRemaining = 48 - odUsed;
+                    odRemainingCount.setText(odRemaining + "/48");
 
-        // Check if today is marked as holiday
-        boolean isTodayHoliday = sharedPreferences.getBoolean("holiday_" + dayIndex, false);
-
-        if (isTodayHoliday) {
-            // Show "Holiday" instead of class count
-            todaysClassesCount.setText("Holiday");
-        } else {
-            // Get today's classes count from database
-            AppDatabase appDatabase = AppDatabase.getInstance(this.requireContext());
-            appDatabase.timetableDao().get(dayIndex)
-                    .subscribeOn(Schedulers.single())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(timetables -> {
-                        int classCount = timetables.size();
-                        todaysClassesCount.setText(String.valueOf(classCount));
-                    }, throwable -> {
-                        // Fallback to 0 if error
-                        todaysClassesCount.setText("0");
-                    });
-        }
+                    // Set text color based on remaining OD classes
+                    if (odRemaining <= 5) {
+                        odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorError, ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark)));
+                    } else if (odRemaining <= 15) {
+                        odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorSecondary, ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)));
+                    } else {
+                        odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)));
+                    }
+                }, throwable -> {
+                    // Fallback - assume no OD used if no detailed data available
+                    odRemainingCount.setText("48/48");
+                    android.util.Log.e("HomeFragment", "Error calculating OD remaining", throwable);
+                });
 
         // Spotlight Button
         View spotlightButton = homeFragment.findViewById(R.id.image_button_spotlight);

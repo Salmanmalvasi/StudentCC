@@ -48,10 +48,12 @@ public class DetailedAttendanceAdapter extends RecyclerView.Adapter<DetailedAtte
         } else {
             dateText = "Unknown Date";
         }
-        
-        // Add course ID to help identify which course this is for
-        if (record.courseId != null) {
-            dateText += " (Course " + record.courseId + ")";
+
+        // Add day of the week to help identify when the class was
+        if (record.date != null) {
+            SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
+            String dayOfWeek = dayFormat.format(new Date(record.date));
+            dateText += " (" + dayOfWeek + ")";
         }
         holder.textDate.setText(dateText);
 
