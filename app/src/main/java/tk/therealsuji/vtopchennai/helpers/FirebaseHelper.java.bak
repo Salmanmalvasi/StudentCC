@@ -1,0 +1,287 @@
+package tk.therealsuji.vtopchennai.helpers;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
+
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
+/**
+ * Firebase Helper class to manage Firebase services
+ * Created by Salman Malvasi
+ */
+public class FirebaseHelper {
+    private static final String TAG = "FirebaseHelper";
+
+    private static FirebaseHelper instance;
+    private FirebaseAnalytics firebaseAnalytics;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseFirestore firestore;
+    private FirebaseStorage storage;
+    private FirebaseMessaging messaging;
+    private FirebaseRemoteConfig remoteConfig;
+    private FirebaseCrashlytics crashlytics;
+
+    private FirebaseHelper() {
+        // Private constructor for singleton
+    }
+
+    public static FirebaseHelper getInstance() {
+        if (instance == null) {
+            instance = new FirebaseHelper();
+        }
+        return instance;
+    }
+
+    /**
+     * Initialize Firebase services
+     */
+    public void initializeFirebase(Context context) {
+        try {
+            // Initialize Firebase Analytics
+            firebaseAnalytics = FirebaseAnalytics.getInstance(context);
+
+            // Initialize Firebase Auth
+            firebaseAuth = FirebaseAuth.getInstance();
+
+            // Initialize Firestore
+            firestore = FirebaseFirestore.getInstance();
+
+            // Initialize Firebase Storage
+            storage = FirebaseStorage.getInstance();
+
+            // Initialize Firebase Messaging
+            messaging = FirebaseMessaging.getInstance();
+
+            // Initialize Firebase Remote Config
+            remoteConfig = FirebaseRemoteConfig.getInstance();
+            FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                    .setMinimumFetchIntervalInSeconds(3600) // 1 hour
+                    .build();
+            remoteConfig.setConfigSettingsAsync(configSettings);
+
+            // Initialize Firebase Crashlytics
+            crashlytics = FirebaseCrashlytics.getInstance();
+
+            // Get FCM token for this device
+            initializeFCMToken(context);
+
+            Log.d(TAG, "Firebase services initialized successfully");
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing Firebase: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Initialize FCM token and save it
+     */
+    private void initializeFCMToken(Context context) {
+        messaging.getToken()
+            .addOnCompleteListener(task -> {
+                if (!task.isSuccessful()) {
+                    Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                    return;
+                }
+
+                // Get new FCM registration token
+                String token = task.getResult();
+                Log.d(TAG, "FCM Registration Token: " + token);
+
+                // Save token to preferences
+                SettingsRepository.getSharedPreferences(context)
+                        .edit()
+                        .putString("fcm_token", token)
+                        .apply();
+
+                // Subscribe to topic for update notifications
+                subscribeToUpdateTopic();
+            });
+    }
+
+    /**
+     * Subscribe to update notifications topic
+     */
+    public void subscribeToUpdateTopic() {
+        if (messaging != null) {
+            messaging.subscribeToTopic("update_notifications")
+                .addOnCompleteListener(task -> {
+                    String msg = "Subscribed to update notifications";
+                    if (!task.isSuccessful()) {
+                        msg = "Failed to subscribe to update notifications";
+                    }
+                    Log.d(TAG, msg);
+                });
+        }
+    }
+
+    /**
+     * Unsubscribe from update notifications topic
+     */
+    public void unsubscribeFromUpdateTopic() {
+        if (messaging != null) {
+            messaging.unsubscribeFromTopic("update_notifications")
+                .addOnCompleteListener(task -> {
+                    String msg = "Unsubscribed from update notifications";
+                    if (!task.isSuccessful()) {
+                        msg = "Failed to unsubscribe from update notifications";
+                    }
+                    Log.d(TAG, msg);
+                });
+        }
+    }
+
+    /**
+     * Get Firebase Analytics instance
+     */
+    public FirebaseAnalytics getAnalytics() {
+        return firebaseAnalytics;
+    }
+
+    /**
+     * Get Firebase Auth instance
+     */
+    public FirebaseAuth getAuth() {
+        return firebaseAuth;
+    }
+
+    /**
+     * Get Firestore instance
+     */
+    public FirebaseFirestore getFirestore() {
+        return firestore;
+    }
+
+    /**
+     * Get Firebase Storage instance
+     */
+    public FirebaseStorage getStorage() {
+        return storage;
+    }
+
+    /**
+     * Get Firebase Messaging instance
+     */
+    public FirebaseMessaging getMessaging() {
+        return messaging;
+    }
+
+    /**
+     * Log custom event to Firebase Analytics
+     */
+    public void logEvent(String eventName, String parameterName, String parameterValue) {
+        if (firebaseAnalytics != null) {
+            Bundle bundle = new Bundle();
+            bundle.putString(parameterName, parameterValue);
+            firebaseAnalytics.logEvent(eventName, bundle);
+        }
+    }
+
+    /**
+     * Log user login event
+     */
+    public void logUserLogin(String userId) {
+        logEvent("user_login", "user_id", userId);
+    }
+
+    /**
+     * Log GPA calculation event
+     */
+    public void logGPACalculation(String gpaValue) {
+        logEvent("gpa_calculation", "gpa_value", gpaValue);
+    }
+
+    /**
+     * Log attendance view event
+     */
+    public void logAttendanceView(String attendancePercentage) {
+        logEvent("attendance_view", "attendance_percentage", attendancePercentage);
+    }
+
+    /**
+     * Get Firebase Remote Config instance
+     */
+    public FirebaseRemoteConfig getRemoteConfig() {
+        return remoteConfig;
+    }
+
+    /**
+     * Get Firebase Crashlytics instance
+     */
+    public FirebaseCrashlytics getCrashlytics() {
+        return crashlytics;
+    }
+
+    /**
+     * Send in-app message to all users (server-side function would be needed)
+     */
+    public void sendInAppMessage(String title, String message, String priority, String actionUrl) {
+        // This would typically be done server-side
+        // Here we can log the message request for analytics
+        Bundle bundle = new Bundle();
+        bundle.putString("title", title);
+        bundle.putString("message", message);
+        bundle.putString("priority", priority);
+        if (firebaseAnalytics != null) {
+            firebaseAnalytics.logEvent("in_app_message_sent", bundle);
+        }
+    }
+
+    /**
+     * Log screen view event
+     */
+    public void logScreenView(String screenName, String screenClass) {
+        if (firebaseAnalytics != null) {
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName);
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, screenClass);
+            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+        }
+    }
+
+    /**
+     * Set user ID for analytics and crashlytics
+     */
+    public void setUserId(String userId) {
+        if (firebaseAnalytics != null) {
+            firebaseAnalytics.setUserId(userId);
+        }
+        if (crashlytics != null) {
+            crashlytics.setUserId(userId);
+        }
+    }
+
+    /**
+     * Set user property for analytics
+     */
+    public void setUserProperty(String name, String value) {
+        if (firebaseAnalytics != null) {
+            firebaseAnalytics.setUserProperty(name, value);
+        }
+    }
+
+    /**
+     * Record non-fatal error to crashlytics
+     */
+    public void recordException(Throwable throwable) {
+        if (crashlytics != null) {
+            crashlytics.recordException(throwable);
+        }
+    }
+
+    /**
+     * Log custom key-value pair to crashlytics
+     */
+    public void setCustomKey(String key, String value) {
+        if (crashlytics != null) {
+            crashlytics.setCustomKey(key, value);
+        }
+    }
+}

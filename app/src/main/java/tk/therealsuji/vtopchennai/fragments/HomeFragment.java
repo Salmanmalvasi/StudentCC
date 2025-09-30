@@ -34,10 +34,12 @@ import tk.therealsuji.vtopchennai.helpers.AppDatabase;
 import tk.therealsuji.vtopchennai.models.AttendanceRecord;
 
 
+
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import tk.therealsuji.vtopchennai.R;
@@ -49,10 +51,39 @@ import tk.therealsuji.vtopchennai.widgets.AttendanceInfoCard;
 import tk.therealsuji.vtopchennai.widgets.CircularProgressDrawable;
 import android.widget.ProgressBar;
 
+import com.google.android.material.snackbar.Snackbar;
+import tk.therealsuji.vtopchennai.helpers.InAppMessageManager;
+import tk.therealsuji.vtopchennai.models.InAppMessage;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class HomeFragment extends Fragment {
+
+    private BroadcastReceiver inAppMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("NEW_IN_APP_MESSAGE".equals(intent.getAction())) {
+                // Show the latest unread message as a Snackbar popup
+                List<InAppMessage> unread = InAppMessageManager.getInstance().getUnreadMessages();
+                if (!unread.isEmpty() && getView() != null) {
+                    InAppMessage latest = unread.get(0);
+                    Snackbar snackbar = Snackbar.make(getView(), latest.title + ": " + latest.message, Snackbar.LENGTH_LONG);
+                    if (latest.hasAction()) {
+                        snackbar.setAction("Open", v -> {
+                            // Open the action URL in a WebViewActivity or browser
+                            Intent webIntent = new Intent(Intent.ACTION_VIEW);
+                            webIntent.setData(android.net.Uri.parse(latest.actionUrl));
+                            startActivity(webIntent);
+                        });
+                    }
+                    snackbar.show();
+                    // Mark as read after showing
+                    InAppMessageManager.getInstance().markAsRead(latest.id);
+                }
+            }
+        }
+    };
 
     private FirebaseAnalytics mFirebaseAnalytics;
     private BadgeDrawable spotlightBadge;
@@ -237,6 +268,14 @@ public class HomeFragment extends Fragment {
 
         // Manually refresh OD count when fragment resumes
         refreshODCount();
+
+    // Register in-app message receiver for real-time popups
+    IntentFilter msgFilter = new IntentFilter("NEW_IN_APP_MESSAGE");
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+        requireContext().registerReceiver(inAppMessageReceiver, msgFilter, android.content.Context.RECEIVER_NOT_EXPORTED);
+    } else {
+        requireContext().registerReceiver(inAppMessageReceiver, msgFilter);
+    }
     }
 
     @Override
@@ -245,6 +284,12 @@ public class HomeFragment extends Fragment {
         // Unregister broadcast receiver
         try {
             requireContext().unregisterReceiver(odCountReceiver);
+        } catch (Exception e) {
+            // Receiver might not be registered
+        }
+
+        try {
+            requireContext().unregisterReceiver(inAppMessageReceiver);
         } catch (Exception e) {
             // Receiver might not be registered
         }
@@ -336,77 +381,54 @@ public class HomeFragment extends Fragment {
         greeting.setTextColor(primaryColor);
         nameTextView.setTextColor(primaryColor);
 
+
         // Attendance Card
         CircularProgressDrawable attendanceProgress = homeFragment.findViewById(R.id.attendance_progress);
         TextView attendancePercentage = homeFragment.findViewById(R.id.attendance_percentage);
-
-        // OD Remaining Card
         TextView odRemainingCount = homeFragment.findViewById(R.id.od_remaining_count);
 
-        int overallAttendance = sharedPreferences.getInt("overallAttendance", 0);
-
-        // Get attended and total counts for toggle display
+        // Robust attendance logic: always use attended/total for percentage, handle edge cases
         int attendedClasses = sharedPreferences.getInt("attendedClasses", 0);
         int totalClasses = sharedPreferences.getInt("totalClasses", 0);
+        int overallAttendance = (totalClasses > 0) ? Math.round((attendedClasses * 100f) / totalClasses) : 0;
 
-        android.util.Log.d("HomeFragment", "Real attendance data - Overall: " + overallAttendance + "%, Attended: " + attendedClasses + ", Total: " + totalClasses);
-
-        // Make variables final for lambda expression
-        final int finalAttendedClasses = attendedClasses;
-        final int finalTotalClasses = totalClasses;
-        final int finalOverallAttendance = overallAttendance;
+        android.util.Log.d("HomeFragment", "Attendance - Attended: " + attendedClasses + ", Total: " + totalClasses + ", Calculated: " + overallAttendance + "%");
 
         attendanceProgress.setProgress(overallAttendance);
         attendancePercentage.setText(overallAttendance + "%");
 
-        // Set different colors and backgrounds based on attendance level and current theme
+        // Set color backgrounds based on attendance
         View attendanceBackground = homeFragment.findViewById(R.id.attendance_background);
         if (attendanceBackground != null) {
             if (overallAttendance >= 85) {
-                // High attendance - Use theme primary color background
                 attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_high);
-                // Use appropriate text color for contrast against colored background
                 attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnPrimary, android.graphics.Color.WHITE));
             } else if (overallAttendance >= 75) {
-                // Medium attendance - Use theme secondary color background
                 attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_medium);
-                // Use appropriate text color for contrast against colored background
                 attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSecondary, android.graphics.Color.WHITE));
             } else {
-                // Low attendance - Use theme error color background
                 attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_low);
-                // Use appropriate text color for contrast against colored background
                 attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnError, android.graphics.Color.WHITE));
             }
         }
 
-        // Add click listener to toggle between percentage and counts
+        // Toggle between percentage and counts
         attendanceProgress.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             if (attendancePercentage.getText().toString().contains("%")) {
-                // Show counts
                 bundle.putString("display_mode", "counts");
-                attendancePercentage.setText(finalAttendedClasses + "/" + finalTotalClasses);
-                // Use theme-based text color based on attendance level
-                if (overallAttendance >= 85) {
-                    attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnPrimary, android.R.color.white));
-                } else if (overallAttendance >= 75) {
-                    attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSecondary, android.R.color.white));
-                } else {
-                    attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnError, android.R.color.white));
-                }
+                attendancePercentage.setText(attendedClasses + "/" + totalClasses);
             } else {
-                // Show percentage
                 bundle.putString("display_mode", "percentage");
-                attendancePercentage.setText(finalOverallAttendance + "%");
-                // Use theme-based text color based on attendance level
-                if (overallAttendance >= 85) {
-                    attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnPrimary, android.R.color.white));
-                } else if (overallAttendance >= 75) {
-                    attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSecondary, android.R.color.white));
-                } else {
-                    attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnError, android.R.color.white));
-                }
+                attendancePercentage.setText(overallAttendance + "%");
+            }
+            // Keep color logic consistent
+            if (overallAttendance >= 85) {
+                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnPrimary, android.R.color.white));
+            } else if (overallAttendance >= 75) {
+                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSecondary, android.R.color.white));
+            } else {
+                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnError, android.R.color.white));
             }
             mFirebaseAnalytics.logEvent("toggle_attendance_display", bundle);
         });
