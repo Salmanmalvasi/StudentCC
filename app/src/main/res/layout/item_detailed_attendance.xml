@@ -4,8 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    android:id="@+id/card_attendance_tile">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,34 +17,55 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/text_date"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="12 Oct 2024"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/text_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sat"
+                android:textSize="14sp"
+                android:textColor="@color/attendance_day_text_light"
+                android:layout_marginEnd="8dp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/text_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Present"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:padding="6dp"
+                android:background="@drawable/bg_attendance_status_present"
+                android:textColor="@android:color/white"
+                android:minWidth="72dp"
+                android:gravity="center" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/text_session"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:text="Class"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:textColor="@color/colorOnSurface" />
 
         <TextView
             android:id="@+id/text_remarks"
@@ -53,6 +75,7 @@
             android:text="Remarks"
             android:textSize="12sp"
             android:textStyle="italic"
+            android:textColor="@color/colorSecondary"
             android:visibility="gone" />
 
     </LinearLayout>

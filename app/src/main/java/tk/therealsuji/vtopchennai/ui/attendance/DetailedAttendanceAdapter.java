@@ -1,108 +1,109 @@
 package tk.therealsuji.vtopchennai.ui.attendance;
 
-import android.graphics.Color;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import androidx.cardview.widget.CardView;
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import androidx.core.content.ContextCompat;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.models.AttendanceRecord;
 
 public class DetailedAttendanceAdapter extends RecyclerView.Adapter<DetailedAttendanceAdapter.ViewHolder> {
-    private List<AttendanceRecord> attendanceRecords = new ArrayList<>();
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+    private final List<AttendanceRecord> items = new ArrayList<>();
 
     public void submitList(List<AttendanceRecord> records) {
-        this.attendanceRecords = records != null ? records : new ArrayList<>();
+        items.clear();
+        if (records != null) items.addAll(records);
         notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_detailed_attendance, parent, false);
-        return new ViewHolder(view);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_detailed_attendance, parent, false);
+        return new ViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        AttendanceRecord record = attendanceRecords.get(position);
-
-        // Set date with course info
-        String dateText = "";
-        if (record.date != null) {
-            dateText = dateFormat.format(new Date(record.date));
-        } else if (record.dateString != null) {
-            dateText = record.dateString;
-        } else {
-            dateText = "Unknown Date";
-        }
-
-        // Add day of the week to help identify when the class was
-        if (record.date != null) {
-            SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
-            String dayOfWeek = dayFormat.format(new Date(record.date));
-            dateText += " (" + dayOfWeek + ")";
-        }
-        holder.textDate.setText(dateText);
-
-        // Set session
-        holder.textSession.setText(record.session != null ? record.session : "Class");
-
-        // Set status with color coding
-        holder.textStatus.setText(record.status);
-        switch (record.status.toLowerCase()) {
-            case "present":
-                holder.textStatus.setTextColor(Color.parseColor("#4CAF50")); // Green
-                break;
-            case "absent":
-                holder.textStatus.setTextColor(Color.parseColor("#F44336")); // Red
-                break;
-            case "od":
-                holder.textStatus.setTextColor(Color.parseColor("#FF9800")); // Orange
-                break;
-            default:
-                holder.textStatus.setTextColor(Color.parseColor("#757575")); // Gray
-                break;
-        }
-
-        // Set remarks
-        if (record.remarks != null && !record.remarks.isEmpty()) {
-            holder.textRemarks.setText(record.remarks);
-            holder.textRemarks.setVisibility(View.VISIBLE);
-        } else {
-            holder.textRemarks.setVisibility(View.GONE);
-        }
+        holder.bind(items.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return attendanceRecords.size();
+        return items.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textDate;
-        TextView textSession;
-        TextView textStatus;
-        TextView textRemarks;
+    TextView date, day, status, session, remarks;
+    View statusBg;
+    CardView cardView;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
-            textDate = itemView.findViewById(R.id.text_date);
-            textSession = itemView.findViewById(R.id.text_session);
-            textStatus = itemView.findViewById(R.id.text_status);
-            textRemarks = itemView.findViewById(R.id.text_remarks);
+            date = itemView.findViewById(R.id.text_date);
+            day = itemView.findViewById(R.id.text_day);
+            status = itemView.findViewById(R.id.text_status);
+            session = itemView.findViewById(R.id.text_session);
+            remarks = itemView.findViewById(R.id.text_remarks);
+        }
+
+        void bind(AttendanceRecord record) {
+            Context context = itemView.getContext();
+            // Set date
+            date.setText(record.dateString != null ? record.dateString : "");
+
+            // Set day of week (if possible)
+            String dayStr = "";
+            if (record.date != null) {
+                try {
+                    java.util.Calendar cal = java.util.Calendar.getInstance();
+                    cal.setTimeInMillis(record.date);
+                    String[] days = context.getResources().getStringArray(context.getResources().getIdentifier("days", "array", context.getPackageName()));
+                    int dayOfWeek = cal.get(java.util.Calendar.DAY_OF_WEEK);
+                    // Calendar.SUNDAY=1, so shift to 0-based index
+                    dayStr = days != null && days.length >= 7 ? days[dayOfWeek - 1] : "";
+                } catch (Exception e) {
+                    dayStr = "";
+                }
+            }
+            day.setText(dayStr);
+
+            // Set status text and background
+            String statusStr = record.status != null ? record.status : "";
+            status.setText(statusStr);
+            if (statusStr.equalsIgnoreCase("Present")) {
+                status.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_attendance_status_present));
+            } else if (statusStr.equalsIgnoreCase("OD")) {
+                status.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_attendance_status_od));
+            } else if (statusStr.equalsIgnoreCase("Absent")) {
+                status.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_attendance_status_absent));
+            } else {
+                status.setBackground(null);
+            }
+
+            // Show session as Lab/Class; remarks holds slotName if available
+            String label = record.session;
+            session.setText(label != null ? label : "");
+
+            // Show remarks if available
+            if (record.remarks != null && !record.remarks.isEmpty()) {
+                remarks.setText(record.remarks);
+                remarks.setVisibility(View.VISIBLE);
+            } else {
+                remarks.setVisibility(View.GONE);
+            }
         }
     }
 }

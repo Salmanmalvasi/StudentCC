@@ -1883,6 +1883,10 @@ public class VTOPService extends Service {
                     record.courseId = courseId;
                     record.dateString = recordObj.getString("date");
                     record.status = recordObj.getString("status");
+                    // Store slot name to differentiate E-course lecture vs lab in detailed view
+                    try {
+                        record.remarks = slotName;
+                    } catch (Exception ignored) {}
 
                     // Try to parse date
                     try {
@@ -1896,8 +1900,16 @@ public class VTOPService extends Service {
                         record.date = System.currentTimeMillis();
                     }
 
-                    // Set session info (could be enhanced later)
-                    record.session = "Class";
+                    // Set session info based on slot
+                    try {
+                        if (slotName != null && slotName.replaceAll("\\s", "").matches(".*L\\d+.*")) {
+                            record.session = "Lab";
+                        } else {
+                            record.session = "Class";
+                        }
+                    } catch (Exception ignored) {
+                        record.session = "Class";
+                    }
 
                     attendanceRecords.add(record);
                 }

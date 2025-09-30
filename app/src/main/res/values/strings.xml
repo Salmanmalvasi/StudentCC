@@ -267,4 +267,14 @@
     <string name="todays_menu">Today\'s Menu</string>
     <string name="your_laundry_schedule">Your Laundry Schedule</string>
     <string name="no_laundry_today">No laundry scheduled for your room today</string>
+
+    <string-array name="days">
+        <item>Sunday</item>
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+    </string-array>
 </resources>
