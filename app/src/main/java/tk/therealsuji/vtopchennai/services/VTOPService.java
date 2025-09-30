@@ -1674,33 +1674,93 @@ public class VTOPService extends Service {
      */
     private void broadcastODCountUpdate() {
         AppDatabase appDatabase = AppDatabase.getInstance(this);
-        appDatabase.attendanceRecordDao().getAll()
-                .subscribeOn(Schedulers.single())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(attendanceRecords -> {
-                    int odUsed = 0;
+        // Fetch records, courses, and slots to compute weighted OD count
+        io.reactivex.rxjava3.core.Single.zip(
+                appDatabase.attendanceRecordDao().getAll(),
+                appDatabase.coursesDao().getAllCourses(),
+                appDatabase.coursesDao().getAllSlots(),
+                (records, courses, slots) -> new Object[]{records, courses, slots}
+        )
+        .subscribeOn(Schedulers.single())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(result -> {
+            @SuppressWarnings("unchecked")
+            java.util.List<AttendanceRecord> records = (java.util.List<AttendanceRecord>) ((Object[]) result)[0];
+            @SuppressWarnings("unchecked")
+            java.util.List<tk.therealsuji.vtopchennai.models.Course> courses = (java.util.List<tk.therealsuji.vtopchennai.models.Course>) ((Object[]) result)[1];
+            @SuppressWarnings("unchecked")
+            java.util.List<tk.therealsuji.vtopchennai.models.Slot> slots = (java.util.List<tk.therealsuji.vtopchennai.models.Slot>) ((Object[]) result)[2];
 
-                    for (AttendanceRecord record : attendanceRecords) {
-                        if (record.status != null) {
-                            String status = record.status.trim().toLowerCase();
+            java.util.Map<Integer, String> courseCodeById = new java.util.HashMap<>();
+            for (tk.therealsuji.vtopchennai.models.Course c : courses) {
+                courseCodeById.put(c.id, c.code != null ? c.code : "");
+            }
+            java.util.Map<Integer, java.util.List<String>> slotsByCourseId = new java.util.HashMap<>();
+            for (tk.therealsuji.vtopchennai.models.Slot s : slots) {
+                if (s.courseId != null && s.slot != null && !s.slot.isEmpty()) {
+                    slotsByCourseId.computeIfAbsent(s.courseId, k -> new java.util.ArrayList<>()).add(s.slot);
+                }
+            }
 
-                            // Check for various OD patterns
-                            if (status.equals("od") ||
-                                status.equals("on duty") ||
-                                status.contains("od") ||
-                                status.contains("on duty") ||
-                                status.contains("duty")) {
-                                odUsed++;
+            java.util.Map<String, Integer> weightByCourseDate = new java.util.HashMap<>();
+            boolean debugOd = true;
+            for (AttendanceRecord record : records) {
+                if (record.status == null) continue;
+                String status = record.status.trim().toLowerCase();
+                boolean isOD = status.equals("od") || status.equals("on duty") || status.contains("od") || status.contains("on duty") || status.contains("duty");
+                if (!isOD) continue;
+
+                String dateKey = record.dateString != null ? record.dateString : String.valueOf(record.date);
+                String key = (record.courseId != null ? record.courseId : -1) + "|" + dateKey;
+
+                int weight = 1;
+                String reason = "lecture-default";
+                if (record.courseId != null) {
+                    String code = courseCodeById.getOrDefault(record.courseId, "");
+                    java.util.List<String> courseSlots = slotsByCourseId.get(record.courseId);
+
+                    boolean isLabDouble = code != null && code.endsWith("P") && !(code.startsWith("BSTS"));
+                    boolean eActsAsLab = false;
+                    if (!isLabDouble && code != null && code.endsWith("E") && courseSlots != null) {
+                        for (String raw : courseSlots) {
+                            String s = raw.replaceAll("\\s", "");
+                            if (s.matches(".*L\\d+.*")) {
+                                eActsAsLab = true;
                             }
                         }
                     }
 
-                    Intent intent = new Intent("OD_COUNT_UPDATED");
-                    intent.putExtra("odUsed", odUsed);
-                    sendBroadcast(intent);
-                }, throwable -> {
-                    android.util.Log.e("VTOPService", "Error calculating OD count for broadcast", throwable);
-                });
+                    if (isLabDouble || eActsAsLab) {
+                        weight = 2;
+                        reason = isLabDouble ? "code-P" : "E-acts-as-Lab(Lx)";
+                    }
+                }
+                if (debugOd) {
+                    String codeLog = record.courseId != null ? courseCodeById.get(record.courseId) : "null";
+                    java.util.List<String> slotLog = record.courseId != null ? slotsByCourseId.get(record.courseId) : null;
+                    android.util.Log.d("ODCalc", "OD key=" + key + ", code=" + codeLog + ", slots=" + String.valueOf(slotLog) + ", status=" + status + ", weight=" + weight + ", reason=" + reason);
+                }
+                Integer prev = weightByCourseDate.get(key);
+                if (prev == null || weight > prev) {
+                    weightByCourseDate.put(key, weight);
+                }
+            }
+
+            int odUsedWeighted = 0;
+            for (Integer w : weightByCourseDate.values()) {
+                odUsedWeighted += (w != null ? w : 0);
+            }
+
+            if (debugOd) {
+                android.util.Log.d("ODCalc", "Final weighted OD used=" + odUsedWeighted + ", unique keys=" + weightByCourseDate.size());
+            }
+
+            Intent intent = new Intent("OD_COUNT_UPDATED");
+            intent.putExtra("odUsed", odUsedWeighted);
+            sendBroadcast(intent);
+        }, throwable -> {
+            android.util.Log.e("VTOPService", "Error calculating weighted OD count", throwable);
+        });
     }
 
     /**
@@ -3148,3 +3208,4 @@ public class VTOPService extends Service {
  * Error 1202   Error saving receipts to the database
  * Error 1203   Error checking for due payments
  */
+

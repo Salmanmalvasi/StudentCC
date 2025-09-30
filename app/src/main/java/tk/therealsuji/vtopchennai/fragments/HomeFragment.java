@@ -216,24 +216,77 @@ public class HomeFragment extends Fragment {
 
     private void refreshODCount() {
         AppDatabase appDatabase = AppDatabase.getInstance(requireContext());
-        appDatabase.attendanceRecordDao().getAll()
+        io.reactivex.rxjava3.core.Single.zip(
+                appDatabase.attendanceRecordDao().getAll(),
+                appDatabase.coursesDao().getAllCourses(),
+                appDatabase.coursesDao().getAllSlots(),
+                (records, courses, slots) -> new Object[]{records, courses, slots}
+        )
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(attendanceRecords -> {
-                    int odUsed = 0;
+                .subscribe(result -> {
+                    @SuppressWarnings("unchecked")
+                    java.util.List<AttendanceRecord> attendanceRecords = (java.util.List<AttendanceRecord>) ((Object[]) result)[0];
+                    @SuppressWarnings("unchecked")
+                    java.util.List<tk.therealsuji.vtopchennai.models.Course> courses = (java.util.List<tk.therealsuji.vtopchennai.models.Course>) ((Object[]) result)[1];
+                    @SuppressWarnings("unchecked")
+                    java.util.List<tk.therealsuji.vtopchennai.models.Slot> slots = (java.util.List<tk.therealsuji.vtopchennai.models.Slot>) ((Object[]) result)[2];
+
+                    java.util.Map<Integer, String> courseCodeById = new java.util.HashMap<>();
+                    for (tk.therealsuji.vtopchennai.models.Course c : courses) {
+                        courseCodeById.put(c.id, c.code != null ? c.code : "");
+                    }
+                    java.util.Map<Integer, java.util.List<String>> slotsByCourseId = new java.util.HashMap<>();
+                    for (tk.therealsuji.vtopchennai.models.Slot s : slots) {
+                        if (s.courseId != null && s.slot != null && !s.slot.isEmpty()) {
+                            slotsByCourseId.computeIfAbsent(s.courseId, k -> new java.util.ArrayList<>()).add(s.slot);
+                        }
+                    }
+
+                    java.util.Map<String, Integer> weightByCourseDate = new java.util.HashMap<>();
 
                     for (AttendanceRecord record : attendanceRecords) {
                         if (record.status != null) {
                             String status = record.status.trim().toLowerCase();
 
-                            if (status.equals("od") ||
-                                status.equals("on duty") ||
-                                status.contains("od") ||
-                                status.contains("on duty") ||
-                                status.contains("duty")) {
-                                odUsed++;
+                            boolean isOD = status.equals("od") ||
+                                    status.equals("on duty") ||
+                                    status.contains("od") ||
+                                    status.contains("on duty") ||
+                                    status.contains("duty");
+                            if (!isOD) continue;
+
+                            String dateKey = record.dateString != null ? record.dateString : String.valueOf(record.date);
+                            String key = (record.courseId != null ? record.courseId : -1) + "|" + dateKey;
+
+                            int weight = 1;
+                            if (record.courseId != null) {
+                                String code = courseCodeById.getOrDefault(record.courseId, "");
+                                java.util.List<String> courseSlots = slotsByCourseId.get(record.courseId);
+                                boolean isLabDouble = code != null && code.endsWith("P") && !(code.startsWith("BSTS"));
+                                boolean eActsAsLab = false;
+                                if (!isLabDouble && code != null && code.endsWith("E") && courseSlots != null) {
+                                    for (String raw : courseSlots) {
+                                        String s = raw.replaceAll("\\s", "");
+                                        if (s.matches(".*L\\d+.*")) {
+                                            eActsAsLab = true;
+                                        }
+                                    }
+                                }
+                                if (isLabDouble || eActsAsLab) {
+                                    weight = 2;
+                                }
+                            }
+                            Integer prev = weightByCourseDate.get(key);
+                            if (prev == null || weight > prev) {
+                                weightByCourseDate.put(key, weight);
                             }
                         }
+                    }
+
+                    int odUsed = 0;
+                    for (Integer w : weightByCourseDate.values()) {
+                        odUsed += (w != null ? w : 0);
                     }
 
                     TextView odRemainingCount = getView().findViewById(R.id.od_remaining_count);
@@ -435,16 +488,70 @@ public class HomeFragment extends Fragment {
 
         // Calculate OD remaining count
         AppDatabase appDatabase = AppDatabase.getInstance(this.requireContext());
-        appDatabase.attendanceRecordDao().getAll()
+        io.reactivex.rxjava3.core.Single.zip(
+                appDatabase.attendanceRecordDao().getAll(),
+                appDatabase.coursesDao().getAllCourses(),
+                appDatabase.coursesDao().getAllSlots(),
+                (records, courses, slots) -> new Object[]{records, courses, slots}
+        )
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(attendanceRecords -> {
-                    // Count OD classes from detailed attendance records
-                    int odUsed = 0;
-                    for (AttendanceRecord record : attendanceRecords) {
-                        if (record.status != null && record.status.toLowerCase().contains("od")) {
-                            odUsed++;
+                .subscribe(result -> {
+                    @SuppressWarnings("unchecked")
+                    java.util.List<AttendanceRecord> attendanceRecords = (java.util.List<AttendanceRecord>) ((Object[]) result)[0];
+                    @SuppressWarnings("unchecked")
+                    java.util.List<tk.therealsuji.vtopchennai.models.Course> courses = (java.util.List<tk.therealsuji.vtopchennai.models.Course>) ((Object[]) result)[1];
+                    @SuppressWarnings("unchecked")
+                    java.util.List<tk.therealsuji.vtopchennai.models.Slot> slots = (java.util.List<tk.therealsuji.vtopchennai.models.Slot>) ((Object[]) result)[2];
+
+                    java.util.Map<Integer, String> courseCodeById = new java.util.HashMap<>();
+                    for (tk.therealsuji.vtopchennai.models.Course c : courses) {
+                        courseCodeById.put(c.id, c.code != null ? c.code : "");
+                    }
+                    java.util.Map<Integer, java.util.List<String>> slotsByCourseId = new java.util.HashMap<>();
+                    for (tk.therealsuji.vtopchennai.models.Slot s : slots) {
+                        if (s.courseId != null && s.slot != null && !s.slot.isEmpty()) {
+                            slotsByCourseId.computeIfAbsent(s.courseId, k -> new java.util.ArrayList<>()).add(s.slot);
                         }
+                    }
+
+                    java.util.Map<String, Integer> weightByCourseDate2 = new java.util.HashMap<>();
+                    for (AttendanceRecord record : attendanceRecords) {
+                        if (record.status != null) {
+                            String status = record.status.trim().toLowerCase();
+                            boolean isOD = status.equals("od") || status.equals("on duty") || status.contains("od") || status.contains("on duty") || status.contains("duty");
+                            if (!isOD) continue;
+
+                            String dateKey = record.dateString != null ? record.dateString : String.valueOf(record.date);
+                            String key = (record.courseId != null ? record.courseId : -1) + "|" + dateKey;
+
+                            int weight = 1;
+                            if (record.courseId != null) {
+                                String code = courseCodeById.getOrDefault(record.courseId, "");
+                                java.util.List<String> courseSlots = slotsByCourseId.get(record.courseId);
+                                boolean isLabDouble = code != null && code.endsWith("P") && !(code.startsWith("BSTS"));
+                                boolean eActsAsLab = false;
+                                if (!isLabDouble && code != null && code.endsWith("E") && courseSlots != null) {
+                                    for (String raw : courseSlots) {
+                                        String s = raw.replaceAll("\\s", "");
+                                        if (s.matches(".*L\\d+.*")) {
+                                            eActsAsLab = true;
+                                        }
+                                    }
+                                }
+                                if (isLabDouble || eActsAsLab) {
+                                    weight = 2;
+                                }
+                            }
+                            Integer prev = weightByCourseDate2.get(key);
+                            if (prev == null || weight > prev) {
+                                weightByCourseDate2.put(key, weight);
+                            }
+                        }
+                    }
+                    int odUsed = 0;
+                    for (Integer w : weightByCourseDate2.values()) {
+                        odUsed += (w != null ? w : 0);
                     }
                     int odRemaining = 48 - odUsed;
                     odRemainingCount.setText(odRemaining + "/48");

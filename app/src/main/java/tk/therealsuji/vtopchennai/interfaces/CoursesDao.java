@@ -35,4 +35,10 @@ public interface CoursesDao {
 
     @Query("SELECT id FROM courses WHERE code = :courseCode LIMIT 1")
     Single<Integer> getCourseIdByCode(String courseCode);
+
+    @Query("SELECT * FROM courses")
+    Single<List<Course>> getAllCourses();
+
+    @Query("SELECT * FROM slots")
+    Single<List<Slot>> getAllSlots();
 }
