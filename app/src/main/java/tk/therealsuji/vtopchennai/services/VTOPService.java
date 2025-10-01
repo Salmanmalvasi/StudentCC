@@ -60,6 +60,7 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.helpers.AppDatabase;
+import tk.therealsuji.vtopchennai.helpers.EnhancedCaptchaProcessor;
 import tk.therealsuji.vtopchennai.helpers.NotificationHelper;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 import tk.therealsuji.vtopchennai.interfaces.AttendanceDao;
@@ -106,6 +107,9 @@ public class VTOPService extends Service {
     Map<String, String> semesters;
     String username, password, semesterID;
     CompositeDisposable compositeDisposable;
+    
+    // Enhanced captcha processing
+    private EnhancedCaptchaProcessor enhancedCaptchaProcessor;
 
     public void clearCallback() {
         this.callback = null;
@@ -133,6 +137,9 @@ public class VTOPService extends Service {
         this.appDatabase = AppDatabase.getInstance(getApplicationContext());
         this.sharedPreferences = SettingsRepository.getSharedPreferences(getApplicationContext());
         this.compositeDisposable = new CompositeDisposable();
+        
+        // Initialize enhanced captcha processor
+        this.enhancedCaptchaProcessor = new EnhancedCaptchaProcessor(getApplicationContext());
 
         this.createWebView();
     }
@@ -485,9 +492,51 @@ public class VTOPService extends Service {
     }
 
     /**
-     * Enhanced OCR processing with multiple preprocessing attempts
+     * Enhanced OCR processing using neural network and multiple preprocessing approaches
      */
     private void processCaptchaWithEnhancedOCR(Bitmap originalImage) {
+        try {
+            // Use the enhanced captcha processor with multiple methods
+            EnhancedCaptchaProcessor.CaptchaResult result = enhancedCaptchaProcessor.processCaptcha(originalImage);
+            
+            if (result.hasValidResult()) {
+                String captchaText = result.getBestResult();
+                float confidence = result.getBestConfidence();
+                String method = result.getBestMethod();
+                
+                android.util.Log.d("VTOPService", String.format(
+                    "CAPTCHA solved using %s method with confidence %.2f: %s", 
+                    method, confidence, captchaText
+                ));
+                
+                // Update notification to show successful captcha recognition
+                this.notification.setContentTitle("Smart CAPTCHA Recognition");
+                this.notification.setContentText(String.format("Solved using %s (%.0f%% confidence)", 
+                    method, confidence * 100));
+                this.notificationManager.notify(SettingsRepository.NOTIFICATION_ID_VTOP_DOWNLOAD, 
+                    notification.build());
+                
+                // Auto-submit the recognized captcha
+                signIn(captchaText);
+                return;
+            }
+            
+            android.util.Log.d("VTOPService", "Enhanced captcha processing failed, falling back to basic OCR");
+            
+            // Fallback to original OCR methods if enhanced processing fails
+            processCaptchaWithBasicOCR(originalImage);
+            
+        } catch (Exception e) {
+            android.util.Log.e("VTOPService", "Error in enhanced captcha processing", e);
+            // Fallback to basic OCR
+            processCaptchaWithBasicOCR(originalImage);
+        }
+    }
+
+    /**
+     * Fallback basic OCR processing with multiple preprocessing attempts
+     */
+    private void processCaptchaWithBasicOCR(Bitmap originalImage) {
         // First attempt: Original image
         processImageWithOCR(originalImage, 0, () -> {
             // Second attempt: Enhanced contrast
@@ -544,11 +593,84 @@ public class VTOPService extends Service {
 
     /**
      * Validate if the OCR text looks like a valid captcha
+     * Enhanced validation with additional checks
      */
     private boolean isValidCaptchaText(String text) {
-        // Captcha typically contains 4-6 alphanumeric characters
-        return text != null && text.length() >= 3 && text.length() <= 8 &&
-               text.matches("[A-Za-z0-9]+");
+        if (text == null || text.trim().isEmpty()) {
+            return false;
+        }
+        
+        // Clean the text
+        text = text.trim().toUpperCase();
+        
+        // Basic length check - VTOP captchas are typically 4-6 characters
+        if (text.length() < 3 || text.length() > 8) {
+            return false;
+        }
+        
+        // Check if contains only alphanumeric characters
+        if (!text.matches("[A-Z0-9]+")) {
+            return false;
+        }
+        
+        // Additional heuristic checks
+        // Reject if too many repeated characters (likely OCR error)
+        if (hasExcessiveRepeatedChars(text)) {
+            return false;
+        }
+        
+        // Reject common OCR misreads
+        if (isLikelyOCRError(text)) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Check if text has excessive repeated characters
+     */
+    private boolean hasExcessiveRepeatedChars(String text) {
+        if (text.length() <= 2) return false;
+        
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            int count = 0;
+            for (int j = 0; j < text.length(); j++) {
+                if (text.charAt(j) == c) {
+                    count++;
+                }
+            }
+            // If more than half the characters are the same, likely an error
+            if (count > text.length() / 2) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Check if text looks like a common OCR error
+     */
+    private boolean isLikelyOCRError(String text) {
+        // Common OCR error patterns
+        String[] errorPatterns = {
+            "1111", "OOOO", "0000", "LLLL", "||||", "IIII",
+            "......", ",,,,", "'''", "\"\"\"", "```"
+        };
+        
+        for (String pattern : errorPatterns) {
+            if (text.contains(pattern)) {
+                return true;
+            }
+        }
+        
+        // Check for unlikely character combinations
+        if (text.matches(".*[O0]{3,}.*") || text.matches(".*[1I]{3,}.*")) {
+            return true;
+        }
+        
+        return false;
     }
 
     /**
