@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
+
+    <!-- Game Surface View -->
+    <view 
+        class="tk.therealsuji.vtopchennai.activities.FlappyGameActivity$GameView"
+        android:id="@+id/game_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- CGPA Progress Bar at the top -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:orientation="vertical"
+        android:background="#80000000"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Life Progress:"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <ProgressBar
+            android:id="@+id/cgpa_progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginTop="5dp"
+            android:max="750"
+            android:progress="0"
+            android:progressTint="#FFD700"
+            android:progressBackgroundTint="#40FFFFFF" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp">
+
+            <TextView
+                android:id="@+id/cgpa_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="CGPA: 0.0"
+                android:textColor="@android:color/white"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Target: 750 pts = 9+ CGPA + Friends + Sleep + 50 LPA!"
+                android:textColor="#FFD700"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Score Display -->
+    <TextView
+        android:id="@+id/score_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"
+        android:text="Score: 0"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:shadowColor="@android:color/black"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="3" />
+
+        <!-- High Score Display -->
+        <TextView
+            android:id="@+id/high_score_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/score_text"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:text="High Score: 0"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:shadowColor="@android:color/black"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2" />
+
+        <!-- Motivational/Troll Text -->
+        <TextView
+            android:id="@+id/motivation_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/high_score_text"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:text="Starting at 6.0 CGPA - prove you deserve more! �"
+            android:textColor="#FF6B6B"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            android:shadowColor="@android:color/black"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2" />    <!-- Game Over Overlay -->
+    <LinearLayout
+        android:id="@+id/game_over_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:background="#80000000"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <!-- Game Over Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <!-- Game Over Icon -->
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="16dp"
+                    android:src="@drawable/community_icon"
+                    android:scaleType="centerCrop" />
+
+                <!-- Game Over Text -->
+                <TextView
+                    android:id="@+id/game_over_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"
+                    android:text="Reality Check! 📚\nBack to studying..."
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <!-- Troll Message -->
+                <TextView
+                    android:id="@+id/troll_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"
+                    android:text="Dream: 9+ CGPA + Friends + Sleep + 50 LPA\nReality: Choose any one! 😂"
+                    android:textColor="?attr/colorError"
+                    android:textSize="14sp"
+                    android:textStyle="italic" />
+
+                <!-- Instructions -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="20dp"
+                    android:gravity="center"
+                    android:text="Navigate through life choices with style!\nTap to fly up, avoid reality checks!\n\n🎯 Goal: 750 points for 9.0 CGPA perfection\n💰 Reward: Friends + Sleep + 50 LPA Job\n🎮 Now easier with bigger gaps &amp; more space!"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="12sp" />
+
+                <!-- Buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/home_button"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:text="Home"
+                        android:textSize="16sp" />
+
+                    <Button
+                        android:id="@+id/play_button"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="Play Again"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+    <!-- Start Game Instructions -->
+    <LinearLayout
+        android:id="@+id/start_instructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:text="Tap to start your journey from 6.0 CGPA!\n🎓 Goal: 9.0 CGPA + Perfect Life\n🎮 Now with extra space and easier controls!"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:shadowColor="@android:color/black"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="3" />
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/community_icon"
+            android:scaleType="centerCrop"
+            android:background="@drawable/circle_background" />
+
+    </LinearLayout>
+
+</RelativeLayout>

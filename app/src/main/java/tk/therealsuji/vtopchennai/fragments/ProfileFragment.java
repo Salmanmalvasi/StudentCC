@@ -109,6 +109,16 @@ public class ProfileFragment extends Fragment {
                     null
             ),
             new ItemData(
+                    R.drawable.ic_game,
+                    "Life Achievement Game",
+                    "Try to get 9+ CGPA + Friends + Sleep + 50 LPA! (Impossible) 😈",
+                    context -> {
+                        if (!isAdded()) return;
+                        Intent intent = new Intent(requireContext(), tk.therealsuji.vtopchennai.activities.FlappyGameActivity.class);
+                        requireContext().startActivity(intent);
+                    }
+            ),
+            new ItemData(
                     R.drawable.ic_link,
                     R.string.vhelp,
                     context -> {
