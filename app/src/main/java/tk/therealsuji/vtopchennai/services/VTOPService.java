@@ -2203,6 +2203,12 @@ public class VTOPService extends Service {
 
                     mark.id = i + 1;
                     mark.courseId = this.getCourseId(markObject.getString("slot"), courseType);
+                    
+                    // Skip marks that can't be associated with courses (e.g., courses with null slots)
+                    if (mark.courseId == null) {
+                        continue;
+                    }
+                    
                     mark.title = this.getStringValue(markObject, "title");
                     mark.score = this.getDoubleValue(markObject, "score");
                     mark.maxScore = this.getDoubleValue(markObject, "max_score");

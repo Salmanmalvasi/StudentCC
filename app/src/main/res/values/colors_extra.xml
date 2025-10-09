@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fallback colors to satisfy EnhancedMarksAdapter references -->
+    <color name="card_background">@color/colorSurface</color>
+    <color name="text_primary">@color/colorOnSurface</color>
+    <color name="text_secondary">@color/colorOnSurfaceVariant</color>
+    <color name="colorAccent">@color/colorPrimary</color>
+    <color name="progress_track">@color/colorSurfaceVariant</color>
+    <color name="assessment_background">@color/colorSurfaceVariant</color>
+    <color name="error_color">@color/colorError</color>
+</resources>
+
+

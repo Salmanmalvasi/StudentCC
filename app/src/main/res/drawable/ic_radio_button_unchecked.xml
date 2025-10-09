@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- O shape for player O -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeWidth="3"
+        android:strokeColor="#3182CE"
+        android:strokeLineCap="round"
+        android:pathData="M24,10 C32.28,10 39,16.72 39,25 C39,33.28 32.28,40 24,40 C15.72,40 9,33.28 9,25 C9,16.72 15.72,10 24,10 Z"/>
+
+</vector>
