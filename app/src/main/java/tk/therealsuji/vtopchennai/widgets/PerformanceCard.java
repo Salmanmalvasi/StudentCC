@@ -170,6 +170,28 @@ public class PerformanceCard extends LinearLayout {
         this.scoreText.setVisibility(VISIBLE);
     }
 
+    /**
+     * Display relative performance in a two-line format:
+     * Line 1: Large number (e.g., "-1.2")
+     * Line 2: "weightage from average"
+     */
+    public void setRelativePerformance(String relativeValue) {
+        if (relativeValue != null && !relativeValue.trim().isEmpty()) {
+            // Hide the circular progress and percentage
+            this.hideScoreDisplay();
+            
+            // Use the scoreText area to display the large number
+            this.scoreText.setText(relativeValue);
+            this.scoreText.setVisibility(VISIBLE);
+            
+            // Use subtitle for the description
+            this.subtitleText.setText("weightage from average");
+            this.subtitleText.setVisibility(VISIBLE);
+        } else {
+            this.hide();
+        }
+    }
+
     public void setScore(Double score, Double max) {
         score = Math.ceil(score);
         max = Math.ceil(max);

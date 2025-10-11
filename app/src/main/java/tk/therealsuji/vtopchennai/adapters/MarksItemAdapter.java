@@ -173,11 +173,8 @@ public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.View
 
             AppCompatTextView examInfo = dialogView.findViewById(R.id.text_view_exam_info);
             TextInputEditText editAverage = dialogView.findViewById(R.id.edit_text_average);
-            TextInputEditText editMaxScore = dialogView.findViewById(R.id.edit_text_max_score);
-            TextInputEditText editStdDev = dialogView.findViewById(R.id.edit_text_std_dev);
 
             examInfo.setText("Exam: " + markData.title + " (" + courseCode + ")");
-            editMaxScore.setText(String.valueOf(markData.maxScore));
 
             // Pre-populate with existing data if available
             AppDatabase appDatabase = AppDatabase.getInstance(marksItem.getContext());
@@ -193,50 +190,43 @@ public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.View
                         @Override
                         public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull ClassStats classStats) {
                             editAverage.setText(String.valueOf(classStats.classAverage));
-                            editMaxScore.setText(String.valueOf(classStats.maxScore));
-                            if (classStats.standardDeviation != null) {
-                                editStdDev.setText(String.valueOf(classStats.standardDeviation));
-                            }
                         }
 
                         @Override
                         public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                            // No existing data, keep fields empty except max score
+                            // No existing data, keep field empty
                         }
                     });
 
             new MaterialAlertDialogBuilder(marksItem.getContext())
-                    .setTitle("Class Statistics")
+                    .setTitle("Class Average")
                     .setView(dialogView)
                     .setPositiveButton("Save", (dialog, which) -> {
                         try {
                             String avgText = editAverage.getText().toString().trim();
-                            String maxText = editMaxScore.getText().toString().trim();
-                            String stdText = editStdDev.getText().toString().trim();
 
-                            if (avgText.isEmpty() || maxText.isEmpty()) {
-                                Toast.makeText(marksItem.getContext(), "Please enter both average and max score", Toast.LENGTH_SHORT).show();
+                            if (avgText.isEmpty()) {
+                                Toast.makeText(marksItem.getContext(), "Please enter the class average", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
                             double average = Double.parseDouble(avgText);
-                            double maxScore = Double.parseDouble(maxText);
-                            Double stdDev = stdText.isEmpty() ? null : Double.parseDouble(stdText);
 
-                            ClassStats classStats = new ClassStats(courseCode, markData.title, average, maxScore, stdDev);
+                            // Use the exam's max score for calculations
+                            ClassStats classStats = new ClassStats(courseCode, markData.title, average, markData.maxScore, null);
                             classStats.updatedAt = System.currentTimeMillis();
 
                             classStatsDao.insertClassStats(classStats)
                                     .subscribeOn(Schedulers.single())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(() -> {
-                                        Toast.makeText(marksItem.getContext(), "Class statistics saved", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(marksItem.getContext(), "Class average saved", Toast.LENGTH_SHORT).show();
                                     }, throwable -> {
-                                        Toast.makeText(marksItem.getContext(), "Error saving statistics: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(marksItem.getContext(), "Error saving average: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
                                     });
 
                         } catch (NumberFormatException e) {
-                            Toast.makeText(marksItem.getContext(), "Please enter valid numbers", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(marksItem.getContext(), "Please enter a valid number", Toast.LENGTH_SHORT).show();
                         }
                     })
                     .setNegativeButton("Cancel", null)
@@ -245,9 +235,9 @@ public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.View
                                 .subscribeOn(Schedulers.single())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(() -> {
-                                    Toast.makeText(marksItem.getContext(), "Class statistics deleted", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(marksItem.getContext(), "Class average deleted", Toast.LENGTH_SHORT).show();
                                 }, throwable -> {
-                                    Toast.makeText(marksItem.getContext(), "Error deleting statistics", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(marksItem.getContext(), "Error deleting average", Toast.LENGTH_SHORT).show();
                                 });
                     })
                     .show();

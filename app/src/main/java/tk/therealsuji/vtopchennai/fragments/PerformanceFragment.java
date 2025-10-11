@@ -382,30 +382,25 @@ public class PerformanceFragment extends Fragment {
                                             @Override
                                             public void onSubscribe(@NonNull Disposable d) {}
 
-                                            @Override
-                                            public void onSuccess(@NonNull List<Mark.AllData> marks) {
-                                                // Get the raw numeric value for weightage marks ahead/behind
-                                                Double weightageAheadValue = RelativePerformanceCalculator.getWeightageMarksAheadValue(marks, classStatsList);
-                                                
-                                                if (weightageAheadValue != null) {
-                                                    average.show();
-                                                    
-                                                    // Hide the circular progress and percentage display
-                                                    average.hideScoreDisplay();
-                                                    
-                                                    // Format the relative performance value in weightage 
-                                                    String formattedValue = (weightageAheadValue >= 0 ? "+" : "") + 
-                                                            new java.text.DecimalFormat("#.##").format(weightageAheadValue);
-                                                    
-                                                    // Show the weightage difference prominently in the subtitle
-                                                    average.setSubtitle(formattedValue + " weightage from average");
-                                                    
-                                                } else {
-                                                    average.hide();
-                                                }
-                                            }
-
-                                            @Override
+                                                                                            @Override
+                                                                                            public void onSuccess(@NonNull List<Mark.AllData> marks) {
+                                                                                                // Get the raw numeric value for weightage marks ahead/behind
+                                                                                                Double weightageAheadValue = RelativePerformanceCalculator.getWeightageMarksAheadValue(marks, classStatsList);
+                                                                                                
+                                                                                                if (weightageAheadValue != null) {
+                                                                                                    average.show();
+                                                                                                    
+                                                                                                    // Format the relative performance value in weightage 
+                                                                                                    String formattedValue = (weightageAheadValue >= 0 ? "+" : "") + 
+                                                                                                            new java.text.DecimalFormat("#.##").format(weightageAheadValue);
+                                                                                                    
+                                                                                                    // Use the new two-line display format
+                                                                                                    average.setRelativePerformance(formattedValue);
+                                                                                                    
+                                                                                                } else {
+                                                                                                    average.hide();
+                                                                                                }
+                                                                                            }                                            @Override
                                             public void onError(@NonNull Throwable e) {
                                                 average.hide();
                                             }
