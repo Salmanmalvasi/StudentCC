@@ -192,8 +192,8 @@
     <string name="credit_hours">Credit Hours</string>
     <string name="grade">Grade</string>
     <string name="select_grade">Select Grade</string>
-    <string name="calculate_gpa">Calculate GPA</string>
-    <string name="clear_all">Clear All</string>
+    <string name="calculate_gpa">Calculate\nGPA</string>
+    <string name="clear_all">Clear\nAll</string>
     <string name="semester_gpa">Semester GPA: %s</string>
     <string name="cumulative_gpa">Cumulative GPA: %s</string>
     <string name="gpa_total_credits">Total Credits: %d</string>

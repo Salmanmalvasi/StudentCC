@@ -52,31 +52,35 @@ public class GPACourse {
                 return 5.0;
             case "F":
                 return 0.0;
+            case "N":
+                return 0.0; // N grade for No Credit
             default:
                 return 0.0;
         }
     }
 
     public static String[] getAvailableGrades() {
-        return new String[]{"S", "A", "B", "C", "D", "E", "F"};
+        return new String[]{"S", "A", "B", "C", "D", "E", "F", "N"};
     }
 
     public static String getGradeDisplayText(String grade) {
         switch (grade) {
             case "S":
-                return "S (10.0)";
+                return "S";
             case "A":
-                return "A (9.0)";
+                return "A";
             case "B":
-                return "B (8.0)";
+                return "B";
             case "C":
-                return "C (7.0)";
+                return "C";
             case "D":
-                return "D (6.0)";
+                return "D";
             case "E":
-                return "E (5.0)";
+                return "E";
             case "F":
-                return "F (0.0)";
+                return "F";
+            case "N":
+                return "N";
             default:
                 return grade;
         }

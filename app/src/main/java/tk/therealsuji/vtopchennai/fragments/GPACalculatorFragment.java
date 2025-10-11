@@ -203,8 +203,8 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
             return;
         }
 
-        // Extract grade from display text (e.g., "A (9.0)" -> "A")
-        String actualGrade = grade.split(" ")[0];
+        // Extract grade from display text (since display text is now just the grade letter)
+        String actualGrade = grade.trim();
 
         // Create and add course
         GPACourse course = new GPACourse(creditHours, actualGrade);
