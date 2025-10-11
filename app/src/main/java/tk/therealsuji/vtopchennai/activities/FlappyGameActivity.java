@@ -41,16 +41,16 @@ public class FlappyGameActivity extends AppCompatActivity {
     private Button playButton, homeButton;
     private LinearLayout gameOverLayout, startInstructions;
     private ProgressBar cgpaProgressBar;
-    
+
     private SharedPreferences preferences;
     private static final String PREF_HIGH_SCORE = "flappy_high_score";
     private static final int IMPOSSIBLE_TARGET = 750; // 750 points for 9.0 CGPA 😈
-    
+
     // Progressive scoring system - starts from 6.0 CGPA (because we're generous! 😈)
     private static final int[] CGPA_THRESHOLDS = {
-        0,    // Start at 6.0 CGPA - Everyone deserves a head start! 
+        0,    // Start at 6.0 CGPA - Everyone deserves a head start!
         30,   // 6.5 CGPA - 30 points (still easy)
-        70,   // 7.0 CGPA - 40 more points  
+        70,   // 7.0 CGPA - 40 more points
         120,  // 7.5 CGPA - 50 more points
         180,  // 8.0 CGPA - 60 more points
         250,  // 8.5 CGPA - 70 more points (getting tougher)
@@ -65,13 +65,13 @@ public class FlappyGameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flappy_game);
-        
+
         preferences = getSharedPreferences("FlappyGame", MODE_PRIVATE);
-        
+
         initViews();
         setupGame();
     }
-    
+
     private void initViews() {
         gameView = findViewById(R.id.game_view);
         scoreText = findViewById(R.id.score_text);
@@ -85,10 +85,10 @@ public class FlappyGameActivity extends AppCompatActivity {
         startInstructions = findViewById(R.id.start_instructions);
         playButton = findViewById(R.id.play_button);
         homeButton = findViewById(R.id.home_button);
-        
+
         playButton.setOnClickListener(v -> startGame());
         homeButton.setOnClickListener(v -> finish());
-        
+
         // Add click listener to start instructions to begin game
         startInstructions.setOnClickListener(v -> startGame());
         gameView.setOnClickListener(v -> {
@@ -97,42 +97,42 @@ public class FlappyGameActivity extends AppCompatActivity {
             }
         });
     }
-    
+
     private void setupGame() {
         int highScore = preferences.getInt(PREF_HIGH_SCORE, 0);
         highScoreText.setText("High Score: " + highScore);
-        
+
         gameView.setGameCallbacks(new GameView.GameCallbacks() {
             @Override
             public void onScoreChanged(int score) {
                 runOnUiThread(() -> {
                     scoreText.setText("Score: " + score);
-                    
+
                     // Calculate current CGPA based on progressive thresholds
                     float cgpa = calculateCGPA(score);
                     cgpaText.setText(String.format("CGPA: %.1f", cgpa));
-                    
+
                     // Update progress bar (max 750 for 9.0)
                     cgpaProgressBar.setProgress(Math.min(score, 750));
-                    
+
                     // Update motivation/troll text based on progress
                     updateMotivationText(score);
                 });
             }
-            
+
             @Override
             public void onGameOver(int finalScore) {
                 runOnUiThread(() -> {
                     int highScore = preferences.getInt(PREF_HIGH_SCORE, 0);
-                    
+
                     if (finalScore >= IMPOSSIBLE_TARGET) {
-                        // They actually did it?! 
+                        // They actually did it?!
                         gameOverText.setText("IMPOSSIBLE! 🤯\nYou broke the matrix!");
                         trollMessage.setText("Wait... how did you...? 🤖\nThis wasn't supposed to happen!\n\nCongratulations! You've achieved:\n✅ 9.0+ CGPA\n✅ Friends who believe in you\n✅ 8 hours of sleep\n✅ 50 LPA job offer\n\n...in a mobile game. Reality still pending! 😂");
                     } else if (finalScore > highScore) {
                         preferences.edit().putInt(PREF_HIGH_SCORE, finalScore).apply();
                         highScoreText.setText("High Score: " + finalScore);
-                        
+
                         String achievementMsg = getAchievementMessage(finalScore);
                         gameOverText.setText("NEW HIGH SCORE! 🎉\n" + achievementMsg);
                         trollMessage.setText(getProgressiveTrollMessage(finalScore));
@@ -146,7 +146,7 @@ public class FlappyGameActivity extends AppCompatActivity {
             }
         });
     }
-    
+
     private void startGame() {
         startInstructions.setVisibility(View.GONE);
         gameOverLayout.setVisibility(View.GONE);
@@ -156,7 +156,7 @@ public class FlappyGameActivity extends AppCompatActivity {
         motivationText.setText("Starting strong at 6.0 CGPA! Let's climb higher! �");
         gameView.startGame();
     }
-    
+
     // Calculate CGPA based on progressive thresholds - STARTING FROM 6.0!
     private float calculateCGPA(int score) {
         for (int i = 0; i < CGPA_THRESHOLDS.length; i++) {
@@ -175,10 +175,10 @@ public class FlappyGameActivity extends AppCompatActivity {
         // Beyond all thresholds - they made it!
         return 9.0f + (score - CGPA_THRESHOLDS[CGPA_THRESHOLDS.length-1]) / 100.0f;
     }
-    
+
     private void updateMotivationText(int score) {
         float cgpa = calculateCGPA(score);
-        
+
         if (score >= 630) {
             motivationText.setText("8.9 CGPA! SO CLOSE TO PERFECTION! 😱✨");
         } else if (score >= 520) {
@@ -201,15 +201,15 @@ public class FlappyGameActivity extends AppCompatActivity {
             motivationText.setText("6.0 CGPA! Everyone starts somewhere decent! �");
         }
     }
-    
+
     private String getAchievementMessage(int score) {
         float cgpa = calculateCGPA(score);
         return String.format("Final CGPA: %.1f", cgpa);
     }
-    
+
     private String getProgressiveTrollMessage(int score) {
         float cgpa = calculateCGPA(score);
-        
+
         if (score >= 630) {
             return "8.9 CGPA! 😤 Oh wow, you're so close to perfection!\nToo bad the universe has other plans.\n\nJust 120 more points! What could possibly go wrong? 🎭\n\nHint: Everything. Everything can go wrong. 💀";
         } else if (score >= 520) {
@@ -232,42 +232,42 @@ public class FlappyGameActivity extends AppCompatActivity {
             return "6.0 CGPA! 🌱 Everyone starts at 6.0... some stay there!\nAt least you're not below average... yet!\n\nThe real journey? Proving you deserve this headstart! 🚀\n\nPro tip: Actually try playing the game! �";
         }
     }
-    
+
     private String getDeathTrollMessage(int score) {
         float cgpa = calculateCGPA(score);
-        
+
         String[] deathQuotes = {
             "\"I'll just wing this exam\" 🪶\n- And you crashed like a bird into a window",
-            
+
             "\"Sleep is overrated anyway\" 😴\n- Narrator: Your brain cells disagreed",
-            
+
             "\"I work better under pressure\" ⚡\n- *Pressure crushes you completely*",
-            
+
             "\"Just one more episode...\" 📺\n- Famous last words before academic death",
-            
+
             "\"I'll start studying tomorrow\" 📅\n- Tomorrow: Still procrastinating",
-            
+
             "\"My notes are somewhere...\" 📝\n- Spoiler: In another dimension",
-            
+
             "\"The professor loves me\" 💕\n- Professor: 'Who are you again?'",
-            
+
             "\"I can study everything in one night\" 🌙\n- Narrator: They could not",
-            
+
             "\"Attendance is just a number\" 📊\n- So is zero, apparently",
-            
+
             "\"I'm a visual learner\" 👀\n- *Stares at F grade intensely*",
-            
+
             "\"I have a photographic memory\" 📷\n- Too bad you forgot to load the film",
-            
+
             "\"College is just a piece of paper\" 📄\n- So is a tissue, but this one's worth ₹5 lakhs",
-            
+
             "\"Grades don't define me\" 💅\n- Narrator: The placement committee disagrees",
-            
+
             "\"I learn better by doing\" 🤲\n- *Proceeds to do absolutely nothing*",
-            
+
             "\"I'm street smart, not book smart\" 🛣️\n- Streets don't pay engineering salaries though"
         };
-        
+
         // Add specific BRUTAL messages based on CGPA achieved
         if (cgpa >= 8.5f) {
             return "SO CLOSE TO GREATNESS! 😭\n\nYou were one step away from legend status!\nInstead, you're a legend of failure!\n\n" + deathQuotes[score % deathQuotes.length];
@@ -281,50 +281,50 @@ public class FlappyGameActivity extends AppCompatActivity {
             return "NEVER LEFT THE STARTING LINE! 🪦\n\nYou started at 6.0 and somehow went backwards!\nComeback stories are just fairy tales!\n\n" + deathQuotes[score % deathQuotes.length];
         }
     }
-    
+
     public static class GameView extends SurfaceView implements SurfaceHolder.Callback {
-        
+
         private GameThread gameThread;
         private GameCallbacks callbacks;
-        
+
         // Game objects
         private Player player;
         private List<MoneyTower> towers;
         private Random random;
-        
+
         // Game state
         private boolean gameRunning;
         private int score;
         private long lastTime;
-        
+
         // Dimensions
         private int screenWidth, screenHeight;
         private Paint paint;
-        
+
         // Colors
         private int backgroundColor;
         private int towerColor;
         private int scoreColor;
-        
+
         public GameView(Context context, android.util.AttributeSet attrs) {
             super(context, attrs);
             getHolder().addCallback(this);
-            
+
             random = new Random();
             towers = new ArrayList<>();
             paint = new Paint();
             paint.setAntiAlias(true);
-            
+
             // Initialize colors
             backgroundColor = ContextCompat.getColor(context, R.color.colorPrimary);
             towerColor = Color.parseColor("#FFD700"); // Gold color for money towers
             scoreColor = Color.WHITE;
         }
-        
+
         public void setGameCallbacks(GameCallbacks callbacks) {
             this.callbacks = callbacks;
         }
-        
+
         public void startGame() {
             if (gameThread != null && gameThread.isAlive()) {
                 gameThread.setRunning(false);
@@ -334,52 +334,52 @@ public class FlappyGameActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            
+
             resetGame();
             gameThread = new GameThread(getHolder());
             gameThread.setRunning(true);
             gameThread.start();
         }
-        
+
         private void resetGame() {
             gameRunning = true;
             score = 0;
             towers.clear();
-            
+
             // Initialize player
             if (player == null) {
                 player = new Player(getContext(), screenWidth / 4, screenHeight / 2);
             } else {
                 player.reset(screenWidth / 4, screenHeight / 2);
             }
-            
+
             // Add initial towers with much more space
             for (int i = 0; i < 3; i++) {
                 addTower(screenWidth + i * 600); // Increased from 400 to 600 for easier start
             }
-            
+
             lastTime = System.currentTimeMillis();
         }
-        
+
         private void addTower(int x) {
             // Make it progressively harder! But start much easier 😈
             // Gap size starts MUCH bigger and gets smaller very gradually
             int baseGapSize = 500; // Increased from 400 - much more forgiving!
             int difficultyReduction = Math.min(score / 2, 120); // Even slower difficulty increase
             int gapSize = Math.max(280, baseGapSize - difficultyReduction); // Minimum 280px gap (was 200px)
-            
+
             int towerWidth = 80; // Slightly thinner towers for more room
-            
+
             // Random gap position is much less extreme
             int extremeFactor = Math.min(score / 100, 30); // Much less extreme positioning
             int minGapY = 120 + extremeFactor;
             int maxGapY = screenHeight - gapSize - 120 - extremeFactor;
             int gapY = random.nextInt(maxGapY - minGapY) + minGapY;
-            
+
             towers.add(new MoneyTower(x, 0, towerWidth, gapY));
             towers.add(new MoneyTower(x, gapY + gapSize, towerWidth, screenHeight - gapY - gapSize));
         }
-        
+
         @Override
         public boolean onTouchEvent(MotionEvent event) {
             if (event.getAction() == MotionEvent.ACTION_DOWN && gameRunning) {
@@ -388,34 +388,34 @@ public class FlappyGameActivity extends AppCompatActivity {
             }
             return super.onTouchEvent(event);
         }
-        
+
         private void updateGame() {
             if (!gameRunning) return;
-            
+
             long currentTime = System.currentTimeMillis();
             float deltaTime = (currentTime - lastTime) / 1000f;
             lastTime = currentTime;
-            
+
             // Update player
             player.update(deltaTime, score); // Pass score for dynamic difficulty
-            
+
             // Check bounds
             if (player.y < 0 || player.y > screenHeight - player.height) {
                 gameOver();
                 return;
             }
-            
+
             // Update towers
             for (int i = towers.size() - 1; i >= 0; i--) {
                 MoneyTower tower = towers.get(i);
                 tower.update(deltaTime, score); // Pass score for dynamic difficulty
-                
+
                 // Check collision
                 if (player.collidesWith(tower)) {
                     gameOver();
                     return;
                 }
-                
+
                 // Remove towers that are off screen
                 if (tower.x + tower.width < 0) {
                     towers.remove(i);
@@ -427,7 +427,7 @@ public class FlappyGameActivity extends AppCompatActivity {
                     }
                 }
             }
-            
+
             // Add new towers (give players MUCH more breathing room between towers)
             if (!towers.isEmpty()) {
                 MoneyTower lastTower = towers.get(towers.size() - 1);
@@ -437,18 +437,18 @@ public class FlappyGameActivity extends AppCompatActivity {
                 }
             }
         }
-        
+
         private void gameOver() {
             gameRunning = false;
             if (callbacks != null) {
                 callbacks.onGameOver(score);
             }
         }
-        
+
         private void drawGame(Canvas canvas) {
             // Clear screen
             canvas.drawColor(backgroundColor);
-            
+
             // Draw background gradient
             paint.setShader(new android.graphics.LinearGradient(
                 0, 0, 0, screenHeight,
@@ -456,34 +456,34 @@ public class FlappyGameActivity extends AppCompatActivity {
                 null, android.graphics.Shader.TileMode.CLAMP));
             canvas.drawRect(0, 0, screenWidth, screenHeight, paint);
             paint.setShader(null);
-            
+
             // Draw towers
             for (MoneyTower tower : towers) {
                 tower.draw(canvas, paint, score); // Pass score for visual effects
             }
-            
+
             // Draw player
             player.draw(canvas, paint, score); // Pass score for visual effects
-            
+
             // Draw score
             paint.setColor(scoreColor);
             paint.setTextSize(60);
             paint.setTextAlign(Paint.Align.CENTER);
             canvas.drawText("Score: " + score, screenWidth / 2, 100, paint);
         }
-        
+
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
             screenWidth = getWidth();
             screenHeight = getHeight();
         }
-        
+
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             screenWidth = width;
             screenHeight = height;
         }
-        
+
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
             if (gameThread != null) {
@@ -495,31 +495,31 @@ public class FlappyGameActivity extends AppCompatActivity {
                 }
             }
         }
-        
+
         public interface GameCallbacks {
             void onScoreChanged(int score);
             void onGameOver(int finalScore);
         }
-        
+
         private class GameThread extends Thread {
             private SurfaceHolder surfaceHolder;
             private boolean running;
             private static final int FPS = 60;
             private static final long FRAME_TIME = 1000 / FPS;
-            
+
             public GameThread(SurfaceHolder holder) {
                 surfaceHolder = holder;
             }
-            
+
             public void setRunning(boolean running) {
                 this.running = running;
             }
-            
+
             @Override
             public void run() {
                 while (running) {
                     long startTime = System.currentTimeMillis();
-                    
+
                     Canvas canvas = null;
                     try {
                         canvas = surfaceHolder.lockCanvas();
@@ -532,7 +532,7 @@ public class FlappyGameActivity extends AppCompatActivity {
                             surfaceHolder.unlockCanvasAndPost(canvas);
                         }
                     }
-                    
+
                     long frameTime = System.currentTimeMillis() - startTime;
                     if (frameTime < FRAME_TIME) {
                         try {
@@ -545,47 +545,47 @@ public class FlappyGameActivity extends AppCompatActivity {
             }
         }
     }
-    
+
     private static class Player {
         float x, y, velocityY;
         int width, height;
         Bitmap bitmap;
         private static final float BASE_GRAVITY = 800f; // Reduced from 1000f for easier control
         private static final float BASE_JUMP_VELOCITY = -450f; // Increased from -400f for stronger jumps
-        
+
         public Player(Context context, float x, float y) {
             this.x = x;
             this.y = y;
             this.width = 80;
             this.height = 80;
             this.velocityY = 0;
-            
+
             // Load and scale the community icon
             Bitmap original = BitmapFactory.decodeResource(context.getResources(), R.drawable.community_icon);
             bitmap = Bitmap.createScaledBitmap(original, width, height, true);
         }
-        
+
         public void reset(float x, float y) {
             this.x = x;
             this.y = y;
             this.velocityY = 0;
         }
-        
+
         public void update(float deltaTime, int currentScore) {
             // Gravity increases with score - but much more slowly! 😈
             float gravityMultiplier = 1.0f + (currentScore * 0.002f); // 0.2% more gravity per point (was 0.5%)
             float currentGravity = BASE_GRAVITY * Math.min(gravityMultiplier, 1.5f); // Max 1.5x gravity (was 2x)
-            
+
             velocityY += currentGravity * deltaTime;
             y += velocityY * deltaTime;
         }
-        
+
         public void jump(int currentScore) {
             // Jump power decreases much more slowly with score 😭
             float jumpMultiplier = Math.max(0.9f, 1.0f - (currentScore * 0.0005f)); // Much less weakness
             velocityY = BASE_JUMP_VELOCITY * jumpMultiplier;
         }
-        
+
         public boolean collidesWith(MoneyTower tower) {
             // Much more forgiving collision detection - reduce hitbox significantly!
             float padding = 15f; // Give even more mercy!
@@ -594,7 +594,7 @@ public class FlappyGameActivity extends AppCompatActivity {
                    y + padding < tower.y + tower.height - padding &&
                    y + height - padding > tower.y + padding;
         }
-        
+
         public void draw(Canvas canvas, Paint paint, int currentScore) {
             if (bitmap != null) {
                 // Add stress effects at higher scores
@@ -602,14 +602,14 @@ public class FlappyGameActivity extends AppCompatActivity {
                     // Slight red tint for stress
                     paint.setColorFilter(new android.graphics.ColorMatrixColorFilter(new float[]{
                         1.2f, 0, 0, 0, 20,    // Red channel
-                        0, 0.8f, 0, 0, 0,     // Green channel  
+                        0, 0.8f, 0, 0, 0,     // Green channel
                         0, 0, 0.8f, 0, 0,     // Blue channel
                         0, 0, 0, 1, 0         // Alpha channel
                     }));
                 } else {
                     paint.setColorFilter(null);
                 }
-                
+
                 canvas.drawBitmap(bitmap, x, y, paint);
                 paint.setColorFilter(null); // Reset filter
             } else {
@@ -619,26 +619,26 @@ public class FlappyGameActivity extends AppCompatActivity {
             }
         }
     }
-    
+
     private static class MoneyTower {
         float x, y;
         int width, height;
         private static final float BASE_SPEED = 150f; // Reduced from 200f for easier gameplay
-        
+
         public MoneyTower(float x, float y, int width, int height) {
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
         }
-        
+
         public void update(float deltaTime, int currentScore) {
             // Speed increases with score - but much more slowly! 😈
             float speedMultiplier = 1.0f + (currentScore * 0.005f); // 0.5% faster per point (was 1%)
             float currentSpeed = BASE_SPEED * Math.min(speedMultiplier, 2.0f); // Max 2x speed (was 3x)
             x -= currentSpeed * deltaTime;
         }
-        
+
         public void draw(Canvas canvas, Paint paint, int currentScore) {
             // Change color based on difficulty for extra trolling
             if (currentScore >= 600) {
@@ -650,10 +650,10 @@ public class FlappyGameActivity extends AppCompatActivity {
             } else {
                 paint.setColor(Color.parseColor("#90EE90")); // Light green = Easy mode
             }
-            
+
             RectF rect = new RectF(x, y, x + width, y + height);
             canvas.drawRoundRect(rect, 10, 10, paint);
-            
+
             // Add stress indicators for higher scores
             if (currentScore >= 500) {
                 // Add "stress lines" - jagged edges
@@ -663,7 +663,7 @@ public class FlappyGameActivity extends AppCompatActivity {
                     canvas.drawLine(x + width, y + i, x + width + 5, y + i + 10, paint);
                 }
             }
-            
+
             // Add money stack effect with difficulty-based symbols
             paint.setColor(Color.parseColor("#FFA500")); // Orange for depth
             for (int i = 0; i < height; i += 30) {
@@ -671,24 +671,24 @@ public class FlappyGameActivity extends AppCompatActivity {
                     canvas.drawRoundRect(x + 5, y + i, x + width - 5, y + i + 20, 5, 5, paint);
                 }
             }
-            
+
             // Add symbols based on difficulty
             paint.setColor(Color.parseColor("#000000")); // Black for text
             paint.setTextSize(16);
             paint.setTextAlign(Paint.Align.CENTER);
-            
+
             String symbol = "$";
             if (currentScore >= 700) symbol = "💀"; // Death at high scores
             else if (currentScore >= 500) symbol = "😰"; // Stress
             else if (currentScore >= 300) symbol = "😅"; // Nervous
             else if (currentScore >= 100) symbol = "🤔"; // Thinking
-            
+
             for (int i = 30; i < height; i += 60) {
                 if (y + i < y + height - 30) {
                     canvas.drawText(symbol, x + width/2, y + i, paint);
                 }
             }
-            
+
             // Add shine effect (more intense with higher scores)
             if (currentScore >= 300) {
                 paint.setColor(Color.parseColor("#FFFF00")); // Bright yellow for high scores

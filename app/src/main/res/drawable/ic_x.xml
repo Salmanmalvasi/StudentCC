@@ -4,17 +4,17 @@
     android:height="48dp"
     android:viewportWidth="48"
     android:viewportHeight="48">
-    
+
     <path
         android:strokeColor="#E53E3E"
         android:strokeWidth="4"
         android:strokeLineCap="round"
         android:pathData="M12,12 L36,36"/>
-    
+
     <path
         android:strokeColor="#E53E3E"
         android:strokeWidth="4"
         android:strokeLineCap="round"
         android:pathData="M36,12 L12,36"/>
-        
+
 </vector>

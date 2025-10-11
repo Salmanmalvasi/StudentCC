@@ -107,7 +107,7 @@ public class VTOPService extends Service {
     Map<String, String> semesters;
     String username, password, semesterID;
     CompositeDisposable compositeDisposable;
-    
+
     // Enhanced captcha processing
     private EnhancedCaptchaProcessor enhancedCaptchaProcessor;
 
@@ -137,7 +137,7 @@ public class VTOPService extends Service {
         this.appDatabase = AppDatabase.getInstance(getApplicationContext());
         this.sharedPreferences = SettingsRepository.getSharedPreferences(getApplicationContext());
         this.compositeDisposable = new CompositeDisposable();
-        
+
         // Initialize enhanced captcha processor
         this.enhancedCaptchaProcessor = new EnhancedCaptchaProcessor(getApplicationContext());
 
@@ -498,34 +498,34 @@ public class VTOPService extends Service {
         try {
             // Use the enhanced captcha processor with multiple methods
             EnhancedCaptchaProcessor.CaptchaResult result = enhancedCaptchaProcessor.processCaptcha(originalImage);
-            
+
             if (result.hasValidResult()) {
                 String captchaText = result.getBestResult();
                 float confidence = result.getBestConfidence();
                 String method = result.getBestMethod();
-                
+
                 android.util.Log.d("VTOPService", String.format(
-                    "CAPTCHA solved using %s method with confidence %.2f: %s", 
+                    "CAPTCHA solved using %s method with confidence %.2f: %s",
                     method, confidence, captchaText
                 ));
-                
+
                 // Update notification to show successful captcha recognition
                 this.notification.setContentTitle("Smart CAPTCHA Recognition");
-                this.notification.setContentText(String.format("Solved using %s (%.0f%% confidence)", 
+                this.notification.setContentText(String.format("Solved using %s (%.0f%% confidence)",
                     method, confidence * 100));
-                this.notificationManager.notify(SettingsRepository.NOTIFICATION_ID_VTOP_DOWNLOAD, 
+                this.notificationManager.notify(SettingsRepository.NOTIFICATION_ID_VTOP_DOWNLOAD,
                     notification.build());
-                
+
                 // Auto-submit the recognized captcha
                 signIn(captchaText);
                 return;
             }
-            
+
             android.util.Log.d("VTOPService", "Enhanced captcha processing failed, falling back to basic OCR");
-            
+
             // Fallback to original OCR methods if enhanced processing fails
             processCaptchaWithBasicOCR(originalImage);
-            
+
         } catch (Exception e) {
             android.util.Log.e("VTOPService", "Error in enhanced captcha processing", e);
             // Fallback to basic OCR
@@ -599,40 +599,40 @@ public class VTOPService extends Service {
         if (text == null || text.trim().isEmpty()) {
             return false;
         }
-        
+
         // Clean the text
         text = text.trim().toUpperCase();
-        
+
         // Basic length check - VTOP captchas are typically 4-6 characters
         if (text.length() < 3 || text.length() > 8) {
             return false;
         }
-        
+
         // Check if contains only alphanumeric characters
         if (!text.matches("[A-Z0-9]+")) {
             return false;
         }
-        
+
         // Additional heuristic checks
         // Reject if too many repeated characters (likely OCR error)
         if (hasExcessiveRepeatedChars(text)) {
             return false;
         }
-        
+
         // Reject common OCR misreads
         if (isLikelyOCRError(text)) {
             return false;
         }
-        
+
         return true;
     }
-    
+
     /**
      * Check if text has excessive repeated characters
      */
     private boolean hasExcessiveRepeatedChars(String text) {
         if (text.length() <= 2) return false;
-        
+
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             int count = 0;
@@ -648,7 +648,7 @@ public class VTOPService extends Service {
         }
         return false;
     }
-    
+
     /**
      * Check if text looks like a common OCR error
      */
@@ -658,18 +658,18 @@ public class VTOPService extends Service {
             "1111", "OOOO", "0000", "LLLL", "||||", "IIII",
             "......", ",,,,", "'''", "\"\"\"", "```"
         };
-        
+
         for (String pattern : errorPatterns) {
             if (text.contains(pattern)) {
                 return true;
             }
         }
-        
+
         // Check for unlikely character combinations
         if (text.matches(".*[O0]{3,}.*") || text.matches(".*[1I]{3,}.*")) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -2203,12 +2203,12 @@ public class VTOPService extends Service {
 
                     mark.id = i + 1;
                     mark.courseId = this.getCourseId(markObject.getString("slot"), courseType);
-                    
+
                     // Skip marks that can't be associated with courses (e.g., courses with null slots)
                     if (mark.courseId == null) {
                         continue;
                     }
-                    
+
                     mark.title = this.getStringValue(markObject, "title");
                     mark.score = this.getDoubleValue(markObject, "score");
                     mark.maxScore = this.getDoubleValue(markObject, "max_score");
@@ -3348,4 +3348,3 @@ public class VTOPService extends Service {
  * Error 1202   Error saving receipts to the database
  * Error 1203   Error checking for due payments
  */
-

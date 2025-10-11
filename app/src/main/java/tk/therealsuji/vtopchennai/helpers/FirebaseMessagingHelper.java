@@ -41,26 +41,26 @@ public class FirebaseMessagingHelper {
     private static final String KEY_MESSAGES = "stored_messages";
     private static final String CHANNEL_ID = "vtop_notifications";
     private static final String CHANNEL_NAME = "VTOP Notifications";
-    
+
     private static FirebaseMessagingHelper instance;
     private Context context;
     private SharedPreferences prefs;
     private FirebaseAnalytics analytics;
-    
+
     private FirebaseMessagingHelper(Context context) {
         this.context = context.getApplicationContext();
         this.prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         this.analytics = FirebaseAnalytics.getInstance(context);
         createNotificationChannel();
     }
-    
+
     public static synchronized FirebaseMessagingHelper getInstance(Context context) {
         if (instance == null) {
             instance = new FirebaseMessagingHelper(context);
         }
         return instance;
     }
-    
+
     /**
      * Initialize Firebase messaging and get FCM token
      */
@@ -78,16 +78,16 @@ public class FirebaseMessagingHelper {
                         // Get new FCM registration token
                         String token = task.getResult();
                         Log.d(TAG, "✅ FCM Registration Token: " + token);
-                        
+
                         // Store token for server communication if needed
                         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
                         prefs.edit().putString(KEY_FCM_TOKEN, token).apply();
-                        
+
                         Log.d(TAG, "✅ Firebase Messaging initialization completed!");
                     }
                 });
     }
-    
+
     /**
      * Subscribe to a topic for receiving targeted messages
      * @param topic Topic name (e.g., "announcements", "updates")
@@ -104,7 +104,7 @@ public class FirebaseMessagingHelper {
                 }
             });
     }
-    
+
     /**
      * Unsubscribe from a topic
      * @param topic Topic name to unsubscribe from
@@ -121,7 +121,7 @@ public class FirebaseMessagingHelper {
                 }
             });
     }
-    
+
     /**
      * Handle incoming FCM message
      * @param remoteMessage The received message
@@ -129,41 +129,41 @@ public class FirebaseMessagingHelper {
     public void handleIncomingMessage(RemoteMessage remoteMessage) {
         Log.d(TAG, "🔄 Processing incoming message...");
         Map<String, String> data = remoteMessage.getData();
-        
+
         String messageType = data.get("type");
         String priority = data.get("priority");
         String title = data.get("title");
         String body = data.get("body");
         String actionUrl = data.get("action_url");
-        
+
         Log.d(TAG, "📋 Message details - Type: " + messageType + ", Priority: " + priority + ", Title: " + title);
-        
+
         if (messageType != null && title != null && body != null) {
             // Create in-app message
             String messageId = "msg_" + System.currentTimeMillis();
             Log.d(TAG, "💾 Creating in-app message with ID: " + messageId);
-            
+
             InAppMessageManager.getInstance().addMessage(
-                messageId, 
-                title, 
-                body, 
+                messageId,
+                title,
+                body,
                 null, // imageUrl
-                actionUrl, 
+                actionUrl,
                 priority != null ? priority : "medium"
             );
-            
+
             // Track analytics
             Bundle bundle = new Bundle();
             bundle.putString("message_type", messageType);
             bundle.putString("message_priority", priority);
             FirebaseAnalytics.getInstance(context).logEvent("message_received", bundle);
-            
+
             Log.d(TAG, "✅ In-app message created and analytics logged");
         } else {
             Log.w(TAG, "⚠️ Message missing required fields - skipping in-app message creation");
         }
     }
-    
+
     /**
      * Handle data messages (background processing)
      * @param data Message data
@@ -174,10 +174,10 @@ public class FirebaseMessagingHelper {
             String title = data.get("title");
             String body = data.get("body");
             String action = data.get("action");
-            
+
             // Store message for in-app display
             storeInAppMessage(title, body, messageType, action);
-            
+
             // Process different message types
             switch (messageType != null ? messageType : "default") {
                 case "announcement":
@@ -198,7 +198,7 @@ public class FirebaseMessagingHelper {
             Log.e(TAG, "Error handling data message", e);
         }
     }
-    
+
     /**
      * Handle notification messages (foreground display)
      * @param remoteMessage The message containing notification
@@ -209,7 +209,7 @@ public class FirebaseMessagingHelper {
             showNotification(notification.getTitle(), notification.getBody());
         }
     }
-    
+
     /**
      * Handle announcement messages
      * @param data Message data
@@ -218,15 +218,15 @@ public class FirebaseMessagingHelper {
         String title = data.get("title");
         String body = data.get("body");
         String priority = data.get("priority");
-        
+
         // Show high priority announcements as notifications
         if ("high".equals(priority)) {
             showNotification("📢 " + title, body);
         }
-        
+
         Log.d(TAG, "Announcement received: " + title);
     }
-    
+
     /**
      * Handle update required messages
      * @param data Message data
@@ -234,20 +234,20 @@ public class FirebaseMessagingHelper {
     private void handleUpdateRequiredMessage(Map<String, String> data) {
         String version = data.get("required_version");
         String message = data.get("body");
-        
+
         // Store update requirement
         prefs.edit()
             .putBoolean("update_required", true)
             .putString("required_version", version)
             .putString("update_message", message)
             .apply();
-        
+
         // Show immediate notification
         showNotification("🔄 Update Required", message);
-        
+
         Log.d(TAG, "Update required for version: " + version);
     }
-    
+
     /**
      * Handle maintenance messages
      * @param data Message data
@@ -256,7 +256,7 @@ public class FirebaseMessagingHelper {
         String startTime = data.get("start_time");
         String endTime = data.get("end_time");
         String message = data.get("body");
-        
+
         // Store maintenance info
         prefs.edit()
             .putBoolean("maintenance_scheduled", true)
@@ -264,12 +264,12 @@ public class FirebaseMessagingHelper {
             .putString("maintenance_end", endTime)
             .putString("maintenance_message", message)
             .apply();
-        
+
         showNotification("🔧 Maintenance Scheduled", message);
-        
+
         Log.d(TAG, "Maintenance scheduled: " + startTime + " - " + endTime);
     }
-    
+
     /**
      * Store in-app message for later display
      * @param title Message title
@@ -287,14 +287,14 @@ public class FirebaseMessagingHelper {
             message.put("action", action);
             message.put("timestamp", System.currentTimeMillis());
             message.put("read", false);
-            
+
             // Get existing messages
             String existingMessages = prefs.getString(KEY_MESSAGES, "[]");
             org.json.JSONArray messages = new org.json.JSONArray(existingMessages);
-            
+
             // Add new message
             messages.put(message);
-            
+
             // Keep only last 50 messages
             if (messages.length() > 50) {
                 org.json.JSONArray trimmed = new org.json.JSONArray();
@@ -303,15 +303,15 @@ public class FirebaseMessagingHelper {
                 }
                 messages = trimmed;
             }
-            
+
             // Save back
             prefs.edit().putString(KEY_MESSAGES, messages.toString()).apply();
-            
+
         } catch (JSONException e) {
             Log.e(TAG, "Error storing in-app message", e);
         }
     }
-    
+
     /**
      * Get all stored in-app messages
      * @return List of messages
@@ -321,7 +321,7 @@ public class FirebaseMessagingHelper {
         try {
             String messagesJson = prefs.getString(KEY_MESSAGES, "[]");
             org.json.JSONArray messages = new org.json.JSONArray(messagesJson);
-            
+
             for (int i = 0; i < messages.length(); i++) {
                 messageList.add(messages.getJSONObject(i));
             }
@@ -330,7 +330,7 @@ public class FirebaseMessagingHelper {
         }
         return messageList;
     }
-    
+
     /**
      * Get unread message count
      * @return Number of unread messages
@@ -349,7 +349,7 @@ public class FirebaseMessagingHelper {
         }
         return count;
     }
-    
+
     /**
      * Mark message as read
      * @param messageId Message ID to mark as read
@@ -358,7 +358,7 @@ public class FirebaseMessagingHelper {
         try {
             String messagesJson = prefs.getString(KEY_MESSAGES, "[]");
             org.json.JSONArray messages = new org.json.JSONArray(messagesJson);
-            
+
             for (int i = 0; i < messages.length(); i++) {
                 JSONObject message = messages.getJSONObject(i);
                 if (message.getLong("id") == messageId) {
@@ -366,13 +366,13 @@ public class FirebaseMessagingHelper {
                     break;
                 }
             }
-            
+
             prefs.edit().putString(KEY_MESSAGES, messages.toString()).apply();
         } catch (JSONException e) {
             Log.e(TAG, "Error marking message as read", e);
         }
     }
-    
+
     /**
      * Show system notification
      * @param title Notification title
@@ -381,7 +381,7 @@ public class FirebaseMessagingHelper {
     private void showNotification(String title, String body) {
         showNotification(title, body, null);
     }
-    
+
     /**
      * Show system notification with data
      * @param title Notification title
@@ -390,26 +390,26 @@ public class FirebaseMessagingHelper {
      */
     public void showNotification(String title, String body, Map<String, String> data) {
         Log.d(TAG, "🔔 Creating notification - Title: " + title + ", Body: " + body);
-        
+
         Intent intent = new Intent(context, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        
+
         // Add extra data if available
         if (data != null) {
             for (Map.Entry<String, String> entry : data.entrySet()) {
                 intent.putExtra(entry.getKey(), entry.getValue());
             }
         }
-        
+
         PendingIntent pendingIntent = PendingIntent.getActivity(
-            context, 0, intent, 
+            context, 0, intent,
             PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
         );
-        
+
         // Create notification channel first
         createNotificationChannel();
-        
-        NotificationCompat.Builder notificationBuilder = 
+
+        NotificationCompat.Builder notificationBuilder =
             new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_update_available) // Use existing icon
                 .setContentTitle(title)
@@ -418,10 +418,10 @@ public class FirebaseMessagingHelper {
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_ALL);
-        
-        NotificationManager notificationManager = 
+
+        NotificationManager notificationManager =
             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        
+
         if (notificationManager != null) {
             int notificationId = (int) System.currentTimeMillis(); // Unique ID
             notificationManager.notify(notificationId, notificationBuilder.build());
@@ -430,7 +430,7 @@ public class FirebaseMessagingHelper {
             Log.e(TAG, "❌ NotificationManager is null - cannot show notification");
         }
     }
-    
+
     /**
      * Create notification channel for Android O and above
      */
@@ -443,8 +443,8 @@ public class FirebaseMessagingHelper {
             channel.setDescription("Notifications for VTOP app updates and announcements");
             channel.enableLights(true);
             channel.enableVibration(true);
-            
-            NotificationManager notificationManager = 
+
+            NotificationManager notificationManager =
                 context.getSystemService(NotificationManager.class);
             if (notificationManager != null) {
                 notificationManager.createNotificationChannel(channel);
@@ -454,7 +454,7 @@ public class FirebaseMessagingHelper {
             }
         }
     }
-    
+
     /**
      * Save FCM token locally
      * @param token FCM registration token
@@ -462,7 +462,7 @@ public class FirebaseMessagingHelper {
     private void saveFCMToken(String token) {
         prefs.edit().putString(KEY_FCM_TOKEN, token).apply();
     }
-    
+
     /**
      * Get saved FCM token
      * @return FCM token or null if not available
@@ -470,7 +470,7 @@ public class FirebaseMessagingHelper {
     public String getFCMToken() {
         return prefs.getString(KEY_FCM_TOKEN, null);
     }
-    
+
     /**
      * Send token to your server (implement based on your backend)
      * @param token FCM token to send
@@ -480,7 +480,7 @@ public class FirebaseMessagingHelper {
         // Example: Make HTTP request to your server with the token
         Log.d(TAG, "TODO: Send token to server: " + token);
     }
-    
+
     /**
      * Track message received event in Firebase Analytics
      * @param remoteMessage The received message
@@ -489,7 +489,7 @@ public class FirebaseMessagingHelper {
         if (analytics != null) {
             // Track basic message received event
             analytics.logEvent("fcm_message_received", null);
-            
+
             // Track specific message types if available
             Map<String, String> data = remoteMessage.getData();
             if (data.containsKey("type")) {
@@ -498,7 +498,7 @@ public class FirebaseMessagingHelper {
             }
         }
     }
-    
+
     /**
      * Check if update is required based on received messages
      * @return true if update is required
@@ -506,7 +506,7 @@ public class FirebaseMessagingHelper {
     public boolean isUpdateRequired() {
         return prefs.getBoolean("update_required", false);
     }
-    
+
     /**
      * Get required version from messages
      * @return required version string
@@ -514,7 +514,7 @@ public class FirebaseMessagingHelper {
     public String getRequiredVersion() {
         return prefs.getString("required_version", null);
     }
-    
+
     /**
      * Check if maintenance is scheduled
      * @return true if maintenance is scheduled
@@ -522,7 +522,7 @@ public class FirebaseMessagingHelper {
     public boolean isMaintenanceScheduled() {
         return prefs.getBoolean("maintenance_scheduled", false);
     }
-    
+
     /**
      * Get maintenance message
      * @return maintenance message
@@ -530,7 +530,7 @@ public class FirebaseMessagingHelper {
     public String getMaintenanceMessage() {
         return prefs.getString("maintenance_message", null);
     }
-    
+
     /**
      * Clear all stored messages
      */
@@ -541,7 +541,7 @@ public class FirebaseMessagingHelper {
             .putBoolean("maintenance_scheduled", false)
             .apply();
     }
-    
+
     /**
      * Update FCM token when it's refreshed
      * @param token New FCM token
@@ -550,22 +550,22 @@ public class FirebaseMessagingHelper {
         Log.d(TAG, "🔄 Updating FCM token: " + token);
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         prefs.edit().putString(KEY_FCM_TOKEN, token).apply();
-        
+
         // Here you would typically send the token to your server
         // For now, just log it
         Log.d(TAG, "✅ FCM token updated and stored locally");
     }
-    
+
     /**
      * Test method to create a sample notification and in-app message
      * Call this for testing purposes
      */
     public void sendTestMessage() {
         Log.d(TAG, "🧪 Sending test message...");
-        
+
         // Create test notification
         showNotification("🧪 Test Notification", "This is a test notification from the app!");
-        
+
         // Create test in-app message
         String testMessageId = "test_" + System.currentTimeMillis();
         InAppMessageManager.getInstance().addMessage(
@@ -576,7 +576,7 @@ public class FirebaseMessagingHelper {
             null, // actionUrl
             "high"
         );
-        
+
         Log.d(TAG, "✅ Test message sent successfully!");
     }
 }

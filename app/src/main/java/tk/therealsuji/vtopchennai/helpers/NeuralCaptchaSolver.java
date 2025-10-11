@@ -14,28 +14,28 @@ import java.util.List;
  */
 public class NeuralCaptchaSolver {
     private static final String TAG = "NeuralCaptchaSolver";
-    
+
     // Neural network architecture constants
     private static final int INPUT_SIZE = 400; // 20x20 input image
     private static final int HIDDEN_SIZE = 100;
     private static final int OUTPUT_SIZE = 36; // 26 letters + 10 digits
-    
+
     // Character mapping (0-9, A-Z)
     private static final String CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    
+
     // Neural network weights and biases (will be initialized from training data)
     private float[][] inputToHiddenWeights;
     private float[] hiddenBiases;
     private float[][] hiddenToOutputWeights;
     private float[] outputBiases;
-    
+
     // Confidence threshold for character recognition
     private static final float CONFIDENCE_THRESHOLD = 0.3f;
-    
+
     public NeuralCaptchaSolver() {
         initializeNeuralNetwork();
     }
-    
+
     /**
      * Initialize neural network with pre-trained weights
      * Based on the bitmaps.js training data from UniCC
@@ -47,25 +47,25 @@ public class NeuralCaptchaSolver {
             hiddenBiases = new float[HIDDEN_SIZE];
             hiddenToOutputWeights = new float[HIDDEN_SIZE][OUTPUT_SIZE];
             outputBiases = new float[OUTPUT_SIZE];
-            
+
             // Load pre-trained weights
             CaptchaTrainingData trainingData = new CaptchaTrainingData();
             loadWeightsFromTrainingData(trainingData);
-            
+
         } catch (Exception e) {
             Log.e(TAG, "Failed to initialize neural network", e);
             // Fallback to random weights if training data fails
             initializeRandomWeights();
         }
     }
-    
+
     /**
      * Load weights from training data
      */
     private void loadWeightsFromTrainingData(CaptchaTrainingData data) {
         float[][] weights = data.getWeights();
         float[] biases = data.getBiases();
-        
+
         // Extract input-to-hidden weights
         int weightIndex = 0;
         for (int i = 0; i < INPUT_SIZE; i++) {
@@ -74,10 +74,10 @@ public class NeuralCaptchaSolver {
                 weightIndex++;
             }
         }
-        
+
         // Extract hidden biases
         System.arraycopy(biases, 0, hiddenBiases, 0, Math.min(biases.length, HIDDEN_SIZE));
-        
+
         // Extract hidden-to-output weights
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             for (int j = 0; j < OUTPUT_SIZE; j++) {
@@ -87,14 +87,14 @@ public class NeuralCaptchaSolver {
                 }
             }
         }
-        
+
         // Extract output biases
         int biasIndex = HIDDEN_SIZE;
         for (int i = 0; i < OUTPUT_SIZE && biasIndex < biases.length; i++) {
             outputBiases[i] = biases[biasIndex++];
         }
     }
-    
+
     /**
      * Initialize random weights as fallback
      */
@@ -102,23 +102,23 @@ public class NeuralCaptchaSolver {
         // Xavier initialization
         float inputWeight = (float) Math.sqrt(2.0 / INPUT_SIZE);
         float hiddenWeight = (float) Math.sqrt(2.0 / HIDDEN_SIZE);
-        
+
         for (int i = 0; i < INPUT_SIZE; i++) {
             for (int j = 0; j < HIDDEN_SIZE; j++) {
                 inputToHiddenWeights[i][j] = (float) (Math.random() - 0.5) * 2 * inputWeight;
             }
         }
-        
+
         for (int i = 0; i < HIDDEN_SIZE; i++) {
             hiddenBiases[i] = 0.0f;
             for (int j = 0; j < OUTPUT_SIZE; j++) {
                 hiddenToOutputWeights[i][j] = (float) (Math.random() - 0.5) * 2 * hiddenWeight;
             }
         }
-        
+
         Arrays.fill(outputBiases, 0.0f);
     }
-    
+
     /**
      * Solve CAPTCHA using neural network approach
      */
@@ -126,10 +126,10 @@ public class NeuralCaptchaSolver {
         try {
             // Preprocess the image
             Bitmap processedImage = preprocessImage(captchaImage);
-            
+
             // Segment image into character blocks
             List<Bitmap> characterBlocks = segmentImage(processedImage);
-            
+
             // Recognize each character
             StringBuilder result = new StringBuilder();
             for (Bitmap block : characterBlocks) {
@@ -138,30 +138,30 @@ public class NeuralCaptchaSolver {
                     result.append(character);
                 }
             }
-            
+
             String captchaText = result.toString();
             Log.d(TAG, "Neural network recognized CAPTCHA: " + captchaText);
-            
+
             // Validate result
             return isValidCaptchaText(captchaText) ? captchaText : null;
-            
+
         } catch (Exception e) {
             Log.e(TAG, "Error solving CAPTCHA with neural network", e);
             return null;
         }
     }
-    
+
     /**
      * Preprocess image similar to UniCC implementation
      */
     private Bitmap preprocessImage(Bitmap original) {
         // Scale to standard size
         Bitmap scaled = Bitmap.createScaledBitmap(original, 100, 40, true);
-        
+
         // Convert to grayscale and apply threshold
         return binarizeImage(scaled);
     }
-    
+
     /**
      * Binarize image (convert to black and white)
      */
@@ -169,10 +169,10 @@ public class NeuralCaptchaSolver {
         int width = original.getWidth();
         int height = original.getHeight();
         Bitmap binarized = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        
+
         // Calculate threshold using Otsu's method
         int[] histogram = new int[256];
-        
+
         // Build histogram
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -181,10 +181,10 @@ public class NeuralCaptchaSolver {
                 histogram[gray]++;
             }
         }
-        
+
         // Find optimal threshold
         int threshold = findOtsuThreshold(histogram, width * height);
-        
+
         // Apply threshold
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -194,10 +194,10 @@ public class NeuralCaptchaSolver {
                 binarized.setPixel(x, y, binaryValue);
             }
         }
-        
+
         return binarized;
     }
-    
+
     /**
      * Find optimal threshold using Otsu's method
      */
@@ -206,36 +206,36 @@ public class NeuralCaptchaSolver {
         for (int i = 0; i < 256; i++) {
             sum += i * histogram[i];
         }
-        
+
         float sumB = 0;
         int wB = 0;
         int wF = 0;
         float varMax = 0;
         int threshold = 0;
-        
+
         for (int t = 0; t < 256; t++) {
             wB += histogram[t];
             if (wB == 0) continue;
-            
+
             wF = totalPixels - wB;
             if (wF == 0) break;
-            
+
             sumB += t * histogram[t];
-            
+
             float mB = sumB / wB;
             float mF = (sum - sumB) / wF;
-            
+
             float varBetween = wB * wF * (mB - mF) * (mB - mF);
-            
+
             if (varBetween > varMax) {
                 varMax = varBetween;
                 threshold = t;
             }
         }
-        
+
         return threshold;
     }
-    
+
     /**
      * Segment image into individual character blocks
      */
@@ -243,10 +243,10 @@ public class NeuralCaptchaSolver {
         List<Bitmap> blocks = new ArrayList<>();
         int width = image.getWidth();
         int height = image.getHeight();
-        
+
         // Find character boundaries by analyzing vertical projections
         boolean[] hasContent = new boolean[width];
-        
+
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 int pixel = image.getPixel(x, y);
@@ -256,11 +256,11 @@ public class NeuralCaptchaSolver {
                 }
             }
         }
-        
+
         // Find character segments
         List<int[]> segments = new ArrayList<>();
         int start = -1;
-        
+
         for (int x = 0; x < width; x++) {
             if (hasContent[x] && start == -1) {
                 start = x;
@@ -271,12 +271,12 @@ public class NeuralCaptchaSolver {
                 start = -1;
             }
         }
-        
+
         // Add final segment if needed
         if (start != -1 && width - start > 5) {
             segments.add(new int[]{start, width});
         }
-        
+
         // Extract character blocks
         for (int[] segment : segments) {
             int blockWidth = segment[1] - segment[0];
@@ -287,10 +287,10 @@ public class NeuralCaptchaSolver {
                 blocks.add(scaledBlock);
             }
         }
-        
+
         return blocks;
     }
-    
+
     /**
      * Recognize single character using neural network
      */
@@ -298,40 +298,40 @@ public class NeuralCaptchaSolver {
         try {
             // Convert bitmap to input array
             float[] input = bitmapToInputArray(characterImage);
-            
+
             // Forward pass through neural network
             float[] output = forwardPass(input);
-            
+
             // Find character with highest confidence
             int maxIndex = 0;
             float maxConfidence = output[0];
-            
+
             for (int i = 1; i < output.length; i++) {
                 if (output[i] > maxConfidence) {
                     maxConfidence = output[i];
                     maxIndex = i;
                 }
             }
-            
+
             // Return character if confidence is above threshold
             if (maxConfidence > CONFIDENCE_THRESHOLD) {
                 return String.valueOf(CHARSET.charAt(maxIndex));
             }
-            
+
         } catch (Exception e) {
             Log.e(TAG, "Error recognizing character", e);
         }
-        
+
         return null;
     }
-    
+
     /**
      * Convert bitmap to input array for neural network
      */
     private float[] bitmapToInputArray(Bitmap bitmap) {
         float[] input = new float[INPUT_SIZE];
         int index = 0;
-        
+
         for (int y = 0; y < 20; y++) {
             for (int x = 0; x < 20; x++) {
                 int pixel = bitmap.getPixel(x, y);
@@ -339,10 +339,10 @@ public class NeuralCaptchaSolver {
                 input[index++] = pixel == Color.BLACK ? 0.0f : 1.0f;
             }
         }
-        
+
         return input;
     }
-    
+
     /**
      * Perform forward pass through neural network
      */
@@ -356,7 +356,7 @@ public class NeuralCaptchaSolver {
             }
             hidden[i] = relu(sum);
         }
-        
+
         // Output layer
         float[] output = new float[OUTPUT_SIZE];
         for (int i = 0; i < OUTPUT_SIZE; i++) {
@@ -366,45 +366,45 @@ public class NeuralCaptchaSolver {
             }
             output[i] = sum;
         }
-        
+
         // Apply softmax
         return softmax(output);
     }
-    
+
     /**
      * ReLU activation function
      */
     private float relu(float x) {
         return Math.max(0, x);
     }
-    
+
     /**
      * Softmax activation function
      */
     private float[] softmax(float[] input) {
         float[] output = new float[input.length];
         float max = input[0];
-        
+
         // Find max for numerical stability
         for (float value : input) {
             if (value > max) max = value;
         }
-        
+
         // Calculate exponentials and sum
         float sum = 0;
         for (int i = 0; i < input.length; i++) {
             output[i] = (float) Math.exp(input[i] - max);
             sum += output[i];
         }
-        
+
         // Normalize
         for (int i = 0; i < output.length; i++) {
             output[i] /= sum;
         }
-        
+
         return output;
     }
-    
+
     /**
      * Validate if the recognized text looks like a valid captcha
      */

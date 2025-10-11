@@ -6,7 +6,7 @@
     android:background="@color/colorPrimary">
 
     <!-- Game Surface View -->
-    <view 
+    <view
         class="tk.therealsuji.vtopchennai.activities.FlappyGameActivity$GameView"
         android:id="@+id/game_view"
         android:layout_width="match_parent"

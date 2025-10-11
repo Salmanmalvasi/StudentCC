@@ -22,9 +22,11 @@ import tk.therealsuji.vtopchennai.models.Mark;
  */
 public class MarksGroupAdapter extends RecyclerView.Adapter<MarksGroupAdapter.ViewHolder> {
     List<List<Mark.AllData>> marks;
+    String courseCode;
 
-    public MarksGroupAdapter(List<List<Mark.AllData>> marks) {
+    public MarksGroupAdapter(List<List<Mark.AllData>> marks, String courseCode) {
         this.marks = marks;
+        this.courseCode = courseCode;
     }
 
     @NonNull
@@ -51,7 +53,7 @@ public class MarksGroupAdapter extends RecyclerView.Adapter<MarksGroupAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull MarksGroupAdapter.ViewHolder holder, int position) {
-        holder.setAdapter(new MarksItemAdapter(this.marks.get(position)));
+        holder.setAdapter(new MarksItemAdapter(this.marks.get(position), courseCode));
     }
 
     @Override

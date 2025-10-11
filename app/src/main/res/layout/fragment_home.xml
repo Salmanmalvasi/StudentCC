@@ -226,7 +226,7 @@
                         android:textColor="?attr/attendance_subtext_color"
                         android:textStyle="bold"
                         android:gravity="center"
-                        android:text="OD\nRemaining" />
+                        android:text="OD Classes\nremaining" />
 
                 </LinearLayout>
 

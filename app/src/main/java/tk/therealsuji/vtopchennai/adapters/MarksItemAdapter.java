@@ -1,11 +1,13 @@
 package tk.therealsuji.vtopchennai.adapters;
 
+import android.app.Activity;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
@@ -16,11 +18,20 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.badge.BadgeUtils;
 import com.google.android.material.badge.ExperimentalBadgeUtils;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.DecimalFormat;
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import tk.therealsuji.vtopchennai.R;
+import tk.therealsuji.vtopchennai.helpers.AppDatabase;
+import tk.therealsuji.vtopchennai.interfaces.ClassStatsDao;
+import tk.therealsuji.vtopchennai.models.ClassStats;
 import tk.therealsuji.vtopchennai.models.Mark;
 
 /**
@@ -32,9 +43,11 @@ import tk.therealsuji.vtopchennai.models.Mark;
  */
 public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.ViewHolder> {
     List<Mark.AllData> marks;
+    String courseCode;
 
-    public MarksItemAdapter(List<Mark.AllData> marks) {
+    public MarksItemAdapter(List<Mark.AllData> marks, String courseCode) {
         this.marks = marks;
+        this.courseCode = courseCode;
     }
 
     @NonNull
@@ -49,7 +62,7 @@ public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.setMarksItem(marks.get(position));
+        holder.setMarksItem(marks.get(position), courseCode);
     }
 
     @Override
@@ -59,13 +72,15 @@ public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         LinearLayout marksItem;
+        String courseCode;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             this.marksItem = (LinearLayout) itemView;
         }
 
-        public void setMarksItem(Mark.AllData marksItem) {
+        public void setMarksItem(Mark.AllData marksItem, String courseCode) {
+            this.courseCode = courseCode;
             AppCompatTextView markTitle = this.marksItem.findViewById(R.id.text_view_title);
             AppCompatTextView averageText = this.marksItem.findViewById(R.id.text_view_average);
             AppCompatTextView statusText = this.marksItem.findViewById(R.id.text_view_status);
@@ -75,6 +90,12 @@ public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.View
             Chip courseType = this.marksItem.findViewById(R.id.chip_course_type);
 
             markTitle.setText(marksItem.title);
+
+            // Add long press listener for entering class statistics
+            this.marksItem.setOnLongClickListener(v -> {
+                showClassStatsDialog(marksItem);
+                return true;
+            });
 
             if (!marksItem.isRead) {
                 BadgeDrawable markBadge = BadgeDrawable.create(markTitle.getContext());
@@ -140,6 +161,96 @@ public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.View
                 courseType.setChipIconResource(R.drawable.ic_theory);
                 courseType.setText(R.string.theory);
             }
+        }
+
+        private void showClassStatsDialog(Mark.AllData markData) {
+            if (markData.score == null || markData.maxScore == null) {
+                Toast.makeText(marksItem.getContext(), "Cannot add statistics for marks without score", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            View dialogView = LayoutInflater.from(marksItem.getContext()).inflate(R.layout.dialog_class_stats, null);
+
+            AppCompatTextView examInfo = dialogView.findViewById(R.id.text_view_exam_info);
+            TextInputEditText editAverage = dialogView.findViewById(R.id.edit_text_average);
+            TextInputEditText editMaxScore = dialogView.findViewById(R.id.edit_text_max_score);
+            TextInputEditText editStdDev = dialogView.findViewById(R.id.edit_text_std_dev);
+
+            examInfo.setText("Exam: " + markData.title + " (" + courseCode + ")");
+            editMaxScore.setText(String.valueOf(markData.maxScore));
+
+            // Pre-populate with existing data if available
+            AppDatabase appDatabase = AppDatabase.getInstance(marksItem.getContext());
+            ClassStatsDao classStatsDao = appDatabase.classStatsDao();
+
+            classStatsDao.getClassStats(courseCode, markData.title)
+                    .subscribeOn(Schedulers.single())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleObserver<ClassStats>() {
+                        @Override
+                        public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {}
+
+                        @Override
+                        public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull ClassStats classStats) {
+                            editAverage.setText(String.valueOf(classStats.classAverage));
+                            editMaxScore.setText(String.valueOf(classStats.maxScore));
+                            if (classStats.standardDeviation != null) {
+                                editStdDev.setText(String.valueOf(classStats.standardDeviation));
+                            }
+                        }
+
+                        @Override
+                        public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                            // No existing data, keep fields empty except max score
+                        }
+                    });
+
+            new MaterialAlertDialogBuilder(marksItem.getContext())
+                    .setTitle("Class Statistics")
+                    .setView(dialogView)
+                    .setPositiveButton("Save", (dialog, which) -> {
+                        try {
+                            String avgText = editAverage.getText().toString().trim();
+                            String maxText = editMaxScore.getText().toString().trim();
+                            String stdText = editStdDev.getText().toString().trim();
+
+                            if (avgText.isEmpty() || maxText.isEmpty()) {
+                                Toast.makeText(marksItem.getContext(), "Please enter both average and max score", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            double average = Double.parseDouble(avgText);
+                            double maxScore = Double.parseDouble(maxText);
+                            Double stdDev = stdText.isEmpty() ? null : Double.parseDouble(stdText);
+
+                            ClassStats classStats = new ClassStats(courseCode, markData.title, average, maxScore, stdDev);
+                            classStats.updatedAt = System.currentTimeMillis();
+
+                            classStatsDao.insertClassStats(classStats)
+                                    .subscribeOn(Schedulers.single())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(() -> {
+                                        Toast.makeText(marksItem.getContext(), "Class statistics saved", Toast.LENGTH_SHORT).show();
+                                    }, throwable -> {
+                                        Toast.makeText(marksItem.getContext(), "Error saving statistics: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
+
+                        } catch (NumberFormatException e) {
+                            Toast.makeText(marksItem.getContext(), "Please enter valid numbers", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .setNeutralButton("Delete", (dialog, which) -> {
+                        classStatsDao.deleteClassStatsForExam(courseCode, markData.title)
+                                .subscribeOn(Schedulers.single())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(() -> {
+                                    Toast.makeText(marksItem.getContext(), "Class statistics deleted", Toast.LENGTH_SHORT).show();
+                                }, throwable -> {
+                                    Toast.makeText(marksItem.getContext(), "Error deleting statistics", Toast.LENGTH_SHORT).show();
+                                });
+                    })
+                    .show();
         }
     }
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 6,
-    "identityHash": "bea1afbab4645fe807b886c0467e5e2a",
+    "identityHash": "19b333216accd1c17cadce48a32e9437",
     "entities": [
       {
         "tableName": "assignments",
@@ -251,6 +251,68 @@
         ]
       },
       {
+        "tableName": "class_stats",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `course_code` TEXT, `exam_title` TEXT, `class_average` REAL, `max_score` REAL, `standard_deviation` REAL, `created_at` INTEGER, `updated_at` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "courseCode",
+            "columnName": "course_code",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "examTitle",
+            "columnName": "exam_title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "classAverage",
+            "columnName": "class_average",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "maxScore",
+            "columnName": "max_score",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "standardDeviation",
+            "columnName": "standard_deviation",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
         "tableName": "courses",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `code` TEXT, `title` TEXT, `type` TEXT, `credits` INTEGER, `venue` TEXT, `faculty` TEXT, PRIMARY KEY(`id`))",
         "fields": [
@@ -459,110 +521,6 @@
             ]
           }
         ]
-      },
-      {
-        "tableName": "hostel_leave_requests",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`leave_id` TEXT NOT NULL, `visit_place` TEXT, `reason` TEXT, `leave_type` TEXT, `from_date` TEXT, `to_date` TEXT, `status` TEXT, `remarks` TEXT, `vtop_request_id` TEXT, `contact_number` TEXT, `is_emergency` INTEGER NOT NULL, `request_date` TEXT, `approval_comments` TEXT, `is_synced` INTEGER NOT NULL, `last_updated` TEXT, PRIMARY KEY(`leave_id`))",
-        "fields": [
-          {
-            "fieldPath": "leaveId",
-            "columnName": "leave_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "visitPlace",
-            "columnName": "visit_place",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "reason",
-            "columnName": "reason",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "leaveType",
-            "columnName": "leave_type",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "fromDate",
-            "columnName": "from_date",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "toDate",
-            "columnName": "to_date",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "status",
-            "columnName": "status",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "remarks",
-            "columnName": "remarks",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "vtopRequestId",
-            "columnName": "vtop_request_id",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "contactNumber",
-            "columnName": "contact_number",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "isEmergency",
-            "columnName": "is_emergency",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "requestDate",
-            "columnName": "request_date",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "approvalComments",
-            "columnName": "approval_comments",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "isSynced",
-            "columnName": "is_synced",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lastUpdated",
-            "columnName": "last_updated",
-            "affinity": "TEXT",
-            "notNull": false
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "leave_id"
-          ]
-        },
-        "indices": [],
-        "foreignKeys": []
       },
       {
         "tableName": "laundry_schedules",
@@ -1082,7 +1040,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bea1afbab4645fe807b886c0467e5e2a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '19b333216accd1c17cadce48a32e9437')"
     ]
   }
 }

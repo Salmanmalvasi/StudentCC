@@ -13,6 +13,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import tk.therealsuji.vtopchennai.interfaces.AssignmentsDao;
 import tk.therealsuji.vtopchennai.interfaces.AttendanceDao;
 import tk.therealsuji.vtopchennai.interfaces.AttendanceRecordDao;
+import tk.therealsuji.vtopchennai.interfaces.ClassStatsDao;
 import tk.therealsuji.vtopchennai.interfaces.CoursesDao;
 import tk.therealsuji.vtopchennai.interfaces.ExamsDao;
 import tk.therealsuji.vtopchennai.interfaces.LaundryScheduleDao;
@@ -26,6 +27,7 @@ import tk.therealsuji.vtopchennai.models.Assignment;
 import tk.therealsuji.vtopchennai.models.Attachment;
 import tk.therealsuji.vtopchennai.models.Attendance;
 import tk.therealsuji.vtopchennai.models.AttendanceRecord;
+import tk.therealsuji.vtopchennai.models.ClassStats;
 import tk.therealsuji.vtopchennai.models.Course;
 import tk.therealsuji.vtopchennai.models.CumulativeMark;
 import tk.therealsuji.vtopchennai.models.Exam;
@@ -44,6 +46,7 @@ import tk.therealsuji.vtopchennai.models.Timetable;
                 Attachment.class,
                 Attendance.class,
                 AttendanceRecord.class,
+                ClassStats.class,
                 Course.class,
                 CumulativeMark.class,
                 Exam.class,
@@ -56,10 +59,11 @@ import tk.therealsuji.vtopchennai.models.Timetable;
                 Staff.class,
                 Timetable.class
         },
-    version = 5,
+    version = 6,
         autoMigrations = {
                 @AutoMigration(from = 1, to = 2),
                 @AutoMigration(from = 3, to = 4),
+                @AutoMigration(from = 5, to = 6),
         }
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -92,6 +96,8 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract AttendanceDao attendanceDao();
 
     public abstract AttendanceRecordDao attendanceRecordDao();
+
+    public abstract ClassStatsDao classStatsDao();
 
     public abstract CoursesDao coursesDao();
 

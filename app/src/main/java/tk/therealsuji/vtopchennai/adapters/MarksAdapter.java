@@ -35,9 +35,11 @@ import tk.therealsuji.vtopchennai.models.Mark;
  */
 public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> {
     List<Observable<List<Mark.AllData>>> markObservables;
+    List<String> courseCodes;
 
-    public MarksAdapter(List<Observable<List<Mark.AllData>>> markObservables) {
+    public MarksAdapter(List<Observable<List<Mark.AllData>>> markObservables, List<String> courseCodes) {
         this.markObservables = markObservables;
+        this.courseCodes = courseCodes;
     }
 
     @NonNull
@@ -52,6 +54,7 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull MarksAdapter.ViewHolder holder, int position) {
+        String courseCode = courseCodes.get(position);
         this.markObservables.get(position)
                 .subscribe(new Observer<List<Mark.AllData>>() {
                     @Override
@@ -61,7 +64,7 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
                     @Override
                     public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Mark.AllData> marks) {
                         holder.segregateMarks(marks);
-                        holder.displayMarks();
+                        holder.displayMarks(courseCode);
                     }
 
                     @Override
@@ -178,7 +181,7 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
             this.addChips();
         }
 
-        public void displayMarks() {
+        public void displayMarks(String courseCode) {
             List<List<Mark.AllData>> markGroups = new ArrayList<>();
 
             markGroups.add(this.marks.get("theory"));
@@ -187,7 +190,7 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
 
             markGroups.removeAll(Collections.singleton(null));
 
-            this.markGroups.setAdapter(new MarksGroupAdapter(markGroups));
+            this.markGroups.setAdapter(new MarksGroupAdapter(markGroups, courseCode));
         }
 
         public void displayError(String errorMessage) {

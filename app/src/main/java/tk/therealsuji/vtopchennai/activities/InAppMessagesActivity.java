@@ -30,7 +30,7 @@ public class InAppMessagesActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefresh;
     private TextView emptyView;
     private InAppMessageManager messageManager;
-    
+
     private final BroadcastReceiver messageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -89,11 +89,11 @@ public class InAppMessagesActivity extends AppCompatActivity {
 
     private void loadMessages() {
         swipeRefresh.setRefreshing(true);
-        
+
         // Simulate network delay
         recyclerView.postDelayed(() -> {
             List<InAppMessage> messages = messageManager.getAllMessages();
-            
+
             if (messages.isEmpty()) {
                 recyclerView.setVisibility(View.GONE);
                 emptyView.setVisibility(View.VISIBLE);
@@ -102,7 +102,7 @@ public class InAppMessagesActivity extends AppCompatActivity {
                 emptyView.setVisibility(View.GONE);
                 adapter.submitList(messages);
             }
-            
+
             swipeRefresh.setRefreshing(false);
         }, 500);
     }
@@ -110,7 +110,7 @@ public class InAppMessagesActivity extends AppCompatActivity {
     private void onMessageClick(InAppMessage message) {
         // Mark as read
         messageManager.markAsRead(message.id);
-        
+
         // Handle action if present
         if (message.hasAction()) {
             // You can implement URL handling or specific actions here
@@ -120,7 +120,7 @@ public class InAppMessagesActivity extends AppCompatActivity {
             intent.putExtra("title", message.title);
             startActivity(intent);
         }
-        
+
         // Refresh the list to update read status
         loadMessages();
     }

@@ -50,16 +50,16 @@ public class InAppMessageAdapter extends RecyclerView.Adapter<InAppMessageAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         InAppMessage message = messages.get(position);
-        
+
         // Set title
         holder.titleText.setText(message.title);
-        
+
         // Set message content
         holder.messageText.setText(message.message);
-        
+
         // Set timestamp
         holder.timeText.setText(message.getFormattedTime());
-        
+
         // Set priority indicator
         if (message.isHighPriority()) {
             holder.priorityIndicator.setVisibility(View.VISIBLE);
@@ -69,14 +69,14 @@ public class InAppMessageAdapter extends RecyclerView.Adapter<InAppMessageAdapte
         } else {
             holder.priorityIndicator.setVisibility(View.GONE);
         }
-        
+
         // Set action indicator
         if (message.hasAction()) {
             holder.actionIndicator.setVisibility(View.VISIBLE);
         } else {
             holder.actionIndicator.setVisibility(View.GONE);
         }
-        
+
         // Style based on read status
         if (message.isRead) {
             holder.titleText.setTypeface(null, Typeface.NORMAL);
@@ -90,7 +90,7 @@ public class InAppMessageAdapter extends RecyclerView.Adapter<InAppMessageAdapte
                 ContextCompat.getColor(holder.itemView.getContext(), R.color.colorPrimary)
             );
         }
-        
+
         // Set click listener
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {

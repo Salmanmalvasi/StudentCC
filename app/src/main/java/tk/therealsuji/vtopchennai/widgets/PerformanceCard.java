@@ -22,7 +22,7 @@ import tk.therealsuji.vtopchennai.animations.AlphaAnimation;
 import tk.therealsuji.vtopchennai.animations.ResizeAnimation;
 
 public class PerformanceCard extends LinearLayout {
-    AppCompatTextView title, scoreText;
+    AppCompatTextView title, scoreText, subtitleText;
     Context context;
     ProgressBar scoreProgress;
 
@@ -40,6 +40,7 @@ public class PerformanceCard extends LinearLayout {
 
         this.title = new AppCompatTextView(context);
         this.scoreText = new AppCompatTextView(context);
+        this.subtitleText = new AppCompatTextView(context);
         this.scoreProgress = new ProgressBar(context, null, 0, R.style.Widget_VTOP_CircularProgressBar);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PerformanceCard, 0, 0);
@@ -122,6 +123,18 @@ public class PerformanceCard extends LinearLayout {
         container.addView(this.scoreText);
         this.addView(container);
 
+        // Add subtitle text below the circular progress
+        LayoutParams subtitleParams = new LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT
+        );
+        subtitleParams.setMargins(0, (int) (10 * pixelDensity), 0, 0);
+        this.subtitleText.setLayoutParams(subtitleParams);
+        this.subtitleText.setTextColor(colorPrimary.data);
+        this.subtitleText.setTextSize(12);
+        this.subtitleText.setVisibility(GONE); // Initially hidden
+        this.addView(this.subtitleText);
+
         this.setBackground(ContextCompat.getDrawable(this.context, R.drawable.background_card));
         this.setOrientation(VERTICAL);
         this.setPadding(
@@ -134,6 +147,27 @@ public class PerformanceCard extends LinearLayout {
 
     public void setTitle(String title) {
         this.title.setText(title);
+    }
+
+    public void setSubtitle(String subtitle) {
+        if (subtitle != null && !subtitle.trim().isEmpty()) {
+            this.subtitleText.setText(subtitle);
+            this.subtitleText.setVisibility(VISIBLE);
+        } else {
+            this.subtitleText.setVisibility(GONE);
+        }
+    }
+
+    public void hideScoreDisplay() {
+        // Hide the circular progress and score text, but keep subtitle visible
+        this.scoreProgress.setVisibility(GONE);
+        this.scoreText.setVisibility(GONE);
+    }
+
+    public void showScoreDisplay() {
+        // Show the circular progress and score text
+        this.scoreProgress.setVisibility(VISIBLE);
+        this.scoreText.setVisibility(VISIBLE);
     }
 
     public void setScore(Double score, Double max) {
@@ -152,8 +186,10 @@ public class PerformanceCard extends LinearLayout {
 
         if (indeterminate) {
             this.scoreText.setVisibility(INVISIBLE);
+            this.subtitleText.setVisibility(GONE);
         } else {
             this.scoreText.setVisibility(VISIBLE);
+            // Don't automatically show subtitle, let setSubtitle control it
         }
     }
 

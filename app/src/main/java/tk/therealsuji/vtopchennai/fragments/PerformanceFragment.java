@@ -33,7 +33,10 @@ import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.adapters.EmptyStateAdapter;
 import tk.therealsuji.vtopchennai.adapters.MarksAdapter;
 import tk.therealsuji.vtopchennai.helpers.AppDatabase;
+import tk.therealsuji.vtopchennai.helpers.RelativePerformanceCalculator;
+import tk.therealsuji.vtopchennai.interfaces.ClassStatsDao;
 import tk.therealsuji.vtopchennai.interfaces.MarksDao;
+import tk.therealsuji.vtopchennai.models.ClassStats;
 import tk.therealsuji.vtopchennai.models.Course;
 import tk.therealsuji.vtopchennai.models.CumulativeMark;
 import tk.therealsuji.vtopchennai.models.Mark;
@@ -44,6 +47,7 @@ public class PerformanceFragment extends Fragment {
     AppBarLayout appBarLayout;
     ViewPager2 marks;
     View performanceCards;
+    List<Course.AllData> courses; // Instance variable to store courses
 
     public PerformanceFragment() {
         // Required empty public constructor
@@ -122,8 +126,9 @@ public class PerformanceFragment extends Fragment {
 
         TabLayout courseTabs = performanceFragment.findViewById(R.id.tab_layout_courses);
 
-        AppDatabase appDatabase = AppDatabase.getInstance(requireActivity().getApplicationContext());
-        MarksDao marksDao = appDatabase.marksDao();
+                        AppDatabase appDatabase = AppDatabase.getInstance(requireActivity().getApplicationContext());
+                        MarksDao marksDao = appDatabase.marksDao();
+                        ClassStatsDao classStatsDao = appDatabase.classStatsDao();
 
         marksDao.getCourses()
                 .subscribeOn(Schedulers.single())
@@ -135,6 +140,8 @@ public class PerformanceFragment extends Fragment {
 
                     @Override
                     public void onSuccess(@NonNull List<Course.AllData> courses) {
+                        // Store courses as instance variable for use in refresh methods
+                        PerformanceFragment.this.courses = courses;
                         if (courses.size() == 0) {
                             displayEmptyState(EmptyStateAdapter.TYPE_NO_PERFORMANCE, null);
                             return;
@@ -144,6 +151,7 @@ public class PerformanceFragment extends Fragment {
                         courseTabs.setVisibility(View.VISIBLE);
 
                         List<Observable<List<Mark.AllData>>> markObservables = new ArrayList<>();
+                        List<String> courseCodes = new ArrayList<>();
                         for (Course.AllData course : courses) {
                             Observable<List<Mark.AllData>> observable = Observable.fromSingle(marksDao.getMarks(course.courseCode))
                                     .subscribeOn(Schedulers.single())
@@ -152,9 +160,10 @@ public class PerformanceFragment extends Fragment {
                                     .autoConnect();
 
                             markObservables.add(observable);
+                            courseCodes.add(course.courseCode);
                         }
 
-                        marks.setAdapter(new MarksAdapter(markObservables));
+                        marks.setAdapter(new MarksAdapter(markObservables, courseCodes));
                         new TabLayoutMediator(courseTabs, marks, (tab, position) -> {
                             Course.AllData course = courses.get(position);
 
@@ -214,6 +223,7 @@ public class PerformanceFragment extends Fragment {
 
                         PerformanceCard overall = performanceFragment.findViewById(R.id.performance_card_overall);
                         PerformanceCard theory = performanceFragment.findViewById(R.id.performance_card_theory);
+                        PerformanceCard average = performanceFragment.findViewById(R.id.performance_card_average);
                         PerformanceCard project = performanceFragment.findViewById(R.id.performance_card_project);
                         PerformanceCard lab = performanceFragment.findViewById(R.id.performance_card_lab);
 
@@ -230,6 +240,7 @@ public class PerformanceFragment extends Fragment {
 
                                 overall.setIndeterminate(true);
                                 theory.setIndeterminate(true);
+                                average.setIndeterminate(true);
                                 project.setIndeterminate(true);
                                 lab.setIndeterminate(true);
 
@@ -258,6 +269,9 @@ public class PerformanceFragment extends Fragment {
                                                 } else {
                                                     theory.hide();
                                                 }
+
+                                                // Update the Average card using the new method
+                                                updatePerformanceCards(position);
 
                                                 if (cumulativeMark.projectTotal != null) {
                                                     project.show();
@@ -316,6 +330,99 @@ public class PerformanceFragment extends Fragment {
                 });
 
         return performanceFragment;
+    }
+
+    /**
+     * Refresh the performance display for the current course
+     * Call this after save/delete operations to update the Average card immediately
+     */
+    public void refreshPerformanceDisplay() {
+        if (marks == null || marks.getAdapter() == null) return;
+        
+        // Get current position and trigger refresh
+        int currentPosition = marks.getCurrentItem();
+        if (currentPosition >= 0 && courses != null && currentPosition < courses.size()) {
+            // Force refresh the current page by calling updatePerformanceCards
+            updatePerformanceCards(currentPosition);
+        }
+    }
+
+    /**
+     * Update performance cards for a specific course position
+     */
+    private void updatePerformanceCards(int position) {
+        if (getView() == null || courses == null || position >= courses.size()) return;
+        
+        String courseCode = courses.get(position).courseCode;
+        
+        PerformanceCard average = getView().findViewById(R.id.performance_card_average);
+        
+        // Get DAO instances
+        AppDatabase database = AppDatabase.getInstance(getContext());
+        ClassStatsDao classStatsDao = database.classStatsDao();
+        MarksDao marksDao = database.marksDao();
+        
+        // Calculate and display relative performance for theory courses in Average card
+        if (RelativePerformanceCalculator.isTheoryCourse(courseCode)) {
+            classStatsDao.getAllClassStatsForCourse(courseCode)
+                    .subscribeOn(Schedulers.single())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleObserver<List<ClassStats>>() {
+                        @Override
+                        public void onSubscribe(@NonNull Disposable d) {}
+
+                        @Override
+                        public void onSuccess(@NonNull List<ClassStats> classStatsList) {
+                            if (classStatsList != null && !classStatsList.isEmpty()) {
+                                // Get marks for this course to calculate relative performance
+                                marksDao.getMarks(courseCode)
+                                        .subscribeOn(Schedulers.single())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new SingleObserver<List<Mark.AllData>>() {
+                                            @Override
+                                            public void onSubscribe(@NonNull Disposable d) {}
+
+                                            @Override
+                                            public void onSuccess(@NonNull List<Mark.AllData> marks) {
+                                                // Get the raw numeric value for weightage marks ahead/behind
+                                                Double weightageAheadValue = RelativePerformanceCalculator.getWeightageMarksAheadValue(marks, classStatsList);
+                                                
+                                                if (weightageAheadValue != null) {
+                                                    average.show();
+                                                    
+                                                    // Hide the circular progress and percentage display
+                                                    average.hideScoreDisplay();
+                                                    
+                                                    // Format the relative performance value in weightage 
+                                                    String formattedValue = (weightageAheadValue >= 0 ? "+" : "") + 
+                                                            new java.text.DecimalFormat("#.##").format(weightageAheadValue);
+                                                    
+                                                    // Show the weightage difference prominently in the subtitle
+                                                    average.setSubtitle(formattedValue + " weightage from average");
+                                                    
+                                                } else {
+                                                    average.hide();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onError(@NonNull Throwable e) {
+                                                average.hide();
+                                            }
+                                        });
+                            } else {
+                                average.hide();
+                            }
+                        }
+
+                        @Override
+                        public void onError(@NonNull Throwable e) {
+                            average.hide();
+                        }
+                    });
+        } else {
+            average.hide();
+        }
     }
 
     @Override

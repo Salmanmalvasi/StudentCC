@@ -69,8 +69,8 @@ public class HostelLeaveRequest {
 
     // Constructor with parameters - ignored by Room
     @Ignore
-    public HostelLeaveRequest(@NonNull String leaveId, String visitPlace, String reason, 
-                             String leaveType, String fromDate, String toDate, 
+    public HostelLeaveRequest(@NonNull String leaveId, String visitPlace, String reason,
+                             String leaveType, String fromDate, String toDate,
                              String status, String remarks) {
         this.leaveId = leaveId;
         this.visitPlace = visitPlace;
@@ -149,7 +149,7 @@ public class HostelLeaveRequest {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm", Locale.ENGLISH);
             Date startDate = dateFormat.parse(fromDate);
             Date endDate = dateFormat.parse(toDate);
-            
+
             if (startDate != null && endDate != null) {
                 return !endDate.before(startDate);
             }
@@ -159,7 +159,7 @@ public class HostelLeaveRequest {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
                 Date startDate = simpleDateFormat.parse(fromDate);
                 Date endDate = simpleDateFormat.parse(toDate);
-                
+
                 if (startDate != null && endDate != null) {
                     return !endDate.before(startDate);
                 }
@@ -167,7 +167,7 @@ public class HostelLeaveRequest {
                 return false;
             }
         }
-        
+
         return false;
     }
 }

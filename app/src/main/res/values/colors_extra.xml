@@ -9,5 +9,3 @@
     <color name="assessment_background">@color/colorSurfaceVariant</color>
     <color name="error_color">@color/colorError</color>
 </resources>
-
-

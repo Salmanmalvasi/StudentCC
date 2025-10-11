@@ -13,11 +13,11 @@ public class InAppMessage {
     public long timestamp;
     public boolean isRead;
     public String messageType; // "announcement", "update", "alert", "promotion"
-    
+
     public InAppMessage() {
         // Default constructor
     }
-    
+
     public InAppMessage(String id, String title, String message) {
         this.id = id;
         this.title = title;
@@ -26,35 +26,35 @@ public class InAppMessage {
         this.isRead = false;
         this.priority = "normal";
     }
-    
+
     /**
      * Check if message is high priority
      */
     public boolean isHighPriority() {
         return "high".equals(priority);
     }
-    
+
     /**
      * Check if message has an action URL
      */
     public boolean hasAction() {
         return actionUrl != null && !actionUrl.trim().isEmpty();
     }
-    
+
     /**
      * Check if message has an image
      */
     public boolean hasImage() {
         return imageUrl != null && !imageUrl.trim().isEmpty();
     }
-    
+
     /**
      * Get formatted timestamp
      */
     public String getFormattedTime() {
         long now = System.currentTimeMillis();
         long diff = now - timestamp;
-        
+
         if (diff < 60 * 1000) {
             return "Just now";
         } else if (diff < 60 * 60 * 1000) {
