@@ -88,6 +88,12 @@ public class PerformanceFragment extends Fragment {
         this.performanceCards = performanceFragment.findViewById(R.id.horizontal_scroll_view_performance_cards);
         LinearLayout header = performanceFragment.findViewById(R.id.linear_layout_header);
 
+        // Set up help button
+        com.google.android.material.button.MaterialButton helpButton = performanceFragment.findViewById(R.id.marks_help_button);
+        if (helpButton != null) {
+            helpButton.setOnClickListener(v -> showMarksHelpDialog());
+        }
+
         float pixelDensity = this.getResources().getDisplayMetrics().density;
 
         getParentFragmentManager().setFragmentResultListener("customInsets", this, (requestKey, result) -> {
@@ -167,8 +173,8 @@ public class PerformanceFragment extends Fragment {
                         new TabLayoutMediator(courseTabs, marks, (tab, position) -> {
                             Course.AllData course = courses.get(position);
 
-                            tab.setText(course.courseCode);
-                            TooltipCompat.setTooltipText(tab.view, course.courseTitle);
+                            tab.setText(course.courseTitle);
+                            TooltipCompat.setTooltipText(tab.view, course.courseCode);
                             tab.view.setContentDescription(course.courseTitle);
 
                             if (course.unreadMarkCount != 0) {
@@ -338,7 +344,7 @@ public class PerformanceFragment extends Fragment {
      */
     public void refreshPerformanceDisplay() {
         if (marks == null || marks.getAdapter() == null) return;
-        
+
         // Get current position and trigger refresh
         int currentPosition = marks.getCurrentItem();
         if (currentPosition >= 0 && courses != null && currentPosition < courses.size()) {
@@ -352,16 +358,16 @@ public class PerformanceFragment extends Fragment {
      */
     private void updatePerformanceCards(int position) {
         if (getView() == null || courses == null || position >= courses.size()) return;
-        
+
         String courseCode = courses.get(position).courseCode;
-        
+
         PerformanceCard average = getView().findViewById(R.id.performance_card_average);
-        
+
         // Get DAO instances
         AppDatabase database = AppDatabase.getInstance(getContext());
         ClassStatsDao classStatsDao = database.classStatsDao();
         MarksDao marksDao = database.marksDao();
-        
+
         // Calculate and display relative performance for theory courses in Average card
         if (RelativePerformanceCalculator.isTheoryCourse(courseCode)) {
             classStatsDao.getAllClassStatsForCourse(courseCode)
@@ -386,17 +392,17 @@ public class PerformanceFragment extends Fragment {
                                                                                             public void onSuccess(@NonNull List<Mark.AllData> marks) {
                                                                                                 // Get the raw numeric value for weightage marks ahead/behind
                                                                                                 Double weightageAheadValue = RelativePerformanceCalculator.getWeightageMarksAheadValue(marks, classStatsList);
-                                                                                                
+
                                                                                                 if (weightageAheadValue != null) {
                                                                                                     average.show();
-                                                                                                    
-                                                                                                    // Format the relative performance value in weightage 
-                                                                                                    String formattedValue = (weightageAheadValue >= 0 ? "+" : "") + 
+
+                                                                                                    // Format the relative performance value in weightage
+                                                                                                    String formattedValue = (weightageAheadValue >= 0 ? "+" : "") +
                                                                                                             new java.text.DecimalFormat("#.##").format(weightageAheadValue);
-                                                                                                    
+
                                                                                                     // Use the new two-line display format
                                                                                                     average.setRelativePerformance(formattedValue);
-                                                                                                    
+
                                                                                                 } else {
                                                                                                     average.hide();
                                                                                                 }
@@ -418,6 +424,17 @@ public class PerformanceFragment extends Fragment {
         } else {
             average.hide();
         }
+    }
+
+    private void showMarksHelpDialog() {
+        if (!isAdded()) return;
+
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle(getString(R.string.help_marks_title))
+               .setMessage(getString(R.string.help_marks_content))
+               .setPositiveButton(getString(R.string.got_it), null)
+               .setIcon(R.drawable.ic_info)
+               .show();
     }
 
     @Override

@@ -109,13 +109,12 @@ public class ProfileFragment extends Fragment {
                     null
             ),
             new ItemData(
-                    R.drawable.ic_game,
-                    "Life Achievement Game",
-                    "Try to get 9+ CGPA + Friends + Sleep + 50 LPA! (Impossible) 😈",
+                    R.drawable.ic_link,
+                    "StudentCC Website",
+                    "Visit the official StudentCC website",
                     context -> {
                         if (!isAdded()) return;
-                        Intent intent = new Intent(requireContext(), tk.therealsuji.vtopchennai.activities.FlappyGameActivity.class);
-                        requireContext().startActivity(intent);
+                        SettingsRepository.openBrowser(context, "https://salmanmalvasi.github.io/studentcc-landing.html");
                     }
             ),
             new ItemData(
@@ -346,6 +345,16 @@ public class ProfileFragment extends Fragment {
                     "Join our WhatsApp community",
                     context -> {                        if (!isAdded()) return;
                         SettingsRepository.openBrowser(context, "https://chat.whatsapp.com/HgXMjKomvYyCSCrmbWFcbG");
+                    }
+            ),
+            new ItemData(
+                    R.drawable.ic_flappy_bird,
+                    "3k Special",
+                    "Thanks for 3K downloads! Share with friends! 🚀",
+                    context -> {
+                        if (!isAdded()) return;
+                        Intent intent = new Intent(requireContext(), tk.therealsuji.vtopchennai.activities.FlappyGameActivity.class);
+                        requireContext().startActivity(intent);
                     }
             ),
             new ItemData(

@@ -44,21 +44,21 @@ public class FlappyGameActivity extends AppCompatActivity {
 
     private SharedPreferences preferences;
     private static final String PREF_HIGH_SCORE = "flappy_high_score";
-    private static final int IMPOSSIBLE_TARGET = 750; // 750 points for 9.0 CGPA 😈
+    private static final int IMPOSSIBLE_TARGET = 700; // Reduced from 750 for easier achievement 🎉
 
-    // Progressive scoring system - starts from 6.0 CGPA (because we're generous! 😈)
+    // Progressive scoring system - starts from 6.0 CGPA (everyone deserves a good start! �)
     private static final int[] CGPA_THRESHOLDS = {
-        0,    // Start at 6.0 CGPA - Everyone deserves a head start!
-        30,   // 6.5 CGPA - 30 points (still easy)
-        70,   // 7.0 CGPA - 40 more points
-        120,  // 7.5 CGPA - 50 more points
-        180,  // 8.0 CGPA - 60 more points
-        250,  // 8.5 CGPA - 70 more points (getting tougher)
-        330,  // 8.6 CGPA - 80 more points
-        420,  // 8.7 CGPA - 90 more points
-        520,  // 8.8 CGPA - 100 more points
-        630,  // 8.9 CGPA - 110 more points (brutal zone)
-        750   // 9.0 CGPA - 120 more points (IMPOSSIBLE!)
+        0,    // Start at 6.0 CGPA - Great foundation!
+        25,   // 6.5 CGPA - 25 points (easier!)
+        55,   // 7.0 CGPA - 30 more points
+        90,   // 7.5 CGPA - 35 more points
+        130,  // 8.0 CGPA - 40 more points
+        180,  // 8.5 CGPA - 50 more points
+        240,  // 8.6 CGPA - 60 more points
+        310,  // 8.7 CGPA - 70 more points
+        390,  // 8.8 CGPA - 80 more points
+        480,  // 8.9 CGPA - 90 more points
+        700   // 9.0 CGPA - 120 more points (Achievable!)
     };
 
     @Override
@@ -126,9 +126,9 @@ public class FlappyGameActivity extends AppCompatActivity {
                     int highScore = preferences.getInt(PREF_HIGH_SCORE, 0);
 
                     if (finalScore >= IMPOSSIBLE_TARGET) {
-                        // They actually did it?!
-                        gameOverText.setText("IMPOSSIBLE! 🤯\nYou broke the matrix!");
-                        trollMessage.setText("Wait... how did you...? 🤖\nThis wasn't supposed to happen!\n\nCongratulations! You've achieved:\n✅ 9.0+ CGPA\n✅ Friends who believe in you\n✅ 8 hours of sleep\n✅ 50 LPA job offer\n\n...in a mobile game. Reality still pending! 😂");
+                        // They actually did it! 🎉
+                        gameOverText.setText("AMAZING! 🎉\nYou reached the summit!");
+                        trollMessage.setText("Incredible! You've achieved greatness! 🌟\n\nCongratulations! You've unlocked:\n✅ 9.0+ CGPA\n✅ Amazing friends\n✅ Great sleep schedule\n✅ Dream job secured\n\n...in this fun game! Time to make it real! �");
                     } else if (finalScore > highScore) {
                         preferences.edit().putInt(PREF_HIGH_SCORE, finalScore).apply();
                         highScoreText.setText("High Score: " + finalScore);
@@ -153,7 +153,7 @@ public class FlappyGameActivity extends AppCompatActivity {
         scoreText.setText("Score: 0");
         cgpaText.setText("CGPA: 6.0"); // Start from 6.0!
         cgpaProgressBar.setProgress(0);
-        motivationText.setText("Starting strong at 6.0 CGPA! Let's climb higher! �");
+        motivationText.setText("Starting at 6.0 CGPA! Let's aim higher! 🚀");
         gameView.startGame();
     }
 
@@ -163,7 +163,7 @@ public class FlappyGameActivity extends AppCompatActivity {
             if (score < CGPA_THRESHOLDS[i]) {
                 if (i == 0) {
                     // Before first threshold - still start at 6.0 base
-                    return 6.0f + (score / 30.0f) * 0.5f; // 6.0 to 6.5
+                    return 6.0f + (score / 25.0f) * 0.5f; // 6.0 to 6.5 (easier thresholds)
                 } else {
                     // Between thresholds - interpolate
                     int prevThreshold = CGPA_THRESHOLDS[i-1];
@@ -173,32 +173,32 @@ public class FlappyGameActivity extends AppCompatActivity {
             }
         }
         // Beyond all thresholds - they made it!
-        return 9.0f + (score - CGPA_THRESHOLDS[CGPA_THRESHOLDS.length-1]) / 100.0f;
+        return 9.0f + (score - CGPA_THRESHOLDS[CGPA_THRESHOLDS.length-1]) / 50.0f; // Easier bonus
     }
 
     private void updateMotivationText(int score) {
         float cgpa = calculateCGPA(score);
 
-        if (score >= 630) {
-            motivationText.setText("8.9 CGPA! SO CLOSE TO PERFECTION! 😱✨");
-        } else if (score >= 520) {
-            motivationText.setText("8.8 CGPA! Your parents are crying with joy! 🥹");
-        } else if (score >= 420) {
-            motivationText.setText("8.7 CGPA! Professor's favorite student! 🏆");
-        } else if (score >= 330) {
-            motivationText.setText("8.6 CGPA! Excellence is your middle name! 💫");
-        } else if (score >= 250) {
-            motivationText.setText("8.5 CGPA! You're absolutely crushing it! 🔥");
+        if (score >= 480) {
+            motivationText.setText("8.9 CGPA! Almost at the peak! 🎯✨");
+        } else if (score >= 390) {
+            motivationText.setText("8.8 CGPA! Your hard work is showing! 📈");
+        } else if (score >= 310) {
+            motivationText.setText("8.7 CGPA! Excellent progress! �");
+        } else if (score >= 240) {
+            motivationText.setText("8.6 CGPA! You're doing great! ⭐");
         } else if (score >= 180) {
-            motivationText.setText("8.0 CGPA! Outstanding performance! ⭐");
-        } else if (score >= 120) {
-            motivationText.setText("7.5 CGPA! Above average superstar! �");
-        } else if (score >= 70) {
-            motivationText.setText("7.0 CGPA! Great job! Keep climbing! 💪");
-        } else if (score >= 30) {
-            motivationText.setText("6.5 CGPA! Nice start! You're doing well! 📈");
+            motivationText.setText("8.5 CGPA! Fantastic journey so far! �");
+        } else if (score >= 130) {
+            motivationText.setText("8.0 CGPA! Solid achievement! 💪");
+        } else if (score >= 90) {
+            motivationText.setText("7.5 CGPA! Keep up the momentum! 📊");
+        } else if (score >= 55) {
+            motivationText.setText("7.0 CGPA! Nice progress! 🎯");
+        } else if (score >= 25) {
+            motivationText.setText("6.5 CGPA! Good start! Keep going! 📈");
         } else {
-            motivationText.setText("6.0 CGPA! Everyone starts somewhere decent! �");
+            motivationText.setText("6.0 CGPA! Building momentum! 🌟");
         }
     }
 
@@ -210,75 +210,75 @@ public class FlappyGameActivity extends AppCompatActivity {
     private String getProgressiveTrollMessage(int score) {
         float cgpa = calculateCGPA(score);
 
-        if (score >= 630) {
-            return "8.9 CGPA! 😤 Oh wow, you're so close to perfection!\nToo bad the universe has other plans.\n\nJust 120 more points! What could possibly go wrong? 🎭\n\nHint: Everything. Everything can go wrong. 💀";
-        } else if (score >= 520) {
-            return "8.8 CGPA! 🙄 LinkedIn influencer vibes!\n'Blessed to announce...' energy detected!\n\nCareful, your ego is showing! 😏\n\nBut hey, at least you're consistent... consistently annoying! 🤡";
-        } else if (score >= 420) {
-            return "8.7 CGPA! 🤓 Teacher's pet achievement unlocked!\nBet you remind the teacher about homework too!\n\nNerd level: Maximum! �\n\nDo you even have friends or just study buddies? 👻";
-        } else if (score >= 330) {
-            return "8.6 CGPA! 😎 Excellence? More like 'excellently boring'!\nWhen was the last time you touched grass?\n\nSocial life: 404 Not Found! 🤖\n\nYour calculator sees you more than your family! 💻";
-        } else if (score >= 250) {
-            return "8.5 CGPA! 😏 Outstanding student or outstanding loser?\nYour resume is thicc, your social skills... not so much!\n\nCongrats on your academic prison! 🏛️\n\nFun fact: Books don't hug back! 📚";
+        if (score >= 480) {
+            return "8.9 CGPA! 🎉 You're almost at the summit!\nJust a little more to reach perfection!\n\nYou've got this! Keep pushing! 💪\n\nLegend status is within reach! 🏆";
+        } else if (score >= 390) {
+            return "8.8 CGPA! 🌟 Impressive dedication!\nYour consistency is paying off!\n\nKeep this energy going! �\n\nYou're in the elite zone now! ⭐";
+        } else if (score >= 310) {
+            return "8.7 CGPA! 📚 Knowledge champion!\nYou're clearly putting in the work!\n\nStudy smarter, not just harder! 🎯\n\nGreat balance of effort and results! �";
+        } else if (score >= 240) {
+            return "8.6 CGPA! 🎓 Academic excellence!\nYou've found your rhythm!\n\nConsistency is your superpower! ⚡\n\nKeep this momentum rolling! 🌊";
         } else if (score >= 180) {
-            return "8.0 CGPA! 🎭 Elite club member!\nWelcome to the 'I peaked in college' support group!\n\nReality check incoming... 💥\n\nSpending 6.0 CGPA like a pro now! 🎪";
-        } else if (score >= 120) {
-            return "7.5 CGPA! 💨 Above average superstar!\nYour future is looking 'decent' at best!\n\nTop tier? More like 'trying tier'! 🎯\n\nBut hey, you're above the starting line! 📈";
-        } else if (score >= 70) {
-            return "7.0 CGPA! 🎪 Solid performance... for a try-hard!\nYou've climbed from 6.0 to mediocrity plus!\n\nCongratulations on being... adequate! 👏\n\nYour parents' expectations: Cautiously optimistic! 🤞";
-        } else if (score >= 30) {
-            return "6.5 CGPA! 🤷‍♂️ Baby steps from the starting line!\nYou've escaped the 6.0 baseline into... slightly above baseline!\n\nAim higher? Or aim for a personality! 🎯\n\nProgress is progress... I guess? 🐌";
+            return "8.5 CGPA! 🏅 Outstanding achievement!\nYou're clearly dedicated to success!\n\nBalance is key - don't forget to have fun! 😊\n\nYou're doing amazingly well! 🎈";
+        } else if (score >= 130) {
+            return "8.0 CGPA! � Solid performance!\nYou've reached a great milestone!\n\nTime to celebrate your progress! 🎉\n\nYou're in a fantastic position! 📊";
+        } else if (score >= 90) {
+            return "7.5 CGPA! � Above average achiever!\nYou're climbing steadily upward!\n\nConsistent effort shows! 💪\n\nKeep this positive trend going! 🌟";
+        } else if (score >= 55) {
+            return "7.0 CGPA! 🎪 Good progress!\nYou're moving in the right direction!\n\nEvery step counts! �\n\nBuilding a strong foundation! 🏗️";
+        } else if (score >= 25) {
+            return "6.5 CGPA! 🌱 Nice improvement!\nYou've made your first step up!\n\nProgress is progress! 📈\n\nKeep building momentum! �";
         } else {
-            return "6.0 CGPA! 🌱 Everyone starts at 6.0... some stay there!\nAt least you're not below average... yet!\n\nThe real journey? Proving you deserve this headstart! 🚀\n\nPro tip: Actually try playing the game! �";
+            return "6.0 CGPA! � Great starting point!\nEveryone begins their journey here!\n\nYou've got unlimited potential! ✨\n\nTime to show what you can do! 🎯";
         }
     }
 
     private String getDeathTrollMessage(int score) {
         float cgpa = calculateCGPA(score);
 
-        String[] deathQuotes = {
-            "\"I'll just wing this exam\" 🪶\n- And you crashed like a bird into a window",
+        String[] funnyQuotes = {
+            "\"I'll just wing this exam\" 🪶\n- Plot twist: Birds are better at this",
 
-            "\"Sleep is overrated anyway\" 😴\n- Narrator: Your brain cells disagreed",
+            "\"Sleep is overrated anyway\" 😴\n- Your brain: 'Am I a joke to you?'",
 
-            "\"I work better under pressure\" ⚡\n- *Pressure crushes you completely*",
+            "\"I work better under pressure\" ⚡\n- Pressure cooker vibes activated",
 
-            "\"Just one more episode...\" 📺\n- Famous last words before academic death",
+            "\"Just one more episode...\" 📺\n- Netflix: 'Gotcha again!'",
 
-            "\"I'll start studying tomorrow\" 📅\n- Tomorrow: Still procrastinating",
+            "\"I'll start studying tomorrow\" 📅\n- Tomorrow: 'Still loading...'",
 
-            "\"My notes are somewhere...\" 📝\n- Spoiler: In another dimension",
+            "\"My notes are somewhere...\" 📝\n- GPS for notes: Location not found",
 
-            "\"The professor loves me\" 💕\n- Professor: 'Who are you again?'",
+            "\"The professor loves me\" 💕\n- Professor: 'Do I know you?'",
 
-            "\"I can study everything in one night\" 🌙\n- Narrator: They could not",
+            "\"I can study everything in one night\" 🌙\n- One night: 'Challenge rejected'",
 
-            "\"Attendance is just a number\" 📊\n- So is zero, apparently",
+            "\"Attendance is just a number\" 📊\n- Zero: 'I'm a number too!'",
 
-            "\"I'm a visual learner\" 👀\n- *Stares at F grade intensely*",
+            "\"I'm a visual learner\" 👀\n- *Visualizes success, achieves confusion*",
 
-            "\"I have a photographic memory\" 📷\n- Too bad you forgot to load the film",
+            "\"I have a photographic memory\" 📷\n- Camera battery: 'Dead since semester 1'",
 
-            "\"College is just a piece of paper\" 📄\n- So is a tissue, but this one's worth ₹5 lakhs",
+            "\"College is just a piece of paper\" 📄\n- Expensive paper: '₹5 lakhs worth!'",
 
-            "\"Grades don't define me\" 💅\n- Narrator: The placement committee disagrees",
+            "\"Grades don't define me\" 💅\n- Placement officer: 'Actually, they do'",
 
-            "\"I learn better by doing\" 🤲\n- *Proceeds to do absolutely nothing*",
+            "\"I learn better by doing\" 🤲\n- Doing: 'Still waiting for you to start'",
 
-            "\"I'm street smart, not book smart\" 🛣️\n- Streets don't pay engineering salaries though"
+            "\"I'm street smart, not book smart\" 🛣️\n- Streets: 'Don't pay engineering salaries though'"
         };
 
-        // Add specific BRUTAL messages based on CGPA achieved
+        // Add encouraging messages based on CGPA achieved
         if (cgpa >= 8.5f) {
-            return "SO CLOSE TO GREATNESS! 😭\n\nYou were one step away from legend status!\nInstead, you're a legend of failure!\n\n" + deathQuotes[score % deathQuotes.length];
+            return "SO CLOSE TO GREATNESS! 🎯\n\nYou almost reached the summit!\nJust a little more practice needed!\n\n" + funnyQuotes[score % funnyQuotes.length];
         } else if (cgpa >= 8.0f) {
-            return "SOLID PERFORMANCE... NOT! 🎭\n\nYou proved you can almost succeed!\nAlmost doesn't get you a job though!\n\n" + deathQuotes[score % deathQuotes.length];
+            return "SOLID EFFORT! 💪\n\nYou showed real skill there!\nKeep pushing - you've got this!\n\n" + funnyQuotes[score % funnyQuotes.length];
         } else if (cgpa >= 7.0f) {
-            return "DECENT PROGRESS! 🤡\n\nYou climbed from 6.0 to mediocrity!\nTime to accept your moderate fate!\n\n" + deathQuotes[score % deathQuotes.length];
+            return "GOOD PROGRESS! 📈\n\nYou're getting the hang of it!\nPractice makes perfect!\n\n" + funnyQuotes[score % funnyQuotes.length];
         } else if (cgpa >= 6.5f) {
-            return "BABY STEPS... TO NOWHERE! 💩\n\nYou barely moved from the starting line!\nKeep the minimal effort going!\n\n" + deathQuotes[score % deathQuotes.length];
+            return "NICE START! 🌟\n\nYou made some progress!\nEvery journey begins with a single step!\n\n" + funnyQuotes[score % funnyQuotes.length];
         } else {
-            return "NEVER LEFT THE STARTING LINE! 🪦\n\nYou started at 6.0 and somehow went backwards!\nComeback stories are just fairy tales!\n\n" + deathQuotes[score % deathQuotes.length];
+            return "LEARNING PHASE! 🎮\n\nEveryone starts somewhere!\nThe best players practice the most!\n\n" + funnyQuotes[score % funnyQuotes.length];
         }
     }
 
@@ -362,11 +362,11 @@ public class FlappyGameActivity extends AppCompatActivity {
         }
 
         private void addTower(int x) {
-            // Make it progressively harder! But start much easier 😈
+            // Make it progressively harder! But start much easier �
             // Gap size starts MUCH bigger and gets smaller very gradually
-            int baseGapSize = 500; // Increased from 400 - much more forgiving!
-            int difficultyReduction = Math.min(score / 2, 120); // Even slower difficulty increase
-            int gapSize = Math.max(280, baseGapSize - difficultyReduction); // Minimum 280px gap (was 200px)
+            int baseGapSize = 550; // Increased even more for comfortable play!
+            int difficultyReduction = Math.min(score / 3, 100); // Very gentle difficulty increase
+            int gapSize = Math.max(320, baseGapSize - difficultyReduction); // Minimum 320px gap for easier play
 
             int towerWidth = 80; // Slightly thinner towers for more room
 
@@ -550,8 +550,8 @@ public class FlappyGameActivity extends AppCompatActivity {
         float x, y, velocityY;
         int width, height;
         Bitmap bitmap;
-        private static final float BASE_GRAVITY = 800f; // Reduced from 1000f for easier control
-        private static final float BASE_JUMP_VELOCITY = -450f; // Increased from -400f for stronger jumps
+        private static final float BASE_GRAVITY = 700f; // Reduced even further for more comfortable play
+        private static final float BASE_JUMP_VELOCITY = -500f; // Increased further for better control
 
         public Player(Context context, float x, float y) {
             this.x = x;
@@ -560,9 +560,20 @@ public class FlappyGameActivity extends AppCompatActivity {
             this.height = 80;
             this.velocityY = 0;
 
-            // Load and scale the community icon
-            Bitmap original = BitmapFactory.decodeResource(context.getResources(), R.drawable.community_icon);
-            bitmap = Bitmap.createScaledBitmap(original, width, height, true);
+            // Load and scale the flappy bird icon
+            try {
+                Bitmap original = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_flappy_bird);
+                if (original != null) {
+                    bitmap = Bitmap.createScaledBitmap(original, width, height, true);
+                }
+            } catch (Exception e) {
+                // If flappy bird fails to load, create a simple colored bitmap
+                bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bitmap);
+                Paint paint = new Paint();
+                paint.setColor(Color.YELLOW);
+                canvas.drawCircle(width/2, height/2, width/2, paint);
+            }
         }
 
         public void reset(float x, float y) {
@@ -572,9 +583,9 @@ public class FlappyGameActivity extends AppCompatActivity {
         }
 
         public void update(float deltaTime, int currentScore) {
-            // Gravity increases with score - but much more slowly! 😈
-            float gravityMultiplier = 1.0f + (currentScore * 0.002f); // 0.2% more gravity per point (was 0.5%)
-            float currentGravity = BASE_GRAVITY * Math.min(gravityMultiplier, 1.5f); // Max 1.5x gravity (was 2x)
+            // Gravity increases with score - very gently for comfortable play! �
+            float gravityMultiplier = 1.0f + (currentScore * 0.001f); // Only 0.1% more gravity per point for gentler progression
+            float currentGravity = BASE_GRAVITY * Math.min(gravityMultiplier, 1.3f); // Max 1.3x gravity for manageable difficulty
 
             velocityY += currentGravity * deltaTime;
             y += velocityY * deltaTime;
@@ -640,7 +651,7 @@ public class FlappyGameActivity extends AppCompatActivity {
         }
 
         public void draw(Canvas canvas, Paint paint, int currentScore) {
-            // Change color based on difficulty for extra trolling
+            // Change color based on progress for visual feedback
             if (currentScore >= 600) {
                 paint.setColor(Color.parseColor("#FF0000")); // RED = DANGER ZONE
             } else if (currentScore >= 400) {

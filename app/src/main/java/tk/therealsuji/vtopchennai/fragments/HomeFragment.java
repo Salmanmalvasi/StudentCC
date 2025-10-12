@@ -197,14 +197,13 @@ public class HomeFragment extends Fragment {
                 android.util.Log.d("HomeFragment", "Received OD count broadcast: " + odUsed + " used");
                 TextView odRemainingCount = getView().findViewById(R.id.od_remaining_count);
                 if (odRemainingCount != null) {
-                    int odRemaining = 48 - odUsed;
-                    android.util.Log.d("HomeFragment", "Updating OD display: " + odRemaining + "/48");
-                    odRemainingCount.setText(odRemaining + "/48");
+                    android.util.Log.d("HomeFragment", "Updating OD display: " + odUsed + "/48");
+                    odRemainingCount.setText(odUsed + "/48");
 
-                    // Update text color based on remaining OD classes
-                    if (odRemaining <= 5) {
+                    // Update text color based on completed OD classes
+                    if (odUsed >= 43) { // 43+ out of 48 (most OD used)
                         odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorError, ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark)));
-                    } else if (odRemaining <= 15) {
+                    } else if (odUsed >= 33) { // 33+ out of 48 (moderate OD used)
                         odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorSecondary, ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)));
                     } else {
                         odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)));
@@ -291,13 +290,12 @@ public class HomeFragment extends Fragment {
 
                     TextView odRemainingCount = getView().findViewById(R.id.od_remaining_count);
                     if (odRemainingCount != null) {
-                        int odRemaining = 48 - odUsed;
-                        odRemainingCount.setText(odRemaining + "/48");
+                        odRemainingCount.setText(odUsed + "/48");
 
-                        // Update text color based on remaining OD classes
-                        if (odRemaining <= 5) {
+                        // Update text color based on completed OD classes
+                        if (odUsed >= 43) { // 43+ out of 48 (most OD used)
                             odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorError, ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark)));
-                        } else if (odRemaining <= 15) {
+                        } else if (odUsed >= 33) { // 33+ out of 48 (moderate OD used)
                             odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorSecondary, ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)));
                         } else {
                             odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)));
@@ -553,21 +551,20 @@ public class HomeFragment extends Fragment {
                     for (Integer w : weightByCourseDate2.values()) {
                         odUsed += (w != null ? w : 0);
                     }
-                    int odRemaining = 48 - odUsed;
-                    odRemainingCount.setText(odRemaining + "/48");
+                    odRemainingCount.setText(odUsed + "/48");
 
-                    // Set text color based on remaining OD classes
-                    if (odRemaining <= 5) {
+                    // Set text color based on completed OD classes
+                    if (odUsed >= 43) { // 43+ out of 48 (most OD used)
                         odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorError, ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark)));
-                    } else if (odRemaining <= 15) {
+                    } else if (odUsed >= 33) { // 33+ out of 48 (moderate OD used)
                         odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorSecondary, ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)));
                     } else {
                         odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)));
                     }
                 }, throwable -> {
                     // Fallback - assume no OD used if no detailed data available
-                    odRemainingCount.setText("48/48");
-                    android.util.Log.e("HomeFragment", "Error calculating OD remaining", throwable);
+                    odRemainingCount.setText("0/48");
+                    android.util.Log.e("HomeFragment", "Error calculating OD completed", throwable);
                 });
 
         // Spotlight Button

@@ -179,11 +179,11 @@ public class PerformanceCard extends LinearLayout {
         if (relativeValue != null && !relativeValue.trim().isEmpty()) {
             // Hide the circular progress and percentage
             this.hideScoreDisplay();
-            
+
             // Use the scoreText area to display the large number
             this.scoreText.setText(relativeValue);
             this.scoreText.setVisibility(VISIBLE);
-            
+
             // Use subtitle for the description
             this.subtitleText.setText("weightage from average");
             this.subtitleText.setVisibility(VISIBLE);

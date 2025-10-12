@@ -18,17 +18,35 @@
             android:orientation="vertical"
             app:layout_scrollFlags="scroll|snap">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginBottom="10dp"
-                android:text="@string/performance_header"
-                android:textColor="?attr/colorOnBackground"
-                android:textSize="25sp"
-                android:textStyle="bold" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/performance_header"
+                    android:textColor="?attr/colorOnBackground"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/marks_help_button"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/help_button_text"
+                    app:icon="@drawable/ic_info"
+                    app:iconTint="?attr/colorOnSurfaceVariant" />
+
+            </LinearLayout>
 
             <HorizontalScrollView
                 android:id="@+id/horizontal_scroll_view_performance_cards"

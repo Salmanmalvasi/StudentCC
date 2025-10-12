@@ -206,7 +206,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/ic_notifications"
-                        android:contentDescription="OD remaining"
+                        android:contentDescription="OD completed"
                         app:tint="?attr/colorPrimary" />
 
                     <TextView
@@ -226,13 +226,25 @@
                         android:textColor="?attr/attendance_subtext_color"
                         android:textStyle="bold"
                         android:gravity="center"
-                        android:text="OD Classes\nremaining" />
+                        android:text="OD Classes*\ncompleted" />
 
                 </LinearLayout>
 
             </LinearLayout>
 
         </LinearLayout>
+
+        <!-- OD Explanation Text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:textSize="10sp"
+            android:textColor="?attr/attendance_subtext_color"
+            android:alpha="0.7"
+            android:text="@string/od_explanation" />
 
         <!-- Days Tab Layout -->
         <com.google.android.material.tabs.TabLayout

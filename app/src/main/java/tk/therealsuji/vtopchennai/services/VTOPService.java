@@ -2220,6 +2220,50 @@ public class VTOPService extends Service {
                     String courseCode = this.getCourseCode(mark.courseId, courseType);
                     Integer courseCredits = this.getCourseCredits(mark.courseId, courseType);
 
+                    // Handle Wildlife Ecology course transfer - if course code is CF0C575M,
+                    // find the first available course with a different (non-null) course code
+                    if ("CF0C575M".equals(courseCode)) {
+                        // Look for Wildlife Ecology courses with different course codes
+                        Integer alternativeCourseId = null;
+                        String alternativeCourseCode = null;
+
+                        // Check theory courses first
+                        for (Map.Entry<Integer, Course> entry : this.theoryCourses.entrySet()) {
+                            Course course = entry.getValue();
+                            if ("Wildlife Ecology".equals(course.title) &&
+                                course.code != null &&
+                                !course.code.equals("CF0C575M") &&
+                                !course.code.trim().isEmpty()) {
+                                alternativeCourseId = entry.getKey();
+                                alternativeCourseCode = course.code;
+                                courseCredits = course.credits;
+                                break;
+                            }
+                        }
+
+                        // If not found in theory, check lab courses
+                        if (alternativeCourseId == null) {
+                            for (Map.Entry<Integer, Course> entry : this.labCourses.entrySet()) {
+                                Course course = entry.getValue();
+                                if ("Wildlife Ecology".equals(course.title) &&
+                                    course.code != null &&
+                                    !course.code.equals("CF0C575M") &&
+                                    !course.code.trim().isEmpty()) {
+                                    alternativeCourseId = entry.getKey();
+                                    alternativeCourseCode = course.code;
+                                    courseCredits = course.credits;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // If alternative course found, transfer the marks
+                        if (alternativeCourseId != null && alternativeCourseCode != null) {
+                            mark.courseId = alternativeCourseId;
+                            courseCode = alternativeCourseCode;
+                        }
+                    }
+
                     if (!this.cumulativeMarks.containsKey(courseCode)) {
                         this.cumulativeMarks.put(courseCode, new CumulativeMark(++j));
                     }

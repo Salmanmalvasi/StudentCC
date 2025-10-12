@@ -40,6 +40,16 @@
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="16sp" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/gpa_help_button"
+                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/help_button_text"
+                app:icon="@drawable/ic_info"
+                app:iconTint="?attr/colorOnSurfaceVariant" />
+
             <!-- Current CGPA and Credits Display -->
             <LinearLayout
                 android:layout_width="match_parent"

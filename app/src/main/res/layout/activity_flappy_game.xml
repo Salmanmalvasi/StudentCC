@@ -148,7 +148,7 @@
                     android:layout_height="80dp"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="16dp"
-                    android:src="@drawable/community_icon"
+                    android:src="@drawable/ic_flappy_bird"
                     android:scaleType="centerCrop" />
 
                 <!-- Game Over Text -->
@@ -249,7 +249,7 @@
         <ImageView
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@drawable/community_icon"
+            android:src="@drawable/ic_flappy_bird"
             android:scaleType="centerCrop"
             android:background="@drawable/circle_background" />
 

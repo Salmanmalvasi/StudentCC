@@ -6,9 +6,9 @@
     <!-- LoginActivity Strings -->
     <string name="login_header">Login</string>
     <string name="login_description">Sign in using your VTOP credentials</string>
-    <string name="thank_you_1k">StudentCC x Unmessify</string>
-    <string name="thank_you_1k_split">StudentCC x Unmessify</string>
-    <string name="thank_you_1k_multiline">StudentCC x Unmessify</string>
+    <string name="thank_you_1k">🎉 Thanks for 3K Downloads! 🎉</string>
+    <string name="thank_you_1k_split">🎉 Thanks for 3K Downloads! Share with friends! 🚀</string>
+    <string name="thank_you_1k_multiline">🎉 Thanks for 3K Downloads!\nShare with your friends! 🚀</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="sign_in">Sign In</string>
@@ -268,6 +268,16 @@
     <string name="your_laundry_schedule">Your Laundry Schedule</string>
     <string name="no_laundry_today">No laundry scheduled for your room today</string>
 
+    <!-- Help Dialog Strings -->
+    <string name="help_marks_title">How to Use Class Average</string>
+    <string name="help_marks_content">📊 Track your performance against class averages:\n\n1. Go to any course in your Marks tab\n2. Long press on the name of an exam where you know the class average\n3. Add the average score for that exam\n4. Switch between tabs to refresh your marks\n5. Scroll to see your \"Overall Score\" - this shows how much you\'re performing above/below the class average!\n\n💡 This helps you understand where you stand compared to your classmates!</string>
+
+    <string name="help_gpa_title">How to Use GPA Tools</string>
+    <string name="help_gpa_content">🎯 Plan your academic success:\n\n📈 CGPA Estimator:\n• Add your course credits and expected grades\n• Tap \"Calculate CGPA\" to see your predicted cumulative GPA\n\n🔮 GPA Predictor:\n• Use this to see what GPA you need in future courses to reach your target CGPA\n• Set realistic goals and track your progress\n\n💪 Both tools help you stay on track and plan your academic performance!</string>
+
+    <string name="help_button_text">Help</string>
+    <string name="got_it">Got it!</string>
+
     <string-array name="days">
         <item>Sunday</item>
         <item>Monday</item>
@@ -277,4 +287,7 @@
         <item>Friday</item>
         <item>Saturday</item>
     </string-array>
+
+    <!-- OD Information -->
+    <string name="od_explanation">* OD (On Duty) is given by both SWC and CDC</string>
 </resources>

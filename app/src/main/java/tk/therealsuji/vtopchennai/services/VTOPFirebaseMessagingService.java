@@ -21,6 +21,8 @@ public class VTOPFirebaseMessagingService extends FirebaseMessagingService {
         super.onMessageReceived(remoteMessage);
 
         Log.d(TAG, "📱 MESSAGE RECEIVED! From: " + remoteMessage.getFrom());
+        Log.d(TAG, "📱 Message ID: " + remoteMessage.getMessageId());
+        Log.d(TAG, "📱 Message Type: " + remoteMessage.getMessageType());
 
         // Check if message contains a data payload
         if (remoteMessage.getData().size() > 0) {
@@ -41,6 +43,15 @@ public class VTOPFirebaseMessagingService extends FirebaseMessagingService {
                 remoteMessage.getNotification().getBody(),
                 remoteMessage.getData()
             );
+        }
+
+        // Handle in-app messaging specifically
+        if (remoteMessage.getData().containsKey("message_type")) {
+            String messageType = remoteMessage.getData().get("message_type");
+            Log.d(TAG, "💬 In-app message detected, type: " + messageType);
+
+            FirebaseMessagingHelper helper = FirebaseMessagingHelper.getInstance(this);
+            helper.handleIncomingMessage(remoteMessage);
         }
     }
 

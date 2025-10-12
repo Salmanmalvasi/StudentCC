@@ -96,6 +96,12 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         currentCreditsInput = view.findViewById(R.id.current_credits_input);
         cgpaResultText = view.findViewById(R.id.cgpa_result_text);
 
+        // Initialize help button
+        com.google.android.material.button.MaterialButton helpButton = view.findViewById(R.id.gpa_help_button);
+        if (helpButton != null) {
+            helpButton.setOnClickListener(v -> showGPAHelpDialog());
+        }
+
         // Initialize Current CGPA and Credits Display
         currentCGPADisplay = view.findViewById(R.id.current_cgpa_display);
         currentCreditsDisplay = view.findViewById(R.id.current_credits_display);
@@ -454,5 +460,16 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
             courses = courseAdapter.getCourses();
             updateUI();
         }
+    }
+
+    private void showGPAHelpDialog() {
+        if (!isAdded()) return;
+
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle(getString(R.string.help_gpa_title))
+               .setMessage(getString(R.string.help_gpa_content))
+               .setPositiveButton(getString(R.string.got_it), null)
+               .setIcon(R.drawable.ic_info)
+               .show();
     }
 }

@@ -97,7 +97,7 @@ public class RelativePerformanceCalculator {
     /**
      * Get the raw numeric value of weightage marks ahead/behind average
      * @param marks List of marks for the course
-     * @param classStats List of class statistics for the course  
+     * @param classStats List of class statistics for the course
      * @return The raw numeric value (positive = ahead, negative = behind) in weightage
      */
     public static Double getWeightageMarksAheadValue(List<Mark.AllData> marks, List<ClassStats> classStats) {
@@ -147,7 +147,7 @@ public class RelativePerformanceCalculator {
     /**
      * Get the raw numeric value of marks ahead/behind average
      * @param marks List of marks for the course
-     * @param classStats List of class statistics for the course  
+     * @param classStats List of class statistics for the course
      * @return The raw numeric value (positive = ahead, negative = behind)
      */
     public static Double getMarksAheadValue(List<Mark.AllData> marks, List<ClassStats> classStats) {
