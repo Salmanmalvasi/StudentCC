@@ -1,6 +1,12 @@
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+}
+
+// Check if google-services.json exists before build
+if (!file('google-services.json').exists()) {
+    throw new GradleException('google-services.json not found! Run ./generate-config.sh first.')
 }
 
 android {
@@ -14,8 +20,8 @@ android {
         minSdkVersion 24
         targetSdkVersion 34
         compileSdk 34
-        versionCode 7
-        versionName "1.3.0"
+        versionCode 8
+        versionName "1.4.0"
 
         // Vector drawable support for smaller APK
         vectorDrawables.useSupportLibrary = true
@@ -98,6 +104,8 @@ dependencies {
 
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 
+    implementation 'com.google.code.gson:gson:2.10.1'
+
     annotationProcessor 'androidx.room:room-compiler:2.6.1'
     implementation 'com.google.mlkit:text-recognition:16.0.0'
 
@@ -108,4 +116,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.firebase:firebase-storage'
     implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-inappmessaging-display'
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-config'
 }

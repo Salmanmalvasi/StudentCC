@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.inappmessaging.FirebaseInAppMessaging;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 
@@ -23,6 +24,7 @@ public class FirebaseHelper {
     private FirebaseFirestore firestore;
     private FirebaseStorage storage;
     private FirebaseMessaging messaging;
+    private FirebaseInAppMessaging inAppMessaging;
 
     private FirebaseHelper() {
         // Private constructor for singleton
@@ -54,6 +56,12 @@ public class FirebaseHelper {
 
             // Initialize Firebase Messaging
             messaging = FirebaseMessaging.getInstance();
+
+            // Initialize Firebase In-App Messaging
+            inAppMessaging = FirebaseInAppMessaging.getInstance();
+            
+            // Enable data collection for In-App Messaging
+            inAppMessaging.setAutomaticDataCollectionEnabled(true);
 
             // Get FCM token for this device
             initializeFCMToken(context);
@@ -159,6 +167,13 @@ public class FirebaseHelper {
     }
 
     /**
+     * Get Firebase In-App Messaging instance
+     */
+    public FirebaseInAppMessaging getInAppMessaging() {
+        return inAppMessaging;
+    }
+
+    /**
      * Log custom event to Firebase Analytics
      */
     public void logEvent(String eventName, String parameterName, String parameterValue) {
@@ -188,5 +203,38 @@ public class FirebaseHelper {
      */
     public void logAttendanceView(String attendancePercentage) {
         logEvent("attendance_view", "attendance_percentage", attendancePercentage);
+    }
+
+    /**
+     * Trigger Firebase In-App Messaging event
+     */
+    public void triggerInAppMessage(String eventName) {
+        if (inAppMessaging != null) {
+            try {
+                inAppMessaging.triggerEvent(eventName);
+                Log.d(TAG, "Triggered in-app message event: " + eventName);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to trigger in-app message: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Enable/disable Firebase In-App Messaging data collection
+     */
+    public void setInAppMessagingEnabled(boolean enabled) {
+        if (inAppMessaging != null) {
+            inAppMessaging.setAutomaticDataCollectionEnabled(enabled);
+            Log.d(TAG, "In-App Messaging data collection " + (enabled ? "enabled" : "disabled"));
+        }
+    }
+
+    /**
+     * Test In-App Messaging by triggering a custom event
+     */
+    public void testInAppMessaging() {
+        triggerInAppMessage("test_in_app_message");
+        triggerInAppMessage("app_open");
+        triggerInAppMessage("welcome_message");
     }
 }

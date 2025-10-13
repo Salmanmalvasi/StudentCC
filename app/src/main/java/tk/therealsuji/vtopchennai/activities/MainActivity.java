@@ -48,6 +48,8 @@ import tk.therealsuji.vtopchennai.BuildConfig;
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.activities.LoginActivity;
 import tk.therealsuji.vtopchennai.fragments.HomeFragment;
+import tk.therealsuji.vtopchennai.helpers.FirebaseHelper;
+import tk.therealsuji.vtopchennai.helpers.InAppMessagingHelper;
 import tk.therealsuji.vtopchennai.helpers.HostelDataHelper;
 import tk.therealsuji.vtopchennai.helpers.FirebaseAnalyticsHelper;
 import tk.therealsuji.vtopchennai.fragments.PerformanceFragment;
@@ -56,7 +58,9 @@ import tk.therealsuji.vtopchennai.fragments.HostelInfoFragment;
 import tk.therealsuji.vtopchennai.fragments.ProfileFragment;
 import tk.therealsuji.vtopchennai.fragments.dialogs.UpdateDialogFragment;
 import tk.therealsuji.vtopchennai.helpers.AppDatabase;
-
+import tk.therealsuji.vtopchennai.helpers.FirebaseMessagingHelper;
+import tk.therealsuji.vtopchennai.helpers.FirebaseCrashlyticsHelper;
+import tk.therealsuji.vtopchennai.helpers.FirebaseConfigHelper;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 import tk.therealsuji.vtopchennai.helpers.VTOPHelper;
 
@@ -335,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
         // Check if user has credentials (is logged in)
         SharedPreferences encryptedPrefs = SettingsRepository.getEncryptedSharedPreferences(this);
         boolean hasCredentials = false;
-        
+
         if (encryptedPrefs != null) {
             String username = encryptedPrefs.getString("username", "");
             hasCredentials = username != null && username.length() > 0;
@@ -345,10 +349,10 @@ public class MainActivity extends AppCompatActivity {
         if (lastVersionCode != 0 && lastVersionCode != currentVersionCode && hasCredentials) {
             // Show toast to inform user about the security logout
             Toast.makeText(this, "App updated - please log in again for security", Toast.LENGTH_SHORT).show();
-            
+
             // Force complete logout for security
             SettingsRepository.signOut(this);
-            
+
             // Redirect to login activity
             Intent loginIntent = new Intent(this, LoginActivity.class);
             loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -366,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
         // FIRST PRIORITY: Check for app update and auto-logout if version changed
         // This must happen before anything else to ensure security
         checkForAppUpdateAndLogout();
-        
+
         boolean amoledMode = SettingsRepository.getSharedPreferences(this).getBoolean("amoledMode", false);
         // Disable dynamic colors (use custom theme)
         applySelectedTheme();
@@ -377,6 +381,15 @@ public class MainActivity extends AppCompatActivity {
         // Initialize Firebase Analytics
         FirebaseAnalyticsHelper.initialize(this);
         FirebaseAnalyticsHelper.trackScreenView(this, "MainActivity", "MainActivity");
+
+        // Initialize Firebase Messaging
+        initializeFirebaseMessaging();
+
+        // Initialize Firebase Remote Config
+        initializeFirebaseRemoteConfig();
+
+        // Set up Crashlytics user context
+        setupCrashlyticsContext();
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
@@ -443,6 +456,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Check student type and hide hostel info tab if day scholar
         checkAndUpdateBottomNavigation();
+        
+        // Test in-app messaging with a custom event (for debugging)
+        testInAppMessaging();
+        
+        // Add device as test device for Firebase In-App Messaging
+        addAsTestDevice();
+        
+        // Initialize and test In-App Messaging
+        initializeInAppMessaging();
 
         this.bottomNavigationView.setOnItemSelectedListener(item -> {
             Fragment selectedFragment;
@@ -659,7 +681,196 @@ public class MainActivity extends AppCompatActivity {
         compositeDisposable.dispose();
     }
 
+    /**
+     * Initialize Firebase messaging for in-app messages
+     */
+    private void initializeFirebaseMessaging() {
+        try {
+            FirebaseMessagingHelper messagingHelper = FirebaseMessagingHelper.getInstance(this);
+            messagingHelper.initializeMessaging();
 
+            // Track app open event for automatic in-app messaging
+            trackAppOpenEvent();
 
+            // Log for debugging
+            android.util.Log.d("MainActivity", "Firebase messaging initialized successfully");
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to initialize Firebase messaging: " + e.getMessage());
+        }
+    }
 
+    /**
+     * Track app open event for Firebase In-App Messaging triggers
+     */
+    private void trackAppOpenEvent() {
+        try {
+            // Track app_open event for automatic in-app messaging
+            Bundle bundle = new Bundle();
+            bundle.putString("screen_name", "MainActivity");
+            bundle.putString("user_type", "student");
+            bundle.putLong("timestamp", System.currentTimeMillis());
+
+            FirebaseAnalyticsHelper.trackCustomEvent(this, "app_open", bundle);
+
+            // Track session start
+            Bundle sessionBundle = new Bundle();
+            sessionBundle.putString("session_type", "app_launch");
+            FirebaseAnalyticsHelper.trackCustomEvent(this, "session_start", sessionBundle);
+
+            android.util.Log.d("MainActivity", "App open event tracked for in-app messaging");
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to track app open event: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Initialize Firebase Remote Config
+     */
+    private void initializeFirebaseRemoteConfig() {
+        try {
+            FirebaseConfigHelper.fetchAndActivate();
+
+            // Check for maintenance mode
+            if (FirebaseConfigHelper.getBoolean(FirebaseConfigHelper.Keys.MAINTENANCE_MODE)) {
+                String maintenanceMessage = FirebaseConfigHelper.getString(FirebaseConfigHelper.Keys.MAINTENANCE_MESSAGE);
+                showMaintenanceDialog(maintenanceMessage);
+            }
+
+            // Log feature flags
+            FirebaseCrashlyticsHelper.log("Remote Config - Features enabled: " +
+                    "Attendance: " + FirebaseConfigHelper.getBoolean(FirebaseConfigHelper.Keys.FEATURE_FLAG_ATTENDANCE) +
+                    ", Marks: " + FirebaseConfigHelper.getBoolean(FirebaseConfigHelper.Keys.FEATURE_FLAG_MARKS) +
+                    ", Timetable: " + FirebaseConfigHelper.getBoolean(FirebaseConfigHelper.Keys.FEATURE_FLAG_TIMETABLE));
+
+            android.util.Log.d("MainActivity", "Firebase Remote Config initialized");
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to initialize Remote Config: " + e.getMessage());
+            FirebaseCrashlyticsHelper.recordException(e);
+        }
+    }
+
+    /**
+     * Set up Crashlytics user context
+     */
+    private void setupCrashlyticsContext() {
+        try {
+            // Set user properties for crash reporting
+            String userId = SettingsRepository.getSharedPreferences(this).getString("user_id", "anonymous");
+            FirebaseCrashlyticsHelper.setUserId(userId);
+            FirebaseCrashlyticsHelper.setCustomKey("app_version", BuildConfig.VERSION_NAME);
+            FirebaseCrashlyticsHelper.setCustomKey("build_type", BuildConfig.BUILD_TYPE);
+
+            // Log app state
+            FirebaseCrashlyticsHelper.logAppState("MainActivity", "app_launch");
+
+            android.util.Log.d("MainActivity", "Crashlytics context set up");
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to set up Crashlytics context: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Show maintenance dialog if maintenance mode is enabled
+     */
+    private void showMaintenanceDialog(String message) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Maintenance Mode")
+                .setMessage(message)
+                .setPositiveButton("OK", (dialog, which) -> finish())
+                .setCancelable(false)
+                .show();
+    }
+
+    /**
+     * Test in-app messaging with custom events (for debugging)
+     */
+    private void testInAppMessaging() {
+        // Wait 3 seconds after app launch, then trigger custom events
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                // Trigger multiple events to test different campaign triggers
+                Bundle testBundle = new Bundle();
+                testBundle.putString("test_mode", "true");
+                testBundle.putString("user_type", "student");
+                
+                // Test different event names
+                FirebaseAnalyticsHelper.trackCustomEvent(this, "test_in_app_message", testBundle);
+                FirebaseAnalyticsHelper.trackCustomEvent(this, "welcome_message", testBundle);
+                FirebaseAnalyticsHelper.trackCustomEvent(this, "app_ready", testBundle);
+                
+                // Also trigger the built-in app_open event
+                FirebaseAnalyticsHelper.trackCustomEvent(this, "app_open", testBundle);
+                
+                android.util.Log.d("MainActivity", "Test in-app messaging events triggered");
+                
+                // Use FirebaseHelper to trigger In-App Messaging
+                FirebaseHelper.getInstance().testInAppMessaging();
+                
+            } catch (Exception e) {
+                android.util.Log.e("MainActivity", "Failed to trigger test in-app messaging: " + e.getMessage());
+                FirebaseCrashlyticsHelper.recordException(e);
+            }
+        }, 3000); // 3 second delay
+    }
+
+    /**
+     * Trigger Firebase In-App Messaging display directly
+     */
+    private void triggerFirebaseInAppMessaging() {
+        try {
+            // Use FirebaseHelper to trigger events
+            FirebaseHelper firebaseHelper = FirebaseHelper.getInstance();
+            firebaseHelper.triggerInAppMessage("app_open");
+            firebaseHelper.triggerInAppMessage("welcome_message");
+            
+            android.util.Log.d("MainActivity", "Firebase In-App Messaging trigger events sent");
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to trigger Firebase In-App Messaging: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Add device as test device for Firebase In-App Messaging
+     */
+    private void addAsTestDevice() {
+        try {
+            // Use FirebaseHelper to configure In-App Messaging
+            FirebaseHelper firebaseHelper = FirebaseHelper.getInstance();
+            firebaseHelper.setInAppMessagingEnabled(true);
+            
+            String deviceId = android.provider.Settings.Secure.getString(
+                    getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+            
+            android.util.Log.d("MainActivity", "Device configured for Firebase In-App Messaging");
+            android.util.Log.d("MainActivity", "To add this device as test device in Firebase Console:");
+            android.util.Log.d("MainActivity", "1. Go to Firebase Console → In-App Messaging → Test devices");
+            android.util.Log.d("MainActivity", "2. Add this device ID: " + deviceId);
+            
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to add as test device: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Initialize In-App Messaging helper
+     */
+    private void initializeInAppMessaging() {
+        try {
+            InAppMessagingHelper inAppHelper = InAppMessagingHelper.getInstance();
+            inAppHelper.initialize(this);
+            
+            // Log device setup instructions
+            InAppMessagingHelper.logTestDeviceInstructions(this);
+            
+            // Test in-app messaging after a delay
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                inAppHelper.testInAppMessaging();
+            }, 5000); // 5 second delay
+            
+            android.util.Log.d("MainActivity", "In-App Messaging helper initialized");
+            
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Failed to initialize In-App Messaging helper: " + e.getMessage());
+        }
+    }
 }

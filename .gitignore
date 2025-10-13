@@ -7,3 +7,17 @@
 /captures
 .externalNativeBuild
 .cxx
+
+# Security - Environment variables and sensitive files
+.env
+*.env
+google-services.json
+app/google-services.json
+
+# Keystore files
+*.keystore
+*.jks
+
+# API Keys and secrets
+secrets/
+config/secrets/
