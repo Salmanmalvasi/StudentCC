@@ -1,313 +1,255 @@
-# StudentCC - VIT Student Companion App
+# StudentCC - VIT Student Companion App 🎓
 
 <div align="center">
-  <img src="app/src/main/res/drawable/app_log### **🆕 New ### **🔧 Technical Enhancements**
-- **Database Schema** - Added venue field to Timetable.AllData model
-- **Query Optimization** - Updated database queries to include venue data
-- **Notification System** - Completely redesigned notification messages
-- **Website Integration** - Seamless integration with your landing page
-- **Color System Architecture** - Comprehensive theme attribute system with proper inheritance
-- **Material Design 3** - Full implementation with custom color palettes
-- **UI Component Styling** - Enhanced tab layouts, text views, and interactive elementsres**
-- **Venue Display** - Notifications now show actual classroom locations
-- **Enhanced GPA Calculator** - More accurate calculations with VIT's system
-- **Ultra-Modern Color System** - Sleek, Discord/Notion-inspired color palettes
-- **Theme-Aware Components** - Calendar days and attendance text adapt to selected themes
-- **Better Color Contrast** - WCAG-compliant colors for optimal readability
-- **Improved UI** - Better theme system and modern design
-- **Better Error Handling** - More robust app stability" alt="StudentCC Logo" width="120" height="120">
-  <h3>Your All-in-One Academic Companion for VIT</h3>
-  <p><strong>BETA VERSION</strong> - Enhanced with modern features and improved user experience</p>
+  <img src="app/src/main/res/drawable/app_logo.png" alt="StudentCC Logo" width="120" height="120">
+  <h3>🚀 The Ultimate Academic Companion for VIT Students</h3>
+  <p><strong>Version 1.4.0</strong> - The Biggest Update Yet!</p>
 </div>
 
-## 🚀 Features
+## 📱 **For Students - Download the App**
 
-### 📊 **Advanced GPA Calculator**
-- Real-time GPA calculation with VIT's official grading system
-- Support for all VIT grade scales (S, A, B, C, D, E, F, N)
-- Credit tracking and semester-wise GPA calculation
-- CGPA estimator with target GPA planning
+🔥 **[Download StudentCC v1.4.0](https://salmanmalvasi.github.io/studentcc-landing.html)**
 
-### 📈 **Enhanced Attendance Tracking**
-- Large attendance circle (100dp) with theme-adaptive colors
-- Interactive toggle with responsive design
-- Theme-aware text colors matching overall attendance display
-- Real-time attendance percentage calculation with high contrast visibility
-- Modern UI with proper shadows and readable text styling
+Join 3000+ VIT students already using StudentCC for:
+- 📊 Real-time attendance tracking
+- 🎯 Smart GPA calculations  
+- 📅 Class schedules & notifications
+- 🏆 Performance analytics
+- 🎮 Hidden mini-games & more!
 
-### 🎨 **Ultra-Modern Theme System**
-- 6 custom themes with sleek, modern color palettes (Default, Red, Blue, Purple, Green, Black)
-- Dark/Light mode support with perfect contrast ratios
-- Dynamic color system using Material Design 3
-- Theme-aware UI elements (calendar days, attendance text, percentage indicators)
-- Optimized readability with WCAG-compliant color combinations
-- AMOLED mode for OLED displays
+---
 
-### 📅 **Smart Notifications**
-- **Venue-based notifications** - Shows actual classroom location instead of slot numbers
-- Class reminders with venue information
-- Exam schedule notifications
-- Customizable notification settings
+## 👨‍💻 **For Developers - Technical Documentation**
 
-### 🔐 **Enhanced Security**
-- Encrypted credential storage
-- Multi-stage OCR processing for captcha
-- 4 different image preprocessing attempts
-- Contrast enhancement and color inversion for better accuracy
+> **Note:** This repository is for developers and contributors. Students should download the app from the link above.
 
-### 🌐 **Website Integration**
-- Points to your landing page: [https://salmanmalvasi.github.io/studentcc-landing.html](https://salmanmalvasi.github.io/studentcc-landing.html)
-- Disabled unwanted version checking popups
-- Clean user experience without confusing update messages
+### 🆕 **What's New in v1.4.0**
 
-## 🛠️ Technical Stack
+#### **User-Facing Features:**
+1️⃣ **Detailed Attendance View** – See your attendance day-by-day with enhanced parsing logic  
+2️⃣ **Enhanced Marks Section** – Track class averages & performance trends  
+3️⃣ **Smart OD Calculator** – Know exactly how many On Duty classes you've used and left  
+4️⃣ **🎮 Mystery Game** – Hidden inside the app for entertainment  
+5️⃣ **⚡ Faster Sync** – Quicker & smoother data updates  
+6️⃣ **🎨 New Logo + UI** – Smoother experience with modern design  
 
-### **Core Technologies**
-- **Java** - Core Android development with modern practices
-- **Room Database** - Local data persistence with SQLite
-- **Material Design 3** - Modern UI/UX implementation
-- **Firebase** - Analytics tracking and cloud capabilities
+#### **Technical Improvements:**
+🔥 **Firebase In-App Messaging** – Real-time notifications and updates  
+🔐 **Enhanced Security** – Secure API key management system  
+🏗️ **Better Architecture** – Improved code structure and performance  
+🚀 **Auto-Update System** – Seamless updates for users  
+📱 **Optimized Build** – Smaller APK size with better performance  
 
-### **Architecture**
-- **MVVM Pattern** - Clean architecture implementation
-- **RxJava** - Reactive programming for async operations
-- **Room ORM** - Database abstraction layer
-- **SharedPreferences** - User settings and theme persistence
+### 🙏 **Acknowledgments & Attribution**
 
-### **Key Libraries**
-- **Retrofit** - HTTP client for API calls
-- **OkHttp** - Network interceptor and caching
-- **Glide** - Image loading and caching
-- **Markwon** - Markdown rendering for release notes
+#### **Detailed Attendance Parsing Logic**
+Special thanks to **[Arya4930](https://github.com/Arya4930)** for the detailed attendance view parsing logic from:
+**[UniCC Repository](https://github.com/Arya4930/UniCC)**
 
-## 📈 **Changes from Original VIT Student App**
+The enhanced attendance parsing implementation in StudentCC v1.4.0 builds upon concepts and logic patterns from the UniCC project. We're grateful for the open-source contribution that helped improve our attendance tracking accuracy.
 
-### **🔧 Core Modifications**
-- **SettingsRepository.java** - Updated website URLs and disabled version checking
-- **Timetable.java** - Added venue field to data model
-- **TimetableDao.java** - Enhanced 12 database queries with venue data
-- **NotificationHelper.java** - Redesigned notification messages
-- **strings.xml** - Fixed app name in share functionality
-- **Theme System** - Complete overhaul with ultra-modern color palettes
-- **Color Attributes** - Added theme-aware calendar and attendance text colors
-- **UI Components** - Enhanced tab layouts and text styling for better readability
+#### **Collaboration Partners**
+- **Unmessify Integration** - Thanks to **Kanishka Chakraborty** and **Teesha Saxena** for hostel mess menu integration
+- **VIT Community** - Thanks to all students providing feedback and testing
 
-### **🎯 Key Improvements Made**
-- **Eliminated Update Popups** - No more unwanted version checking dialogs
-- **Enhanced Notifications** - Shows actual venue instead of slot numbers
-- **Better User Experience** - Cleaner interface without confusing messages
-- **Improved Data Display** - More useful information in notifications
-- **Website Integration** - Seamless connection to your landing page
+### 🔧 **Developer Setup**
 
-### **📊 Impact on User Experience**
-- **100% Reduction** in unwanted update popups
-- **Enhanced Notification Clarity** - Users now see classroom locations
-- **Improved Share Functionality** - Shows proper app name
-- **Better Error Handling** - More robust app stability
-
-## 📱 Screenshots
-
-<div align="center">
-  <img src="preview.gif" alt="StudentCC App Preview" width="300">
-</div>
-
-## 🎯 Key Improvements
-
-### ✅ **Fixed Issues**
-- **Version Checking** - Disabled unwanted update popups
-- **Website URLs** - Updated to point to your landing page
-- **App Name** - Fixed share functionality to show "StudentCC"
-- **Notifications** - Enhanced to show venue instead of slot IDs
-
-### 🆕 **New Features**
-- **Venue Display** - Notifications now show actual classroom locations
-- **Enhanced GPA Calculator** - More accurate calculations with VIT's system
-- **Improved UI** - Better theme system and modern design
-- **Better Error Handling** - More robust app stability
-
-### 🔧 **Technical Enhancements**
-- **Database Schema** - Added venue field to Timetable.AllData model
-- **Query Optimization** - Updated database queries to include venue data
-- **Notification System** - Completely redesigned notification messages
-- **Website Integration** - Seamless integration with your landing page
-
-## 📦 Installation
-
-### **Prerequisites**
-- Android Studio Arctic Fox or later
-- Android SDK API 21+ (Android 5.0+)
-- Java 8 or higher
-
-### **Build Instructions**
+#### **Prerequisites**
 ```bash
-# Clone the repository
-git clone https://github.com/Salmanmalvasi/StudentCC.git
+# Required tools
+- Android Studio Arctic Fox or later
+- Android SDK API 24+ (Android 7.0+)  
+- Java 17 or higher
+- Git
+```
 
-# Open in Android Studio
+#### **Secure Setup (Important!)**
+```bash
+# 1. Clone the repository
+git clone https://github.com/Salmanmalvasi/StudentCC.git
 cd StudentCC
 
-# Sync Gradle files
+# 2. Set up environment variables (REQUIRED for security)
+cp .env.example .env
+# Edit .env with your Firebase configuration
+
+# 3. Generate configuration files
+./generate-config.sh
+
+# 4. Build the project
 ./gradlew build
+```
+
+> **🔒 Security Note:** This project uses environment variables for API keys. Never commit `.env` files or `google-services.json` to Git. See `SECURITY.md` for complete setup instructions.
+
+### 🏗️ **Architecture**
+
+#### **Core Technologies**
+- **Java** - Primary development language
+- **Room Database** - Local data persistence  
+- **Firebase** - Analytics, Crashlytics, In-App Messaging
+- **Material Design 3** - Modern UI components
+- **RxJava** - Reactive programming patterns
+
+#### **Security Features**
+- **Environment-based Config** - Secure API key management
+- **Encrypted Storage** - Local credential encryption
+- **Build-time Validation** - Configuration verification
+- **Git History Cleaning** - No exposed secrets
+
+#### **Key Components**
+```
+app/src/main/java/tk/therealsuji/vtopchennai/
+├── activities/          # UI Activities
+├── helpers/            # Utility classes & Firebase helpers
+├── models/             # Data models
+├── interfaces/         # Database DAOs  
+├── services/           # Background services
+└── fragments/          # UI fragments
+```
+
+### 📊 **Database Schema**
+
+#### **Core Tables**
+- **Courses** - Course information with venue data
+- **Timetable** - Enhanced with detailed attendance parsing
+- **Attendance** - Day-by-day tracking with improved accuracy  
+- **Marks** - Performance analytics with class averages
+- **Exams** - Schedule with venue information
+
+#### **New in v1.4.0**
+- Enhanced attendance parsing logic (inspired by UniCC)
+- Performance analytics tables
+- OD (On Duty) tracking system
+- In-app messaging configuration
+
+### 🔐 **Security Implementation**
+
+#### **Environment Variables**
+```bash
+# Required in .env file
+FIREBASE_API_KEY=your_firebase_api_key
+FIREBASE_PROJECT_ID=your_project_id  
+FIREBASE_PROJECT_NUMBER=your_project_number
+FIREBASE_APP_ID=your_app_id
+FIREBASE_STORAGE_BUCKET=your_storage_bucket
+```
+
+#### **Build Process**
+1. **Environment Check** - Validates all required variables
+2. **Config Generation** - Creates `google-services.json` from template  
+3. **Security Validation** - Ensures no hardcoded secrets
+4. **Build & Sign** - Generates optimized release APK
+
+### 🚀 **CI/CD Pipeline**
+
+#### **GitHub Actions Workflow**
+- **Automated Builds** - On every push/PR
+- **Security Scanning** - Secret detection & validation
+- **APK Generation** - Signed release builds  
+- **Artifact Upload** - Downloadable APKs
+
+#### **Release Process**
+```bash
+# 1. Update version in build.gradle
+# 2. Test thoroughly
+# 3. Create release commit
+git commit -m "🚀 Release v1.x.x"
+
+# 4. GitHub Actions automatically builds & uploads APK
+```
+
+### 🧪 **Testing**
+
+#### **Firebase In-App Messaging Testing**
+```bash
+# 1. Add your device as test device in Firebase Console
+# 2. Run the app and check logs for device ID
+# 3. Create test campaign in Firebase Console
+# 4. Use events: app_open, welcome_message, test_in_app_message
+```
+
+#### **Local Testing**
+```bash
+# Debug build
+./gradlew assembleDebug
+
+# Run tests  
+./gradlew test
 
 # Install on device
 ./gradlew installDebug
 ```
 
-## 🔧 Configuration
+### 🤝 **Contributing**
 
-### **Website URLs**
-The app is configured to use your landing page:
-- **Base URL**: `https://salmanmalvasi.github.io`
-- **Landing Page**: `https://salmanmalvasi.github.io/studentcc-landing.html`
+#### **Development Workflow**
+1. **Fork** the repository
+2. **Create** feature branch: `git checkout -b feature/amazing-feature`
+3. **Follow** security guidelines (use `.env` files)
+4. **Test** thoroughly with real VIT credentials
+5. **Submit** pull request with detailed description
 
-### **Version Checking**
-Version checking is disabled to prevent unwanted popups. The app will not show update dialogs.
+#### **Code Style Guidelines**
+- **Java Conventions** - Follow Android best practices
+- **Security First** - Never commit secrets or credentials  
+- **Comment Complex Logic** - Especially attendance parsing
+- **Test Edge Cases** - VIT's systems can be unpredictable
 
-## 🎨 Customization
+#### **Areas for Contribution**
+- 🔍 **Attendance Parsing** - Improve accuracy for different formats
+- 📊 **Analytics Features** - New performance insights
+- 🎨 **UI/UX Improvements** - Modern design patterns
+- 🔐 **Security Enhancements** - Additional protection layers
+- 🎮 **Mini-Games** - Fun features for students
 
-### **Themes**
-The app supports 6 ultra-modern custom themes with sleek color palettes:
-- **Default** - Clean black & white with optimal contrast
-- **Red Theme** - Modern red tones with proper accessibility
-- **Blue Theme** - Professional blue palette inspired by modern design systems
-- **Purple Theme** - Elegant purple gradients with excellent readability  
-- **Green Theme** - Fresh green colors with nature-inspired tones
-- **Black Theme** - Premium AMOLED-optimized dark theme
+### �� **License & Legal**
 
-**Color Features:**
-- Theme-aware calendar day labels (Mon, Tue, Wed, etc.)
-- Attendance text colors matching theme selection
-- High contrast ratios for accessibility (WCAG compliant)
-- Smooth transitions between themes
+#### **GNU General Public License (GPL)**
+This project is open-source under GPL. Key requirements:
+- **Source Available** - Must provide source when distributing
+- **Attribution Required** - Credit original authors
+- **Copyleft** - Derivative works must also be GPL
+- **No Warranty** - Software provided as-is
 
-### **Notifications**
-Notifications are enhanced to show:
-- **Course Code** and **Title**
-- **Venue Information** (instead of slot numbers)
-- **Time Information**
-- **Class Type** (Theory/Lab)
+#### **Third-Party Acknowledgments**
+- **UniCC Project** - Attendance parsing logic inspiration
+- **Firebase** - Backend services  
+- **Material Design** - UI components
+- **VIT Chennai** - Educational platform access
 
-## 📊 Database Schema
+### 📞 **Developer Support**
 
-### **Core Tables**
-- **Courses** - Course information with venue data
-- **Timetable** - Class schedules with venue mapping
-- **Attendance** - Attendance tracking
-- **Exams** - Exam schedules with venue details
-- **Marks** - Academic performance tracking
+#### **Getting Help**
+- 🐛 **Issues** - [GitHub Issues](https://github.com/Salmanmalvasi/StudentCC/issues)
+- 📧 **Email** - salmanmalvasi@gmail.com (developers only)
+- 📖 **Documentation** - Check `SECURITY.md` for setup
+- 💬 **Discussions** - [GitHub Discussions](https://github.com/Salmanmalvasi/StudentCC/discussions)
 
-### **Key Features**
-- **Venue Integration** - All timetable queries include venue information
-- **Encrypted Storage** - Secure credential storage
-- **Offline Support** - Works without internet after initial sync
+#### **Bug Reports**
+When reporting bugs, include:
+- Android version & device model
+- StudentCC version  
+- Steps to reproduce
+- Screenshots/logs (without personal data)
+- VIT campus (if relevant)
 
-## 🔒 Privacy & Security
+### 🎯 **Roadmap**
 
-### **Data Protection**
-- **Local Storage** - All data stored locally on device
-- **Encrypted Credentials** - Login details encrypted using AES256
-- **No External Sharing** - Data never sent to external servers
-- **User Control** - Full control over data and settings
-- **No Privacy Policy Required** - App operates entirely offline after initial sync
-
-### **Permissions**
-- **Internet** - For VTOP synchronization only
-- **Storage** - For downloading files and caching
-- **Notifications** - For class and exam reminders
-
-## 🚀 Performance
-
-### **Optimizations**
-- **Efficient Database Queries** - Optimized Room queries with venue data
-- **Memory Management** - Proper lifecycle management
-- **Network Optimization** - Smart caching and request handling
-- **UI Performance** - Smooth animations and transitions
-
-## 📈 Analytics
-
-### **Firebase Integration**
-- User engagement tracking
-- Performance monitoring
-- Crash reporting
-- Feature usage analytics
-
-## 🤝 Contributing
-
-### **Development Setup**
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-### **Code Style**
-- Follow Android coding conventions
-- Use meaningful variable names
-- Add comments for complex logic
-- Maintain consistent formatting
-
-## 📄 License
-
-This project is licensed under the GNU General Public License (GPL) - see the [LICENSE](LICENSE) file for details.
-
-### **GPL License Features**
-- **Open Source** - Full source code available
-- **Freedom to Use** - Use the software for any purpose
-- **Freedom to Study** - Access to source code for learning
-- **Freedom to Share** - Distribute copies of the software
-- **Freedom to Modify** - Create derivative works
-
-### **License Requirements**
-- **Source Code** - Must provide source code when distributing
-- **License Notice** - Must include GPL license text
-- **Attribution** - Must credit original authors
-- **Derivative Works** - Must also be licensed under GPL
-
-## 👨‍💻 Developer
-
-**Salman Malvasi**
-- **GitHub**: [@Salmanmalvasi](https://github.com/Salmanmalvasi)
-- **Website**: [salmanmalvasi.github.io](https://salmanmalvasi.github.io)
-- **Email**: salmanmalvasi@gmail.com
-
-## 🤝 Collaboration & Partnerships
-
-### **Unmessify Integration - Hostel Mess Menu System**
-
-Special thanks to **Kanishka Chakraborty** and **Teesha Saxena** for opening up **Unmessify** to collaboration and contribution with the launch of **1.7.0**. Their amazing work on the mess menu system has been invaluable to the VIT student community.
-
-**Repository**: [https://github.com/Kanishka-Developer/unmessify](https://github.com/Kanishka-Developer/unmessify)
-
-**Example mess menu data** (Men's hostel Non-Veg, English): [https://kanishka-developer.github.io/unmessify/json/en/VITC-M-N.json](https://kanishka-developer.github.io/unmessify/json/en/VITC-M-N.json)
-
-We're grateful for their collaborative approach and encourage other developers to explore partnership opportunities!
-
-**Visit**: [kaffeine.tech/unmessify](https://kaffeine.tech/unmessify)
-
-## 🙏 Acknowledgments
-
-- **VIT Chennai** - For providing the VTOP platform
-- **Android Community** - For open-source libraries and tools
-- **Material Design** - For the design system
-- **VIT Students** - For feedback and testing
-
-## 📞 Support
-
-### **Getting Help**
-- **GitHub Issues** - Report bugs and request features
-- **Email Support** - salmanmalvasi@gmail.com
-- **Website** - [https://salmanmalvasi.github.io/studentcc-landing.html](https://salmanmalvasi.github.io/studentcc-landing.html)
-
-### **Feedback**
-Your feedback is crucial for improving StudentCC! Please:
-- 📝 Report bugs you encounter
-- 💡 Suggest new features
-- ⭐ Rate your experience
-- 🔄 Share ideas for improvements
+#### **Upcoming Features**
+- 🤖 **AI-Powered Predictions** - Grade forecasting
+- 📱 **Cross-Platform** - iOS app development  
+- 🔔 **Smart Notifications** - ML-based reminders
+- 🎓 **Multi-University** - Support beyond VIT
+- �� **Advanced Analytics** - Detailed performance insights
 
 ---
 
 <div align="center">
   <p><strong>StudentCC</strong> - Made with ❤️ for VIT Students</p>
-  <p><em>Enhanced Version 1.3.0 - Now with Ultra-Modern Themes & Collaboration Features</em></p>
+  <p><em>Version 1.4.0 - Empowering 3000+ Students Daily</em></p>
+  
+  **👨‍💻 Developer:** [Salman Malvasi](https://github.com/Salmanmalvasi)  
+  **🌐 Website:** [salmanmalvasi.github.io](https://salmanmalvasi.github.io)  
+  **📱 Download:** [StudentCC Landing Page](https://salmanmalvasi.github.io/studentcc-landing.html)
 </div>
