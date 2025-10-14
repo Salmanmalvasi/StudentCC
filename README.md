@@ -1,255 +1,120 @@
-# StudentCC - VIT Student Companion App 🎓
+# StudentCC - Developer Documentation
 
-<div align="center">
-  <img src="app/src/main/res/drawable/app_logo.png" alt="StudentCC Logo" width="120" height="120">
-  <h3>🚀 The Ultimate Academic Companion for VIT Students</h3>
-  <p><strong>Version 1.4.0</strong> - The Biggest Update Yet!</p>
-</div>
+> **For Students**: Download the app from [salmanmalvasi.github.io/studentcc-landing.html](https://salmanmalvasi.github.io/studentcc-landing.html)
 
-## 📱 **For Students - Download the App**
+## 👨‍💻 Developer Setup
 
-🔥 **[Download StudentCC v1.4.0](https://salmanmalvasi.github.io/studentcc-landing.html)**
+This repository contains the source code for StudentCC Android app. This documentation is for developers and contributors.
 
-Join 3000+ VIT students already using StudentCC for:
-- 📊 Real-time attendance tracking
-- 🎯 Smart GPA calculations  
-- 📅 Class schedules & notifications
-- 🏆 Performance analytics
-- 🎮 Hidden mini-games & more!
+### 🏗️ Tech Stack
+- **Language**: Java (Android)
+- **Web Scraping**: Android WebView + JavaScript + jQuery
+- **HTTP Client**: OkHttp + Retrofit
+- **Database**: Room (SQLite)
+- **Architecture**: MVVM with Services
+- **Build System**: Gradle
 
----
-
-## 👨‍💻 **For Developers - Technical Documentation**
-
-> **Note:** This repository is for developers and contributors. Students should download the app from the link above.
-
-### 🆕 **What's New in v1.4.0**
-
-#### **User-Facing Features:**
-1️⃣ **Detailed Attendance View** – See your attendance day-by-day with enhanced parsing logic  
-2️⃣ **Enhanced Marks Section** – Track class averages & performance trends  
-3️⃣ **Smart OD Calculator** – Know exactly how many On Duty classes you've used and left  
-4️⃣ **🎮 Mystery Game** – Hidden inside the app for entertainment  
-5️⃣ **⚡ Faster Sync** – Quicker & smoother data updates  
-6️⃣ **🎨 New Logo + UI** – Smoother experience with modern design  
-
-#### **Technical Improvements:**
-🔥 **Firebase In-App Messaging** – Real-time notifications and updates  
-🔐 **Enhanced Security** – Secure API key management system  
-🏗️ **Better Architecture** – Improved code structure and performance  
-🚀 **Auto-Update System** – Seamless updates for users  
-📱 **Optimized Build** – Smaller APK size with better performance  
-
-### 🙏 **Acknowledgments & Attribution**
-
-#### **Detailed Attendance Parsing Logic**
-Special thanks to **[Arya4930](https://github.com/Arya4930)** for the detailed attendance view parsing logic from:
-**[UniCC Repository](https://github.com/Arya4930/UniCC)**
-
-The enhanced attendance parsing implementation in StudentCC v1.4.0 builds upon concepts and logic patterns from the UniCC project. We're grateful for the open-source contribution that helped improve our attendance tracking accuracy.
-
-#### **Collaboration Partners**
-- **Unmessify Integration** - Thanks to **Kanishka Chakraborty** and **Teesha Saxena** for hostel mess menu integration
-- **VIT Community** - Thanks to all students providing feedback and testing
-
-### 🔧 **Developer Setup**
-
-#### **Prerequisites**
-```bash
-# Required tools
-- Android Studio Arctic Fox or later
-- Android SDK API 24+ (Android 7.0+)  
-- Java 17 or higher
+### 🔧 Prerequisites
+- Android Studio Arctic Fox or newer
+- JDK 11+
+- Android SDK API 24+
 - Git
+
+### ⚡ Quick Start
+
+1. **Clone & Setup**
+   ```bash
+   git clone https://github.com/Salmanmalvasi/StudentCC.git
+   cd StudentCC
+   cp .env.example .env
+   # Edit .env with your Firebase configuration
+   ```
+
+2. **Generate Configuration**
+   ```bash
+   ./generate-config.sh
+   ```
+
+3. **Build**
+   ```bash
+   ./gradlew assembleRelease
+   ```
+
+### 🔐 Security Setup
+
+**IMPORTANT**: This repository uses environment variables for security.
+
+1. Copy `.env.example` to `.env`
+2. Add your Firebase configuration to `.env`
+3. Run `./generate-config.sh` before building
+4. See [SECURITY.md](SECURITY.md) for complete setup
+
+### 📱 Features Overview
+
+- **Attendance Tracking**: Day-by-day attendance view
+- **Marks Management**: Class averages & performance trends
+- **OD Calculator**: Track On Duty usage
+- **Timetable**: Class schedules
+- **Firebase Integration**: Analytics, Crashlytics, In-App Messaging
+- **Auto-Sync**: Background data updates
+
+### 🏛️ Architecture
+
 ```
-
-#### **Secure Setup (Important!)**
-```bash
-# 1. Clone the repository
-git clone https://github.com/Salmanmalvasi/StudentCC.git
-cd StudentCC
-
-# 2. Set up environment variables (REQUIRED for security)
-cp .env.example .env
-# Edit .env with your Firebase configuration
-
-# 3. Generate configuration files
-./generate-config.sh
-
-# 4. Build the project
-./gradlew build
-```
-
-> **🔒 Security Note:** This project uses environment variables for API keys. Never commit `.env` files or `google-services.json` to Git. See `SECURITY.md` for complete setup instructions.
-
-### 🏗️ **Architecture**
-
-#### **Core Technologies**
-- **Java** - Primary development language
-- **Room Database** - Local data persistence  
-- **Firebase** - Analytics, Crashlytics, In-App Messaging
-- **Material Design 3** - Modern UI components
-- **RxJava** - Reactive programming patterns
-
-#### **Security Features**
-- **Environment-based Config** - Secure API key management
-- **Encrypted Storage** - Local credential encryption
-- **Build-time Validation** - Configuration verification
-- **Git History Cleaning** - No exposed secrets
-
-#### **Key Components**
-```
-app/src/main/java/tk/therealsuji/vtopchennai/
 ├── activities/          # UI Activities
-├── helpers/            # Utility classes & Firebase helpers
-├── models/             # Data models
-├── interfaces/         # Database DAOs  
-├── services/           # Background services
-└── fragments/          # UI fragments
+├── fragments/          # UI Fragments  
+├── services/           # Background Services (VTOPService)
+├── helpers/            # Utility Classes
+├── models/            # Data Models
+├── interfaces/        # Room DAOs
+└── workers/           # Background Workers
 ```
 
-### 📊 **Database Schema**
+### 🕷️ Web Scraping Engine
 
-#### **Core Tables**
-- **Courses** - Course information with venue data
-- **Timetable** - Enhanced with detailed attendance parsing
-- **Attendance** - Day-by-day tracking with improved accuracy  
-- **Marks** - Performance analytics with class averages
-- **Exams** - Schedule with venue information
+The app uses a sophisticated scraping system:
+- **WebView**: Handles authentication & CAPTCHA
+- **JavaScript Injection**: Extracts data from DOM
+- **HTTP Fallback**: Direct API calls where possible
+- **Session Management**: Maintains login state
 
-#### **New in v1.4.0**
-- Enhanced attendance parsing logic (inspired by UniCC)
-- Performance analytics tables
-- OD (On Duty) tracking system
-- In-app messaging configuration
+**Attribution**: Detailed attendance parsing logic adapted from [Arya4930/UniCC](https://github.com/Arya4930/UniCC)
 
-### 🔐 **Security Implementation**
+### 🔄 Background Sync
 
-#### **Environment Variables**
-```bash
-# Required in .env file
-FIREBASE_API_KEY=your_firebase_api_key
-FIREBASE_PROJECT_ID=your_project_id  
-FIREBASE_PROJECT_NUMBER=your_project_number
-FIREBASE_APP_ID=your_app_id
-FIREBASE_STORAGE_BUCKET=your_storage_bucket
-```
+- **VTOPService**: Primary data sync service
+- **AutoSyncWorker**: Periodic background updates
+- **WorkManager**: Handles network constraints
 
-#### **Build Process**
-1. **Environment Check** - Validates all required variables
-2. **Config Generation** - Creates `google-services.json` from template  
-3. **Security Validation** - Ensures no hardcoded secrets
-4. **Build & Sign** - Generates optimized release APK
+### 🛠️ Build Configuration
 
-### 🚀 **CI/CD Pipeline**
+- **Debug**: Development builds with logging
+- **Release**: Optimized builds with ProGuard
+- **Signing**: Uses `studentcc.keystore` for release
 
-#### **GitHub Actions Workflow**
-- **Automated Builds** - On every push/PR
-- **Security Scanning** - Secret detection & validation
-- **APK Generation** - Signed release builds  
-- **Artifact Upload** - Downloadable APKs
+### 🤝 Contributing
 
-#### **Release Process**
-```bash
-# 1. Update version in build.gradle
-# 2. Test thoroughly
-# 3. Create release commit
-git commit -m "🚀 Release v1.x.x"
+1. Fork the repository
+2. Create feature branch
+3. Follow code style guidelines
+4. Test thoroughly
+5. Submit pull request
 
-# 4. GitHub Actions automatically builds & uploads APK
-```
+### 📊 Analytics & Monitoring
 
-### 🧪 **Testing**
+- **Firebase Analytics**: User behavior tracking
+- **Crashlytics**: Crash reporting
+- **In-App Messaging**: Feature announcements
 
-#### **Firebase In-App Messaging Testing**
-```bash
-# 1. Add your device as test device in Firebase Console
-# 2. Run the app and check logs for device ID
-# 3. Create test campaign in Firebase Console
-# 4. Use events: app_open, welcome_message, test_in_app_message
-```
+### 📄 License
 
-#### **Local Testing**
-```bash
-# Debug build
-./gradlew assembleDebug
+See LICENSE file for details.
 
-# Run tests  
-./gradlew test
+### 🔗 Links
 
-# Install on device
-./gradlew installDebug
-```
-
-### 🤝 **Contributing**
-
-#### **Development Workflow**
-1. **Fork** the repository
-2. **Create** feature branch: `git checkout -b feature/amazing-feature`
-3. **Follow** security guidelines (use `.env` files)
-4. **Test** thoroughly with real VIT credentials
-5. **Submit** pull request with detailed description
-
-#### **Code Style Guidelines**
-- **Java Conventions** - Follow Android best practices
-- **Security First** - Never commit secrets or credentials  
-- **Comment Complex Logic** - Especially attendance parsing
-- **Test Edge Cases** - VIT's systems can be unpredictable
-
-#### **Areas for Contribution**
-- 🔍 **Attendance Parsing** - Improve accuracy for different formats
-- 📊 **Analytics Features** - New performance insights
-- 🎨 **UI/UX Improvements** - Modern design patterns
-- 🔐 **Security Enhancements** - Additional protection layers
-- 🎮 **Mini-Games** - Fun features for students
-
-### �� **License & Legal**
-
-#### **GNU General Public License (GPL)**
-This project is open-source under GPL. Key requirements:
-- **Source Available** - Must provide source when distributing
-- **Attribution Required** - Credit original authors
-- **Copyleft** - Derivative works must also be GPL
-- **No Warranty** - Software provided as-is
-
-#### **Third-Party Acknowledgments**
-- **UniCC Project** - Attendance parsing logic inspiration
-- **Firebase** - Backend services  
-- **Material Design** - UI components
-- **VIT Chennai** - Educational platform access
-
-### 📞 **Developer Support**
-
-#### **Getting Help**
-- 🐛 **Issues** - [GitHub Issues](https://github.com/Salmanmalvasi/StudentCC/issues)
-- 📧 **Email** - salmanmalvasi@gmail.com (developers only)
-- 📖 **Documentation** - Check `SECURITY.md` for setup
-- 💬 **Discussions** - [GitHub Discussions](https://github.com/Salmanmalvasi/StudentCC/discussions)
-
-#### **Bug Reports**
-When reporting bugs, include:
-- Android version & device model
-- StudentCC version  
-- Steps to reproduce
-- Screenshots/logs (without personal data)
-- VIT campus (if relevant)
-
-### 🎯 **Roadmap**
-
-#### **Upcoming Features**
-- 🤖 **AI-Powered Predictions** - Grade forecasting
-- 📱 **Cross-Platform** - iOS app development  
-- 🔔 **Smart Notifications** - ML-based reminders
-- 🎓 **Multi-University** - Support beyond VIT
-- �� **Advanced Analytics** - Detailed performance insights
+- **App Download**: [StudentCC Landing Page](https://salmanmalvasi.github.io/studentcc-landing.html)
+- **Security Guide**: [SECURITY.md](SECURITY.md)
+- **Build Guide**: [GitHub Actions](.github/workflows/build.yml)
 
 ---
-
-<div align="center">
-  <p><strong>StudentCC</strong> - Made with ❤️ for VIT Students</p>
-  <p><em>Version 1.4.0 - Empowering 3000+ Students Daily</em></p>
-  
-  **👨‍💻 Developer:** [Salman Malvasi](https://github.com/Salmanmalvasi)  
-  **🌐 Website:** [salmanmalvasi.github.io](https://salmanmalvasi.github.io)  
-  **📱 Download:** [StudentCC Landing Page](https://salmanmalvasi.github.io/studentcc-landing.html)
-</div>
+**Developer Repository** - For app downloads, visit the landing page above.
