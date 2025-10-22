@@ -7,19 +7,24 @@ set -e
 
 echo "🔐 Generating google-services.json from environment variables..."
 
-# Check if .env file exists
-if [ ! -f ".env" ]; then
-    echo "❌ Error: .env file not found!"
+# Check if .env file exists, assume it doesn't exist at first
+does_env_exist=false
+
+if [ -f ".env" ]; then
+    # Load environment variables from .env file
+    does_env_exist=true # affirm it does exist
+    source .env
+else
+    echo ".env file doesn't exist"
     echo "Please create .env file with your Firebase configuration."
     echo "Use .env.example as a template."
-    exit 1
 fi
-
-# Load environment variables from .env file
-source .env
 
 # Check if required variables are set
 required_vars=("FIREBASE_API_KEY" "FIREBASE_PROJECT_ID" "FIREBASE_PROJECT_NUMBER" "FIREBASE_APP_ID" "FIREBASE_STORAGE_BUCKET")
+
+if [ ! "$does_env_exist" ]
+    echo "Assuming all required environment variables are set directly in the shell"
 
 for var in "${required_vars[@]}"; do
     if [ -z "${!var}" ]; then
