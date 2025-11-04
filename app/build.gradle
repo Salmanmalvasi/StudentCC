@@ -100,6 +100,9 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 
     implementation 'com.google.code.gson:gson:2.10.1'
+    
+    // JSoup for HTML parsing (for direct HTTP attendance fetching)
+    implementation 'org.jsoup:jsoup:1.15.4'
 
     annotationProcessor 'androidx.room:room-compiler:2.6.1'
     implementation 'com.google.mlkit:text-recognition:16.0.0'

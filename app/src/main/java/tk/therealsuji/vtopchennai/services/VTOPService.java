@@ -111,6 +111,345 @@ public class VTOPService extends Service {
     // Enhanced captcha processing
     private EnhancedCaptchaProcessor enhancedCaptchaProcessor;
 
+    private static class DayPeriod {
+        final String day;
+        final int periodIndex;
+
+        DayPeriod(String day, int periodIndex) {
+            this.day = day;
+            this.periodIndex = periodIndex;
+        }
+    }
+
+    private static final Map<String, List<DayPeriod>> SLOT_MAP = new HashMap<>();
+    private static final Map<String, String> SLOT_ALIASES = new HashMap<>();
+
+    static {
+        // Auto-generated from UniCC config.json
+
+        addSlotMapping("A1", "monday", 0);  // 08:00
+        addSlotMapping("A1", "wednesday", 1);  // 08:55
+
+        addSlotMapping("A2", "monday", 6);  // 14:00
+        addSlotMapping("A2", "wednesday", 7);  // 14:55
+
+        addSlotMapping("B1", "thursday", 1);  // 08:55
+        addSlotMapping("B1", "tuesday", 0);  // 08:00
+
+        addSlotMapping("B2", "thursday", 7);  // 14:55
+        addSlotMapping("B2", "tuesday", 6);  // 14:00
+
+        addSlotMapping("C1", "friday", 1);  // 08:55
+        addSlotMapping("C1", "wednesday", 0);  // 08:00
+
+        addSlotMapping("C2", "friday", 7);  // 14:55
+        addSlotMapping("C2", "wednesday", 6);  // 14:00
+
+        addSlotMapping("D1", "monday", 2);  // 09:50
+        addSlotMapping("D1", "thursday", 0);  // 08:00
+
+        addSlotMapping("D2", "monday", 8);  // 15:50
+        addSlotMapping("D2", "thursday", 6);  // 14:00
+
+        addSlotMapping("E1", "friday", 0);  // 08:00
+        addSlotMapping("E1", "tuesday", 2);  // 09:50
+
+        addSlotMapping("E2", "friday", 6);  // 14:00
+        addSlotMapping("E2", "tuesday", 8);  // 15:50
+
+        addSlotMapping("F1", "monday", 1);  // 08:55
+        addSlotMapping("F1", "wednesday", 2);  // 09:50
+
+        addSlotMapping("F2", "monday", 7);  // 14:55
+        addSlotMapping("F2", "wednesday", 8);  // 15:50
+
+        addSlotMapping("G1", "thursday", 2);  // 09:50
+        addSlotMapping("G1", "tuesday", 1);  // 08:55
+
+        addSlotMapping("G2", "thursday", 8);  // 15:50
+        addSlotMapping("G2", "tuesday", 7);  // 14:55
+
+        addSlotMapping("L1", "monday", 0);  // 08:00
+
+        addSlotMapping("L10", "tuesday", 3);  // 10:40
+
+        addSlotMapping("L11", "tuesday", 4);  // 11:40
+
+        addSlotMapping("L12", "tuesday", 5);  // 12:35
+        addSlotMapping("L12", "wednesday", 0);  // 08:00
+
+        addSlotMapping("L13", "wednesday", 1);  // 08:50
+
+        addSlotMapping("L14", "wednesday", 2);  // 09:50
+
+        addSlotMapping("L15", "wednesday", 3);  // 10:40
+
+        addSlotMapping("L17", "wednesday", 4);  // 11:40
+
+        addSlotMapping("L18", "wednesday", 5);  // 12:35
+
+        addSlotMapping("L19", "thursday", 0);  // 08:00
+
+        addSlotMapping("L2", "monday", 1);  // 08:50
+
+        addSlotMapping("L20", "thursday", 1);  // 08:50
+
+        addSlotMapping("L21", "thursday", 2);  // 09:50
+
+        addSlotMapping("L22", "thursday", 3);  // 10:40
+
+        addSlotMapping("L23", "thursday", 4);  // 11:40
+
+        addSlotMapping("L24", "thursday", 5);  // 12:35
+
+        addSlotMapping("L25", "friday", 0);  // 08:00
+
+        addSlotMapping("L26", "friday", 1);  // 08:50
+
+        addSlotMapping("L27", "friday", 2);  // 09:50
+
+        addSlotMapping("L28", "friday", 3);  // 10:40
+
+        addSlotMapping("L29", "friday", 4);  // 11:40
+
+        addSlotMapping("L3", "monday", 2);  // 09:50
+
+        addSlotMapping("L30", "friday", 5);  // 12:30
+
+        addSlotMapping("L31", "monday", 6);  // 14:00
+
+        addSlotMapping("L32", "monday", 7);  // 14:50
+
+        addSlotMapping("L33", "monday", 8);  // 15:50
+
+        addSlotMapping("L34", "monday", 9);  // 16:40
+
+        addSlotMapping("L35", "monday", 10);  // 17:40
+
+        addSlotMapping("L36", "monday", 11);  // 18:30
+
+        addSlotMapping("L37", "tuesday", 6);  // 14:00
+
+        addSlotMapping("L38", "tuesday", 7);  // 14:50
+
+        addSlotMapping("L39", "tuesday", 8);  // 15:50
+
+        addSlotMapping("L4", "monday", 3);  // 10:40
+
+        addSlotMapping("L40", "tuesday", 9);  // 16:40
+
+        addSlotMapping("L41", "tuesday", 10);  // 17:40
+
+        addSlotMapping("L42", "tuesday", 11);  // 18:30
+
+        addSlotMapping("L43", "wednesday", 6);  // 14:00
+
+        addSlotMapping("L44", "wednesday", 7);  // 14:50
+
+        addSlotMapping("L45", "wednesday", 8);  // 15:50
+
+        addSlotMapping("L46", "wednesday", 9);  // 16:40
+
+        addSlotMapping("L47", "wednesday", 10);  // 17:40
+
+        addSlotMapping("L48", "wednesday", 11);  // 18:30
+
+        addSlotMapping("L49", "thursday", 6);  // 14:00
+
+        addSlotMapping("L5", "monday", 4);  // 11:40
+
+        addSlotMapping("L50", "thursday", 7);  // 14:50
+
+        addSlotMapping("L51", "thursday", 8);  // 15:50
+
+        addSlotMapping("L52", "thursday", 9);  // 16:40
+
+        addSlotMapping("L53", "thursday", 10);  // 17:40
+
+        addSlotMapping("L54", "thursday", 11);  // 18:30
+
+        addSlotMapping("L55", "friday", 6);  // 14:00
+
+        addSlotMapping("L56", "friday", 7);  // 14:50
+
+        addSlotMapping("L57", "friday", 8);  // 15:50
+
+        addSlotMapping("L58", "friday", 9);  // 16:40
+
+        addSlotMapping("L59", "friday", 10);  // 17:40
+
+        addSlotMapping("L6", "monday", 5);  // 12:30
+
+        addSlotMapping("L60", "friday", 11);  // 18:30
+
+        addSlotMapping("L7", "tuesday", 0);  // 08:00
+
+        addSlotMapping("L71", "saturday", 0);  // 08:00
+
+        addSlotMapping("L72", "saturday", 1);  // 08:50
+
+        addSlotMapping("L73", "saturday", 2);  // 09:50
+
+        addSlotMapping("L74", "saturday", 3);  // 10:40
+
+        addSlotMapping("L75", "saturday", 4);  // 11:40
+
+        addSlotMapping("L76", "saturday", 5);  // 12:30
+
+        addSlotMapping("L77", "saturday", 6);  // 14:00
+
+        addSlotMapping("L78", "saturday", 7);  // 14:50
+
+        addSlotMapping("L79", "saturday", 8);  // 15:50
+
+        addSlotMapping("L8", "tuesday", 1);  // 08:50
+
+        addSlotMapping("L80", "saturday", 9);  // 16:40
+
+        addSlotMapping("L81", "saturday", 10);  // 17:40
+
+        addSlotMapping("L82", "saturday", 11);  // 18:30
+
+        addSlotMapping("L83", "sunday", 0);  // 08:00
+
+        addSlotMapping("L84", "sunday", 1);  // 08:50
+
+        addSlotMapping("L85", "sunday", 2);  // 09:50
+
+        addSlotMapping("L86", "sunday", 3);  // 10:40
+
+        addSlotMapping("L87", "sunday", 4);  // 11:40
+
+        addSlotMapping("L88", "sunday", 5);  // 12:30
+
+        addSlotMapping("L89", "sunday", 6);  // 14:00
+
+        addSlotMapping("L9", "tuesday", 2);  // 09:50
+
+        addSlotMapping("L90", "sunday", 7);  // 14:50
+
+        addSlotMapping("L91", "sunday", 8);  // 15:50
+
+        addSlotMapping("L92", "sunday", 9);  // 16:40
+
+        addSlotMapping("L93", "sunday", 10);  // 17:40
+
+        addSlotMapping("L94", "sunday", 11);  // 18:30
+
+        addSlotMapping("S1", "tuesday", 11);  // 18:35
+
+        addSlotMapping("S10", "sunday", 5);  // 12:35
+
+        addSlotMapping("S11", "monday", 5);  // 12:35
+
+        addSlotMapping("S15", "friday", 5);  // 12:35
+
+        addSlotMapping("S2", "thursday", 11);  // 18:35
+
+        addSlotMapping("S3", "monday", 11);  // 18:35
+
+        addSlotMapping("S4", "wednesday", 11);  // 18:35
+
+        addSlotMapping("S8", "saturday", 5);  // 12:35
+
+        addSlotMapping("TA1", "friday", 2);  // 09:50
+
+        addSlotMapping("TA2", "friday", 8);  // 15:50
+
+        addSlotMapping("TAA1", "tuesday", 4);  // 11:40
+
+        addSlotMapping("TAA2", "tuesday", 10);  // 17:40
+
+        addSlotMapping("TB1", "monday", 3);  // 10:45
+
+        addSlotMapping("TB2", "monday", 9);  // 16:45
+
+        addSlotMapping("TBB1", "wednesday", 4);  // 11:40
+
+        addSlotMapping("TBB2", "wednesday", 10);  // 17:40
+
+        addSlotMapping("TC1", "tuesday", 3);  // 10:45
+
+        addSlotMapping("TC2", "tuesday", 9);  // 16:45
+
+        addSlotMapping("TCC1", "thursday", 4);  // 11:40
+
+        addSlotMapping("TCC2", "thursday", 10);  // 17:40
+
+        addSlotMapping("TD1", "wednesday", 3);  // 10:45
+
+        addSlotMapping("TD2", "wednesday", 9);  // 16:45
+
+        addSlotMapping("TDD1", "friday", 4);  // 11:40
+
+        addSlotMapping("TDD2", "friday", 10);  // 17:40
+
+        addSlotMapping("TE1", "thursday", 3);  // 10:45
+
+        addSlotMapping("TE2", "thursday", 9);  // 16:45
+
+        addSlotMapping("TF1", "friday", 3);  // 10:45
+
+        addSlotMapping("TF2", "friday", 9);  // 16:45
+
+        addSlotMapping("TG1", "monday", 4);  // 11:40
+
+        addSlotMapping("TG2", "monday", 10);  // 17:40
+
+        addSlotMapping("W21", "saturday", 9);  // 16:45
+        addSlotMapping("W21", "sunday", 9);  // 16:45
+
+        addSlotMapping("W22", "saturday", 10);  // 17:40
+        addSlotMapping("W22", "sunday", 10);  // 17:40
+
+        addSlotMapping("X11", "saturday", 0);  // 08:00
+        addSlotMapping("X11", "sunday", 2);  // 09:50
+
+        addSlotMapping("X12", "saturday", 1);  // 08:55
+        addSlotMapping("X12", "sunday", 3);  // 10:45
+
+        addSlotMapping("X21", "saturday", 6);  // 14:00
+        addSlotMapping("X21", "sunday", 8);  // 15:50
+
+        addSlotMapping("Y11", "saturday", 2);  // 09:50
+        addSlotMapping("Y11", "sunday", 0);  // 08:00
+
+        addSlotMapping("Y12", "saturday", 3);  // 10:45
+        addSlotMapping("Y12", "sunday", 1);  // 08:55
+
+        addSlotMapping("Y21", "saturday", 8);  // 15:50
+        addSlotMapping("Y21", "sunday", 6);  // 14:00
+
+        addSlotMapping("Z21", "saturday", 7);  // 14:55
+        addSlotMapping("Z21", "sunday", 7);  // 14:55
+
+        addSlotMapping("Z22", "saturday", 11);  // 18:35
+        addSlotMapping("Z22", "sunday", 11);  // 18:35
+
+        // Slot aliases for variants not explicitly listed in UniCC config
+        addSlotAlias("TEE1", "TE1");
+        addSlotAlias("TEE2", "TE2");
+        addSlotAlias("TFF1", "TF1");
+        addSlotAlias("TFF2", "TF2");
+        addSlotAlias("TGG1", "TG1");
+        addSlotAlias("TGG2", "TG2");
+        addSlotAlias("TAA3", "TAA2");
+        addSlotAlias("TBB3", "TBB2");
+        addSlotAlias("TCC3", "TCC2");
+        addSlotAlias("TDD3", "TDD2");
+        addSlotAlias("TEE3", "TE2");
+        addSlotAlias("TFF3", "TF2");
+        addSlotAlias("TGG3", "TG2");
+    }
+
+    private static void addSlotMapping(String slot, String day, int periodIndex) {
+        SLOT_MAP.computeIfAbsent(slot, key -> new ArrayList<>()).add(new DayPeriod(day, periodIndex));
+    }
+
+    private static void addSlotAlias(String alias, String canonical) {
+        SLOT_ALIASES.put(alias, canonical);
+    }
+
     public void clearCallback() {
         this.callback = null;
     }
@@ -270,6 +609,21 @@ public class VTOPService extends Service {
                 } catch (Exception ignored) {
                 }
                 handler.cancel();
+            }
+
+            @Override
+            public boolean onRenderProcessGone(WebView view, android.webkit.RenderProcessGoneDetail detail) {
+                android.util.Log.e("VTOPService", "WebView renderer process crashed, marking as destroyed");
+                isWebViewDestroyed = true;
+                if (webView != null) {
+                    try {
+                        ((ViewGroup) webView.getParent()).removeView(webView);
+                    } catch (Exception ignored) {
+                    }
+                    webView.destroy();
+                    webView = null;
+                }
+                return true; // Return true to indicate we handled the crash
             }
         });
     }
@@ -1249,6 +1603,11 @@ public class VTOPService extends Service {
 
                         slots.add(slot);
                         slotReference.put(slot.slot, slot);
+
+                        String canonical = SLOT_ALIASES.get(slot.slot.toUpperCase(Locale.US));
+                        if (canonical != null && !slotReference.containsKey(canonical)) {
+                            slotReference.put(canonical, slot);
+                        }
                     }
                 }
 
@@ -1293,384 +1652,804 @@ public class VTOPService extends Service {
 
     /**
      * Function to download the timetable.
+     * Generates timetable from slots by mapping slot names to days of week.
      */
     private void downloadTimetable() {
         updateProgress(R.string.downloading_timetable);
-
-        /*
-         *  JSON response format
-         *
-         *  {
-         *      "lab": [
-         *          {
-         *              "start_time": "08:00",
-         *              "end_time": "08:50",
-         *              "sunday": null,
-         *              "monday": null",
-         *              "tuesday": null,
-         *              "wednesday": null,
-         *              "thursday": null,
-         *              "friday": null,
-         *              "saturday": null,
-         *          },
-         *          ...
-         *      ],
-         *      "theory": [
-         *          {
-         *              "start_time": "08:00",
-         *              "end_time": "08:50",
-         *              "sunday": null,
-         *              "monday": "A1",
-         *              "tuesday": "B1",
-         *              "wednesday": null,
-         *              "thursday": "D1",
-         *              "friday": "E1",
-         *              "saturday": "F1",
-         *          },
-         *          ...
-         *      ]
-         *  }
-         */
-        webView.evaluateJavascript("(function() {" +
-                "var data = '_csrf=' + $('input[name=\"_csrf\"]').val() + '&semesterSubId=' + '" + semesterID + "' + '&authorizedID=' + $('#authorizedIDX').val();" +
-                "var response = {" +
-                "    lab: []," +
-                "    theory: []" +
-                "};" +
-                "$.ajax({" +
-                "    type : 'POST'," +
-                "    url : 'processViewTimeTable'," +
-                "    data : data," +
-                "    async: false," +
-                "    success : function(res) {" +
-                "        var doc = new DOMParser().parseFromString(res, 'text/html');" +
-                "        var spans = doc.getElementById('getStudentDetails').getElementsByTagName('span');" +
-                "        if(spans[0].innerText.toLowerCase().includes('no record(s) found')) {" +
-                "           return;" +
-                "        }" +
-                "        var cells = doc.getElementById('timeTableStyle').getElementsByTagName('td');" +
-                "        var key, type;" +
-                "        for (var i = 0, j = 0; i < cells.length; ++i) {" +
-                "            var content = cells[i].innerText.toUpperCase();" +
-                "            if (content.includes('THEORY')) {" +
-                "                type = 'theory';" +
-                "                j = 0;" +
-                "                continue;" +
-                "            } else if (content.includes('LAB')) {" +
-                "                type = 'lab';" +
-                "                j = 0;" +
-                "                continue;" +
-                "            } else if (content.includes('START')) {" +
-                "                key = 'start';" +
-                "                continue;" +
-                "            } else if (content.includes('END')) {" +
-                "                key = 'end';" +
-                "                continue;" +
-                "            } else if (content.includes('SUN')) {" +
-                "                key = 'sunday';" +
-                "                continue;" +
-                "            } else if (content.includes('MON')) {" +
-                "                key = 'monday';" +
-                "                continue;" +
-                "            } else if (content.includes('TUE')) {" +
-                "                key = 'tuesday';" +
-                "                continue;" +
-                "            } else if (content.includes('WED')) {" +
-                "                key = 'wednesday';" +
-                "                continue;" +
-                "            } else if (content.includes('THU')) {" +
-                "                key = 'thursday';" +
-                "                continue;" +
-                "            } else if (content.includes('FRI')) {" +
-                "                key = 'friday';" +
-                "                continue;" +
-                "            } else if (content.includes('SAT')) {" +
-                "                key = 'saturday';" +
-                "                continue;" +
-                "            } else if (content.includes('LUNCH')) {" +
-                "                continue;" +
-                "            }" +
-                "            if (key == 'start') {" +
-                "                response[type].push({ start_time: content.trim() });" +
-                "            } else if (key == 'end') {" +
-                "                response[type][j++].end_time = content.trim();" +
-                "            } else if (cells[i].bgColor == '#FC6C85') {" +
-                "                response[type][j++][key] = content.split('-')[0].trim();" +
-                "            } else {" +
-                "                response[type][j++][key] = null;" +
-                "            }" +
-                "        }" +
-                "    }" +
-                "});" +
-                "return response;" +
-                "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                JSONArray labArray = response.getJSONArray("lab");
-                JSONArray theoryArray = response.getJSONArray("theory");
-
-                SettingsRepository.clearNotificationPendingIntents(this.getApplicationContext());
-
-                List<Timetable> timetable = new ArrayList<>();
-
-                /*
-                    Used for converting 12-hour to 24-hour if necessary
-                 */
-                SimpleDateFormat hour24 = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
-                SimpleDateFormat hour12 = new SimpleDateFormat("h:mm a", Locale.ENGLISH);
-
-                for (int i = 0; i < labArray.length() && i < theoryArray.length(); ++i) {
-                    JSONObject labObject = labArray.getJSONObject(i);
-                    JSONObject theoryObject = theoryArray.getJSONObject(i);
-
-                    Timetable lab = new Timetable();
-                    Timetable theory = new Timetable();
-
-                    lab.id = i * 2 + 1;
-                    lab.startTime = this.getStringValue(labObject, "start_time");
-                    lab.endTime = this.getStringValue(labObject, "end_time");
-                    lab.sunday = this.getSlotId(this.getStringValue(labObject, "sunday"), Course.TYPE_LAB);
-                    lab.monday = this.getSlotId(this.getStringValue(labObject, "monday"), Course.TYPE_LAB);
-                    lab.tuesday = this.getSlotId(this.getStringValue(labObject, "tuesday"), Course.TYPE_LAB);
-                    lab.wednesday = this.getSlotId(this.getStringValue(labObject, "wednesday"), Course.TYPE_LAB);
-                    lab.thursday = this.getSlotId(this.getStringValue(labObject, "thursday"), Course.TYPE_LAB);
-                    lab.friday = this.getSlotId(this.getStringValue(labObject, "friday"), Course.TYPE_LAB);
-                    lab.saturday = this.getSlotId(this.getStringValue(labObject, "saturday"), Course.TYPE_LAB);
-
-                    theory.id = i * 2 + 2;
-                    theory.startTime = this.getStringValue(theoryObject, "start_time");
-                    theory.endTime = this.getStringValue(theoryObject, "end_time");
-                    theory.sunday = this.getSlotId(this.getStringValue(theoryObject, "sunday"), Course.TYPE_THEORY);
-                    theory.monday = this.getSlotId(this.getStringValue(theoryObject, "monday"), Course.TYPE_THEORY);
-                    theory.tuesday = this.getSlotId(this.getStringValue(theoryObject, "tuesday"), Course.TYPE_THEORY);
-                    theory.wednesday = this.getSlotId(this.getStringValue(theoryObject, "wednesday"), Course.TYPE_THEORY);
-                    theory.thursday = this.getSlotId(this.getStringValue(theoryObject, "thursday"), Course.TYPE_THEORY);
-                    theory.friday = this.getSlotId(this.getStringValue(theoryObject, "friday"), Course.TYPE_THEORY);
-                    theory.saturday = this.getSlotId(this.getStringValue(theoryObject, "saturday"), Course.TYPE_THEORY);
-
-                    /*
-                        Formatting time in 24-hour in-case it's given in 12-hour format because VIT
-                        thought it would be a good idea to use both 12-hour and 24-hour formats
-
-                        This conversion works under the assumption that there will not be any classes
-                        after 20:00 and before 08:00. If the time is less than 08:00, the time is in
-                        a 12-hour format and has to be converted
-                     */
-                    String[] timings = {lab.startTime, lab.endTime, theory.startTime, theory.endTime};
-                    for (int j = 0; j < timings.length; ++j) {
-                        try {
-                            Date time = hour24.parse(timings[j]);
-                            Date hourStart = hour24.parse("08:00");
-
-                            if (time != null && time.before(hourStart)) {
-                                time = hour12.parse(timings[j] + " PM");
-                                if (time != null) {
-                                    timings[j] = hour24.format(time);
-                                }
-                            }
-                        } catch (Exception ignored) {
+        
+        try {
+            CoursesDao coursesDao = this.appDatabase.coursesDao();
+            
+            // Get all slots from database
+            Observable.fromSingle(coursesDao.getAllSlots())
+                    .subscribeOn(Schedulers.single())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<List<Slot>>() {
+                        @Override
+                        public void onSubscribe(@NonNull Disposable d) {}
+                        
+                        @Override
+                        public void onNext(@NonNull List<Slot> slots) {
+                            android.util.Log.d("VTOPService", "Retrieved " + slots.size() + " slots for timetable generation");
+                            generateTimetableFromSlots(slots);
                         }
-                    }
-
-                    lab.startTime = timings[0];
-                    lab.endTime = timings[1];
-                    theory.startTime = timings[2];
-                    theory.endTime = timings[3];
-
-                    timetable.add(lab);
-                    timetable.add(theory);
-
-                    try {
-                        SettingsRepository.setTimetableNotifications(this.getApplicationContext(), lab);
-                        SettingsRepository.setTimetableNotifications(this.getApplicationContext(), theory);
-                    } catch (Exception ignored) {
+                        
+                        @Override
+                        public void onError(@NonNull Throwable e) {
+                            android.util.Log.e("VTOPService", "Error fetching slots: " + e.getMessage());
+                            downloadAttendance();
+                        }
+                        
+                        @Override
+                        public void onComplete() {}
+                    });
+        } catch (Exception e) {
+            android.util.Log.e("VTOPService", "Error in downloadTimetable: " + e.getMessage());
+            downloadAttendance();
+        }
+    }
+    
+    /**
+     * Generate timetable entries using UniCC mapping of slots to days and periods
+     */
+    private void generateTimetableFromSlots(List<Slot> slots) {
+        try {
+            // Create standard VIT timetable with 12 theory periods and 6 lab period groups
+            List<Timetable> timetableEntries = createStandardVITTimetable();
+            
+            android.util.Log.d("VTOPService", "Processing " + slots.size() + " slots for timetable");
+            
+            // Map each slot to its appropriate day and period
+            for (Slot slot : slots) {
+                if (slot.slot == null || slot.slot.isEmpty()) continue;
+                
+                // Handle compound slots (e.g., "TB2+L9" or "A1+B2")
+                String[] slotParts = slot.slot.toUpperCase().replaceAll("\\s", "").split("\\+");
+                
+                for (String slotPart : slotParts) {
+                    String slotName = slotPart.trim();
+                    if (!slotName.isEmpty()) {
+                        android.util.Log.d("VTOPService", "Mapping slot: " + slotName + " (slot ID: " + slot.id + ")");
+                        mapSlotToTimetable(timetableEntries, slot, slotName);
                     }
                 }
-
-                TimetableDao timetableDao = appDatabase.timetableDao();
-
-                Observable<Object> deleteAllObservable = Observable.fromCompletable(timetableDao.deleteAll());
-                Observable<Object> insertTimetableObservable = Observable.fromCompletable(timetableDao.insert(timetable));
-
-                Observable
-                        .concat(
-                                deleteAllObservable,
-                                insertTimetableObservable
-                        )
-                        .subscribeOn(Schedulers.single())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<Object>() {
-                            @Override
-                            public void onSubscribe(@NonNull Disposable d) {
-                            }
-
-                            @Override
-                            public void onNext(@NonNull Object o) {
-                            }
-
-                            @Override
-                            public void onError(@NonNull Throwable e) {
-                                error(502, e.getLocalizedMessage());
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                downloadAttendance();
-                            }
-                        });
-            } catch (Exception e) {
-                error(501, e.getLocalizedMessage());
             }
-        });
+            
+            android.util.Log.d("VTOPService", "Generated " + timetableEntries.size() + " timetable entries");
+            
+            // Log each period to debug
+            for (int i = 0; i < timetableEntries.size(); i++) {
+                Timetable t = timetableEntries.get(i);
+                android.util.Log.d("VTOPService", "Period " + i + " (" + t.startTime + "-" + t.endTime + 
+                    "): Mon=" + t.monday + " Tue=" + t.tuesday + " Wed=" + t.wednesday + 
+                    " Thu=" + t.thursday + " Fri=" + t.friday + " Sat=" + t.saturday);
+            }
+            
+            // Save to database
+            TimetableDao timetableDao = this.appDatabase.timetableDao();
+            Observable.fromCompletable(timetableDao.deleteAll())
+                    .concatWith(Observable.fromCompletable(timetableDao.insert(timetableEntries)))
+                    .subscribeOn(Schedulers.single())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<Object>() {
+                        @Override
+                        public void onSubscribe(@NonNull Disposable d) {}
+                        
+                        @Override
+                        public void onNext(@NonNull Object o) {}
+                        
+                        @Override
+                        public void onError(@NonNull Throwable e) {
+                            android.util.Log.e("VTOPService", "Error saving timetable: " + e.getMessage());
+                            downloadAttendance();
+                        }
+                        
+                        @Override
+                        public void onComplete() {
+                            android.util.Log.d("VTOPService", "Timetable saved successfully");
+                            downloadAttendance();
+                        }
+                    });
+            
+        } catch (Exception e) {
+            android.util.Log.e("VTOPService", "Error in generateTimetableFromSlots: " + e.getMessage());
+            downloadAttendance();
+        }
+    }
+    
+    /**
+     * Create standard VIT timetable structure with 12 theory periods
+     * Times match EXACT UniCC config.json slotMap
+     */
+    private List<Timetable> createStandardVITTimetable() {
+        List<Timetable> timetable = new ArrayList<>();
+        
+        // VIT Chennai EXACT period timings from UniCC config.json
+        String[] periodTimes = {
+            "08:00", "08:50",  // Period 0: 8:00-8:50
+            "08:55", "09:45",  // Period 1: 8:55-9:45
+            "09:50", "10:40",  // Period 2: 9:50-10:40
+            "10:45", "11:35",  // Period 3: 10:45-11:35
+            "11:40", "12:30",  // Period 4: 11:40-12:30
+            "12:35", "13:25",  // Period 5: 12:35-1:25
+            "14:00", "14:50",  // Period 6: 2:00-2:50
+            "14:55", "15:45",  // Period 7: 2:55-3:45
+            "15:50", "16:40",  // Period 8: 3:50-4:40
+            "16:45", "17:35",  // Period 9: 4:45-5:35
+            "17:40", "18:30",  // Period 10: 5:40-6:30
+            "18:35", "19:25"   // Period 11: 6:35-7:25
+        };
+        
+        // Create 12 periods (indices 0-11)
+        for (int i = 0; i < 12; i++) {
+            Timetable period = new Timetable();
+            period.id = (i + 1); // IDs 1-12
+            period.startTime = periodTimes[i * 2];
+            period.endTime = periodTimes[(i * 2) + 1];
+            timetable.add(period);
+        }
+        
+        return timetable;
+    }
+    
+    /**
+     * Map a slot to its appropriate timetable period and day(s) using UniCC mapping
+     * Period indices are 0-based: 0=Period1(08:00-08:50), 1=Period2(08:50-09:40), etc.
+     */
+    private void mapSlotToTimetable(List<Timetable> timetable, Slot slot, String slotName) {
+        String normalizedSlot = slotName.toUpperCase(Locale.US);
+
+        String canonicalSlot = normalizedSlot;
+        if (!SLOT_MAP.containsKey(canonicalSlot)) {
+            canonicalSlot = SLOT_ALIASES.get(normalizedSlot);
+        }
+
+        List<DayPeriod> placements = SLOT_MAP.get(canonicalSlot);
+        if (placements == null || placements.isEmpty()) {
+            android.util.Log.w("VTOPService", "Unmapped slot: " + slotName);
+            return;
+        }
+
+        for (DayPeriod placement : placements) {
+            assignSlotToTimetable(timetable, slot.id, placement.day, placement.periodIndex);
+        }
+    }
+    
+    /**
+     * Assign a slot to a specific day and period in timetable
+     * Skip assignment if period already has a slot for that day (avoid overwriting)
+     */
+    private void assignSlotToTimetable(List<Timetable> timetable, int slotId, String day, int periodIndex) {
+        if (periodIndex < 0 || periodIndex >= timetable.size()) {
+            android.util.Log.w("VTOPService", "Invalid period index: " + periodIndex + " for slot " + slotId + " on " + day);
+            return;
+        }
+        
+        Timetable period = timetable.get(periodIndex);
+        
+        // Check if this period already has a slot for this day - if so, skip to avoid overwriting
+        boolean alreadyOccupied = false;
+        Integer existingSlot = null;
+        
+        switch (day.toLowerCase()) {
+            case "sunday":
+                existingSlot = period.sunday;
+                alreadyOccupied = (existingSlot != null);
+                if (!alreadyOccupied) period.sunday = slotId;
+                break;
+            case "monday":
+                existingSlot = period.monday;
+                alreadyOccupied = (existingSlot != null);
+                if (!alreadyOccupied) period.monday = slotId;
+                break;
+            case "tuesday":
+                existingSlot = period.tuesday;
+                alreadyOccupied = (existingSlot != null);
+                if (!alreadyOccupied) period.tuesday = slotId;
+                break;
+            case "wednesday":
+                existingSlot = period.wednesday;
+                alreadyOccupied = (existingSlot != null);
+                if (!alreadyOccupied) period.wednesday = slotId;
+                break;
+            case "thursday":
+                existingSlot = period.thursday;
+                alreadyOccupied = (existingSlot != null);
+                if (!alreadyOccupied) period.thursday = slotId;
+                break;
+            case "friday":
+                existingSlot = period.friday;
+                alreadyOccupied = (existingSlot != null);
+                if (!alreadyOccupied) period.friday = slotId;
+                break;
+            case "saturday":
+                existingSlot = period.saturday;
+                alreadyOccupied = (existingSlot != null);
+                if (!alreadyOccupied) period.saturday = slotId;
+                break;
+        }
+        
+        if (alreadyOccupied) {
+            android.util.Log.d("VTOPService", "Period " + periodIndex + " on " + day + " already occupied by slot " + existingSlot + ", skipping slot " + slotId);
+        } else {
+            android.util.Log.d("VTOPService", "Assigned slot " + slotId + " to " + day + " period " + periodIndex + " (" + period.startTime + "-" + period.endTime + ")");
+        }
     }
 
+    /* DISABLED - This method uses database interfaces that don't exist
     /**
-     * Function to download the attendance.
+     * Generate timetable using UniCC approach - from course slots instead of VTOP's broken JavaScript
+     */
+    /*
+    private void generateTimetableFromSlots() {
+        try {
+            // Get all courses and slots from database
+            tk.therealsuji.vtopchennai.interfaces.CoursesDao coursesDao = appDatabase.coursesDao();
+            tk.therealsuji.vtopchennai.interfaces.SlotsDao slotsDao = appDatabase.slotsDao();
+            
+            List<tk.therealsuji.vtopchennai.models.Course> courses = coursesDao.getAllSync();
+            List<tk.therealsuji.vtopchennai.models.Slot> allSlots = slotsDao.getAllSlots();
+            
+            android.util.Log.d("VTOPService", "Starting slot mapping with " + courses.size() + " courses and " + allSlots.size() + " slots");
+            
+            // Create standard VIT timetable structure
+            List<tk.therealsuji.vtopchennai.models.Timetable> timetable = createStandardVITTimetable();
+            
+            // Map slots to timetable
+            mapSlotsToTimetable(timetable, allSlots);
+            
+            android.util.Log.d("VTOPService", "Completed slot mapping");
+            
+            // Save to database
+            tk.therealsuji.vtopchennai.interfaces.TimetableDao timetableDao = appDatabase.timetableDao();
+            timetableDao.deleteAllSync();
+            timetableDao.insertSync(timetable);
+            
+        } catch (Exception e) {
+            android.util.Log.e("VTOPService", "Error in generateTimetableFromSlots: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+    */
+
+    /* DISABLED - Helper methods for disabled generateTimetableFromSlots()
+    /**
+     * Create standard VIT timetable structure with 12 theory + 12 lab periods
+     */
+    /*
+    private List<tk.therealsuji.vtopchennai.models.Timetable> createStandardVITTimetable() {
+        List<tk.therealsuji.vtopchennai.models.Timetable> timetable = new ArrayList<>();
+        
+        // VIT Chennai standard timings
+        String[] theoryTimes = {
+            "08:00", "08:50",  // Period 1
+            "08:50", "09:40",  // Period 2  
+            "10:00", "10:50",  // Period 3
+            "10:50", "11:40",  // Period 4
+            "11:40", "12:30",  // Period 5
+            "13:30", "14:20",  // Period 6
+            "14:20", "15:10",  // Period 7
+            "15:30", "16:20",  // Period 8
+            "16:20", "17:10",  // Period 9
+            "17:10", "18:00",  // Period 10
+            "18:00", "18:50",  // Period 11
+            "18:50", "19:40"   // Period 12
+        };
+        
+        String[] labTimes = {
+            "08:00", "09:40",  // Lab slot 1-2
+            "10:00", "11:40",  // Lab slot 3-4
+            "11:40", "13:20",  // Lab slot 5-6 (includes lunch)
+            "13:30", "15:10",  // Lab slot 7-8
+            "15:30", "17:10",  // Lab slot 9-10
+            "17:10", "18:50",  // Lab slot 11-12
+            "08:00", "11:40",  // Extended lab 1-4
+            "11:40", "15:10",  // Extended lab 5-8 (includes lunch)
+            "15:30", "18:50",  // Extended lab 9-12
+            "08:00", "13:20",  // Morning session (1-6)
+            "13:30", "18:50",  // Afternoon session (7-12)
+            "08:00", "18:50"   // Full day
+        };
+        
+        // Create 12 theory periods
+        for (int i = 0; i < 12; i++) {
+            tk.therealsuji.vtopchennai.models.Timetable period = new tk.therealsuji.vtopchennai.models.Timetable();
+            period.id = (i * 2) + 1; // Odd IDs for theory
+            period.startTime = theoryTimes[i * 2];
+            period.endTime = theoryTimes[(i * 2) + 1];
+            period.sunday = null;
+            period.monday = null;
+            period.tuesday = null;
+            period.wednesday = null;
+            period.thursday = null;
+            period.friday = null;
+            period.saturday = null;
+            timetable.add(period);
+        }
+        
+        // Create 12 lab periods  
+        for (int i = 0; i < 12; i++) {
+            tk.therealsuji.vtopchennai.models.Timetable period = new tk.therealsuji.vtopchennai.models.Timetable();
+            period.id = (i * 2) + 2; // Even IDs for lab
+            period.startTime = labTimes[i * 2];
+            period.endTime = labTimes[(i * 2) + 1];
+            period.sunday = null;
+            period.monday = null;
+            period.tuesday = null;
+            period.wednesday = null;
+            period.thursday = null;
+            period.friday = null;
+            period.saturday = null;
+            timetable.add(period);
+        }
+        
+        return timetable;
+    }
+
+    /* DISABLED - Helper method for disabled generateTimetableFromSlots()
+    /**
+     * Map course slots to timetable periods using UniCC logic
+     */
+    /*
+    private void mapSlotsToTimetable(List<tk.therealsuji.vtopchennai.models.Timetable> timetable, List<tk.therealsuji.vtopchennai.models.Slot> allSlots) {
+        for (tk.therealsuji.vtopchennai.models.Slot slot : allSlots) {
+            if (slot.slot == null || slot.slot.equals("NIL")) {
+                android.util.Log.w("VTOPService", "Unknown slot: " + slot.slot);
+                continue;
+            }
+            
+            android.util.Log.d("VTOPService", "Processing slot: " + slot.slot + " (course ID: " + slot.courseId + ")");
+            
+            // Map slot to multiple days if theory, single day if lab
+            mapSlotToMultipleDays(timetable, slot);
+        }
+    }
+
+    /* DISABLED - Helper method for disabled generateTimetableFromSlots()
+    /**
+     * Map a single slot to appropriate timetable periods
+     * Theory slots appear on multiple days, lab slots on single days
+     */
+    /*
+    private void mapSlotToMultipleDays(List<tk.therealsuji.vtopchennai.models.Timetable> timetable, tk.therealsuji.vtopchennai.models.Slot slot) {
+        String slotName = slot.slot.toUpperCase();
+        
+        // UniCC approach: Theory slots repeat across multiple days
+        switch (slotName) {
+            // Theory slots - appear on multiple days
+            case "A1": case "TA1":
+                assignSlotToTimetable(timetable, slot.id, "monday", 6);    // Period 6: 13:30-14:20
+                assignSlotToTimetable(timetable, slot.id, "wednesday", 7); // Period 7: 14:20-15:10
+                break;
+            case "A2": case "TA2": case "TAA2":
+                assignSlotToTimetable(timetable, slot.id, "tuesday", 6);   // Period 6: 13:30-14:20
+                assignSlotToTimetable(timetable, slot.id, "thursday", 7);  // Period 7: 14:20-15:10
+                break;
+            case "B1": case "TB1":
+                assignSlotToTimetable(timetable, slot.id, "tuesday", 7);   // Period 7: 14:20-15:10
+                assignSlotToTimetable(timetable, slot.id, "thursday", 8);  // Period 8: 15:30-16:20
+                break;
+            case "B2": case "TB2":
+                assignSlotToTimetable(timetable, slot.id, "monday", 9);    // Period 9: 16:20-17:10
+                assignSlotToTimetable(timetable, slot.id, "wednesday", 6); // Period 6: 13:30-14:20
+                break;
+            case "C1": case "TC1":
+                assignSlotToTimetable(timetable, slot.id, "wednesday", 8); // Period 8: 15:30-16:20
+                assignSlotToTimetable(timetable, slot.id, "friday", 6);    // Period 6: 13:30-14:20
+                break;
+            case "C2": case "TC2":
+                assignSlotToTimetable(timetable, slot.id, "wednesday", 6); // Period 6: 13:30-14:20
+                assignSlotToTimetable(timetable, slot.id, "friday", 7);    // Period 7: 14:20-15:10
+                break;
+            case "D1": case "TD1":
+                assignSlotToTimetable(timetable, slot.id, "monday", 7);    // Period 7: 14:20-15:10
+                assignSlotToTimetable(timetable, slot.id, "wednesday", 9); // Period 9: 16:20-17:10
+                break;
+            case "D2": case "TD2":
+                assignSlotToTimetable(timetable, slot.id, "monday", 8);    // Period 8: 15:30-16:20
+                assignSlotToTimetable(timetable, slot.id, "thursday", 6);  // Period 6: 13:30-14:20
+                break;
+            case "E1": case "TE1":
+                assignSlotToTimetable(timetable, slot.id, "tuesday", 8);   // Period 8: 15:30-16:20
+                assignSlotToTimetable(timetable, slot.id, "thursday", 9);  // Period 9: 16:20-17:10
+                break;
+            case "E2": case "TE2":
+                assignSlotToTimetable(timetable, slot.id, "tuesday", 8);   // Period 8: 15:30-16:20
+                assignSlotToTimetable(timetable, slot.id, "friday", 6);    // Period 6: 13:30-14:20
+                break;
+            case "F1": case "TF1":
+                assignSlotToTimetable(timetable, slot.id, "monday", 6);    // Period 6: 13:30-14:20
+                assignSlotToTimetable(timetable, slot.id, "friday", 8);    // Period 8: 15:30-16:20
+                break;
+            case "F2": case "TF2":
+                assignSlotToTimetable(timetable, slot.id, "monday", 7);    // Period 7: 14:20-15:10
+                assignSlotToTimetable(timetable, slot.id, "wednesday", 8); // Period 8: 15:30-16:20
+                break;
+            case "G1": case "TG1":
+                assignSlotToTimetable(timetable, slot.id, "tuesday", 9);   // Period 9: 16:20-17:10
+                assignSlotToTimetable(timetable, slot.id, "friday", 7);    // Period 7: 14:20-15:10
+                break;
+            case "G2": case "TG2":
+                assignSlotToTimetable(timetable, slot.id, "tuesday", 7);   // Period 7: 14:20-15:10
+                assignSlotToTimetable(timetable, slot.id, "thursday", 8);  // Period 8: 15:30-16:20
+                break;
+            
+            // Lab slots - single day assignments
+            case "L1": case "L2":
+                assignSlotToTimetable(timetable, slot.id, "monday", 0);    // 08:00-09:40
+                break;
+            case "L3": case "L4":
+                assignSlotToTimetable(timetable, slot.id, "monday", 2);    // 10:00-11:40
+                break;
+            case "L5": case "L6":
+                assignSlotToTimetable(timetable, slot.id, "monday", 4);    // 11:40-13:20
+                break;
+            case "L7": case "L8":
+                assignSlotToTimetable(timetable, slot.id, "monday", 6);    // 13:30-15:10
+                break;
+            case "L9": case "L10":
+                assignSlotToTimetable(timetable, slot.id, "tuesday", 2);   // 10:00-11:40
+                break;
+            case "L11": case "L12":
+                assignSlotToTimetable(timetable, slot.id, "tuesday", 4);   // 11:40-13:20
+                break;
+            case "L13": case "L14":
+                assignSlotToTimetable(timetable, slot.id, "wednesday", 0); // 08:00-09:40
+                break;
+            case "L15": case "L16":
+                assignSlotToTimetable(timetable, slot.id, "wednesday", 2); // 10:00-11:40
+                break;
+            case "L17": case "L18":
+                assignSlotToTimetable(timetable, slot.id, "wednesday", 4); // 11:40-13:20
+                break;
+            case "L19": case "L20":
+                assignSlotToTimetable(timetable, slot.id, "thursday", 0);  // 08:00-09:40
+                break;
+            case "L21": case "L22":
+                assignSlotToTimetable(timetable, slot.id, "thursday", 2);  // 10:00-11:40
+                break;
+            case "L23": case "L24":
+                assignSlotToTimetable(timetable, slot.id, "thursday", 4);  // 11:40-13:20
+                break;
+            case "L25": case "L26":
+                assignSlotToTimetable(timetable, slot.id, "friday", 0);    // 08:00-09:40
+                break;
+            case "L27": case "L28":
+                assignSlotToTimetable(timetable, slot.id, "friday", 2);    // 10:00-11:40
+                break;
+            case "L29": case "L30":
+                assignSlotToTimetable(timetable, slot.id, "friday", 4);    // 11:40-13:20
+                break;
+            case "L31": case "L32":
+                assignSlotToTimetable(timetable, slot.id, "saturday", 0);  // 08:00-09:40
+                break;
+            case "L33": case "L34":
+                assignSlotToTimetable(timetable, slot.id, "saturday", 2);  // 10:00-11:40
+                break;
+            case "L35": case "L36":
+                assignSlotToTimetable(timetable, slot.id, "saturday", 4);  // 11:40-13:20
+                break;
+            
+            default:
+                android.util.Log.w("VTOPService", "Unmapped slot: " + slotName);
+                break;
+        }
+    }
+
+    /* DISABLED - Helper method for disabled generateTimetableFromSlots()
+    /**
+     * Assign a slot to a specific day and period in timetable
+     */
+    /*
+    private void assignSlotToTimetable(List<tk.therealsuji.vtopchennai.models.Timetable> timetable, int slotId, String day, int periodIndex) {
+        // Find the timetable entry for this period
+        int timetableId = (periodIndex * 2) + 1; // Theory periods have odd IDs
+        
+        for (tk.therealsuji.vtopchennai.models.Timetable period : timetable) {
+            if (period.id == timetableId) {
+                // Assign slot to the appropriate day
+                switch (day.toLowerCase()) {
+                    case "sunday":
+                        period.sunday = slotId;
+                        break;
+                    case "monday":
+                        period.monday = slotId;
+                        break;
+                    case "tuesday":
+                        period.tuesday = slotId;
+                        break;
+                    case "wednesday":
+                        period.wednesday = slotId;
+                        break;
+                    case "thursday":
+                        period.thursday = slotId;
+                        break;
+                    case "friday":
+                        period.friday = slotId;
+                        break;
+                    case "saturday":
+                        period.saturday = slotId;
+                        break;
+                }
+                
+                android.util.Log.d("VTOPService", "Assigned slot " + slotId + " to " + day + " period " + periodIndex + " (timetable id " + timetableId + ")");
+                break;
+            }
+        }
+    }
+    */
+
+    /**
+     * Download attendance using jQuery AJAX with CSRF token (UniCC approach).
+     * This uses VTOP's own AJAX mechanism with the required CSRF token for authentication.
      */
     private void downloadAttendance() {
         updateProgress(R.string.downloading_attendance);
 
-        /*
-         *  JSON response format
-         *
-         *  {
-         *      "attendance": [
-         *          {
-         *              "slot": "L45",
-         *              "course_type": "Lab Only"
-         *              "attended": 81,
-         *              "total": 83,
-         *              "percentage": 98
-         *          },
-         *          ...
-         *      ]
-         *  }
-         */
-        webView.evaluateJavascript("(function() {" +
-                "var data = '_csrf=' + $('input[name=\"_csrf\"]').val() + '&semesterSubId=' + '" + semesterID + "' + '&authorizedID=' + $('#authorizedIDX').val();" +
-                "var response = {" +
-                "    attendance: []" +
-                "};" +
-                "$.ajax({" +
-                "    type : 'POST'," +
-                "    url : 'processViewStudentAttendance'," +
-                "    data : data," +
-                "    async: false," +
-                "    success : function(res) {" +
-                "        var doc = new DOMParser().parseFromString(res, 'text/html');" +
-                "        var table = doc.getElementById('getStudentDetails');" +
-                "        var headings = table.getElementsByTagName('th');" +
-                "        var courseTypeIndex, slotIndex, attendedIndex, totalIndex, percentageIndex;" +
-                "        for(var i = 0; i < headings.length; ++i) {" +
-                "            var heading = headings[i].innerText.toLowerCase();" +
-                "            if (heading.includes('course') && heading.includes('type')) {" +
-                "                courseTypeIndex = i;" +
-                "            } else if (heading.includes('slot')) {" +
-                "                slotIndex = i;" +
-                "            } else if (heading.includes('attended')) {" +
-                "                attendedIndex = i;" +
-                "            } else if (heading.includes('total')) {" +
-                "                totalIndex = i;" +
-                "            } else if (heading.includes('percentage')) {" +
-                "                percentageIndex = i;" +
-                "            }" +
-                "        }" +
-                "        var cells = table.getElementsByTagName('td');" +
-                "        while (courseTypeIndex < cells.length && slotIndex < cells.length  && attendedIndex < cells.length && totalIndex < cells.length && percentageIndex < cells.length) {" +
-                "            var attendanceObject = {};" +
-                "            attendanceObject.course_type = cells[courseTypeIndex].innerText.trim();" +
-                "            attendanceObject.slot = cells[slotIndex].innerText.trim().split('+')[0].trim();" +
-                "            attendanceObject.attended = parseInt(cells[attendedIndex].innerText.trim()) || 0;" +
-                "            attendanceObject.total = parseInt(cells[totalIndex].innerText.trim()) || 0;" +
-                "            attendanceObject.percentage = parseInt(cells[percentageIndex].innerText.trim()) || 0;" +
-                "            response.attendance.push(attendanceObject);" +
-                "            courseTypeIndex += headings.length;" +
-                "            slotIndex += headings.length;" +
-                "            attendedIndex += headings.length;" +
-                "            totalIndex += headings.length;" +
-                "            percentageIndex += headings.length;" +
-                "        }" +
-                "    }" +
-                "});" +
-                "return response;" +
-                "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                JSONArray attendanceArray = response.getJSONArray("attendance");
-                List<Attendance> attendance = new ArrayList<>();
+        // Check if WebView is still valid
+        if (webView == null || isWebViewDestroyed) {
+            android.util.Log.w("VTOPService", "WebView null/destroyed, skipping to detailed attendance");
+            downloadDetailedAttendance();
+            return;
+        }
 
-                int attendedClasses = 0;
-                int totalClasses = 0;
-
-                for (int i = 0; i < attendanceArray.length(); ++i) {
-                    JSONObject attendanceObject = attendanceArray.getJSONObject(i);
-                    Attendance attendanceItem = new Attendance();
-
-                    int courseType = Course.TYPE_THEORY;
-
-                    if (attendanceObject.getString("course_type").toLowerCase().contains("lab")) {
-                        courseType = Course.TYPE_LAB;
-                    }
-
-                    attendanceItem.id = i + 1;
-                    attendanceItem.courseId = this.getCourseId(attendanceObject.getString("slot"), courseType);
-                    attendanceItem.attended = this.getIntegerValue(attendanceObject, "attended");
-                    attendanceItem.total = this.getIntegerValue(attendanceObject, "total");
-
-                    if (attendanceItem.attended != null && attendanceItem.total != null && attendanceItem.total != 0) {
-                        attendanceItem.percentage = (int) ((attendanceItem.attended * 100.0) / attendanceItem.total);
-                        attendedClasses += attendanceItem.attended;
-                        totalClasses += attendanceItem.total;
-                    }
-
-                    attendance.add(attendanceItem);
+        // Use jQuery AJAX with CSRF token (UniCC approach - proven to work)
+        String ajaxScript = "(function() {" +
+            "var authorizedID = $('#authorizedIDX').val() || $('#authorizedID').val() || '';" +
+            "var semesterSubId = '" + semesterID + "';" +
+            "var csrfToken = $('input[name=\"_csrf\"]').val() || '';" +
+            "console.log('Fetching attendance - authorizedID:', authorizedID, 'semesterSubId:', semesterSubId, 'csrf:', csrfToken.substring(0, 10));" +
+            "if (typeof $ === 'undefined' || !$.ajax) {" +
+            "  console.error('jQuery not loaded');" +
+            "  return 'ERROR:jQuery not available';" +
+            "}" +
+            "var data = '_csrf=' + csrfToken + '&authorizedID=' + authorizedID + '&semesterSubId=' + semesterSubId;" +
+            "var attendanceHTML = '';" +
+            "$.ajax({" +
+            "  type: 'POST'," +
+            "  url: 'processViewStudentAttendance'," +
+            "  data: data," +
+            "  async: false," +  // Synchronous call like UniCC
+            "  success: function(res) {" +
+            "    console.log('AJAX success, HTML length:', res.length);" +
+            "    attendanceHTML = res;" +
+            "  }," +
+            "  error: function(xhr, status, error) {" +
+            "    console.error('AJAX error:', status, error, 'Status:', xhr.status);" +
+            "    attendanceHTML = 'ERROR:' + status;" +
+            "  }" +
+            "});" +
+            "window.__attendanceHTML = attendanceHTML;" +
+            "return 'ATTENDANCE_FETCHED:' + attendanceHTML.length;" +
+            "})();";
+        
+        webView.evaluateJavascript(ajaxScript, ajaxResult -> {
+            android.util.Log.d("VTOPService", "AJAX script result: " + ajaxResult);
+            
+            // Since we used async: false, result is immediately available
+            webView.evaluateJavascript("window.__attendanceHTML || 'EMPTY'", htmlResult -> {
+                if (htmlResult == null || htmlResult.equals("\"EMPTY\"") || htmlResult.equals("null")) {
+                    android.util.Log.e("VTOPService", "No attendance HTML received");
+                    error(601, "No attendance data received");
+                    return;
                 }
-
-                int overallAttendance = 0;
-
-                if (totalClasses != 0) {
-                    overallAttendance = (attendedClasses * 100) / totalClasses;
+                
+                // Remove quotes and unescape
+                String html = htmlResult;
+                if (html.startsWith("\"") && html.endsWith("\"")) {
+                    html = html.substring(1, html.length() - 1);
+                    html = html.replace("\\\"", "\"").replace("\\n", "\n").replace("\\t", "\t").replace("\\\\", "\\");
                 }
-
-                android.util.Log.d("VTOPService", "Attendance calculation - Attended: " + attendedClasses + ", Total: " + totalClasses + ", Overall: " + overallAttendance + "%");
-
-                sharedPreferences.edit().putInt("overallAttendance", overallAttendance).apply();
-                sharedPreferences.edit().putInt("attendedClasses", attendedClasses).apply();
-                sharedPreferences.edit().putInt("totalClasses", totalClasses).apply();
-
-                AttendanceDao attendanceDao = appDatabase.attendanceDao();
-                Observable<Object> deleteObservable = Observable.fromCompletable(attendanceDao.delete());
-                Observable<Object> insertObservable = Observable.fromCompletable(attendanceDao.insert(attendance));
-
-                Observable
-                        .concat(deleteObservable, insertObservable)
-                        .subscribeOn(Schedulers.single())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<Object>() {
-                            @Override
-                            public void onSubscribe(@NonNull Disposable d) {
-
-                            }
-
-                            @Override
-                            public void onNext(@NonNull Object o) {
-
-                            }
-
-                            @Override
-                            public void onError(@NonNull Throwable e) {
-                                error(602, e.getLocalizedMessage());
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                downloadDetailedAttendance();
-                            }
-                        });
-            } catch (Exception e) {
-                error(601, e.getLocalizedMessage());
-            }
+                
+                android.util.Log.d("VTOPService", "Received attendance HTML (length: " + html.length() + ")");
+                parseAttendanceHTML(html);
+            });
         });
+    }
+
+    /**
+     * Parse attendance HTML table from VTOP response
+     */
+    private void parseAttendanceHTML(String htmlResponse) {
+        try {
+            android.util.Log.d("VTOPService", "HTML Response Preview: " + htmlResponse.substring(0, Math.min(500, htmlResponse.length())));
+            android.util.Log.d("VTOPService", "Starting HTML parsing - Total length: " + htmlResponse.length());
+            
+            // Unescape HTML entities - the response contains escaped HTML
+            String unescapedHtml = htmlResponse;
+            // Handle unicode escapes: \u003C = < and \u003E = >
+            unescapedHtml = unescapedHtml.replace("\\u003C", "<");
+            unescapedHtml = unescapedHtml.replace("\\u003E", ">");
+            unescapedHtml = unescapedHtml.replace("\\u003c", "<");
+            unescapedHtml = unescapedHtml.replace("\\u003e", ">");
+            unescapedHtml = unescapedHtml.replace("\\r", "\r");
+            unescapedHtml = unescapedHtml.replace("\\n", "\n");
+            
+            android.util.Log.d("VTOPService", "Unescaped HTML length: " + unescapedHtml.length());
+            
+            // Parse HTML with JSoup
+            org.jsoup.nodes.Document doc = org.jsoup.Jsoup.parse(unescapedHtml);
+            android.util.Log.d("VTOPService", "HTML parsed successfully");
+            
+            // The div with id="getStudentDetails" contains the table (not the table itself)
+            org.jsoup.nodes.Element container = doc.getElementById("getStudentDetails");
+            android.util.Log.d("VTOPService", "Container lookup: " + (container != null ? "FOUND" : "NOT FOUND"));
+            
+            org.jsoup.nodes.Element table = null;
+            
+            if (container != null) {
+                // Find the actual table within the container
+                table = container.selectFirst("table");
+                android.util.Log.d("VTOPService", "Table lookup in container: " + (table != null ? "FOUND" : "NOT FOUND"));
+            } else {
+                // Fallback: search for table directly in document
+                android.util.Log.d("VTOPService", "Container is null, searching for table directly in document");
+                org.jsoup.select.Elements allTables = doc.select("table");
+                android.util.Log.d("VTOPService", "Found " + allTables.size() + " tables in document");
+                if (allTables.size() > 0) {
+                    table = allTables.get(0);
+                    android.util.Log.d("VTOPService", "Using first table found");
+                }
+            }
+            
+            if (table == null) {
+                android.util.Log.w("VTOPService", "No attendance table found");
+                android.util.Log.d("VTOPService", "Full HTML length: " + htmlResponse.length());
+                android.util.Log.d("VTOPService", "HTML snippet: " + htmlResponse.substring(0, Math.min(2000, htmlResponse.length())));
+                error(601, "No attendance data available");
+                return;
+            }
+            
+            android.util.Log.d("VTOPService", "Successfully found attendance table");
+            
+            // Find column indices from header row - look for both thead and tr > th
+            org.jsoup.select.Elements headers = table.select("th");
+            android.util.Log.d("VTOPService", "Found " + headers.size() + " header cells");
+            
+            int courseTypeIdx = -1, slotIdx = -1, attendedIdx = -1, totalIdx = -1, percentageIdx = -1;
+            
+            for (int i = 0; i < headers.size(); i++) {
+                String heading = headers.get(i).text().toLowerCase();
+                android.util.Log.d("VTOPService", "Header[" + i + "]: " + heading);
+                if (heading.contains("course") && heading.contains("type")) {
+                    courseTypeIdx = i;
+                } else if (heading.contains("slot")) {
+                    slotIdx = i;
+                } else if (heading.contains("attended")) {
+                    attendedIdx = i;
+                } else if (heading.contains("total")) {
+                    totalIdx = i;
+                } else if (heading.contains("percentage")) {
+                    percentageIdx = i;
+                }
+            }
+            
+            android.util.Log.d("VTOPService", String.format("Columns - Type:%d Slot:%d Attended:%d Total:%d Pct:%d", 
+                courseTypeIdx, slotIdx, attendedIdx, totalIdx, percentageIdx));
+            
+            // Parse table rows (handle both tbody and direct tr elements)
+            org.jsoup.select.Elements rows = table.select("tr");
+            android.util.Log.d("VTOPService", "Found " + rows.size() + " table rows total");
+            
+            // Skip header row (first tr with th elements)
+            List<Attendance> attendance = new ArrayList<>();
+            int attendedClasses = 0;
+            int totalClasses = 0;
+            int rowCount = 0;
+            
+            for (int i = 0; i < rows.size(); i++) {
+                org.jsoup.select.Elements cells = rows.get(i).select("td");
+                org.jsoup.select.Elements headerCells = rows.get(i).select("th");
+                
+                // Skip header rows (rows with th elements instead of td)
+                if (headerCells.size() > 0) {
+                    android.util.Log.d("VTOPService", "Row " + i + " is header row (has " + headerCells.size() + " th cells), skipping");
+                    continue;
+                }
+                
+                // Skip empty rows
+                if (cells.size() == 0) {
+                    android.util.Log.d("VTOPService", "Row " + i + " has no td cells, skipping");
+                    continue;
+                }
+                
+                if (cells.size() < 10) {
+                    android.util.Log.d("VTOPService", "Row " + i + " has only " + cells.size() + " cells (need at least 10), skipping");
+                    continue; // Skip invalid rows
+                }
+                
+                android.util.Log.d("VTOPService", "Row " + i + " has " + cells.size() + " td cells, processing...");
+                
+                try {
+                    Attendance item = new Attendance();
+                    item.id = i + 1;
+                    
+                    // Extract course type
+                    String courseTypeText = cells.get(courseTypeIdx).text().trim();
+                    int courseType = courseTypeText.toLowerCase().contains("lab") ? 
+                                    Course.TYPE_LAB : Course.TYPE_THEORY;
+                    
+                    // Extract slot (first part if multiple slots like "A1+TA1")
+                    String slotText = cells.get(slotIdx).text().trim();
+                    String[] slots = slotText.split("\\+");
+                    String slot = slots.length > 0 ? slots[0].trim() : slotText;
+                    
+                    item.courseId = this.getCourseId(slot, courseType);
+                    
+                    // Extract attendance numbers
+                    String attendedText = cells.get(attendedIdx).text().trim();
+                    String totalText = cells.get(totalIdx).text().trim();
+                    
+                    item.attended = attendedText.isEmpty() ? null : Integer.parseInt(attendedText);
+                    item.total = totalText.isEmpty() ? null : Integer.parseInt(totalText);
+                    
+                    if (item.attended != null && item.total != null && item.total != 0) {
+                        // Calculate with 2 decimal precision
+                        item.percentage = (int) Math.round((item.attended * 10000.0) / item.total) / 100;
+                        attendedClasses += item.attended;
+                        totalClasses += item.total;
+                        
+                        android.util.Log.d("VTOPService", String.format(
+                            "Row %d: Slot=%s CourseType=%s Attended=%d Total=%d Percentage=%d%%",
+                            i, slot, courseType == Course.TYPE_LAB ? "LAB" : "THEORY", 
+                            item.attended, item.total, item.percentage));
+                    }
+                    
+                    attendance.add(item);
+                    rowCount++;
+                    
+                } catch (Exception e) {
+                    android.util.Log.w("VTOPService", "Row parse error at " + i + ": " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            
+            // Calculate overall attendance with 2 decimal precision
+            float overallAttendance = 0.0f;
+            if (totalClasses != 0) {
+                overallAttendance = Math.round((attendedClasses * 10000.0) / totalClasses) / 100.0f;
+            }
+            
+            android.util.Log.d("VTOPService", String.format("Attendance - Attended:%d Total:%d Overall:%.2f%%", 
+                attendedClasses, totalClasses, overallAttendance));
+            
+            // Save to preferences
+            sharedPreferences.edit()
+                .putFloat("overallAttendance", overallAttendance)
+                .putInt("attendedClasses", attendedClasses)
+                .putInt("totalClasses", totalClasses)
+                .apply();
+            
+            // Save to database
+            AttendanceDao attendanceDao = appDatabase.attendanceDao();
+            Observable<Object> deleteObs = Observable.fromCompletable(attendanceDao.delete());
+            Observable<Object> insertObs = Observable.fromCompletable(attendanceDao.insert(attendance));
+            
+            Observable.concat(deleteObs, insertObs)
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Object>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {}
+                    
+                    @Override
+                    public void onNext(@NonNull Object o) {}
+                    
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        error(602, e.getLocalizedMessage());
+                    }
+                    
+                    @Override
+                    public void onComplete() {
+                        downloadDetailedAttendance();
+                    }
+                });
+                
+        } catch (Exception e) {
+            android.util.Log.e("VTOPService", "HTML parse error: " + e.getMessage(), e);
+            error(601, e.getLocalizedMessage());
+        }
     }
 
     /**
@@ -2081,6 +2860,13 @@ public class VTOPService extends Service {
      */
     private void downloadMarks() {
         updateProgress(R.string.downloading_marks);
+
+        // Check if WebView is still valid before proceeding
+        if (webView == null || isWebViewDestroyed) {
+            android.util.Log.w("VTOPService", "WebView is null or destroyed, skipping marks and continuing with grades");
+            downloadGrades();
+            return;
+        }
 
         /*
          *  JSON response format
@@ -3158,6 +3944,24 @@ public class VTOPService extends Service {
         this.endService(true);
     }
 
+    private Slot resolveSlotReference(Map<String, Slot> slotReference, String slotName) {
+        if (slotReference == null || slotName == null) {
+            return null;
+        }
+
+        Slot direct = slotReference.get(slotName);
+        if (direct != null) {
+            return direct;
+        }
+
+        String alias = SLOT_ALIASES.get(slotName.toUpperCase(Locale.US));
+        if (alias != null) {
+            return slotReference.get(alias);
+        }
+
+        return null;
+    }
+
     /**
      * Function to get the slot ID using the slot.
      *
@@ -3167,23 +3971,14 @@ public class VTOPService extends Service {
     private Integer getSlotId(String slot, int courseType) {
         switch (courseType) {
             case Course.TYPE_LAB:
-                if (!this.labSlots.containsKey(slot)) {
-                    return null;
-                }
-
-                return Objects.requireNonNull(this.labSlots.get(slot)).id;
+                Slot labSlot = resolveSlotReference(this.labSlots, slot);
+                return labSlot != null ? labSlot.id : null;
             case Course.TYPE_PROJECT:
-                if (!this.projectSlots.containsKey(slot)) {
-                    return null;
-                }
-
-                return Objects.requireNonNull(this.projectSlots.get(slot)).id;
+                Slot projectSlot = resolveSlotReference(this.projectSlots, slot);
+                return projectSlot != null ? projectSlot.id : null;
             default:
-                if (!this.theorySlots.containsKey(slot)) {
-                    return null;
-                }
-
-                return Objects.requireNonNull(this.theorySlots.get(slot)).id;
+                Slot theorySlot = resolveSlotReference(this.theorySlots, slot);
+                return theorySlot != null ? theorySlot.id : null;
         }
     }
 
@@ -3196,23 +3991,14 @@ public class VTOPService extends Service {
     private Integer getCourseId(String slot, int courseType) {
         switch (courseType) {
             case Course.TYPE_LAB:
-                if (!this.labSlots.containsKey(slot)) {
-                    return null;
-                }
-
-                return Objects.requireNonNull(this.labSlots.get(slot)).courseId;
+                Slot labSlot = resolveSlotReference(this.labSlots, slot);
+                return labSlot != null ? labSlot.courseId : null;
             case Course.TYPE_PROJECT:
-                if (!this.projectSlots.containsKey(slot)) {
-                    return null;
-                }
-
-                return Objects.requireNonNull(this.projectSlots.get(slot)).courseId;
+                Slot projectSlot = resolveSlotReference(this.projectSlots, slot);
+                return projectSlot != null ? projectSlot.courseId : null;
             default:
-                if (!this.theorySlots.containsKey(slot)) {
-                    return null;
-                }
-
-                return Objects.requireNonNull(this.theorySlots.get(slot)).courseId;
+                Slot theorySlot = resolveSlotReference(this.theorySlots, slot);
+                return theorySlot != null ? theorySlot.courseId : null;
         }
     }
 
