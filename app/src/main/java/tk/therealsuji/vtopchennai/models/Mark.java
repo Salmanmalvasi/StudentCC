@@ -51,6 +51,7 @@ public class Mark {
     public Integer signature;
 
     public static class AllData {
+        public Integer courseId;
         public String courseCode;
         public String courseTitle;
         public String courseType;

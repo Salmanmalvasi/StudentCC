@@ -41,6 +41,7 @@ public class Course {
 
     public static class AllData {
         public String courseTitle;
+    public Integer courseId;
         public String courseCode;
         public String courseType;
         public String faculty;

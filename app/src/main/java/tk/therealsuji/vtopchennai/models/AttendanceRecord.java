@@ -41,7 +41,7 @@ public class AttendanceRecord {
     @ColumnInfo(name = "remarks")
     public String remarks;
 
-    // For UniCC compatibility - store the original date string
+    // Store the original date string for display purposes
     @ColumnInfo(name = "date_string")
     public String dateString;
 }

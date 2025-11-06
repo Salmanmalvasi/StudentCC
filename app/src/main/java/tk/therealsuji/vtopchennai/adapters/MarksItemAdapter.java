@@ -32,6 +32,7 @@ import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.helpers.AppDatabase;
 import tk.therealsuji.vtopchennai.interfaces.ClassStatsDao;
 import tk.therealsuji.vtopchennai.models.ClassStats;
+import tk.therealsuji.vtopchennai.models.Course;
 import tk.therealsuji.vtopchennai.models.Mark;
 
 /**
@@ -44,10 +45,12 @@ import tk.therealsuji.vtopchennai.models.Mark;
 public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.ViewHolder> {
     List<Mark.AllData> marks;
     String courseCode;
+    Integer courseId;
 
-    public MarksItemAdapter(List<Mark.AllData> marks, String courseCode) {
+    public MarksItemAdapter(List<Mark.AllData> marks, Course.AllData course) {
         this.marks = marks;
-        this.courseCode = courseCode;
+        this.courseCode = course != null ? course.courseCode : null;
+        this.courseId = course != null ? course.courseId : null;
     }
 
     @NonNull
@@ -164,8 +167,14 @@ public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.View
         }
 
         private void showClassStatsDialog(Mark.AllData markData) {
-            if (markData.score == null || markData.maxScore == null) {
-                Toast.makeText(marksItem.getContext(), "Cannot add statistics for marks without score", Toast.LENGTH_SHORT).show();
+            Double maxReference = markData.maxScore != null ? markData.maxScore : markData.maxWeightage;
+            if (markData.score == null && markData.weightage == null) {
+                Toast.makeText(marksItem.getContext(), "Cannot add statistics for marks without any recorded score", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (maxReference == null) {
+                Toast.makeText(marksItem.getContext(), "Cannot add statistics for marks without a maximum value", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -213,7 +222,7 @@ public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.View
                             double average = Double.parseDouble(avgText);
 
                             // Use the exam's max score for calculations
-                            ClassStats classStats = new ClassStats(courseCode, markData.title, average, markData.maxScore, null);
+                            ClassStats classStats = new ClassStats(courseCode, markData.title, average, maxReference, null);
                             classStats.updatedAt = System.currentTimeMillis();
 
                             classStatsDao.insertClassStats(classStats)

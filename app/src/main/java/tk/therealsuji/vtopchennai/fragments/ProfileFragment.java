@@ -109,6 +109,21 @@ public class ProfileFragment extends Fragment {
                     null
             ),
             new ItemData(
+                    R.drawable.ic_staff,
+                    R.string.faculty_details,
+                    context -> {
+                        if (!isAdded()) return;
+                        FragmentActivity activity = requireActivity();
+                        FacultyDetailsFragment fragment = new FacultyDetailsFragment();
+                        activity.getSupportFragmentManager().beginTransaction()
+                                .setCustomAnimations(R.anim.slide_in_right, 0, 0, R.anim.slide_out_right)
+                                .add(android.R.id.content, fragment)
+                                .addToBackStack(null)
+                                .commit();
+                    },
+                    null
+            ),
+            new ItemData(
                     R.drawable.ic_link,
                     "StudentCC Website",
                     "Visit the official StudentCC website",

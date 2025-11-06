@@ -76,50 +76,6 @@ public class RecyclerViewFragment extends Fragment {
     }
 
     private void attachSpotlight() {
-        // Create custom spotlight items for the coming soon feature
-        List<Spotlight> comingSoonSpotlight = new java.util.ArrayList<>();
-
-        // Main announcement about the new events feature
-        Spotlight mainAnnouncement = new Spotlight();
-        mainAnnouncement.id = 1;
-        mainAnnouncement.announcement = "🎉 Events & Announcements Coming Soon!\n\nStudentCC is expanding beyond VTOP to become your central hub for ALL VIT campus events!";
-        mainAnnouncement.category = "App Updates";
-        mainAnnouncement.link = null;
-        mainAnnouncement.isRead = true;
-
-        // Club participation announcement
-        Spotlight clubAnnouncement = new Spotlight();
-        clubAnnouncement.id = 2;
-        clubAnnouncement.announcement = "📢 Attention Club Leaders!\n\nWant your club events showcased here? Each club will get access to upload event details (date, time, poster, etc.) and reach all students instantly.\n\nNo more dependency on WhatsApp groups or Instagram posts - get FREE promotion with wider reach!";
-        clubAnnouncement.category = "For Clubs";
-        clubAnnouncement.link = null;
-        clubAnnouncement.isRead = true;
-
-        // Contact information
-        Spotlight contactAnnouncement = new Spotlight();
-        contactAnnouncement.id = 3;
-        contactAnnouncement.announcement = "📱 Interested in joining this initiative?\n\nFill out this form to get your club onboarded for this exciting feature!";
-        contactAnnouncement.category = "Contact";
-        contactAnnouncement.link = "https://forms.gle/jvrj9iTEM6aXbn9EA";
-        contactAnnouncement.isRead = true;
-
-        comingSoonSpotlight.add(mainAnnouncement);
-        comingSoonSpotlight.add(clubAnnouncement);
-        comingSoonSpotlight.add(contactAnnouncement);
-
-        // Display the custom announcements
-        recyclerView.setAdapter(new SpotlightGroupAdapter(comingSoonSpotlight));
-
-        // Track that user viewed the coming soon feature
-        if (mFirebaseAnalytics != null) {
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "events_coming_soon");
-            bundle.putString("feature_type", "club_events_preview");
-            mFirebaseAnalytics.logEvent("view_coming_soon_events", bundle);
-        }
-
-        // Original VTOP spotlight code (commented out for future reference)
-        /*
         SpotlightDao spotlightDao = this.appDatabase.spotlightDao();
         spotlightDao.get()
                 .subscribeOn(Schedulers.single())
@@ -147,7 +103,6 @@ public class RecyclerViewFragment extends Fragment {
                         displayEmptyState(EmptyStateAdapter.TYPE_ERROR, "Error: " + e.getLocalizedMessage());
                     }
                 });
-        */
     }
 
     private void displayEmptyState(int type, String message) {

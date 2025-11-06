@@ -2,11 +2,11 @@ package tk.therealsuji.vtopchennai.helpers;
 
 /**
  * Training data for neural network CAPTCHA solver
- * Contains pre-trained weights and biases converted from UniCC bitmaps.js
+ * Contains pre-trained weights and biases for character recognition
  */
 public class CaptchaTrainingData {
 
-    // Pre-trained neural network weights (converted from UniCC bitmaps.js)
+    // Pre-trained neural network weights
     // This is a simplified version - in production, you would load the full training data
     private static final float[][] WEIGHTS = {
         // Sample weights - in production, extract full weights from bitmaps.js

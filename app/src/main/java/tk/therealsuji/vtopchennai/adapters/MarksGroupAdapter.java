@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import tk.therealsuji.vtopchennai.R;
+import tk.therealsuji.vtopchennai.models.Course;
 import tk.therealsuji.vtopchennai.models.Mark;
 
 /**
@@ -22,11 +23,11 @@ import tk.therealsuji.vtopchennai.models.Mark;
  */
 public class MarksGroupAdapter extends RecyclerView.Adapter<MarksGroupAdapter.ViewHolder> {
     List<List<Mark.AllData>> marks;
-    String courseCode;
+    Course.AllData course;
 
-    public MarksGroupAdapter(List<List<Mark.AllData>> marks, String courseCode) {
+    public MarksGroupAdapter(List<List<Mark.AllData>> marks, Course.AllData course) {
         this.marks = marks;
-        this.courseCode = courseCode;
+        this.course = course;
     }
 
     @NonNull
@@ -53,7 +54,7 @@ public class MarksGroupAdapter extends RecyclerView.Adapter<MarksGroupAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull MarksGroupAdapter.ViewHolder holder, int position) {
-        holder.setAdapter(new MarksItemAdapter(this.marks.get(position), courseCode));
+        holder.setAdapter(new MarksItemAdapter(this.marks.get(position), course));
     }
 
     @Override

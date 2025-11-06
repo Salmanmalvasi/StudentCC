@@ -6,8 +6,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -25,6 +27,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.activities.MainActivity;
@@ -39,6 +42,7 @@ public class FirebaseMessagingHelper {
     private static final String PREF_NAME = "firebase_messaging_prefs";
     private static final String KEY_FCM_TOKEN = "fcm_token";
     private static final String KEY_MESSAGES = "stored_messages";
+    private static final String KEY_LAST_TOKEN_REFRESH = "last_token_refresh";
     private static final String CHANNEL_ID = "vtop_notifications";
     private static final String CHANNEL_NAME = "VTOP Notifications";
 
@@ -66,6 +70,16 @@ public class FirebaseMessagingHelper {
      */
     public void initializeMessaging() {
         Log.d(TAG, "🚀 Initializing Firebase Messaging...");
+
+        long lastRefresh = prefs.getLong(KEY_LAST_TOKEN_REFRESH, 0L);
+        long refreshIntervalMs = TimeUnit.HOURS.toMillis(6);
+        long timeSinceRefresh = System.currentTimeMillis() - lastRefresh;
+
+        if (timeSinceRefresh < refreshIntervalMs && !TextUtils.isEmpty(getFCMToken())) {
+            Log.d(TAG, "⏭️ Skipping FCM token fetch; last refresh " + (timeSinceRefresh / 1000) + " seconds ago");
+            return;
+        }
+
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
                     @Override
@@ -81,7 +95,10 @@ public class FirebaseMessagingHelper {
 
                         // Store token for server communication if needed
                         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-                        prefs.edit().putString(KEY_FCM_TOKEN, token).apply();
+                        prefs.edit()
+                            .putString(KEY_FCM_TOKEN, token)
+                            .putLong(KEY_LAST_TOKEN_REFRESH, System.currentTimeMillis())
+                            .apply();
 
                         Log.d(TAG, "✅ Firebase Messaging initialization completed!");
                     }
@@ -134,7 +151,7 @@ public class FirebaseMessagingHelper {
         String priority = data.get("priority");
         String title = data.get("title");
         String body = data.get("body");
-        String actionUrl = data.get("action_url");
+        String actionUrl = extractFirstValidUrl(data);
 
         Log.d(TAG, "📋 Message details - Type: " + messageType + ", Priority: " + priority + ", Title: " + title);
 
@@ -161,6 +178,15 @@ public class FirebaseMessagingHelper {
             Log.d(TAG, "✅ In-app message created and analytics logged");
         } else {
             Log.w(TAG, "⚠️ Message missing required fields - skipping in-app message creation");
+        }
+
+        // Always surface a notification for data messages that include text
+        if (!TextUtils.isEmpty(title) || !TextUtils.isEmpty(body)) {
+            showNotification(
+                !TextUtils.isEmpty(title) ? title : context.getString(R.string.app_name),
+                !TextUtils.isEmpty(body) ? body : context.getString(R.string.app_name),
+                data
+            );
         }
     }
 
@@ -391,18 +417,13 @@ public class FirebaseMessagingHelper {
     public void showNotification(String title, String body, Map<String, String> data) {
         Log.d(TAG, "🔔 Creating notification - Title: " + title + ", Body: " + body);
 
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent intent = buildNotificationIntent(data);
 
-        // Add extra data if available
-        if (data != null) {
-            for (Map.Entry<String, String> entry : data.entrySet()) {
-                intent.putExtra(entry.getKey(), entry.getValue());
-            }
-        }
-
+        int requestCode = (int) (System.currentTimeMillis() & 0xFFFFFF);
         PendingIntent pendingIntent = PendingIntent.getActivity(
-            context, 0, intent,
+            context,
+            requestCode,
+            intent,
             PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
         );
 
@@ -554,6 +575,60 @@ public class FirebaseMessagingHelper {
         // Here you would typically send the token to your server
         // For now, just log it
         Log.d(TAG, "✅ FCM token updated and stored locally");
+    }
+
+    private Intent buildNotificationIntent(Map<String, String> data) {
+        String targetUrl = extractFirstValidUrl(data);
+
+        if (!TextUtils.isEmpty(targetUrl)) {
+            Uri uri = Uri.parse(targetUrl);
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
+            browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            return browserIntent;
+        }
+
+        Intent defaultIntent = new Intent(context, MainActivity.class);
+        defaultIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        if (data != null) {
+            for (Map.Entry<String, String> entry : data.entrySet()) {
+                defaultIntent.putExtra(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return defaultIntent;
+    }
+
+    private String extractFirstValidUrl(Map<String, String> data) {
+        if (data == null || data.isEmpty()) {
+            return null;
+        }
+
+        String[] candidateKeys = { "action_url", "url", "link", "target_url", "deep_link" };
+
+        for (String key : candidateKeys) {
+            String candidate = data.get(key);
+            if (isValidHttpUrl(candidate)) {
+                return candidate.trim();
+            }
+        }
+
+        return null;
+    }
+
+    private boolean isValidHttpUrl(String candidate) {
+        if (TextUtils.isEmpty(candidate)) {
+            return false;
+        }
+
+        try {
+            Uri uri = Uri.parse(candidate.trim());
+            String scheme = uri.getScheme();
+            return scheme != null && ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme));
+        } catch (Exception e) {
+            Log.w(TAG, "Invalid URL supplied for notification: " + candidate, e);
+            return false;
+        }
     }
 
     /**

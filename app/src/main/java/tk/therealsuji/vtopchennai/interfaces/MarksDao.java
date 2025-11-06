@@ -37,8 +37,8 @@ public interface MarksDao {
     @Insert
     Completable insertCumulativeMarks(List<CumulativeMark> cumulativeMarks);
 
-    @Query("UPDATE marks SET is_read = 1 WHERE course_id IN (SELECT id FROM courses WHERE code = :courseCode) AND is_read IS 0")
-    Completable setMarksRead(String courseCode);
+    @Query("UPDATE marks SET is_read = 1 WHERE course_id = :courseId AND is_read IS 0")
+    Completable setMarksRead(int courseId);
 
     @Query("DELETE FROM marks")
     Completable deleteMarks();
@@ -46,10 +46,9 @@ public interface MarksDao {
     @Query("DELETE FROM cumulative_marks")
     Completable deleteCumulativeMarks();
 
-    @Query("SELECT courses.code AS courseCode, courses.title AS courseTitle, COUNT(CASE WHEN is_read IS 0 THEN 1 END) AS unreadMarkCount " +
-            "FROM marks, courses " +
-            "WHERE course_id = courses.id " +
-            "GROUP BY courses.code")
+    @Query("SELECT courses.id AS courseId, courses.code AS courseCode, courses.title AS courseTitle, COUNT(CASE WHEN is_read IS 0 THEN 1 END) AS unreadMarkCount " +
+        "FROM marks INNER JOIN courses ON course_id = courses.id " +
+        "GROUP BY courses.id")
     Single<List<Course.AllData>> getCourses();
 
     @Query("SELECT id, is_read, signature FROM marks WHERE is_read IS 1")
@@ -58,11 +57,11 @@ public interface MarksDao {
     @Query("SELECT COUNT(id) FROM marks WHERE is_read IS 0")
     Single<Integer> getMarksUnreadCount();
 
-    @Query("SELECT type AS courseType, marks.title AS title, score, max_score AS maxScore, weightage, max_weightage AS maxWeightage, average, status, is_read AS isRead " +
-            "FROM marks, courses " +
-            "WHERE course_id = courses.id AND code = :courseCode " +
-            "ORDER BY type DESC, title")
-    Single<List<Mark.AllData>> getMarks(String courseCode);
+    @Query("SELECT courses.id AS courseId, courses.code AS courseCode, courses.title AS courseTitle, type AS courseType, marks.title AS title, score, max_score AS maxScore, weightage, max_weightage AS maxWeightage, average, status, is_read AS isRead " +
+        "FROM marks INNER JOIN courses ON course_id = courses.id " +
+        "WHERE course_id = :courseId " +
+        "ORDER BY type DESC, title")
+    Single<List<Mark.AllData>> getMarks(int courseId);
 
     @Query("SELECT * FROM cumulative_marks WHERE course_code = :courseCode")
     Single<CumulativeMark> getCumulativeMark(String courseCode);

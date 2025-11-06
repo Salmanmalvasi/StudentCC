@@ -32,7 +32,6 @@ import tk.therealsuji.vtopchennai.models.Mark;
 
 /**
  * Enhanced Marks Adapter with better course organization and assessment display
- * Inspired by UniCC's marks display logic
  */
 public class EnhancedMarksAdapter extends RecyclerView.Adapter<EnhancedMarksAdapter.ViewHolder> {
     List<Observable<List<Mark.AllData>>> markObservables;

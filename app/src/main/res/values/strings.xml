@@ -290,4 +290,11 @@
 
     <!-- OD Information -->
     <string name="od_explanation">* OD (On Duty) is given by both SWC and CDC</string>
+
+    <!-- Faculty Details Strings -->
+    <string name="faculty_details">Faculty Details</string>
+    <string name="no_faculty_found">No faculty data available</string>
+    <string name="no_search_results">No results found for \"%s\"</string>
+    <string name="error_loading_faculty">Error loading faculty data</string>
+    <string name="search_faculty">Search faculty by name, school, or designation</string>
 </resources>

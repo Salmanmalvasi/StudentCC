@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     VTOPHelper vtopHelper;
+    private boolean classTimeMonitorStarted = false;
 
     static final String HOME_FRAGMENT_TAG = "HOME_FRAGMENT_TAG";
     static final String PERFORMANCE_FRAGMENT_TAG = "PERFORMANCE_FRAGMENT_TAG";
@@ -246,6 +248,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void startClassTimeMonitorServiceIfNeeded() {
+        if (classTimeMonitorStarted) {
+            return;
+        }
+
+        Intent serviceIntent = new Intent(this, tk.therealsuji.vtopchennai.services.ClassTimeMonitorService.class);
+        try {
+            startService(serviceIntent);
+            classTimeMonitorStarted = true;
+        } catch (RuntimeException exception) {
+            android.util.Log.w("MainActivity", "Unable to start ClassTimeMonitorService", exception);
+        }
+    }
+
     private void signOut() {
         FirebaseAnalyticsHelper.trackLogout(this);
         SettingsRepository.signOut(this);
@@ -396,6 +412,15 @@ public class MainActivity extends AppCompatActivity {
 
 
         this.bottomNavigationView = findViewById(R.id.bottom_navigation);
+        Menu bottomMenu = this.bottomNavigationView.getMenu();
+        int maxNavigationItems = this.bottomNavigationView.getMaxItemCount();
+        if (bottomMenu.size() > maxNavigationItems) {
+            for (int index = bottomMenu.size() - 1; index >= maxNavigationItems; index--) {
+                int itemId = bottomMenu.getItem(index).getItemId();
+                bottomMenu.removeItem(itemId);
+            }
+            android.util.Log.w("MainActivity", "Trimmed bottom navigation items to avoid exceeding the maximum of " + maxNavigationItems);
+        }
 
         Bundle customInsets = new Bundle();
         customInsets.putInt("systemWindowInsetLeft", 0);
@@ -449,10 +474,6 @@ public class MainActivity extends AppCompatActivity {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
         }
-
-        // Start the class time monitor service
-        Intent serviceIntent = new Intent(this, tk.therealsuji.vtopchennai.services.ClassTimeMonitorService.class);
-        startService(serviceIntent);
 
         // Check student type and hide hostel info tab if day scholar
         checkAndUpdateBottomNavigation();
@@ -637,6 +658,12 @@ public class MainActivity extends AppCompatActivity {
                 });
 
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        startClassTimeMonitorServiceIfNeeded();
     }
 
     @Override

@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Base64;
+import android.view.ContextThemeWrapper;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
@@ -125,7 +127,7 @@ public class VTOPService extends Service {
     private static final Map<String, String> SLOT_ALIASES = new HashMap<>();
 
     static {
-        // Auto-generated from UniCC config.json
+        // Slot mappings for VIT Chennai timetable periods
 
         addSlotMapping("A1", "monday", 0);  // 08:00
         addSlotMapping("A1", "wednesday", 1);  // 08:55
@@ -176,15 +178,15 @@ public class VTOPService extends Service {
         addSlotMapping("L11", "tuesday", 4);  // 11:40
 
         addSlotMapping("L12", "tuesday", 5);  // 12:35
-        addSlotMapping("L12", "wednesday", 0);  // 08:00
+        addSlotMapping("L13", "wednesday", 0);  // 08:00
 
-        addSlotMapping("L13", "wednesday", 1);  // 08:50
+    addSlotMapping("L14", "wednesday", 1);  // 08:50
 
-        addSlotMapping("L14", "wednesday", 2);  // 09:50
+    addSlotMapping("L15", "wednesday", 2);  // 09:50
 
-        addSlotMapping("L15", "wednesday", 3);  // 10:40
+    addSlotMapping("L16", "wednesday", 3);  // 10:40
 
-        addSlotMapping("L17", "wednesday", 4);  // 11:40
+    addSlotMapping("L17", "wednesday", 4);  // 11:40
 
         addSlotMapping("L18", "wednesday", 5);  // 12:35
 
@@ -426,7 +428,7 @@ public class VTOPService extends Service {
         addSlotMapping("Z22", "saturday", 11);  // 18:35
         addSlotMapping("Z22", "sunday", 11);  // 18:35
 
-        // Slot aliases for variants not explicitly listed in UniCC config
+        // Slot aliases for common slot naming variants
         addSlotAlias("TEE1", "TE1");
         addSlotAlias("TEE2", "TE2");
         addSlotAlias("TFF1", "TF1");
@@ -525,15 +527,26 @@ public class VTOPService extends Service {
      */
     @SuppressLint("SetJavaScriptEnabled")
     private void createWebView() {
-        String authorisedUserAgent = this.sharedPreferences.getString("authorisedUserAgent", null);
+        try {
+            String authorisedUserAgent = this.sharedPreferences.getString("authorisedUserAgent", null);
+            ContextThemeWrapper webViewContext = new ContextThemeWrapper(this, R.style.Theme_VTOP);
 
-        this.webView = new WebView(getApplicationContext());
-        this.webView.addJavascriptInterface(this, "Android");
-        this.webView.getSettings().setJavaScriptEnabled(true);
-        this.webView.getSettings().setUserAgentString(authorisedUserAgent);
-        this.webView.setBackgroundColor(Color.TRANSPARENT);
-        this.webView.setHorizontalScrollBarEnabled(false);
-        this.webView.setVerticalScrollBarEnabled(false);
+            this.webView = new WebView(webViewContext);
+            this.webView.addJavascriptInterface(this, "Android");
+            this.webView.getSettings().setJavaScriptEnabled(true);
+            if (authorisedUserAgent != null && !authorisedUserAgent.isEmpty()) {
+                this.webView.getSettings().setUserAgentString(authorisedUserAgent);
+            }
+            this.webView.setBackgroundColor(Color.TRANSPARENT);
+            this.webView.setHorizontalScrollBarEnabled(false);
+            this.webView.setVerticalScrollBarEnabled(false);
+            this.isWebViewDestroyed = false;
+        } catch (Resources.NotFoundException exception) {
+            android.util.Log.e("VTOPService", "Failed to construct themed WebView", exception);
+            this.isWebViewDestroyed = true;
+            stopSelf();
+            return;
+        }
         this.webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -665,18 +678,33 @@ public class VTOPService extends Service {
      * Function to brutally destroy the WebView
      */
     private void destroyWebView() {
-        this.webView.onPause();
-        this.webView.removeAllViews();
-        this.webView.destroyDrawingCache();
-        this.webView.pauseTimers();
-
-        ViewGroup webViewParent = (ViewGroup) webView.getParent();
-        if (webViewParent != null) {
-            webViewParent.removeView(webView);
+        if (this.webView == null) {
+            this.isWebViewDestroyed = true;
+            return;
         }
 
-        this.webView.destroy();
-        this.isWebViewDestroyed = true;
+        if (this.isWebViewDestroyed) {
+            return;
+        }
+
+        try {
+            this.webView.onPause();
+            this.webView.pauseTimers();
+            this.webView.destroyDrawingCache();
+            this.webView.removeAllViews();
+
+            ViewGroup webViewParent = (ViewGroup) this.webView.getParent();
+            if (webViewParent != null) {
+                webViewParent.removeView(this.webView);
+            }
+
+            this.webView.destroy();
+        } catch (Exception exception) {
+            android.util.Log.w("VTOPService", "Failed while destroying WebView", exception);
+        } finally {
+            this.webView = null;
+            this.isWebViewDestroyed = true;
+        }
     }
 
     /**
@@ -703,9 +731,13 @@ public class VTOPService extends Service {
      * Function to reload the page after clearing all cache and history.
      */
     private void reloadPage(String path, boolean destroySession) {
-        if (this.isWebViewDestroyed) {
+        if (this.webView == null || this.isWebViewDestroyed) {
             this.createWebView();
-            this.isWebViewDestroyed = false;
+
+            if (this.webView == null) {
+                android.util.Log.e("VTOPService", "WebView unavailable after recreation; aborting reload");
+                return;
+            }
         }
 
         this.pageState = null;
@@ -1690,7 +1722,7 @@ public class VTOPService extends Service {
     }
     
     /**
-     * Generate timetable entries using UniCC mapping of slots to days and periods
+     * Generate timetable entries by mapping slots to days and periods
      */
     private void generateTimetableFromSlots(List<Slot> slots) {
         try {
@@ -1759,12 +1791,12 @@ public class VTOPService extends Service {
     
     /**
      * Create standard VIT timetable structure with 12 theory periods
-     * Times match EXACT UniCC config.json slotMap
+     * Times match VIT Chennai period timings
      */
     private List<Timetable> createStandardVITTimetable() {
         List<Timetable> timetable = new ArrayList<>();
         
-        // VIT Chennai EXACT period timings from UniCC config.json
+        // VIT Chennai period timings
         String[] periodTimes = {
             "08:00", "08:50",  // Period 0: 8:00-8:50
             "08:55", "09:45",  // Period 1: 8:55-9:45
@@ -1793,7 +1825,7 @@ public class VTOPService extends Service {
     }
     
     /**
-     * Map a slot to its appropriate timetable period and day(s) using UniCC mapping
+     * Map a slot to its appropriate timetable period and day(s)
      * Period indices are 0-based: 0=Period1(08:00-08:50), 1=Period2(08:50-09:40), etc.
      */
     private void mapSlotToTimetable(List<Timetable> timetable, Slot slot, String slotName) {
@@ -1878,7 +1910,7 @@ public class VTOPService extends Service {
 
     /* DISABLED - This method uses database interfaces that don't exist
     /**
-     * Generate timetable using UniCC approach - from course slots instead of VTOP's broken JavaScript
+     * Generate timetable from course slots instead of VTOP's broken JavaScript
      */
     /*
     private void generateTimetableFromSlots() {
@@ -1988,7 +2020,7 @@ public class VTOPService extends Service {
 
     /* DISABLED - Helper method for disabled generateTimetableFromSlots()
     /**
-     * Map course slots to timetable periods using UniCC logic
+     * Map course slots to timetable periods
      */
     /*
     private void mapSlotsToTimetable(List<tk.therealsuji.vtopchennai.models.Timetable> timetable, List<tk.therealsuji.vtopchennai.models.Slot> allSlots) {
@@ -2014,7 +2046,7 @@ public class VTOPService extends Service {
     private void mapSlotToMultipleDays(List<tk.therealsuji.vtopchennai.models.Timetable> timetable, tk.therealsuji.vtopchennai.models.Slot slot) {
         String slotName = slot.slot.toUpperCase();
         
-        // UniCC approach: Theory slots repeat across multiple days
+        // Theory slots repeat across multiple days
         switch (slotName) {
             // Theory slots - appear on multiple days
             case "A1": case "TA1":
@@ -2180,7 +2212,7 @@ public class VTOPService extends Service {
     */
 
     /**
-     * Download attendance using jQuery AJAX with CSRF token (UniCC approach).
+     * Download attendance using jQuery AJAX with CSRF token.
      * This uses VTOP's own AJAX mechanism with the required CSRF token for authentication.
      */
     private void downloadAttendance() {
@@ -2193,7 +2225,7 @@ public class VTOPService extends Service {
             return;
         }
 
-        // Use jQuery AJAX with CSRF token (UniCC approach - proven to work)
+        // Use jQuery AJAX with CSRF token
         String ajaxScript = "(function() {" +
             "var authorizedID = $('#authorizedIDX').val() || $('#authorizedID').val() || '';" +
             "var semesterSubId = '" + semesterID + "';" +
@@ -2209,7 +2241,7 @@ public class VTOPService extends Service {
             "  type: 'POST'," +
             "  url: 'processViewStudentAttendance'," +
             "  data: data," +
-            "  async: false," +  // Synchronous call like UniCC
+            "  async: false," +  // Synchronous call for WebView compatibility
             "  success: function(res) {" +
             "    console.log('AJAX success, HTML length:', res.length);" +
             "    attendanceHTML = res;" +
@@ -2454,7 +2486,6 @@ public class VTOPService extends Service {
 
     /**
      * Function to download detailed attendance records for each course.
-     * Based on UniCC's implementation approach.
      */
     private void downloadDetailedAttendance() {
         updateProgress(R.string.downloading_attendance);

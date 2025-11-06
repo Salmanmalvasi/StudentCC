@@ -104,6 +104,10 @@ dependencies {
     // JSoup for HTML parsing (for direct HTTP attendance fetching)
     implementation 'org.jsoup:jsoup:1.15.4'
 
+    // Glide for image loading
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+
     annotationProcessor 'androidx.room:room-compiler:2.6.1'
     implementation 'com.google.mlkit:text-recognition:16.0.0'
 

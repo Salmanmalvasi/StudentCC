@@ -24,6 +24,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import tk.therealsuji.vtopchennai.R;
+import tk.therealsuji.vtopchennai.models.Course;
 import tk.therealsuji.vtopchennai.models.Mark;
 
 /**
@@ -35,11 +36,11 @@ import tk.therealsuji.vtopchennai.models.Mark;
  */
 public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> {
     List<Observable<List<Mark.AllData>>> markObservables;
-    List<String> courseCodes;
+    List<Course.AllData> courses;
 
-    public MarksAdapter(List<Observable<List<Mark.AllData>>> markObservables, List<String> courseCodes) {
+    public MarksAdapter(List<Observable<List<Mark.AllData>>> markObservables, List<Course.AllData> courses) {
         this.markObservables = markObservables;
-        this.courseCodes = courseCodes;
+        this.courses = courses;
     }
 
     @NonNull
@@ -54,7 +55,7 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull MarksAdapter.ViewHolder holder, int position) {
-        String courseCode = courseCodes.get(position);
+        Course.AllData course = courses.get(position);
         this.markObservables.get(position)
                 .subscribe(new Observer<List<Mark.AllData>>() {
                     @Override
@@ -64,7 +65,7 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
                     @Override
                     public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Mark.AllData> marks) {
                         holder.segregateMarks(marks);
-                        holder.displayMarks(courseCode);
+                        holder.displayMarks(course);
                     }
 
                     @Override
@@ -87,6 +88,7 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
         ChipGroup courseTypes;
         RecyclerView markGroups;
         Map<String, List<Mark.AllData>> marks;
+        Course.AllData course;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -181,7 +183,8 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
             this.addChips();
         }
 
-        public void displayMarks(String courseCode) {
+        public void displayMarks(Course.AllData course) {
+            this.course = course;
             List<List<Mark.AllData>> markGroups = new ArrayList<>();
 
             markGroups.add(this.marks.get("theory"));
@@ -190,7 +193,7 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
 
             markGroups.removeAll(Collections.singleton(null));
 
-            this.markGroups.setAdapter(new MarksGroupAdapter(markGroups, courseCode));
+            this.markGroups.setAdapter(new MarksGroupAdapter(markGroups, course));
         }
 
         public void displayError(String errorMessage) {

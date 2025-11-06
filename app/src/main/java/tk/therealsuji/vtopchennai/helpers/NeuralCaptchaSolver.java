@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Neural Network-based CAPTCHA solver inspired by UniCC implementation
+ * Neural Network-based CAPTCHA solver
  * Uses pre-trained neural network weights to recognize CAPTCHA characters
  */
 public class NeuralCaptchaSolver {
@@ -38,7 +38,6 @@ public class NeuralCaptchaSolver {
 
     /**
      * Initialize neural network with pre-trained weights
-     * Based on the bitmaps.js training data from UniCC
      */
     private void initializeNeuralNetwork() {
         try {
@@ -152,7 +151,7 @@ public class NeuralCaptchaSolver {
     }
 
     /**
-     * Preprocess image similar to UniCC implementation
+     * Preprocess image for neural network input
      */
     private Bitmap preprocessImage(Bitmap original) {
         // Scale to standard size

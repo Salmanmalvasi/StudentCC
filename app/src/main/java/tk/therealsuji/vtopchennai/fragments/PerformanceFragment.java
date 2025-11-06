@@ -157,19 +157,22 @@ public class PerformanceFragment extends Fragment {
                         courseTabs.setVisibility(View.VISIBLE);
 
                         List<Observable<List<Mark.AllData>>> markObservables = new ArrayList<>();
-                        List<String> courseCodes = new ArrayList<>();
                         for (Course.AllData course : courses) {
-                            Observable<List<Mark.AllData>> observable = Observable.fromSingle(marksDao.getMarks(course.courseCode))
+                            if (course.courseId == null) {
+                                markObservables.add(Observable.just(new ArrayList<Mark.AllData>()));
+                                continue;
+                            }
+
+                            Observable<List<Mark.AllData>> observable = Observable.fromSingle(marksDao.getMarks(course.courseId))
                                     .subscribeOn(Schedulers.single())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .replay()
                                     .autoConnect();
 
                             markObservables.add(observable);
-                            courseCodes.add(course.courseCode);
                         }
 
-                        marks.setAdapter(new MarksAdapter(markObservables, courseCodes));
+                        marks.setAdapter(new MarksAdapter(markObservables, courses));
                         new TabLayoutMediator(courseTabs, marks, (tab, position) -> {
                             Course.AllData course = courses.get(position);
 
@@ -319,9 +322,12 @@ public class PerformanceFragment extends Fragment {
 
                                                 @Override
                                                 public void onComplete() {
-                                                    marksDao.setMarksRead(courseCode)
-                                                            .subscribeOn(Schedulers.single())
-                                                            .subscribe();
+                            Integer courseId = courses.get(position).courseId;
+                            if (courseId != null) {
+                            marksDao.setMarksRead(courseId)
+                                .subscribeOn(Schedulers.single())
+                                .subscribe();
+                            }
                                                 }
                                             });
                                 }
@@ -359,7 +365,8 @@ public class PerformanceFragment extends Fragment {
     private void updatePerformanceCards(int position) {
         if (getView() == null || courses == null || position >= courses.size()) return;
 
-        String courseCode = courses.get(position).courseCode;
+    Course.AllData selectedCourse = courses.get(position);
+    String courseCode = selectedCourse.courseCode;
 
         PerformanceCard average = getView().findViewById(R.id.performance_card_average);
 
@@ -381,7 +388,12 @@ public class PerformanceFragment extends Fragment {
                         public void onSuccess(@NonNull List<ClassStats> classStatsList) {
                             if (classStatsList != null && !classStatsList.isEmpty()) {
                                 // Get marks for this course to calculate relative performance
-                                marksDao.getMarks(courseCode)
+                                if (selectedCourse.courseId == null) {
+                                    average.hide();
+                                    return;
+                                }
+
+                                marksDao.getMarks(selectedCourse.courseId)
                                         .subscribeOn(Schedulers.single())
                                         .observeOn(AndroidSchedulers.mainThread())
                                         .subscribe(new SingleObserver<List<Mark.AllData>>() {

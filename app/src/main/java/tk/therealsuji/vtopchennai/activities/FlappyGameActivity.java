@@ -550,8 +550,8 @@ public class FlappyGameActivity extends AppCompatActivity {
         float x, y, velocityY;
         int width, height;
         Bitmap bitmap;
-        private static final float BASE_GRAVITY = 700f; // Reduced even further for more comfortable play
-        private static final float BASE_JUMP_VELOCITY = -500f; // Increased further for better control
+    private static final float BASE_GRAVITY = 900f; // Slightly higher for snappier vertical movement
+    private static final float BASE_JUMP_VELOCITY = -650f; // Stronger jump to match faster fall speed
 
         public Player(Context context, float x, float y) {
             this.x = x;
@@ -593,7 +593,7 @@ public class FlappyGameActivity extends AppCompatActivity {
 
         public void jump(int currentScore) {
             // Jump power decreases much more slowly with score 😭
-            float jumpMultiplier = Math.max(0.9f, 1.0f - (currentScore * 0.0005f)); // Much less weakness
+            float jumpMultiplier = Math.max(0.85f, 1.0f - (currentScore * 0.00045f)); // Maintain control as speed ramps
             velocityY = BASE_JUMP_VELOCITY * jumpMultiplier;
         }
 
@@ -634,7 +634,7 @@ public class FlappyGameActivity extends AppCompatActivity {
     private static class MoneyTower {
         float x, y;
         int width, height;
-        private static final float BASE_SPEED = 150f; // Reduced from 200f for easier gameplay
+        private static final float BASE_SPEED = 220f; // Faster scroll speed for livelier gameplay
 
         public MoneyTower(float x, float y, int width, int height) {
             this.x = x;

@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.adapters.LaundryScheduleAdapter;
@@ -31,6 +33,7 @@ public class HostelInfoFragment extends Fragment {
 
     private HostelDataHelper hostelDataHelper;
     private String studentType, gender, hostelBlock, messType, roomNumber;
+    private final CompositeDisposable disposables = new CompositeDisposable();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,11 +83,15 @@ public class HostelInfoFragment extends Fragment {
         List<HostelDataHelper.LaundrySchedule> schedules = new ArrayList<>();
 
         // Try to get data from database first
-        hostelDataHelper.getTodaysLaundryScheduleFromDB(hostelBlock, roomNumber)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
+    Disposable laundryDisposable = hostelDataHelper.getTodaysLaundryScheduleFromDB(hostelBlock, roomNumber)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(
                         dbSchedule -> {
+                if (!isAdded()) {
+                return;
+                }
+
                             // Convert database model to helper model for adapter compatibility
                             HostelDataHelper.LaundrySchedule helperSchedule = new HostelDataHelper.LaundrySchedule();
                             helperSchedule.setDate(dbSchedule.getDate());
@@ -100,6 +107,8 @@ public class HostelInfoFragment extends Fragment {
                             showLaundryScheduleFallback();
                         }
                 );
+
+    disposables.add(laundryDisposable);
     }
 
     private void showLaundryScheduleFallback() {
@@ -123,8 +132,17 @@ public class HostelInfoFragment extends Fragment {
     }
 
     private void updateLaundryAdapter(List<HostelDataHelper.LaundrySchedule> schedules) {
+        if (!isAdded()) {
+            return;
+        }
+
+        Context context = getContext();
+        if (context == null || recyclerViewLaundry == null) {
+            return;
+        }
+
         LaundryScheduleAdapter adapter = new LaundryScheduleAdapter(schedules);
-        recyclerViewLaundry.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerViewLaundry.setLayoutManager(new LinearLayoutManager(context));
         recyclerViewLaundry.setAdapter(adapter);
     }
 
@@ -135,11 +153,15 @@ public class HostelInfoFragment extends Fragment {
         List<HostelDataHelper.MessMenu> menus = new ArrayList<>();
 
         // Try to get data from database first
-        hostelDataHelper.getTodaysMessMenuFromDB(hostelBlock, gender, messType)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
+    Disposable messDisposable = hostelDataHelper.getTodaysMessMenuFromDB(hostelBlock, gender, messType)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(
                         dbMenu -> {
+                if (!isAdded()) {
+                return;
+                }
+
                             // Convert database model to helper model for adapter compatibility
                             HostelDataHelper.MessMenu helperMenu = new HostelDataHelper.MessMenu();
                             helperMenu.setDay(dbMenu.getDay());
@@ -158,6 +180,8 @@ public class HostelInfoFragment extends Fragment {
                             showMessMenuFallback();
                         }
                 );
+
+    disposables.add(messDisposable);
     }
 
     private void showMessMenuFallback() {
@@ -172,8 +196,23 @@ public class HostelInfoFragment extends Fragment {
     }
 
     private void updateMessMenuAdapter(List<HostelDataHelper.MessMenu> menus) {
+        if (!isAdded()) {
+            return;
+        }
+
+        Context context = getContext();
+        if (context == null || recyclerViewMessMenu == null) {
+            return;
+        }
+
         MessMenuAdapter adapter = new MessMenuAdapter(menus);
-        recyclerViewMessMenu.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerViewMessMenu.setLayoutManager(new LinearLayoutManager(context));
         recyclerViewMessMenu.setAdapter(adapter);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        disposables.clear();
     }
 }

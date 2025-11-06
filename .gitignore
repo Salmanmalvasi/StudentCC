@@ -7,3 +7,9 @@
 /captures
 .externalNativeBuild
 .cxx
+
+# Exclude markdown files
+*.md
+
+# Exclude UniCC folder
+UniCC-main/

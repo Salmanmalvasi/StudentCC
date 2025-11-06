@@ -355,6 +355,9 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                             Button btnDetailedAttendance = bottomSheetLayout.findViewById(R.id.btn_detailed_attendance);
                             btnDetailedAttendance.setOnClickListener(v -> {
                                 Intent intent = new Intent(context, tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.class);
+                                if (course.courseId != null) {
+                                    intent.putExtra(tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.EXTRA_COURSE_ID, course.courseId);
+                                }
                                 intent.putExtra(tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.EXTRA_COURSE_CODE, course.courseCode);
                                 intent.putExtra(tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.EXTRA_COURSE_TITLE, course.courseTitle);
                                 context.startActivity(intent);
