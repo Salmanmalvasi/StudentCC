@@ -48,7 +48,7 @@ public class FacultyDetailsFragment extends Fragment {
     private List<Faculty> displayedFaculties;
     private CompositeDisposable compositeDisposable;
     
-    private static final int ITEMS_PER_PAGE = 10;
+    private static final int ITEMS_PER_PAGE = 5;  // Reduced for smoother scrolling
     private int currentPage = 0;
     private boolean isLoading = false;
     private boolean isSearching = false;
@@ -138,8 +138,8 @@ public class FacultyDetailsFragment extends Fragment {
                 int totalItemCount = layoutManager.getItemCount();
                 int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
-                // Load more when user scrolls near the end (within 5 items)
-                if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 5
+                // Load more when user scrolls near the end (within 3 items)
+                if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3
                         && firstVisibleItemPosition >= 0) {
                     loadMoreFaculties();
                 }

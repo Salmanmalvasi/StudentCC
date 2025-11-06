@@ -34,48 +34,43 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.core.widget.NestedScrollView
+    <!-- RecyclerView directly without NestedScrollView for better performance -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <FrameLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_faculty"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="16dp"
+            android:visibility="gone"
+            tools:listitem="@layout/item_faculty" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view_faculty"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:padding="16dp"
-                android:visibility="gone"
-                tools:listitem="@layout/item_faculty" />
+        <ProgressBar
+            android:id="@+id/progress_bar_faculty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="100dp"
+            android:visibility="visible" />
 
-            <ProgressBar
-                android:id="@+id/progress_bar_faculty"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="100dp"
-                android:visibility="visible" />
+        <TextView
+            android:id="@+id/text_view_empty_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="100dp"
+            android:drawablePadding="16dp"
+            android:gravity="center"
+            android:text="@string/no_faculty_found"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone"
+            app:drawableTopCompat="@drawable/ic_staff" />
 
-            <TextView
-                android:id="@+id/text_view_empty_state"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="100dp"
-                android:drawablePadding="16dp"
-                android:gravity="center"
-                android:text="@string/no_faculty_found"
-                android:textAppearance="?attr/textAppearanceBodyLarge"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:visibility="gone"
-                app:drawableTopCompat="@drawable/ic_staff" />
-
-        </FrameLayout>
-
-    </androidx.core.widget.NestedScrollView>
+    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
