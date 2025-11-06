@@ -13,3 +13,11 @@
 
 # Exclude UniCC folder
 UniCC-main/
+
+# Exclude all faculty details feature (sensitive data)
+app/src/main/assets/fac_det.txt
+app/src/main/java/tk/therealsuji/vtopchennai/models/Faculty.java
+app/src/main/java/tk/therealsuji/vtopchennai/fragments/FacultyDetailsFragment.java
+app/src/main/java/tk/therealsuji/vtopchennai/adapters/FacultyAdapter.java
+app/src/main/res/layout/fragment_faculty_details.xml
+app/src/main/res/layout/item_faculty.xml
