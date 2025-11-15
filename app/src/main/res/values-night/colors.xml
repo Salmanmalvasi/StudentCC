@@ -157,4 +157,12 @@
     <color name="progress_ring_color">#F8FAFC</color> <!-- Dark mode light text -->
     <color name="progress_ring_background">#1E293B</color> <!-- Dark mode clean background -->
     <color name="progress_text_color">#F8FAFC</color> <!-- Dark mode light text -->
+
+    <!-- AMOLED Theme Colors (Pure Black #000000) -->
+    <color name="colorSurfaceAmoled">#000000</color>
+    <color name="colorBackgroundAmoled">#000000</color>
+    <color name="colorPrimaryContainerAmoled">#000000</color>
+    <color name="colorSecondaryContainerAmoled">#0A0A0A</color>
+    <color name="colorSurfaceVariantAmoled">#0A0A0A</color>
+    <color name="colorOutlineVariantAmoled">#1A1A1A</color>
 </resources>

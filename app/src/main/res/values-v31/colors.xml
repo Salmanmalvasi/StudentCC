@@ -1,4 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="launcher_icon_background_color">@color/colorPrimary</color>
+
+    <!-- Material You Dynamic Colors for Android 12+ (API 31+) -->
+    <!-- These colors will automatically adapt to the user's wallpaper when DynamicColors is enabled -->
+    <color name="md_theme_primary">@android:color/system_accent1_600</color>
+    <color name="md_theme_on_primary">@android:color/system_accent1_0</color>
+    <color name="md_theme_primary_container">@android:color/system_accent1_100</color>
+    <color name="md_theme_on_primary_container">@android:color/system_accent1_900</color>
+
+    <color name="md_theme_secondary">@android:color/system_accent2_600</color>
+    <color name="md_theme_on_secondary">@android:color/system_accent2_0</color>
+    <color name="md_theme_secondary_container">@android:color/system_accent2_100</color>
+    <color name="md_theme_on_secondary_container">@android:color/system_accent2_900</color>
+
+    <color name="md_theme_tertiary">@android:color/system_accent3_600</color>
+    <color name="md_theme_on_tertiary">@android:color/system_accent3_0</color>
+    <color name="md_theme_tertiary_container">@android:color/system_accent3_100</color>
+    <color name="md_theme_on_tertiary_container">@android:color/system_accent3_900</color>
+
+    <color name="md_theme_surface">@android:color/system_neutral1_10</color>
+    <color name="md_theme_on_surface">@android:color/system_neutral1_900</color>
+    <color name="md_theme_surface_variant">@android:color/system_neutral2_100</color>
+    <color name="md_theme_on_surface_variant">@android:color/system_neutral2_700</color>
+
+    <color name="md_theme_background">@android:color/system_neutral1_10</color>
+    <color name="md_theme_on_background">@android:color/system_neutral1_900</color>
+
+    <color name="md_theme_error">@android:color/system_error_600</color>
+    <color name="md_theme_on_error">@android:color/system_error_0</color>
+    <color name="md_theme_error_container">@android:color/system_error_100</color>
+    <color name="md_theme_on_error_container">@android:color/system_error_900</color>
+
+    <color name="md_theme_outline">@android:color/system_neutral2_500</color>
+    <color name="md_theme_outline_variant">@android:color/system_neutral2_200</color>
 </resources>

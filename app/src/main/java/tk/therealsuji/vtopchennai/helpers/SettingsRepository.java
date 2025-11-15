@@ -116,6 +116,26 @@ public class SettingsRepository {
         DynamicColors.applyToActivityIfAvailable(activity, dynamicColorsOptions.build());
     }
 
+    public static boolean isMaterialYouEnabled(Context context) {
+        return getSharedPreferences(context).getBoolean("materialYouEnabled", false);
+    }
+
+    public static void setMaterialYouEnabled(Context context, boolean enabled) {
+        getSharedPreferences(context).edit().putBoolean("materialYouEnabled", enabled).apply();
+    }
+
+    public static boolean isAmoledModeEnabled(Context context) {
+        return getSharedPreferences(context).getBoolean("amoledMode", false);
+    }
+
+    public static void setAmoledModeEnabled(Context context, boolean enabled) {
+        getSharedPreferences(context).edit().putBoolean("amoledMode", enabled).apply();
+    }
+
+    public static boolean isMaterialYouAvailable() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
+    }
+
     public static float getCGPA(Context context) {
         return getSharedPreferences(context).getFloat("cgpa", 0);
     }

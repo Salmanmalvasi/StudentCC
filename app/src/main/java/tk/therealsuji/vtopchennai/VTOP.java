@@ -28,7 +28,8 @@ public class VTOP extends Application {
         // Log that Firebase In-App Messaging is ready
         android.util.Log.d("VTOP", "Firebase In-App Messaging initialized and ready");
 
-        // Disable dynamic colors to use our custom black and white theme
+        // Apply Material You dynamic colors only on Android 12+ (API 31+) if user has enabled it
+        // This is handled per-activity in MainActivity to support AMOLED mode
         // DynamicColors.applyToActivitiesIfAvailable(this);
 
         int theme = SettingsRepository.getTheme(this);

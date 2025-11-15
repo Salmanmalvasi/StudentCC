@@ -170,4 +170,14 @@
         <item name="android:windowBackground">@color/colorBackgroundBlack</item>
     </style>
 
+    <!-- AMOLED Theme Overlay for Material You Dynamic Colors -->
+    <style name="ThemeOverlay.VTOP.Amoled" parent="">
+        <item name="colorSurface">@color/colorSurfaceAmoled</item>
+        <item name="android:windowBackground">@color/colorBackgroundAmoled</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainerAmoled</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainerAmoled</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariantAmoled</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariantAmoled</item>
+    </style>
+
 </resources>

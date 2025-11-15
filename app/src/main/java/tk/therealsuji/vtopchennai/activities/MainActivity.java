@@ -371,9 +371,14 @@ public class MainActivity extends AppCompatActivity {
         // This must happen before anything else to ensure security
         checkForAppUpdateAndLogout();
 
-        boolean amoledMode = SettingsRepository.getSharedPreferences(this).getBoolean("amoledMode", false);
-        // Disable dynamic colors (use custom theme)
+        // Apply selected theme first
         applySelectedTheme();
+
+        // Apply Material You dynamic colors if enabled (Android 12+ only)
+        if (SettingsRepository.isMaterialYouEnabled(this) && SettingsRepository.isMaterialYouAvailable()) {
+            boolean amoledMode = SettingsRepository.isAmoledModeEnabled(this);
+            SettingsRepository.applyDynamicColors(this, amoledMode);
+        }
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

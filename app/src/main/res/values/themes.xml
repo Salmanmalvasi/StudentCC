@@ -301,5 +301,4 @@
         <item name="android:windowBackground">@color/colorPrimaryContainer</item>
     </style>
 
-    <style name="ThemeOverlay.VTOP.Amoled" parent="ThemeOverlay.Material3.DynamicColors.DayNight" />
 </resources>

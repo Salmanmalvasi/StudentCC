@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.adapters.ThemeAdapter;
@@ -27,6 +29,10 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
     private RecyclerView themeRecyclerView;
     private ThemeAdapter themeAdapter;
     private List<Theme> themes;
+    private SwitchMaterial materialYouSwitch;
+    private SwitchMaterial amoledSwitch;
+    private MaterialCardView materialYouCard;
+    private TextView materialYouDescription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +40,8 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
         setContentView(R.layout.activity_theme_selector);
 
         setupToolbar();
+        setupMaterialYouSwitch();
+        setupAmoledSwitch();
         setupThemes();
         setupRecyclerView();
     }
@@ -44,6 +52,55 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.select_theme);
+        }
+    }
+
+    private void setupMaterialYouSwitch() {
+        materialYouCard = findViewById(R.id.material_you_card);
+        materialYouSwitch = findViewById(R.id.material_you_switch);
+        materialYouDescription = findViewById(R.id.material_you_description);
+
+        // Check if Material You is available (Android 12+)
+        boolean isAvailable = SettingsRepository.isMaterialYouAvailable();
+
+        if (!isAvailable) {
+            // Disable Material You on older Android versions
+            materialYouSwitch.setEnabled(false);
+            materialYouDescription.setText("Requires Android 12 or higher");
+        }
+
+        // Set initial state
+        materialYouSwitch.setChecked(SettingsRepository.isMaterialYouEnabled(this));
+
+        // Add listener
+        materialYouSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            SettingsRepository.setMaterialYouEnabled(this, isChecked);
+
+            // Enable/disable color themes when Material You is toggled
+            updateThemeAvailability(isChecked);
+
+            Toast.makeText(this, isChecked ? "Material You enabled" : "Material You disabled", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void setupAmoledSwitch() {
+        amoledSwitch = findViewById(R.id.amoled_switch);
+
+        // Set initial state
+        amoledSwitch.setChecked(SettingsRepository.isAmoledModeEnabled(this));
+
+        // Add listener
+        amoledSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            SettingsRepository.setAmoledModeEnabled(this, isChecked);
+            Toast.makeText(this, isChecked ? "AMOLED mode enabled" : "AMOLED mode disabled", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void updateThemeAvailability(boolean materialYouEnabled) {
+        // When Material You is enabled, show a message that color themes are overridden
+        // The themes can still be selected but won't fully apply due to dynamic colors
+        if (themeAdapter != null) {
+            themeAdapter.notifyDataSetChanged();
         }
     }
 
