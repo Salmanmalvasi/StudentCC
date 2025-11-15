@@ -222,7 +222,8 @@ public class AttendanceCalculatorFragment extends Fragment {
                                 }
 
                                 int newTotal = Math.max(0, data.attendanceTotal + missed);
-                                int newPercentage = newTotal == 0 ? 0 : (int) Math.ceil((data.attendanceAttended * 100.0) / newTotal);
+                                // Use floor to match VTOPService calculation - 9.99% becomes 9%, not 10%
+                                int newPercentage = newTotal == 0 ? 0 : (int) Math.floor((data.attendanceAttended * 100.0) / newTotal);
 
                                 android.util.Log.d("AttendanceCalc", "Course " + courseCode + " - New Total: " + newTotal + ", New Percentage: " + newPercentage);
 
