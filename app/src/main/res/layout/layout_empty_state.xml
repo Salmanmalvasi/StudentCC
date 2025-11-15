@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginStart="20dp"
-    android:layout_marginEnd="20dp"
+    android:layout_marginStart="@dimen/m3_expressive_spacing_lg"
+    android:layout_marginEnd="@dimen/m3_expressive_spacing_lg"
     android:gravity="center"
     android:orientation="vertical">
 
@@ -12,23 +12,19 @@
         android:id="@+id/text_view_no_data"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawablePadding="20dp"
+        android:drawablePadding="@dimen/m3_expressive_spacing_lg"
         android:text="@string/no_data"
         android:textAlignment="center"
-        android:textSize="20sp"
+        android:textAppearance="@style/TextAppearance.M3.Expressive.HeadlineSmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
         app:drawableTopCompat="@drawable/image_no_data" />
 
     <Button
         android:id="@+id/button"
-        style="@style/Widget.Material3.Button.OutlinedButton"
+        style="@style/Widget.M3.Expressive.Button.Outlined"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:paddingStart="20dp"
-        android:paddingTop="15dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="15dp"
+        android:layout_marginTop="@dimen/m3_expressive_spacing_lg"
         android:textAllCaps="true"
-        android:textSize="16sp"
         android:visibility="gone" />
 </LinearLayout>

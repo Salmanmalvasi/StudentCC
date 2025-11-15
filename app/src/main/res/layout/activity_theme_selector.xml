@@ -33,56 +33,47 @@
             <!-- Material You Section -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/material_you_card"
+                style="@style/Widget.M3.Expressive.Card.Elevated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardElevation="2dp"
-                app:cardCornerRadius="12dp">
+                android:layout_marginBottom="@dimen/m3_expressive_spacing_md">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/m3_expressive_spacing_md">
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Material You"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:id="@+id/material_you_description"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Dynamic colors from wallpaper (Android 12+)"
-                                android:textSize="14sp"
-                                android:textColor="?attr/colorOnSurfaceVariant"
-                                android:layout_marginTop="4dp" />
-
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/material_you_switch"
+                        <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:enabled="true" />
+                            android:text="Material You"
+                            android:textAppearance="@style/TextAppearance.M3.Expressive.TitleMedium"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <TextView
+                            android:id="@+id/material_you_description"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Dynamic colors from wallpaper (Android 12+)"
+                            android:textAppearance="@style/TextAppearance.M3.Expressive.BodyMedium"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:layout_marginTop="@dimen/m3_expressive_spacing_xs" />
 
                     </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/material_you_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:enabled="true" />
 
                 </LinearLayout>
 
@@ -91,54 +82,45 @@
             <!-- AMOLED Mode Section -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/amoled_card"
+                style="@style/Widget.M3.Expressive.Card.Elevated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardElevation="2dp"
-                app:cardCornerRadius="12dp">
+                android:layout_marginBottom="@dimen/m3_expressive_spacing_md">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/m3_expressive_spacing_md">
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="AMOLED Mode"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Pure black background for OLED screens"
-                                android:textSize="14sp"
-                                android:textColor="?attr/colorOnSurfaceVariant"
-                                android:layout_marginTop="4dp" />
-
-                        </LinearLayout>
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/amoled_switch"
+                        <TextView
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:text="AMOLED Mode"
+                            android:textAppearance="@style/TextAppearance.M3.Expressive.TitleMedium"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Pure black background for OLED screens"
+                            android:textAppearance="@style/TextAppearance.M3.Expressive.BodyMedium"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:layout_marginTop="@dimen/m3_expressive_spacing_xs" />
 
                     </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/amoled_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
                 </LinearLayout>
 
@@ -149,10 +131,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Color Themes"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.M3.Expressive.TitleLarge"
                 android:textColor="?attr/colorOnSurface"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="@dimen/m3_expressive_spacing_md" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/theme_recycler_view"

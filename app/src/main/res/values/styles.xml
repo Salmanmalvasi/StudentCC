@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Widget.VTOP.EditText" parent="Widget.AppCompat.EditText">
         <item name="android:background">@drawable/background_edit_text</item>
@@ -70,12 +70,13 @@
         <item name="android:progressDrawable">@drawable/background_circular_progress_bar</item>
     </style>
 
-    <style name="Widget.VTOP.Chip" parent="Widget.Material3.Chip.Assist">
+    <style name="Widget.VTOP.Chip" parent="Widget.M3.Expressive.Chip.Assist">
         <item name="android:textAppearance">@style/TextAppearance.VTOP.Chip</item>
         <item name="chipIconTint">?attr/colorPrimary</item>
+        <item name="chipCornerRadius">@dimen/m3_expressive_corner_small</item>
     </style>
 
-    <style name="TextAppearance.VTOP.Chip" parent="TextAppearance.MaterialComponents.Chip">
+    <style name="TextAppearance.VTOP.Chip" parent="TextAppearance.M3.Expressive.LabelLarge">
         <item name="fontFamily">@font/rubik</item>
     </style>
 
@@ -85,4 +86,292 @@
         <item name="android:textStyle">bold</item>
         <item name="android:letterSpacing">0.05</item>
     </style>
+
+    <!-- Material 3 Expressive Typography -->
+    <style name="TextAppearance.M3.Expressive.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">57sp</item>
+        <item name="android:lineHeight">64sp</item>
+        <item name="android:letterSpacing">-0.02</item>
+        <item name="android:fontWeight" tools:targetApi="p">400</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">45sp</item>
+        <item name="android:lineHeight">52sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:fontWeight" tools:targetApi="p">400</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">36sp</item>
+        <item name="android:lineHeight">44sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:fontWeight" tools:targetApi="p">400</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:lineHeight">40sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:fontWeight" tools:targetApi="p">700</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:lineHeight">36sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:fontWeight" tools:targetApi="p">600</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:lineHeight">32sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:fontWeight" tools:targetApi="p">600</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:lineHeight">28sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:fontWeight" tools:targetApi="p">500</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineHeight">24sp</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:fontWeight" tools:targetApi="p">600</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:fontWeight" tools:targetApi="p">600</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineHeight">24sp</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="android:fontWeight" tools:targetApi="p">400</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:fontWeight" tools:targetApi="p">400</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight">16sp</item>
+        <item name="android:letterSpacing">0.04</item>
+        <item name="android:fontWeight" tools:targetApi="p">400</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:fontWeight" tools:targetApi="p">600</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight">16sp</item>
+        <item name="android:letterSpacing">0.05</item>
+        <item name="android:fontWeight" tools:targetApi="p">600</item>
+    </style>
+
+    <style name="TextAppearance.M3.Expressive.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:lineHeight">16sp</item>
+        <item name="android:letterSpacing">0.05</item>
+        <item name="android:fontWeight" tools:targetApi="p">600</item>
+    </style>
+
+    <!-- Material 3 Expressive Card Styles -->
+    <style name="Widget.M3.Expressive.Card.Elevated" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/m3_expressive_corner_medium</item>
+        <item name="cardElevation">@dimen/m3_expressive_elevation_2</item>
+        <item name="contentPadding">@dimen/m3_expressive_spacing_md</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <style name="Widget.M3.Expressive.Card.Filled" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/m3_expressive_corner_medium</item>
+        <item name="cardElevation">0dp</item>
+        <item name="contentPadding">@dimen/m3_expressive_spacing_md</item>
+    </style>
+
+    <style name="Widget.M3.Expressive.Card.Outlined" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardCornerRadius">@dimen/m3_expressive_corner_medium</item>
+        <item name="cardElevation">0dp</item>
+        <item name="contentPadding">@dimen/m3_expressive_spacing_md</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">?attr/colorOutline</item>
+    </style>
+
+    <!-- Material 3 Expressive Button Styles -->
+    <style name="Widget.M3.Expressive.Button.Filled" parent="Widget.Material3.Button">
+        <item name="cornerRadius">@dimen/m3_expressive_corner_full</item>
+        <item name="android:textAppearance">@style/TextAppearance.M3.Expressive.LabelLarge</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">8dp</item>
+        <item name="elevation">@dimen/m3_expressive_elevation_1</item>
+    </style>
+
+    <style name="Widget.M3.Expressive.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="cornerRadius">@dimen/m3_expressive_corner_full</item>
+        <item name="android:textAppearance">@style/TextAppearance.M3.Expressive.LabelLarge</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+    </style>
+
+    <style name="Widget.M3.Expressive.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="cornerRadius">@dimen/m3_expressive_corner_full</item>
+        <item name="android:textAppearance">@style/TextAppearance.M3.Expressive.LabelLarge</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="Widget.M3.Expressive.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="cornerRadius">@dimen/m3_expressive_corner_full</item>
+        <item name="android:textAppearance">@style/TextAppearance.M3.Expressive.LabelLarge</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+    </style>
+
+    <!-- Material 3 Expressive FAB Styles -->
+    <style name="Widget.M3.Expressive.FAB" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.M3.Expressive.FAB</item>
+        <item name="elevation">@dimen/m3_expressive_elevation_3</item>
+        <item name="hoveredFocusedTranslationZ">@dimen/m3_expressive_elevation_4</item>
+        <item name="pressedTranslationZ">@dimen/m3_expressive_elevation_2</item>
+    </style>
+
+    <style name="Widget.M3.Expressive.FAB.Large" parent="Widget.Material3.FloatingActionButton.Large.Primary">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.M3.Expressive.FAB.Large</item>
+        <item name="elevation">@dimen/m3_expressive_elevation_3</item>
+    </style>
+
+    <style name="Widget.M3.Expressive.ExtendedFAB" parent="Widget.Material3.ExtendedFloatingActionButton.Primary">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.M3.Expressive.ExtendedFAB</item>
+        <item name="elevation">@dimen/m3_expressive_elevation_3</item>
+        <item name="android:textAppearance">@style/TextAppearance.M3.Expressive.LabelLarge</item>
+    </style>
+
+    <!-- Material 3 Expressive Chip Styles -->
+    <style name="Widget.M3.Expressive.Chip.Assist" parent="Widget.Material3.Chip.Assist">
+        <item name="chipCornerRadius">@dimen/m3_expressive_corner_small</item>
+        <item name="android:textAppearance">@style/TextAppearance.M3.Expressive.LabelLarge</item>
+        <item name="chipIconSize">@dimen/m3_expressive_icon_size_small</item>
+    </style>
+
+    <style name="Widget.M3.Expressive.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="chipCornerRadius">@dimen/m3_expressive_corner_small</item>
+        <item name="android:textAppearance">@style/TextAppearance.M3.Expressive.LabelLarge</item>
+        <item name="chipIconSize">@dimen/m3_expressive_icon_size_small</item>
+    </style>
+
+    <style name="Widget.M3.Expressive.Chip.Input" parent="Widget.Material3.Chip.Input">
+        <item name="chipCornerRadius">@dimen/m3_expressive_corner_small</item>
+        <item name="android:textAppearance">@style/TextAppearance.M3.Expressive.LabelLarge</item>
+        <item name="chipIconSize">@dimen/m3_expressive_icon_size_small</item>
+    </style>
+
+    <style name="Widget.M3.Expressive.Chip.Suggestion" parent="Widget.Material3.Chip.Suggestion">
+        <item name="chipCornerRadius">@dimen/m3_expressive_corner_small</item>
+        <item name="android:textAppearance">@style/TextAppearance.M3.Expressive.LabelLarge</item>
+        <item name="chipIconSize">@dimen/m3_expressive_icon_size_small</item>
+    </style>
+
+    <!-- Shape Appearance Overlays -->
+    <style name="ShapeAppearance.M3.Expressive" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_expressive_corner_medium</item>
+    </style>
+
+    <style name="ShapeAppearance.M3.Expressive.Small" parent="ShapeAppearance.M3.Expressive">
+        <item name="cornerSize">@dimen/m3_expressive_corner_small</item>
+    </style>
+
+    <style name="ShapeAppearance.M3.Expressive.Medium" parent="ShapeAppearance.M3.Expressive">
+        <item name="cornerSize">@dimen/m3_expressive_corner_medium</item>
+    </style>
+
+    <style name="ShapeAppearance.M3.Expressive.Large" parent="ShapeAppearance.M3.Expressive">
+        <item name="cornerSize">@dimen/m3_expressive_corner_large</item>
+    </style>
+
+    <style name="ShapeAppearance.M3.Expressive.ExtraLarge" parent="ShapeAppearance.M3.Expressive">
+        <item name="cornerSize">@dimen/m3_expressive_corner_extra_large</item>
+    </style>
+
+    <style name="ShapeAppearance.M3.Expressive.Full" parent="ShapeAppearance.M3.Expressive">
+        <item name="cornerSize">@dimen/m3_expressive_corner_full</item>
+    </style>
+
+    <style name="ShapeAppearance.M3.Expressive.FAB" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_expressive_corner_large</item>
+    </style>
+
+    <style name="ShapeAppearance.M3.Expressive.FAB.Large" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_expressive_corner_extra_large</item>
+    </style>
+
+    <style name="ShapeAppearance.M3.Expressive.ExtendedFAB" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/m3_expressive_corner_large</item>
+    </style>
+
+    <!-- Material 3 Expressive Bottom Sheet -->
+    <style name="Widget.M3.Expressive.BottomSheet" parent="Widget.Material3.BottomSheet">
+        <item name="shapeAppearance">@style/ShapeAppearance.M3.Expressive.BottomSheet</item>
+    </style>
+
+    <style name="ShapeAppearance.M3.Expressive.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/m3_expressive_corner_extra_large</item>
+        <item name="cornerSizeTopRight">@dimen/m3_expressive_corner_extra_large</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <!-- Material 3 Expressive Dialog -->
+    <style name="ThemeOverlay.M3.Expressive.Dialog" parent="ThemeOverlay.Material3.Dialog">
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.M3.Expressive.ExtraLarge</item>
+    </style>
+
 </resources>

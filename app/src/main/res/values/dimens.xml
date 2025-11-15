@@ -1,4 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Legacy dimension -->
     <dimen name="widget_corner_radius">28dp</dimen>
+
+    <!-- Material 3 Expressive Shape Dimensions -->
+    <!-- Extra Small Shapes -->
+    <dimen name="m3_expressive_corner_extra_small">8dp</dimen>
+    <dimen name="m3_expressive_corner_extra_small_top">8dp</dimen>
+
+    <!-- Small Shapes -->
+    <dimen name="m3_expressive_corner_small">16dp</dimen>
+    <dimen name="m3_expressive_corner_small_top">16dp</dimen>
+
+    <!-- Medium Shapes (Most common for cards, dialogs) -->
+    <dimen name="m3_expressive_corner_medium">24dp</dimen>
+    <dimen name="m3_expressive_corner_medium_top">24dp</dimen>
+
+    <!-- Large Shapes (FABs, large cards) -->
+    <dimen name="m3_expressive_corner_large">32dp</dimen>
+    <dimen name="m3_expressive_corner_large_top">32dp</dimen>
+    <dimen name="m3_expressive_corner_large_end">32dp</dimen>
+
+    <!-- Extra Large Shapes (Bottom sheets, dialogs) -->
+    <dimen name="m3_expressive_corner_extra_large">40dp</dimen>
+    <dimen name="m3_expressive_corner_extra_large_top">40dp</dimen>
+
+    <!-- Full/Pill Shapes (Buttons, chips) -->
+    <dimen name="m3_expressive_corner_full">100dp</dimen>
+
+    <!-- Material 3 Expressive Spacing -->
+    <dimen name="m3_expressive_spacing_xs">4dp</dimen>
+    <dimen name="m3_expressive_spacing_sm">8dp</dimen>
+    <dimen name="m3_expressive_spacing_md">16dp</dimen>
+    <dimen name="m3_expressive_spacing_lg">24dp</dimen>
+    <dimen name="m3_expressive_spacing_xl">32dp</dimen>
+    <dimen name="m3_expressive_spacing_xxl">48dp</dimen>
+
+    <!-- Material 3 Expressive Elevation -->
+    <dimen name="m3_expressive_elevation_1">2dp</dimen>
+    <dimen name="m3_expressive_elevation_2">4dp</dimen>
+    <dimen name="m3_expressive_elevation_3">8dp</dimen>
+    <dimen name="m3_expressive_elevation_4">12dp</dimen>
+    <dimen name="m3_expressive_elevation_5">16dp</dimen>
+
+    <!-- FAB Sizes -->
+    <dimen name="m3_expressive_fab_size_small">48dp</dimen>
+    <dimen name="m3_expressive_fab_size_normal">64dp</dimen>
+    <dimen name="m3_expressive_fab_size_large">80dp</dimen>
+
+    <!-- Icon Sizes -->
+    <dimen name="m3_expressive_icon_size_small">20dp</dimen>
+    <dimen name="m3_expressive_icon_size_medium">24dp</dimen>
+    <dimen name="m3_expressive_icon_size_large">32dp</dimen>
+
+    <!-- Minimum Touch Target -->
+    <dimen name="m3_expressive_min_touch_target">48dp</dimen>
 </resources>

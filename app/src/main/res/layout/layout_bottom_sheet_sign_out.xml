@@ -2,18 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/m3_expressive_spacing_lg">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="20dp"
-        android:paddingTop="20dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="10dp"
+        android:paddingStart="@dimen/m3_expressive_spacing_lg"
+        android:paddingTop="@dimen/m3_expressive_spacing_lg"
+        android:paddingEnd="@dimen/m3_expressive_spacing_lg"
+        android:paddingBottom="@dimen/m3_expressive_spacing_md"
         android:text="@string/sign_out"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.M3.Expressive.TitleLarge" />
 
     <TextView
         android:id="@+id/text_view_sign_out_app"
@@ -22,10 +22,10 @@
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:paddingStart="30dp"
-        android:paddingTop="18dp"
-        android:paddingEnd="30dp"
-        android:paddingBottom="18dp"
+        android:paddingStart="@dimen/m3_expressive_spacing_xl"
+        android:paddingTop="@dimen/m3_expressive_spacing_md"
+        android:paddingEnd="@dimen/m3_expressive_spacing_xl"
+        android:paddingBottom="@dimen/m3_expressive_spacing_md"
         android:text="@string/sign_out_app"
-        android:textSize="16sp" />
+        android:textAppearance="@style/TextAppearance.M3.Expressive.BodyLarge" />
 </LinearLayout>

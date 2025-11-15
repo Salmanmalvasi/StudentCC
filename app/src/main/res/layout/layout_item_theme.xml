@@ -2,12 +2,11 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/theme_card"
+    style="@style/Widget.M3.Expressive.Card.Elevated"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_margin="@dimen/m3_expressive_spacing_sm"
     app:cardBackgroundColor="?attr/colorSurface"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
     app:strokeColor="?attr/colorOutline"
     app:strokeWidth="1dp">
 
@@ -15,47 +14,53 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="@dimen/m3_expressive_spacing_md">
 
         <!-- Color Preview -->
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/background_card"
-            android:orientation="horizontal">
+            android:layout_height="64dp"
+            android:layout_marginBottom="@dimen/m3_expressive_spacing_md"
+            app:cardCornerRadius="@dimen/m3_expressive_corner_small"
+            app:cardElevation="0dp">
 
-            <View
-                android:id="@+id/primary_color_view"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:orientation="horizontal">
 
-            <View
-                android:id="@+id/primary_container_color_view"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
+                <View
+                    android:id="@+id/primary_color_view"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
-        </LinearLayout>
+                <View
+                    android:id="@+id/primary_container_color_view"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Theme Name -->
         <TextView
             android:id="@+id/theme_name_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.M3.Expressive.TitleMedium"
+            android:textColor="?attr/colorOnSurface" />
 
         <!-- Theme Description -->
         <TextView
             android:id="@+id/theme_description_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="12sp" />
+            android:layout_marginTop="@dimen/m3_expressive_spacing_xs"
+            android:textAppearance="@style/TextAppearance.M3.Expressive.BodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
     </LinearLayout>
 
