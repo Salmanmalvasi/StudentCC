@@ -20,6 +20,10 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 import androidx.core.app.NotificationCompat;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -36,6 +40,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -63,6 +68,7 @@ import tk.therealsuji.vtopchennai.helpers.FirebaseCrashlyticsHelper;
 import tk.therealsuji.vtopchennai.helpers.FirebaseConfigHelper;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 import tk.therealsuji.vtopchennai.helpers.VTOPHelper;
+import tk.therealsuji.vtopchennai.workers.ClassTimeMonitorWorker;
 
 import android.Manifest;
 
@@ -70,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     VTOPHelper vtopHelper;
+    private android.os.Handler handler;
 
     static final String HOME_FRAGMENT_TAG = "HOME_FRAGMENT_TAG";
     static final String PERFORMANCE_FRAGMENT_TAG = "PERFORMANCE_FRAGMENT_TAG";
@@ -383,6 +390,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize handler for delayed operations
+        handler = new android.os.Handler(android.os.Looper.getMainLooper());
+
         // Initialize Firebase Analytics
         FirebaseAnalyticsHelper.initialize(this);
         FirebaseAnalyticsHelper.trackScreenView(this, "MainActivity", "MainActivity");
@@ -455,9 +465,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // Start the class time monitor service
-        Intent serviceIntent = new Intent(this, tk.therealsuji.vtopchennai.services.ClassTimeMonitorService.class);
-        startService(serviceIntent);
+        // Schedule periodic class time monitoring using WorkManager (battery efficient)
+        scheduleClassTimeMonitoring();
 
         // Check student type and hide hostel info tab if day scholar
         checkAndUpdateBottomNavigation();
@@ -684,6 +693,38 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         compositeDisposable.dispose();
+        // Clean up handler to prevent memory leaks
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
+    }
+
+    /**
+     * Schedule periodic class time monitoring using WorkManager.
+     * This is more battery-efficient than a continuously running Service.
+     */
+    private void scheduleClassTimeMonitoring() {
+        // Create constraints for the work
+        Constraints constraints = new Constraints.Builder()
+                .setRequiresBatteryNotLow(true)  // Only run when battery is not low
+                .build();
+
+        // Create periodic work request (runs every 15 minutes, which is the minimum)
+        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(
+                ClassTimeMonitorWorker.class,
+                15, TimeUnit.MINUTES  // Minimum interval allowed by WorkManager
+        )
+        .setConstraints(constraints)
+        .build();
+
+        // Enqueue the work, replacing any existing work with the same tag
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "class_time_monitor",
+                ExistingPeriodicWorkPolicy.KEEP,  // Keep existing work if already scheduled
+                workRequest
+        );
+
+        android.util.Log.d("MainActivity", "Class time monitoring scheduled with WorkManager");
     }
 
     /**
@@ -791,26 +832,26 @@ public class MainActivity extends AppCompatActivity {
      */
     private void testInAppMessaging() {
         // Wait 3 seconds after app launch, then trigger custom events
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+        handler.postDelayed(() -> {
             try {
                 // Trigger multiple events to test different campaign triggers
                 Bundle testBundle = new Bundle();
                 testBundle.putString("test_mode", "true");
                 testBundle.putString("user_type", "student");
-                
+
                 // Test different event names
                 FirebaseAnalyticsHelper.trackCustomEvent(this, "test_in_app_message", testBundle);
                 FirebaseAnalyticsHelper.trackCustomEvent(this, "welcome_message", testBundle);
                 FirebaseAnalyticsHelper.trackCustomEvent(this, "app_ready", testBundle);
-                
+
                 // Also trigger the built-in app_open event
                 FirebaseAnalyticsHelper.trackCustomEvent(this, "app_open", testBundle);
-                
+
                 android.util.Log.d("MainActivity", "Test in-app messaging events triggered");
-                
+
                 // Use FirebaseHelper to trigger In-App Messaging
                 FirebaseHelper.getInstance().testInAppMessaging();
-                
+
             } catch (Exception e) {
                 android.util.Log.e("MainActivity", "Failed to trigger test in-app messaging: " + e.getMessage());
                 FirebaseCrashlyticsHelper.recordException(e);
@@ -863,17 +904,17 @@ public class MainActivity extends AppCompatActivity {
         try {
             InAppMessagingHelper inAppHelper = InAppMessagingHelper.getInstance();
             inAppHelper.initialize(this);
-            
+
             // Log device setup instructions
             InAppMessagingHelper.logTestDeviceInstructions(this);
-            
+
             // Test in-app messaging after a delay
-            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            handler.postDelayed(() -> {
                 inAppHelper.testInAppMessaging();
             }, 5000); // 5 second delay
-            
+
             android.util.Log.d("MainActivity", "In-App Messaging helper initialized");
-            
+
         } catch (Exception e) {
             android.util.Log.e("MainActivity", "Failed to initialize In-App Messaging helper: " + e.getMessage());
         }

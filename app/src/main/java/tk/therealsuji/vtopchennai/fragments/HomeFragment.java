@@ -47,6 +47,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class HomeFragment extends Fragment {
+    private boolean isReceiverRegistered = false;
 
     private FirebaseAnalytics mFirebaseAnalytics;
     private BadgeDrawable spotlightBadge;
@@ -156,8 +157,14 @@ public class HomeFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             if ("CLASS_COUNT_UPDATED".equals(intent.getAction())) {
+                // Guard against destroyed fragment
+                View view = getView();
+                if (view == null || !isAdded()) {
+                    return;
+                }
+
                 int newCount = intent.getIntExtra("newCount", 0);
-                TextView todaysClassesCount = getView().findViewById(R.id.todays_classes_count);
+                TextView todaysClassesCount = view.findViewById(R.id.todays_classes_count);
                 if (todaysClassesCount != null) {
                     if (newCount == 0) {
                         todaysClassesCount.setText("0");
@@ -173,11 +180,18 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         // Register broadcast receiver
-        IntentFilter filter = new IntentFilter("CLASS_COUNT_UPDATED");
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            requireContext().registerReceiver(classCountReceiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            requireContext().registerReceiver(classCountReceiver, filter);
+        if (!isReceiverRegistered) {
+            try {
+                IntentFilter filter = new IntentFilter("CLASS_COUNT_UPDATED");
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    requireContext().registerReceiver(classCountReceiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED);
+                } else {
+                    requireContext().registerReceiver(classCountReceiver, filter);
+                }
+                isReceiverRegistered = true;
+            } catch (Exception e) {
+                android.util.Log.e("HomeFragment", "Error registering receiver", e);
+            }
         }
     }
 
@@ -185,10 +199,14 @@ public class HomeFragment extends Fragment {
     public void onPause() {
         super.onPause();
         // Unregister broadcast receiver
-        try {
-            requireContext().unregisterReceiver(classCountReceiver);
-        } catch (Exception e) {
-            // Receiver might not be registered
+        if (isReceiverRegistered) {
+            try {
+                requireContext().unregisterReceiver(classCountReceiver);
+            } catch (Exception e) {
+                android.util.Log.e("HomeFragment", "Error unregistering receiver", e);
+            } finally {
+                isReceiverRegistered = false;
+            }
         }
     }
 

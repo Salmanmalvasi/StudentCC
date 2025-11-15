@@ -13,6 +13,7 @@ import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import tk.therealsuji.vtopchennai.helpers.AppDatabase;
@@ -53,6 +54,9 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull CoursesAdapter.ViewHolder holder, int position) {
+        // Clear previous subscriptions to prevent memory leaks
+        holder.clearDisposables();
+
         RecyclerView courseView = (RecyclerView) holder.itemView;
 
         AppDatabase appDatabase = AppDatabase.getInstance(this.applicationContext);
@@ -65,6 +69,8 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
                 .subscribe(new SingleObserver<List<Course.AllData>>() {
                     @Override
                     public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                        // Add disposable to prevent memory leak
+                        holder.addDisposable(d);
                     }
 
                     @Override
@@ -85,8 +91,18 @@ public class CoursesAdapter extends RecyclerView.Adapter<CoursesAdapter.ViewHold
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        private final CompositeDisposable disposables = new CompositeDisposable();
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+        }
+
+        public void clearDisposables() {
+            disposables.clear();
+        }
+
+        public void addDisposable(Disposable disposable) {
+            disposables.add(disposable);
         }
     }
 }

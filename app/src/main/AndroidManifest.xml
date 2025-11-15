@@ -65,10 +65,13 @@
             android:foregroundServiceType="dataSync"
             android:label="VTOP" />
 
+        <!-- ClassTimeMonitorService replaced with WorkManager for better battery efficiency -->
+        <!--
         <service
             android:name=".services.ClassTimeMonitorService"
             android:enabled="true"
             android:exported="false" />
+        -->
 
         <service
             android:name=".services.MyFirebaseMessagingService"

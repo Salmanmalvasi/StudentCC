@@ -22,6 +22,7 @@ import java.util.Objects;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.models.Mark;
@@ -52,10 +53,15 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull MarksAdapter.ViewHolder holder, int position) {
+        // Clear previous subscriptions to prevent memory leaks
+        holder.clearDisposables();
+
         this.markObservables.get(position)
                 .subscribe(new Observer<List<Mark.AllData>>() {
                     @Override
                     public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                        // Add disposable to prevent memory leak
+                        holder.addDisposable(d);
                     }
 
                     @Override
@@ -81,6 +87,7 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        private final CompositeDisposable disposables = new CompositeDisposable();
         ChipGroup courseTypes;
         RecyclerView markGroups;
         Map<String, List<Mark.AllData>> marks;
@@ -192,6 +199,14 @@ public class MarksAdapter extends RecyclerView.Adapter<MarksAdapter.ViewHolder> 
 
         public void displayError(String errorMessage) {
             this.markGroups.setAdapter(new EmptyStateAdapter(EmptyStateAdapter.TYPE_ERROR, errorMessage));
+        }
+
+        public void clearDisposables() {
+            disposables.clear();
+        }
+
+        public void addDisposable(Disposable disposable) {
+            disposables.add(disposable);
         }
     }
 }
