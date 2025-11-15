@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -33,6 +34,8 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
     private SwitchMaterial amoledSwitch;
     private MaterialCardView materialYouCard;
     private TextView materialYouDescription;
+    private ImageView materialYouIcon;
+    private ImageView amoledIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,7 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
         materialYouCard = findViewById(R.id.material_you_card);
         materialYouSwitch = findViewById(R.id.material_you_switch);
         materialYouDescription = findViewById(R.id.material_you_description);
+        materialYouIcon = findViewById(R.id.material_you_icon);
 
         // Check if Material You is available (Android 12+)
         boolean isAvailable = SettingsRepository.isMaterialYouAvailable();
@@ -66,6 +70,7 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
         if (!isAvailable) {
             // Disable Material You on older Android versions
             materialYouSwitch.setEnabled(false);
+            materialYouIcon.setEnabled(false);
             materialYouDescription.setText("Requires Android 12 or higher");
         }
 
@@ -85,6 +90,7 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
 
     private void setupAmoledSwitch() {
         amoledSwitch = findViewById(R.id.amoled_switch);
+        amoledIcon = findViewById(R.id.amoled_icon);
 
         // Set initial state
         amoledSwitch.setChecked(SettingsRepository.isAmoledModeEnabled(this));

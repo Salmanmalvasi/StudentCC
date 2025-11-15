@@ -45,6 +45,25 @@
                     android:gravity="center_vertical"
                     android:padding="@dimen/m3_expressive_spacing_md">
 
+                    <!-- Material You Icon -->
+                    <FrameLayout
+                        android:layout_width="@dimen/m3_expressive_min_touch_target"
+                        android:layout_height="@dimen/m3_expressive_min_touch_target"
+                        android:layout_marginEnd="@dimen/m3_expressive_spacing_md">
+
+                        <ImageView
+                            android:id="@+id/material_you_icon"
+                            android:layout_width="@dimen/m3_expressive_icon_size_large"
+                            android:layout_height="@dimen/m3_expressive_icon_size_large"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bg_material_you_badge_stateful"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_palette"
+                            android:tint="@color/material_you_icon_tint"
+                            android:contentDescription="Material You icon" />
+
+                    </FrameLayout>
+
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -93,6 +112,25 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:padding="@dimen/m3_expressive_spacing_md">
+
+                    <!-- AMOLED Icon -->
+                    <FrameLayout
+                        android:layout_width="@dimen/m3_expressive_min_touch_target"
+                        android:layout_height="@dimen/m3_expressive_min_touch_target"
+                        android:layout_marginEnd="@dimen/m3_expressive_spacing_md">
+
+                        <ImageView
+                            android:id="@+id/amoled_icon"
+                            android:layout_width="@dimen/m3_expressive_icon_size_large"
+                            android:layout_height="@dimen/m3_expressive_icon_size_large"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bg_material_you_badge_stateful"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_amoled"
+                            android:tint="@color/material_you_icon_tint"
+                            android:contentDescription="AMOLED icon" />
+
+                    </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="0dp"
