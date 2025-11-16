@@ -92,13 +92,37 @@ The app uses a sophisticated scraping system:
 - **Release**: Optimized builds with ProGuard
 - **Signing**: Uses `studentcc.keystore` for release
 
+### 🧪 Testing
+
+**Test Coverage: 45-55% (108+ tests)**
+
+```bash
+# Run unit tests (fast, no device needed)
+./gradlew test
+
+# Run instrumented tests (requires device/emulator)
+./gradlew connectedAndroidTest
+
+# Generate coverage report
+./gradlew jacocoTestReport
+```
+
+See [TESTING.md](TESTING.md) for complete testing guide.
+
+**Continuous Integration:**
+- ✅ Automated tests run on every push/PR
+- ✅ Unit tests (79 tests) - Ubuntu runner
+- ✅ Instrumented tests (29 tests) - macOS runner with emulator
+- ✅ Lint checks and build verification
+
 ### 🤝 Contributing
 
 1. Fork the repository
 2. Create feature branch
 3. Follow code style guidelines
-4. Test thoroughly
-5. Submit pull request
+4. **Write tests for new features** (see [TESTING.md](TESTING.md))
+5. Ensure all tests pass: `./gradlew test`
+6. Submit pull request
 
 ### 📊 Analytics & Monitoring
 
