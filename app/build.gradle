@@ -15,8 +15,8 @@ android {
         minSdkVersion 24
         targetSdkVersion 34
         compileSdk 34
-        versionCode 8
-        versionName "1.4.0"
+    versionCode 9
+    versionName "1.4.1"
 
         // Vector drawable support for smaller APK
         vectorDrawables.useSupportLibrary = true

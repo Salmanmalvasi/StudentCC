@@ -12,10 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-
-
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -27,6 +25,7 @@ import tk.therealsuji.vtopchennai.adapters.EmptyStateAdapter;
 import tk.therealsuji.vtopchennai.adapters.ReceiptsItemAdapter;
 import tk.therealsuji.vtopchennai.adapters.SpotlightGroupAdapter;
 import tk.therealsuji.vtopchennai.helpers.AppDatabase;
+import tk.therealsuji.vtopchennai.helpers.SpotlightDefaults;
 import tk.therealsuji.vtopchennai.interfaces.ReceiptsDao;
 import tk.therealsuji.vtopchennai.interfaces.SpotlightDao;
 import tk.therealsuji.vtopchennai.models.Receipt;
@@ -87,15 +86,21 @@ public class RecyclerViewFragment extends Fragment {
 
                     @Override
                     public void onSuccess(@NonNull List<Spotlight> spotlight) {
-                        if (spotlight.size() == 0) {
+                        List<Spotlight> combinedSpotlight = new ArrayList<>(spotlight);
+                        combinedSpotlight.addAll(SpotlightDefaults.getEventsAnnouncements());
+
+                        if (combinedSpotlight.isEmpty()) {
                             displayEmptyState(EmptyStateAdapter.TYPE_NO_DATA, null);
                             return;
                         }
 
-                        recyclerView.setAdapter(new SpotlightGroupAdapter(spotlight));
-                        spotlightDao.setRead()
-                                .subscribeOn(Schedulers.single())
-                                .subscribe();
+                        recyclerView.setAdapter(new SpotlightGroupAdapter(combinedSpotlight));
+
+                        if (!spotlight.isEmpty()) {
+                            spotlightDao.setRead()
+                                    .subscribeOn(Schedulers.single())
+                                    .subscribe();
+                        }
                     }
 
                     @Override

@@ -21,6 +21,7 @@ import com.google.android.material.chip.Chip;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.HashMap;
@@ -39,6 +40,7 @@ import tk.therealsuji.vtopchennai.interfaces.TimetableDao;
 import tk.therealsuji.vtopchennai.interfaces.CoursesDao;
 import tk.therealsuji.vtopchennai.interfaces.AttendanceDao;
 import tk.therealsuji.vtopchennai.models.Timetable;
+import tk.therealsuji.vtopchennai.models.Course;
 
 public class AttendanceCalculatorFragment extends Fragment {
 
@@ -100,8 +102,9 @@ public class AttendanceCalculatorFragment extends Fragment {
 
                 Toast.makeText(requireContext(), "Calculating attendance for " + daysDiff + " days...", Toast.LENGTH_SHORT).show();
 
-                // Compute per-course missed counts using timetable
-                computePerCourseMissesAndPreview(total, attended);
+                // Compute per-slot missed counts using timetable
+                buttonApply.setEnabled(false);
+                computeSlotMissesAndPreview(total, attended);
             } catch (Exception e) {
                 android.util.Log.e("AttendanceCalc", "Error calculating attendance", e);
                 Toast.makeText(requireContext(), "Error calculating attendance: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -113,13 +116,97 @@ public class AttendanceCalculatorFragment extends Fragment {
         return view;
     }
 
+    private void renderSlotPreview(AppDatabase db, Map<Integer, Integer> slotMissedMap) {
+        coursePreview.removeAllViews();
+        buttonApply.setEnabled(false);
+
+        if (slotMissedMap == null || slotMissedMap.isEmpty()) {
+            android.util.Log.i("AttendanceCalc", "No slot misses found for preview");
+            Toast.makeText(requireContext(), "No classes found for the selected range", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        CoursesDao coursesDao = db.coursesDao();
+        List<Single<SlotPreview>> previewSingles = new ArrayList<>();
+
+        for (Map.Entry<Integer, Integer> entry : slotMissedMap.entrySet()) {
+            final int slotId = entry.getKey();
+            final int missedCount = entry.getValue();
+
+            previewSingles.add(
+                    coursesDao.getCourse(slotId)
+                .onErrorReturn(throwable -> {
+                android.util.Log.w("AttendanceCalc", "Course lookup failed for slot " + slotId, throwable);
+                return new Course.AllData();
+                })
+                            .map(courseData -> {
+                                String slotLabel = (courseData != null && !TextUtils.isEmpty(courseData.slot))
+                                        ? courseData.slot
+                                        : "Slot " + slotId;
+                                String courseCode = courseData != null ? courseData.courseCode : null;
+                                String courseTitle = courseData != null ? courseData.courseTitle : null;
+                                return new SlotPreview(slotId, slotLabel, courseCode, courseTitle, missedCount);
+                            })
+            );
+        }
+
+        disposables.add(
+                Single.zip(previewSingles, objects -> {
+                    List<SlotPreview> previews = new ArrayList<>(objects.length);
+                    for (Object obj : objects) {
+                        previews.add((SlotPreview) obj);
+                    }
+                    Collections.sort(previews, (a, b) -> {
+                        String labelA = TextUtils.isEmpty(a.slotLabel) ? "" : a.slotLabel;
+                        String labelB = TextUtils.isEmpty(b.slotLabel) ? "" : b.slotLabel;
+                        int labelCompare = labelA.compareToIgnoreCase(labelB);
+                        if (labelCompare != 0) return labelCompare;
+                        String codeA = TextUtils.isEmpty(a.courseCode) ? "" : a.courseCode;
+                        String codeB = TextUtils.isEmpty(b.courseCode) ? "" : b.courseCode;
+                        return codeA.compareToIgnoreCase(codeB);
+                    });
+                    return previews;
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(previewList -> {
+                    lastSlotPreview.clear();
+                    lastSlotPreview.addAll(previewList);
+
+                    coursePreview.removeAllViews();
+                    for (SlotPreview preview : previewList) {
+                        Chip chip = new Chip(requireContext());
+                        chip.setText(buildPreviewLabel(preview));
+                        chip.setCheckable(false);
+                        chip.setClickable(false);
+                        coursePreview.addView(chip);
+                    }
+
+                    boolean hasResults = !previewList.isEmpty();
+                    buttonApply.setEnabled(hasResults);
+
+                    if (hasResults) {
+                        Toast.makeText(requireContext(), "Found " + previewList.size() + " slots", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(requireContext(), "No classes found for the selected range", Toast.LENGTH_SHORT).show();
+                    }
+                }, throwable -> {
+                    android.util.Log.e("AttendanceCalc", "Slot preview error", throwable);
+                    Toast.makeText(requireContext(), "Error preparing preview: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                })
+        );
+    }
 
 
-    private Map<String, Integer> lastCourseMissed = new HashMap<>();
-    private void computePerCourseMissesAndPreview(int overallTotal, int overallAttended) {
+
+    private final Map<Integer, Integer> lastSlotMissed = new HashMap<>();
+    private final List<SlotPreview> lastSlotPreview = new ArrayList<>();
+
+    private void computeSlotMissesAndPreview(int overallTotal, int overallAttended) {
         AppDatabase db = AppDatabase.getInstance(requireContext());
         TimetableDao timetableDao = db.timetableDao();
-        lastCourseMissed.clear();
+        lastSlotMissed.clear();
+        lastSlotPreview.clear();
 
         // Collect all timetable data for the date range first
         List<Single<List<Timetable.AllData>>> timetableRequests = new ArrayList<>();
@@ -135,40 +222,42 @@ public class AttendanceCalculatorFragment extends Fragment {
             c.add(Calendar.DATE, 1);
         }
 
+        if (timetableRequests.isEmpty()) {
+            android.util.Log.w("AttendanceCalc", "No timetable requests generated for the selected range");
+            Toast.makeText(requireContext(), "No classes scheduled in the selected range", Toast.LENGTH_SHORT).show();
+            coursePreview.removeAllViews();
+            buttonApply.setEnabled(false);
+            return;
+        }
+
         // Process all timetable data together
         disposables.add(
                 Single.zip(timetableRequests, objects -> {
-                    // Combine all timetable data
+                    Map<Integer, Integer> previewCounts = new HashMap<>();
+                    Map<Integer, Integer> applyCounts = new HashMap<>();
+
                     for (Object obj : objects) {
                         @SuppressWarnings("unchecked")
                         List<Timetable.AllData> dayData = (List<Timetable.AllData>) obj;
                         for (Timetable.AllData item : dayData) {
-                            if (item.courseCode == null) continue;
-                            lastCourseMissed.put(item.courseCode, lastCourseMissed.getOrDefault(item.courseCode, 0) + 1);
+                            if (item == null || item.slotId == 0) continue;
+
+                            boolean isLab = isLabCourseType(item.courseType);
+                            int previewIncrement = isLab ? 2 : 1;
+                            int applyIncrement = 1;
+
+                            previewCounts.put(item.slotId, previewCounts.getOrDefault(item.slotId, 0) + previewIncrement);
+                            applyCounts.put(item.slotId, applyCounts.getOrDefault(item.slotId, 0) + applyIncrement);
                         }
                     }
-                    return lastCourseMissed;
+                    return new SlotAggregation(previewCounts, applyCounts);
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(courseMissedMap -> {
-                    // Render per-course preview
-                    coursePreview.removeAllViews();
-                    for (Map.Entry<String, Integer> entry : lastCourseMissed.entrySet()) {
-                        TextView tv = new TextView(requireContext());
-                        tv.setText(entry.getKey() + ": -" + entry.getValue() + " classes");
-                        coursePreview.addView(tv);
-                    }
-                    buttonApply.setEnabled(!lastCourseMissed.isEmpty());
-
-                    // Log for debugging
-                    android.util.Log.d("AttendanceCalc", "Found courses: " + lastCourseMissed.keySet());
-
-                    if (lastCourseMissed.isEmpty()) {
-                        Toast.makeText(requireContext(), "No classes found for selected date range", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(requireContext(), "Found " + lastCourseMissed.size() + " courses with classes", Toast.LENGTH_SHORT).show();
-                    }
+                .subscribe(aggregation -> {
+                    lastSlotMissed.clear();
+                    lastSlotMissed.putAll(aggregation.applyCounts);
+                    renderSlotPreview(db, aggregation.previewCounts);
                 }, throwable -> {
                     android.util.Log.e("AttendanceCalc", "Timetable error", throwable);
                     Toast.makeText(requireContext(), "Timetable error: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
@@ -176,134 +265,81 @@ public class AttendanceCalculatorFragment extends Fragment {
         );
     }
 
+    private boolean isLabCourseType(@Nullable String courseType) {
+        if (courseType == null) return false;
+        String normalized = courseType.trim().toLowerCase(Locale.US);
+        if (normalized.isEmpty()) return false;
+        return "lab".equals(normalized) || "l".equals(normalized) || normalized.contains("lab");
+    }
+
     private void applyChanges() {
-        if (lastCourseMissed.isEmpty()) return;
+        if (lastSlotMissed.isEmpty()) {
+            Toast.makeText(requireContext(), "Run a calculation first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         AppDatabase db = AppDatabase.getInstance(requireContext());
         AttendanceDao attendanceDao = db.attendanceDao();
         CoursesDao coursesDao = db.coursesDao();
 
-        android.util.Log.d("AttendanceCalc", "Applying changes for courses: " + lastCourseMissed.keySet());
+        android.util.Log.d("AttendanceCalc", "Applying changes for slots: " + lastSlotMissed.keySet());
 
-        // Track completion and total missed classes
-        final int[] processedCourses = {0};
-        final int totalCourses = lastCourseMissed.size();
+        final int totalSlots = lastSlotMissed.size();
+        final int[] processedSlots = {0};
         final int[] totalMissedClasses = {0};
 
-        // For each course code, fetch id and update totals: total += missed, percentage recomputed conservatively using existing attended
-        for (Map.Entry<String, Integer> entry : lastCourseMissed.entrySet()) {
-            String courseCode = entry.getKey();
-            int missed = entry.getValue();
-            totalMissedClasses[0] += missed;
-
-            android.util.Log.d("AttendanceCalc", "Processing course: " + courseCode + " with " + missed + " missed classes");
+        for (Map.Entry<Integer, Integer> entry : lastSlotMissed.entrySet()) {
+            final int slotId = entry.getKey();
+            final int missedCount = entry.getValue();
 
             disposables.add(
-                    coursesDao.getCourse(courseCode)
+                    coursesDao.getCourse(slotId)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(list -> {
-                                android.util.Log.d("AttendanceCalc", "Got course data for " + courseCode + ": " + (list != null ? list.size() : "null"));
-
-                                if (list == null || list.isEmpty()) {
-                                    android.util.Log.w("AttendanceCalc", "No course data found for " + courseCode);
-                                    processedCourses[0]++;
-                                    checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
+                            .subscribe(courseData -> {
+                                if (courseData == null || courseData.courseId == null) {
+                                    android.util.Log.w("AttendanceCalc", "No course data found for slot " + slotId);
+                                    processedSlots[0]++;
+                                    checkCompletion(processedSlots[0], totalSlots, totalMissedClasses[0]);
                                     return;
                                 }
 
-                                tk.therealsuji.vtopchennai.models.Course.AllData data = list.get(0);
-                                android.util.Log.d("AttendanceCalc", "Course " + courseCode + " - Total: " + data.attendanceTotal + ", Attended: " + data.attendanceAttended);
+                                Integer attendanceTotal = courseData.attendanceTotal;
+                                Integer attendanceAttended = courseData.attendanceAttended;
 
-                                if (data.attendanceTotal == null || data.attendanceAttended == null) {
-                                    android.util.Log.w("AttendanceCalc", "Null attendance data for " + courseCode);
-                                    processedCourses[0]++;
-                                    checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
+                                if (attendanceTotal == null || attendanceAttended == null) {
+                                    android.util.Log.w("AttendanceCalc", "Null attendance data for slot " + slotId);
+                                    processedSlots[0]++;
+                                    checkCompletion(processedSlots[0], totalSlots, totalMissedClasses[0]);
                                     return;
                                 }
 
-                                int newTotal = Math.max(0, data.attendanceTotal + missed);
-                                int newPercentage = newTotal == 0 ? 0 : (int) Math.ceil((data.attendanceAttended * 100.0) / newTotal);
-
-                                android.util.Log.d("AttendanceCalc", "Course " + courseCode + " - New Total: " + newTotal + ", New Percentage: " + newPercentage);
-
-                                // Always try the original course code first
-                                final String courseCodeToTry = courseCode;
+                                int newTotal = Math.max(0, attendanceTotal + missedCount);
+                                int newPercentage = newTotal == 0 ? 0 : (int) Math.ceil((attendanceAttended * 100.0) / newTotal);
 
                                 disposables.add(
-                                        coursesDao.getCourseIdByCode(courseCodeToTry)
+                                        attendanceDao.updateTotals(courseData.courseId, newTotal, newPercentage)
                                                 .subscribeOn(Schedulers.io())
                                                 .observeOn(AndroidSchedulers.mainThread())
-                                                .subscribe(courseId -> {
-                                                    android.util.Log.d("AttendanceCalc", "Got course ID for " + courseCode + ": " + courseId);
-
-                                                    if (courseId != null) {
-                                                        disposables.add(
-                                                                attendanceDao.updateTotals(courseId, newTotal, newPercentage)
-                                                                        .subscribeOn(Schedulers.io())
-                                                                        .observeOn(AndroidSchedulers.mainThread())
-                                                                        .subscribe(() -> {
-                                                                            android.util.Log.d("AttendanceCalc", "Successfully updated attendance for " + courseCode);
-                                                                            processedCourses[0]++;
-                                                                            checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                                                        }, err -> {
-                                                                            android.util.Log.e("AttendanceCalc", "Error updating attendance for " + courseCode, err);
-                                                                            processedCourses[0]++;
-                                                                            checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                                                        })
-                                                        );
-                                                    } else {
-                                                        // If course ID is null and we tried a modified code, try the original
-                                                        if (!courseCodeToTry.equals(courseCode)) {
-                                                            android.util.Log.d("AttendanceCalc", "Trying original course code: " + courseCode);
-                                                            disposables.add(
-                                                                    coursesDao.getCourseIdByCode(courseCode)
-                                                                            .subscribeOn(Schedulers.io())
-                                                                            .observeOn(AndroidSchedulers.mainThread())
-                                                                            .subscribe(originalCourseId -> {
-                                                                                if (originalCourseId != null) {
-                                                                                    disposables.add(
-                                                                                            attendanceDao.updateTotals(originalCourseId, newTotal, newPercentage)
-                                                                                                    .subscribeOn(Schedulers.io())
-                                                                                                    .observeOn(AndroidSchedulers.mainThread())
-                                                                                                    .subscribe(() -> {
-                                                                                                        android.util.Log.d("AttendanceCalc", "Successfully updated attendance for " + courseCode);
-                                                                                                        processedCourses[0]++;
-                                                                                                        checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                                                                                    }, err -> {
-                                                                                                        android.util.Log.e("AttendanceCalc", "Error updating attendance for " + courseCode, err);
-                                                                                                        processedCourses[0]++;
-                                                                                                        checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                                                                                    })
-                                                                                    );
-                                                                                } else {
-                                                                                    android.util.Log.w("AttendanceCalc", "Null course ID for both " + courseCodeToTry + " and " + courseCode);
-                                                                                    processedCourses[0]++;
-                                                                                    checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                                                                }
-                                                                            }, err -> {
-                                                                                android.util.Log.e("AttendanceCalc", "Error getting course ID for " + courseCode, err);
-                                                                                processedCourses[0]++;
-                                                                                checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                                                            })
-                                                            );
-                                                        } else {
-                                                            android.util.Log.w("AttendanceCalc", "Null course ID for " + courseCode);
-                                                            processedCourses[0]++;
-                                                            checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
-                                                        }
-                                                    }
+                                                .subscribe(() -> {
+                                                    android.util.Log.d("AttendanceCalc", "Updated attendance for slot " + slotId + " (courseId=" + courseData.courseId + ")");
+                                                    totalMissedClasses[0] += missedCount;
+                                                    processedSlots[0]++;
+                                                    checkCompletion(processedSlots[0], totalSlots, totalMissedClasses[0]);
                                                 }, err -> {
-                                                    android.util.Log.e("AttendanceCalc", "Error getting course ID for " + courseCode, err);
-                                                    processedCourses[0]++;
-                                                    checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
+                                                    android.util.Log.e("AttendanceCalc", "Error updating attendance for slot " + slotId, err);
+                                                    processedSlots[0]++;
+                                                    checkCompletion(processedSlots[0], totalSlots, totalMissedClasses[0]);
                                                 })
                                 );
                             }, err -> {
-                                processedCourses[0]++;
-                                checkCompletion(processedCourses[0], totalCourses, totalMissedClasses[0]);
+                                android.util.Log.e("AttendanceCalc", "Error loading course for slot " + slotId, err);
+                                processedSlots[0]++;
+                                checkCompletion(processedSlots[0], totalSlots, totalMissedClasses[0]);
                             })
             );
         }
+
         Toast.makeText(requireContext(), "Applied simulated changes", Toast.LENGTH_SHORT).show();
     }
 
@@ -339,6 +375,47 @@ public class AttendanceCalculatorFragment extends Fragment {
                 "Attendance updated! Please refresh the home page to see changes.",
                 android.widget.Toast.LENGTH_LONG
             ).show();
+        }
+    }
+
+    private String buildPreviewLabel(SlotPreview preview) {
+        StringBuilder label = new StringBuilder();
+        String slotSegment = TextUtils.isEmpty(preview.slotLabel) ? ("Slot " + preview.slotId) : preview.slotLabel;
+        label.append(slotSegment);
+
+        if (!TextUtils.isEmpty(preview.courseCode)) {
+            label.append(" · ").append(preview.courseCode);
+        } else if (!TextUtils.isEmpty(preview.courseTitle)) {
+            label.append(" · ").append(preview.courseTitle);
+        }
+
+        label.append(" : Missed ").append(preview.missedCount).append(preview.missedCount == 1 ? " class" : " classes");
+        return label.toString();
+    }
+
+    private static class SlotAggregation {
+        final Map<Integer, Integer> previewCounts;
+        final Map<Integer, Integer> applyCounts;
+
+        SlotAggregation(Map<Integer, Integer> previewCounts, Map<Integer, Integer> applyCounts) {
+            this.previewCounts = previewCounts;
+            this.applyCounts = applyCounts;
+        }
+    }
+
+    private static class SlotPreview {
+        final int slotId;
+        final String slotLabel;
+        final String courseCode;
+        final String courseTitle;
+        final int missedCount;
+
+        SlotPreview(int slotId, String slotLabel, String courseCode, String courseTitle, int missedCount) {
+            this.slotId = slotId;
+            this.slotLabel = slotLabel;
+            this.courseCode = courseCode;
+            this.courseTitle = courseTitle;
+            this.missedCount = missedCount;
         }
     }
 

@@ -109,6 +109,21 @@ public class ProfileFragment extends Fragment {
                     null
             ),
             new ItemData(
+                    R.drawable.ic_calendar,
+                    R.string.skip_advisor,
+                    context -> {
+                        if (!isAdded()) return;
+                        FragmentActivity activity = requireActivity();
+                        SkipAdvisorFragment fragment = new SkipAdvisorFragment();
+                        activity.getSupportFragmentManager().beginTransaction()
+                                .setCustomAnimations(R.anim.slide_in_right, 0, 0, R.anim.slide_out_right)
+                                .add(android.R.id.content, fragment)
+                                .addToBackStack(null)
+                                .commit();
+                    },
+                    null
+            ),
+            new ItemData(
                     R.drawable.ic_staff,
                     R.string.faculty_details,
                     context -> {
@@ -260,6 +275,79 @@ public class ProfileFragment extends Fragment {
                         requireContext().startActivity(intent);
                     },
                     null
+            ),
+            new ItemData(
+                    R.drawable.ic_sync,
+                    R.string.sync_video_theme,
+                    context -> {
+                        if (!isAdded()) return;
+                        String[] videoThemes = {
+                                context.getString(R.string.marvel_theme),
+                                context.getString(R.string.got_theme),
+                                context.getString(R.string.f1_theme),
+                                context.getString(R.string.matrix_theme)
+                        };
+
+                        SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(requireContext());
+
+                        int checkedItem = 0;
+                        String currentTheme = sharedPreferences.getString("sync_video_theme", "marvel");
+
+                        if (currentTheme.equals("got")) {
+                            checkedItem = 1;
+                        } else if (currentTheme.equals("f1")) {
+                            checkedItem = 2;
+                        } else if (currentTheme.equals("matrix")) {
+                            checkedItem = 3;
+                        }
+
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
+                                .setSingleChoiceItems(videoThemes, checkedItem, (dialogInterface, i) -> {
+                                    if (i == 0) {
+                                        sharedPreferences.edit().putString("sync_video_theme", "marvel").apply();
+                                        Toast.makeText(requireContext(), "Marvel theme selected", Toast.LENGTH_SHORT).show();
+                                    } else if (i == 1) {
+                                        sharedPreferences.edit().putString("sync_video_theme", "got").apply();
+                                        Toast.makeText(requireContext(), "Game of Thrones theme selected", Toast.LENGTH_SHORT).show();
+                                    } else if (i == 2) {
+                                        sharedPreferences.edit().putString("sync_video_theme", "f1").apply();
+                                        Toast.makeText(requireContext(), "Formula 1 theme selected", Toast.LENGTH_SHORT).show();
+                                    } else if (i == 3) {
+                                        sharedPreferences.edit().putString("sync_video_theme", "matrix").apply();
+                                        Toast.makeText(requireContext(), "The Matrix theme selected", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    dialogInterface.dismiss();
+                                })
+                                .setTitle(R.string.sync_video_theme)
+                                .show();
+                    },
+                    null
+            ),
+            new ItemData(
+                    R.drawable.ic_notifications,
+                    R.string.mute_sync_video,
+                    context -> {
+                        if (!isAdded()) return;
+                        // This will be a toggle switch handled by the extra view
+                    },
+                    profileItem -> {
+                        MaterialSwitch muteSwitch = new MaterialSwitch(profileItem.getContext());
+                        muteSwitch.setChecked(SettingsRepository.getSharedPreferences(requireContext()).getBoolean("sync_video_muted", false));
+                        muteSwitch.setOnCheckedChangeListener((compoundButton, isMuted) -> {
+                            SettingsRepository.getSharedPreferences(requireContext()).edit().putBoolean("sync_video_muted", isMuted).apply();
+                            if (isMuted) {
+                                Toast.makeText(requireContext(), "Sync video will be muted", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(requireContext(), "Sync video will play with sound", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        
+                        RelativeLayout extraContainer = profileItem.findViewById(R.id.relative_layout_extra_container);
+                        extraContainer.addView(muteSwitch);
+                        extraContainer.setVisibility(View.VISIBLE);
+                    }
             )
     };
 

@@ -25,8 +25,10 @@ public interface CoursesDao {
     @Query("SELECT DISTINCT code FROM courses, slots WHERE slots.course_id = courses.id ORDER BY slot")
     Single<List<String>> getCourseCodes();
 
-    @Query("SELECT courses.id AS courseId, title AS courseTitle, code AS courseCode, type AS courseType, faculty, slot, venue, attended AS attendanceAttended, total AS attendanceTotal, percentage AS attendancePercentage " +
-            "FROM slots, courses, attendance WHERE slots.id = :slotId AND courses.id = slots.course_id AND attendance.course_id = courses.id")
+    @Query("SELECT courses.id AS courseId, title AS courseTitle, code AS courseCode, type AS courseType, faculty, slot, venue, attendance.attended AS attendanceAttended, attendance.total AS attendanceTotal, attendance.percentage AS attendancePercentage " +
+            "FROM slots JOIN courses ON courses.id = slots.course_id " +
+            "LEFT JOIN attendance ON attendance.course_id = courses.id " +
+            "WHERE slots.id = :slotId")
     Single<Course.AllData> getCourse(int slotId);
 
     @Query("SELECT courses.id AS courseId, title AS courseTitle, type AS courseType, faculty, slot, venue, attended AS attendanceAttended, total AS attendanceTotal, percentage AS attendancePercentage " +

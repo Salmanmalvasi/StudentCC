@@ -35,6 +35,7 @@ import tk.therealsuji.vtopchennai.models.LaundrySchedule;
 import tk.therealsuji.vtopchennai.models.Mark;
 import tk.therealsuji.vtopchennai.models.MessMenu;
 import tk.therealsuji.vtopchennai.models.Receipt;
+import tk.therealsuji.vtopchennai.models.SkipRecommendation;
 import tk.therealsuji.vtopchennai.models.Slot;
 import tk.therealsuji.vtopchennai.models.Spotlight;
 import tk.therealsuji.vtopchennai.models.Staff;
@@ -54,16 +55,18 @@ import tk.therealsuji.vtopchennai.models.Timetable;
                 Mark.class,
                 MessMenu.class,
                 Receipt.class,
+                SkipRecommendation.class,
                 Slot.class,
                 Spotlight.class,
                 Staff.class,
                 Timetable.class
         },
-    version = 6,
+    version = 7,
         autoMigrations = {
                 @AutoMigration(from = 1, to = 2),
                 @AutoMigration(from = 3, to = 4),
                 @AutoMigration(from = 5, to = 6),
+                @AutoMigration(from = 6, to = 7),
         }
 )
 public abstract class AppDatabase extends RoomDatabase {

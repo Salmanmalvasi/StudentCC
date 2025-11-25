@@ -23,4 +23,7 @@ public interface AttendanceDao {
 
     @Query("SELECT * FROM attendance WHERE course_id = :courseId LIMIT 1")
     Single<tk.therealsuji.vtopchennai.models.Attendance> getAttendanceByCourseId(int courseId);
+    
+    @Query("SELECT * FROM attendance")
+    Single<List<Attendance>> getAll();
 }

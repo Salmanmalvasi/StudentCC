@@ -6,9 +6,9 @@
     <!-- LoginActivity Strings -->
     <string name="login_header">Login</string>
     <string name="login_description">Sign in using your VTOP credentials</string>
-    <string name="thank_you_1k">🎉 Thanks for 3K Downloads! 🎉</string>
-    <string name="thank_you_1k_split">🎉 Thanks for 3K Downloads! Share with friends! 🚀</string>
-    <string name="thank_you_1k_multiline">🎉 Thanks for 3K Downloads!\nShare with your friends! 🚀</string>
+    <string name="thank_you_1k">🎉 Thanks for 5K Downloads! 🎉</string>
+    <string name="thank_you_1k_split">🎉 Thanks for 5K Downloads! Share with friends! 🚀</string>
+    <string name="thank_you_1k_multiline">🎉 Thanks for 5K Downloads!\nShare with your friends! 🚀</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="sign_in">Sign In</string>
@@ -80,6 +80,12 @@
     <string name="receipts">Receipts</string>
     <string name="staff">Staff</string>
     <string name="sync_data">Sync Data</string>
+    <string name="sync_video_theme">Sync Video Theme</string>
+    <string name="marvel_theme">Marvel</string>
+    <string name="got_theme">Game of Thrones</string>
+    <string name="f1_theme">Formula 1</string>
+    <string name="matrix_theme">The Matrix</string>
+    <string name="mute_sync_video">Mute Sync Video</string>
     <string name="notifications">Notifications</string>
     <string name="share">Share App</string>
 
@@ -297,4 +303,36 @@
     <string name="no_search_results">No results found for \"%s\"</string>
     <string name="error_loading_faculty">Error loading faculty data</string>
     <string name="search_faculty">Search faculty by name, school, or designation</string>
+        <string name="message_faculty_details_disclaimer">Details may have changed. Please verify once.</string>
+        <string name="action_close">Close</string>
+        <string name="action_incorrect">Incorrect</string>
+        <string name="action_add_favorite">Add to favourites</string>
+        <string name="action_remove_favorite">Remove from favourites</string>
+        <string name="chip_show_favorites">Show favourites only</string>
+    <string name="content_description_toggle_favorite">Toggle favourite</string>
+    <string name="no_favorites_saved">You haven\'t marked any favourites yet.</string>
+
+    <!-- Skip Advisor Strings -->
+    <string name="skip_advisor">Skip Advisor</string>
+    <string name="skip_advisor_title">Smart Skip Advisor</string>
+    <string name="skip_advisor_description">AI-powered recommendations for which classes you can safely skip while maintaining 85%+ overall and 75%+ per-course attendance</string>
+    <string name="skip_score">Skip Score</string>
+    <string name="safe_to_skip">✅ Safe to Skip</string>
+    <string name="skip_with_caution">⚠️ Skip with Caution</string>
+    <string name="not_recommended">❌ Not Recommended</string>
+    <string name="critical_dont_skip">🚨 Don\'t Skip - Attendance Risk</string>
+    <string name="low_impact">Low Impact</string>
+    <string name="medium_impact">Medium Impact</string>
+    <string name="high_impact">High Impact</string>
+    <string name="very_low_impact">Very Low Impact</string>
+    <string name="attendance_projection">Current: %.1f%% → After skip: %.1f%%</string>
+    <string name="long_weekend_opportunity">🎉 Long weekend opportunity</string>
+    <string name="exam_approaching">⚠️ Exam approaching</string>
+    <string name="lab_critical">⚠️ Lab class (more important)</string>
+    <string name="theory_less_critical">✅ Theory class (less critical)</string>
+    <string name="safe_attendance_buffer">✅ Safe attendance buffer</string>
+    <string name="no_upcoming_classes">No upcoming classes to analyze</string>
+    
+    <!-- Sync Video Strings -->
+    <string name="syncing_data">Syncing your data…</string>
 </resources>

@@ -12,6 +12,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Toast;
+import android.widget.VideoView;
+import android.widget.ImageView;
+import android.view.View;
+import android.app.Dialog;
+import android.media.MediaPlayer;
+import android.os.Handler;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -63,6 +69,7 @@ import tk.therealsuji.vtopchennai.helpers.FirebaseMessagingHelper;
 import tk.therealsuji.vtopchennai.helpers.FirebaseCrashlyticsHelper;
 import tk.therealsuji.vtopchennai.helpers.FirebaseConfigHelper;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
+import tk.therealsuji.vtopchennai.helpers.SpotlightDefaults;
 import tk.therealsuji.vtopchennai.helpers.VTOPHelper;
 
 import android.Manifest;
@@ -72,6 +79,12 @@ public class MainActivity extends AppCompatActivity {
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     VTOPHelper vtopHelper;
     private boolean classTimeMonitorStarted = false;
+    private Dialog syncVideoDialog;
+    private VideoView syncVideoView;
+    private ImageView muteIndicator;
+    private MediaPlayer mediaPlayer;
+    private boolean isVideoMuted = false;
+    private Handler muteIndicatorHandler = new Handler();
 
     static final String HOME_FRAGMENT_TAG = "HOME_FRAGMENT_TAG";
     static final String PERFORMANCE_FRAGMENT_TAG = "PERFORMANCE_FRAGMENT_TAG";
@@ -173,6 +186,173 @@ public class MainActivity extends AppCompatActivity {
     private void syncData() {
         vtopHelper.bind();
         vtopHelper.start();
+    }
+
+    private void showSyncVideoDialog() {
+        if (syncVideoDialog == null) {
+            // Inflate the video dialog layout
+            android.view.View dialogView = getLayoutInflater().inflate(R.layout.layout_dialog_sync_video, null);
+            syncVideoView = dialogView.findViewById(R.id.video_view_sync);
+            muteIndicator = dialogView.findViewById(R.id.image_view_mute_indicator);
+
+            // Create fullscreen dialog
+            syncVideoDialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+            syncVideoDialog.setContentView(dialogView);
+            syncVideoDialog.setCancelable(false);
+            
+            // Get user's selected video theme from preferences
+            SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this);
+            String videoTheme = sharedPreferences.getString("sync_video_theme", "marvel");
+            isVideoMuted = sharedPreferences.getBoolean("sync_video_muted", false);
+            
+            // Determine video file based on theme
+            String videoFileName;
+            if (videoTheme.equals("got")) {
+                videoFileName = "got.mp4";
+            } else if (videoTheme.equals("f1")) {
+                videoFileName = "f1.mp4";
+            } else if (videoTheme.equals("matrix")) {
+                videoFileName = "matrix.mp4";
+            } else {
+                videoFileName = "marvel.mp4";
+            }
+            
+            // Set up video from assets folder
+            try {
+                // Copy video from assets to cache and play it
+                java.io.File cacheFile = new java.io.File(getCacheDir(), videoFileName);
+                if (!cacheFile.exists()) {
+                    java.io.InputStream inputStream = getAssets().open(videoFileName);
+                    java.io.FileOutputStream outputStream = new java.io.FileOutputStream(cacheFile);
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = inputStream.read(buffer)) > 0) {
+                        outputStream.write(buffer, 0, length);
+                    }
+                    outputStream.close();
+                    inputStream.close();
+                }
+                syncVideoView.setVideoPath(cacheFile.getAbsolutePath());
+            } catch (Exception e) {
+                android.util.Log.e("MainActivity", "Error loading video from assets", e);
+            }
+
+            // Set video to loop and apply mute setting
+            syncVideoView.setOnPreparedListener(mp -> {
+                mediaPlayer = mp;
+                mp.setLooping(true);
+                
+                // Set volume based on mute preference
+                if (isVideoMuted) {
+                    mp.setVolume(0f, 0f);
+                } else {
+                    mp.setVolume(1f, 1f);
+                }
+                
+                mp.start();
+            });
+
+            // Handle errors
+            syncVideoView.setOnErrorListener((mp, what, extra) -> {
+                android.util.Log.e("MainActivity", "Video playback error: " + what + ", " + extra);
+                return true;
+            });
+
+            // Add tap-to-mute functionality
+            syncVideoView.setOnClickListener(v -> {
+                if (mediaPlayer != null) {
+                    isVideoMuted = !isVideoMuted;
+                    
+                    // Toggle volume
+                    if (isVideoMuted) {
+                        mediaPlayer.setVolume(0f, 0f);
+                    } else {
+                        mediaPlayer.setVolume(1f, 1f);
+                    }
+                    
+                    // Save preference
+                    SettingsRepository.getSharedPreferences(MainActivity.this)
+                            .edit()
+                            .putBoolean("sync_video_muted", isVideoMuted)
+                            .apply();
+                    
+                    // Show mute indicator
+                    showMuteIndicator();
+                }
+            });
+        }
+
+        if (!syncVideoDialog.isShowing()) {
+            syncVideoDialog.show();
+            syncVideoView.start();
+        }
+    }
+
+    private void showMuteIndicator() {
+        if (muteIndicator != null) {
+            // Update icon based on mute state
+            if (isVideoMuted) {
+                muteIndicator.setImageResource(android.R.drawable.ic_lock_silent_mode);
+            } else {
+                muteIndicator.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
+            }
+            
+            // Show indicator
+            muteIndicator.setVisibility(View.VISIBLE);
+            muteIndicator.setAlpha(0f);
+            muteIndicator.animate()
+                    .alpha(1f)
+                    .setDuration(200)
+                    .start();
+            
+            // Remove any pending hide callbacks
+            muteIndicatorHandler.removeCallbacksAndMessages(null);
+            
+            // Hide after 1.5 seconds
+            muteIndicatorHandler.postDelayed(() -> {
+                if (muteIndicator != null) {
+                    muteIndicator.animate()
+                            .alpha(0f)
+                            .setDuration(200)
+                            .withEndAction(() -> {
+                                if (muteIndicator != null) {
+                                    muteIndicator.setVisibility(View.GONE);
+                                }
+                            })
+                            .start();
+                }
+            }, 1500);
+        }
+    }
+
+    private void hideSyncVideoDialog() {
+        if (syncVideoDialog != null && syncVideoDialog.isShowing()) {
+            if (syncVideoView != null && syncVideoView.isPlaying()) {
+                syncVideoView.stopPlayback();
+            }
+            syncVideoDialog.dismiss();
+        }
+    }
+
+    private void resetSyncVideoDialog() {
+        hideSyncVideoDialog();
+        
+        // Remove pending handler callbacks
+        muteIndicatorHandler.removeCallbacksAndMessages(null);
+        
+        // Clean up references
+        if (syncVideoDialog != null) {
+            syncVideoDialog = null;
+        }
+        if (syncVideoView != null) {
+            syncVideoView = null;
+        }
+        if (muteIndicator != null) {
+            muteIndicator = null;
+        }
+        if (mediaPlayer != null) {
+            mediaPlayer = null;
+        }
     }
 
     private void hideBottomNavigationView() {
@@ -296,13 +476,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getUnreadCount() {
-        AppDatabase appDatabase = AppDatabase.getInstance(this.getApplicationContext());
-        Bundle unreadCount = new Bundle();
+    AppDatabase appDatabase = AppDatabase.getInstance(this.getApplicationContext());
+    Bundle unreadCount = new Bundle();
 
-        Observable.concat(
-                        Observable.just(0), // Always return 0 for spotlight since we're using custom events announcement
-                        Observable.fromSingle(appDatabase.marksDao().getMarksUnreadCount())
-                )
+    SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this);
+    boolean eventsViewed = sharedPreferences.getBoolean("has_viewed_events_announcement", false);
+    int defaultSpotlightUnread = eventsViewed ? 0 : SpotlightDefaults.getEventsAnnouncementsCount();
+
+    Observable.concat(
+            Observable.fromSingle(
+                appDatabase.spotlightDao()
+                    .getUnreadCount()
+                    .map(count -> count + defaultSpotlightUnread)
+                    .onErrorReturnItem(defaultSpotlightUnread)
+            ),
+            Observable.fromSingle(appDatabase.marksDao().getMarksUnreadCount())
+        )
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Integer>() {
@@ -343,49 +532,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Check if the app has been updated and automatically log out the user if so.
-     * This ensures users must re-authenticate after app updates for security.
+     * Persist the last seen app version so future updates can react once without clearing sessions.
      */
-    private void checkForAppUpdateAndLogout() {
-        // Use a dedicated preferences file for version tracking that is NOT cleared on logout
+    private void ensureVersionTracking() {
         SharedPreferences versionPrefs = getSharedPreferences("app_version_prefs", MODE_PRIVATE);
         int currentVersionCode = BuildConfig.VERSION_CODE;
         int lastVersionCode = versionPrefs.getInt("lastVersionCode", 0);
 
-        // Check if user has credentials (is logged in)
-        SharedPreferences encryptedPrefs = SettingsRepository.getEncryptedSharedPreferences(this);
-        boolean hasCredentials = false;
-
-        if (encryptedPrefs != null) {
-            String username = encryptedPrefs.getString("username", "");
-            hasCredentials = username != null && username.length() > 0;
+        if (lastVersionCode != currentVersionCode) {
+            versionPrefs.edit().putInt("lastVersionCode", currentVersionCode).apply();
         }
-
-        // If this is NOT the first run AND version has changed AND user is logged in
-        if (lastVersionCode != 0 && lastVersionCode != currentVersionCode && hasCredentials) {
-            // Show toast to inform user about the security logout
-            Toast.makeText(this, "App updated - please log in again for security", Toast.LENGTH_SHORT).show();
-
-            // Force complete logout for security
-            SettingsRepository.signOut(this);
-
-            // Redirect to login activity
-            Intent loginIntent = new Intent(this, LoginActivity.class);
-            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(loginIntent);
-            finish();
-            return;
-        }
-
-        // Store current version code for next launch
-        versionPrefs.edit().putInt("lastVersionCode", currentVersionCode).apply();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // FIRST PRIORITY: Check for app update and auto-logout if version changed
-        // This must happen before anything else to ensure security
-        checkForAppUpdateAndLogout();
+    // Record the running app version early so update-specific logic can act once per release
+        ensureVersionTracking();
 
         boolean amoledMode = SettingsRepository.getSharedPreferences(this).getBoolean("amoledMode", false);
         // Disable dynamic colors (use custom theme)
@@ -582,15 +744,24 @@ public class MainActivity extends AppCompatActivity {
             public void onLoading(boolean isLoading) {
                 syncDataState.putBoolean("isLoading", isLoading);
                 getSupportFragmentManager().setFragmentResult("syncDataState", syncDataState);
+                
+                // Show video when syncing starts, hide when it stops
+                if (isLoading) {
+                    showSyncVideoDialog();
+                } else {
+                    hideSyncVideoDialog();
+                }
             }
 
             @Override
             public void onForceSignOut() {
+                hideSyncVideoDialog();
                 signOut();
             }
 
             @Override
             public void onComplete() {
+                hideSyncVideoDialog();
                 // After a manual sync completes, sync hostel data and push laundry countdown notification for hostellers
                 try {
                     SharedPreferences enc = tk.therealsuji.vtopchennai.helpers.SettingsRepository.getEncryptedSharedPreferences(MainActivity.this);
@@ -672,7 +843,10 @@ public class MainActivity extends AppCompatActivity {
         // Update bottom navigation based on student type
         checkAndUpdateBottomNavigation();
 
-
+        // Reset video dialog when resuming to ensure new theme is loaded if changed
+        if (syncVideoDialog != null && !syncVideoDialog.isShowing()) {
+            resetSyncVideoDialog();
+        }
     }
 
     @Override
@@ -706,6 +880,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         compositeDisposable.dispose();
+        
+        // Clean up video dialog
+        resetSyncVideoDialog();
     }
 
     /**

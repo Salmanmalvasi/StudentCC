@@ -20,6 +20,12 @@
   <p><strong>BETA VERSION</strong> - Enhanced with modern features and improved user experience</p>
 </div>
 
+## 🆕 What's new in v1.4.1
+
+- Slot-based attendance calculator now weights lab sessions accurately during previews while keeping overall totals precise
+- Faculty popup adds favourites toggle and incorrect-action quick report
+- Stability fixes to prevent crashes during timetable slot previews
+
 ## 🚀 Features
 
 ### 📊 **Advanced GPA Calculator**
@@ -309,5 +315,5 @@ Your feedback is crucial for improving StudentCC! Please:
 
 <div align="center">
   <p><strong>StudentCC</strong> - Made with ❤️ for VIT Students</p>
-  <p><em>Enhanced Version 1.3.0 - Now with Ultra-Modern Themes & Collaboration Features</em></p>
+  <p><em>Enhanced Version 1.4.1 - Attendance upgrades, faculty favourites, and lab precision</em></p>
 </div>
