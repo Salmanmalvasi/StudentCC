@@ -20,13 +20,15 @@ public class ThemeAdapter extends RecyclerView.Adapter<ThemeAdapter.ThemeViewHol
 
     private List<Theme> themes;
     private OnThemeClickListener listener;
+    private String currentThemeName;
 
     public interface OnThemeClickListener {
         void onThemeClick(Theme theme);
     }
 
-    public ThemeAdapter(List<Theme> themes, OnThemeClickListener listener) {
+    public ThemeAdapter(List<Theme> themes, String currentThemeName, OnThemeClickListener listener) {
         this.themes = themes;
+        this.currentThemeName = currentThemeName;
         this.listener = listener;
     }
 
@@ -41,7 +43,7 @@ public class ThemeAdapter extends RecyclerView.Adapter<ThemeAdapter.ThemeViewHol
     @Override
     public void onBindViewHolder(@NonNull ThemeViewHolder holder, int position) {
         Theme theme = themes.get(position);
-        holder.bind(theme);
+        holder.bind(theme, theme.getName().equals(currentThemeName));
     }
 
     @Override
@@ -55,6 +57,7 @@ public class ThemeAdapter extends RecyclerView.Adapter<ThemeAdapter.ThemeViewHol
         private View primaryContainerColorView;
         private TextView themeNameText;
         private TextView themeDescriptionText;
+        private View selectedIndicator;
 
         public ThemeViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -63,6 +66,7 @@ public class ThemeAdapter extends RecyclerView.Adapter<ThemeAdapter.ThemeViewHol
             primaryContainerColorView = itemView.findViewById(R.id.primary_container_color_view);
             themeNameText = itemView.findViewById(R.id.theme_name_text);
             themeDescriptionText = itemView.findViewById(R.id.theme_description_text);
+            selectedIndicator = itemView.findViewById(R.id.selected_indicator);
 
             themeCard.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -72,7 +76,7 @@ public class ThemeAdapter extends RecyclerView.Adapter<ThemeAdapter.ThemeViewHol
             });
         }
 
-        public void bind(Theme theme) {
+        public void bind(Theme theme, boolean isSelected) {
             Context context = itemView.getContext();
 
             themeNameText.setText(theme.getName());
@@ -81,6 +85,21 @@ public class ThemeAdapter extends RecyclerView.Adapter<ThemeAdapter.ThemeViewHol
             // Set color previews
             primaryColorView.setBackgroundColor(context.getColor(theme.getPrimaryColorResId()));
             primaryContainerColorView.setBackgroundColor(context.getColor(theme.getPrimaryContainerColorResId()));
+
+            // Show selected indicator and stroke
+            if (isSelected) {
+                selectedIndicator.setVisibility(View.VISIBLE);
+                themeCard.setStrokeWidth(dpToPx(context, 3));
+                themeCard.setStrokeColor(context.getColor(R.color.colorPrimary));
+            } else {
+                selectedIndicator.setVisibility(View.GONE);
+                themeCard.setStrokeWidth(dpToPx(context, 1));
+                themeCard.setStrokeColor(context.getColor(R.color.colorOutline));
+            }
+        }
+
+        private int dpToPx(Context context, int dp) {
+            return (int) (dp * context.getResources().getDisplayMetrics().density);
         }
     }
 }

@@ -114,6 +114,7 @@
     <string name="downloading_exam_schedule">Downloading Exam Schedule</string>
     <string name="downloading_spotlight">Downloading Spotlight</string>
     <string name="downloading_receipts">Downloading Receipts</string>
+    <string name="downloading_leave_history">Downloading Leave History</string>
     <string name="completing_sync">Completing sync</string>
 
     <!-- Update Dialog Strings -->
@@ -335,4 +336,6 @@
     
     <!-- Sync Video Strings -->
     <string name="syncing_data">Syncing your data…</string>
+    <string name="profile_image">Profile Image</string>
+    <string name="reg_no">Registration Number</string>
 </resources>

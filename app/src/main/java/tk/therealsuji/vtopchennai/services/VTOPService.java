@@ -27,8 +27,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-
-
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
@@ -69,6 +67,7 @@ import tk.therealsuji.vtopchennai.interfaces.AttendanceDao;
 import tk.therealsuji.vtopchennai.interfaces.AttendanceRecordDao;
 import tk.therealsuji.vtopchennai.interfaces.CoursesDao;
 import tk.therealsuji.vtopchennai.interfaces.ExamsDao;
+import tk.therealsuji.vtopchennai.interfaces.LeaveDao;
 import tk.therealsuji.vtopchennai.interfaces.MarksDao;
 import tk.therealsuji.vtopchennai.interfaces.ReceiptsDao;
 import tk.therealsuji.vtopchennai.interfaces.StaffDao;
@@ -78,6 +77,7 @@ import tk.therealsuji.vtopchennai.models.AttendanceRecord;
 import tk.therealsuji.vtopchennai.models.Course;
 import tk.therealsuji.vtopchennai.models.CumulativeMark;
 import tk.therealsuji.vtopchennai.models.Exam;
+import tk.therealsuji.vtopchennai.models.Leave;
 import tk.therealsuji.vtopchennai.models.Mark;
 import tk.therealsuji.vtopchennai.models.Receipt;
 import tk.therealsuji.vtopchennai.models.Slot;
@@ -125,308 +125,352 @@ public class VTOPService extends Service {
 
     private static final Map<String, List<DayPeriod>> SLOT_MAP = new HashMap<>();
     private static final Map<String, String> SLOT_ALIASES = new HashMap<>();
+    private static final Map<String, String> EMAIL_REPLACEMENTS = new HashMap<>();
+
+    static {
+        EMAIL_REPLACEMENTS.put("pcbai.cc@vit.ac.in", "hodcc.bai@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodbba.cc@vit.ac.in", "hodcc.bbh@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pccompug.cc@vit.ac.in", "hodcc.bce@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("cochaircc.scope@vit.ac.in", "cohodcc.bce@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pccivilug.cc@vit.ac.in", "hodcc.bcl@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodbsccs.cc@vit.ac.in", "hodcc.bcs@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodbds.cc@vit.ac.in", "hodcc.bds@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcelectronicsug.cc@vit.ac.in", "hodcc.bec@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcelectricalug.cc@vit.ac.in", "hodcc.bee@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodcc.ecse@vit.ac.in", "hodcc.bel@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodcc.vfit@vit.ac.in", "hodcc.bft@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodbcom.cc@vit.ac.in", "hodcc.bhc@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodcc.economics@vit.ac.in", "hodcc.bhe@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcbla.cc@vit.ac.in", "hodcc.bla@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcblb.cc@vit.ac.in", "hodcc.blb@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcblc.cc@vit.ac.in", "hodcc.blc@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcmechug.cc@vit.ac.in", "hodcc.bme@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodautocc.smec@vit.ac.in", "hodcc.bmh@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcbps.cc@vit.ac.in", "hodcc.bps@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodaicc.scope@vit.ac.in", "hodcc.brs@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodcc.vlsi@vit.ac.in", "hodcc.bvd@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodcysec.cc@vit.ac.in", "hodcc.byb@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("chennai.hodchemistry@vit.ac.in", "hodcc.msh@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcmai.cc@vit.ac.in", "hodcc.mai@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodcc.comppg1@vit.ac.in", "hodcc.mas@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodcc.maths@vit.ac.in", "hodcc.mdt@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodmba.cc@vit.ac.in", "hodcc.mba@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcmcapg.cc@vit.ac.in", "hodcc.mca@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pccomppg.cc@vit.ac.in", "hodcc.mcs@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pccadcampg.cc@vit.ac.in", "hodcc.mcd@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodcc.em@vit.ac.in", "hodcc.mem@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcembeddedpg.cc@vit.ac.in", "hodcc.mes@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcmia.cc@vit.ac.in", "hodcc.mid@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcmsse.cc@vit.ac.in", "hodcc.mis@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcmechatronpg.cc@vit.ac.in", "hodcc.mmt@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcstrucpg.cc@vit.ac.in", "hodcc.mst@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("pcvlsipg.cc@vit.ac.in", "hodcc.mvd@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("hodcc.psychology@vit.ac.in", "hodcc.myi@vit.ac.in");
+        EMAIL_REPLACEMENTS.put("chennai.hodphysics@vit.ac.in", "hodcc.msp@vit.ac.in");
+
+    }
 
     static {
         // Slot mappings for VIT Chennai timetable periods
 
-        addSlotMapping("A1", "monday", 0);  // 08:00
-        addSlotMapping("A1", "wednesday", 1);  // 08:55
+        addSlotMapping("A1", "monday", 0); // 08:00
+        addSlotMapping("A1", "wednesday", 1); // 08:55
 
-        addSlotMapping("A2", "monday", 6);  // 14:00
-        addSlotMapping("A2", "wednesday", 7);  // 14:55
+        addSlotMapping("A2", "monday", 6); // 14:00
+        addSlotMapping("A2", "wednesday", 7); // 14:55
 
-        addSlotMapping("B1", "thursday", 1);  // 08:55
-        addSlotMapping("B1", "tuesday", 0);  // 08:00
+        addSlotMapping("B1", "thursday", 1); // 08:55
+        addSlotMapping("B1", "tuesday", 0); // 08:00
 
-        addSlotMapping("B2", "thursday", 7);  // 14:55
-        addSlotMapping("B2", "tuesday", 6);  // 14:00
+        addSlotMapping("B2", "thursday", 7); // 14:55
+        addSlotMapping("B2", "tuesday", 6); // 14:00
 
-        addSlotMapping("C1", "friday", 1);  // 08:55
-        addSlotMapping("C1", "wednesday", 0);  // 08:00
+        addSlotMapping("C1", "friday", 1); // 08:55
+        addSlotMapping("C1", "wednesday", 0); // 08:00
 
-        addSlotMapping("C2", "friday", 7);  // 14:55
-        addSlotMapping("C2", "wednesday", 6);  // 14:00
+        addSlotMapping("C2", "friday", 7); // 14:55
+        addSlotMapping("C2", "wednesday", 6); // 14:00
 
-        addSlotMapping("D1", "monday", 2);  // 09:50
-        addSlotMapping("D1", "thursday", 0);  // 08:00
+        addSlotMapping("D1", "monday", 2); // 09:50
+        addSlotMapping("D1", "thursday", 0); // 08:00
 
-        addSlotMapping("D2", "monday", 8);  // 15:50
-        addSlotMapping("D2", "thursday", 6);  // 14:00
+        addSlotMapping("D2", "monday", 8); // 15:50
+        addSlotMapping("D2", "thursday", 6); // 14:00
 
-        addSlotMapping("E1", "friday", 0);  // 08:00
-        addSlotMapping("E1", "tuesday", 2);  // 09:50
+        addSlotMapping("E1", "friday", 0); // 08:00
+        addSlotMapping("E1", "tuesday", 2); // 09:50
 
-        addSlotMapping("E2", "friday", 6);  // 14:00
-        addSlotMapping("E2", "tuesday", 8);  // 15:50
+        addSlotMapping("E2", "friday", 6); // 14:00
+        addSlotMapping("E2", "tuesday", 8); // 15:50
 
-        addSlotMapping("F1", "monday", 1);  // 08:55
-        addSlotMapping("F1", "wednesday", 2);  // 09:50
+        addSlotMapping("F1", "monday", 1); // 08:55
+        addSlotMapping("F1", "wednesday", 2); // 09:50
 
-        addSlotMapping("F2", "monday", 7);  // 14:55
-        addSlotMapping("F2", "wednesday", 8);  // 15:50
+        addSlotMapping("F2", "monday", 7); // 14:55
+        addSlotMapping("F2", "wednesday", 8); // 15:50
 
-        addSlotMapping("G1", "thursday", 2);  // 09:50
-        addSlotMapping("G1", "tuesday", 1);  // 08:55
+        addSlotMapping("G1", "thursday", 2); // 09:50
+        addSlotMapping("G1", "tuesday", 1); // 08:55
 
-        addSlotMapping("G2", "thursday", 8);  // 15:50
-        addSlotMapping("G2", "tuesday", 7);  // 14:55
+        addSlotMapping("G2", "thursday", 8); // 15:50
+        addSlotMapping("G2", "tuesday", 7); // 14:55
 
-        addSlotMapping("L1", "monday", 0);  // 08:00
+        addSlotMapping("L1", "monday", 0); // 08:00
 
-        addSlotMapping("L10", "tuesday", 3);  // 10:40
+        addSlotMapping("L10", "tuesday", 3); // 10:40
 
-        addSlotMapping("L11", "tuesday", 4);  // 11:40
+        addSlotMapping("L11", "tuesday", 4); // 11:40
 
-        addSlotMapping("L12", "tuesday", 5);  // 12:35
-        addSlotMapping("L13", "wednesday", 0);  // 08:00
+        addSlotMapping("L12", "tuesday", 5); // 12:35
+        addSlotMapping("L13", "wednesday", 0); // 08:00
 
-    addSlotMapping("L14", "wednesday", 1);  // 08:50
+        addSlotMapping("L14", "wednesday", 1); // 08:50
 
-    addSlotMapping("L15", "wednesday", 2);  // 09:50
+        addSlotMapping("L15", "wednesday", 2); // 09:50
 
-    addSlotMapping("L16", "wednesday", 3);  // 10:40
+        addSlotMapping("L16", "wednesday", 3); // 10:40
 
-    addSlotMapping("L17", "wednesday", 4);  // 11:40
+        addSlotMapping("L17", "wednesday", 4); // 11:40
 
-        addSlotMapping("L18", "wednesday", 5);  // 12:35
+        addSlotMapping("L18", "wednesday", 5); // 12:35
 
-        addSlotMapping("L19", "thursday", 0);  // 08:00
+        addSlotMapping("L19", "thursday", 0); // 08:00
 
-        addSlotMapping("L2", "monday", 1);  // 08:50
+        addSlotMapping("L2", "monday", 1); // 08:50
 
-        addSlotMapping("L20", "thursday", 1);  // 08:50
+        addSlotMapping("L20", "thursday", 1); // 08:50
 
-        addSlotMapping("L21", "thursday", 2);  // 09:50
+        addSlotMapping("L21", "thursday", 2); // 09:50
 
-        addSlotMapping("L22", "thursday", 3);  // 10:40
+        addSlotMapping("L22", "thursday", 3); // 10:40
 
-        addSlotMapping("L23", "thursday", 4);  // 11:40
+        addSlotMapping("L23", "thursday", 4); // 11:40
 
-        addSlotMapping("L24", "thursday", 5);  // 12:35
+        addSlotMapping("L24", "thursday", 5); // 12:35
 
-        addSlotMapping("L25", "friday", 0);  // 08:00
+        addSlotMapping("L25", "friday", 0); // 08:00
 
-        addSlotMapping("L26", "friday", 1);  // 08:50
+        addSlotMapping("L26", "friday", 1); // 08:50
 
-        addSlotMapping("L27", "friday", 2);  // 09:50
+        addSlotMapping("L27", "friday", 2); // 09:50
 
-        addSlotMapping("L28", "friday", 3);  // 10:40
+        addSlotMapping("L28", "friday", 3); // 10:40
 
-        addSlotMapping("L29", "friday", 4);  // 11:40
+        addSlotMapping("L29", "friday", 4); // 11:40
 
-        addSlotMapping("L3", "monday", 2);  // 09:50
+        addSlotMapping("L3", "monday", 2); // 09:50
 
-        addSlotMapping("L30", "friday", 5);  // 12:30
+        addSlotMapping("L30", "friday", 5); // 12:30
 
-        addSlotMapping("L31", "monday", 6);  // 14:00
+        addSlotMapping("L31", "monday", 6); // 14:00
 
-        addSlotMapping("L32", "monday", 7);  // 14:50
+        addSlotMapping("L32", "monday", 7); // 14:50
 
-        addSlotMapping("L33", "monday", 8);  // 15:50
+        addSlotMapping("L33", "monday", 8); // 15:50
 
-        addSlotMapping("L34", "monday", 9);  // 16:40
+        addSlotMapping("L34", "monday", 9); // 16:40
 
-        addSlotMapping("L35", "monday", 10);  // 17:40
+        addSlotMapping("L35", "monday", 10); // 17:40
 
-        addSlotMapping("L36", "monday", 11);  // 18:30
+        addSlotMapping("L36", "monday", 11); // 18:30
 
-        addSlotMapping("L37", "tuesday", 6);  // 14:00
+        addSlotMapping("L37", "tuesday", 6); // 14:00
 
-        addSlotMapping("L38", "tuesday", 7);  // 14:50
+        addSlotMapping("L38", "tuesday", 7); // 14:50
 
-        addSlotMapping("L39", "tuesday", 8);  // 15:50
+        addSlotMapping("L39", "tuesday", 8); // 15:50
 
-        addSlotMapping("L4", "monday", 3);  // 10:40
+        addSlotMapping("L4", "monday", 3); // 10:40
 
-        addSlotMapping("L40", "tuesday", 9);  // 16:40
+        addSlotMapping("L40", "tuesday", 9); // 16:40
 
-        addSlotMapping("L41", "tuesday", 10);  // 17:40
+        addSlotMapping("L41", "tuesday", 10); // 17:40
 
-        addSlotMapping("L42", "tuesday", 11);  // 18:30
+        addSlotMapping("L42", "tuesday", 11); // 18:30
 
-        addSlotMapping("L43", "wednesday", 6);  // 14:00
+        addSlotMapping("L43", "wednesday", 6); // 14:00
 
-        addSlotMapping("L44", "wednesday", 7);  // 14:50
+        addSlotMapping("L44", "wednesday", 7); // 14:50
 
-        addSlotMapping("L45", "wednesday", 8);  // 15:50
+        addSlotMapping("L45", "wednesday", 8); // 15:50
 
-        addSlotMapping("L46", "wednesday", 9);  // 16:40
+        addSlotMapping("L46", "wednesday", 9); // 16:40
 
-        addSlotMapping("L47", "wednesday", 10);  // 17:40
+        addSlotMapping("L47", "wednesday", 10); // 17:40
 
-        addSlotMapping("L48", "wednesday", 11);  // 18:30
+        addSlotMapping("L48", "wednesday", 11); // 18:30
 
-        addSlotMapping("L49", "thursday", 6);  // 14:00
+        addSlotMapping("L49", "thursday", 6); // 14:00
 
-        addSlotMapping("L5", "monday", 4);  // 11:40
+        addSlotMapping("L5", "monday", 4); // 11:40
 
-        addSlotMapping("L50", "thursday", 7);  // 14:50
+        addSlotMapping("L50", "thursday", 7); // 14:50
 
-        addSlotMapping("L51", "thursday", 8);  // 15:50
+        addSlotMapping("L51", "thursday", 8); // 15:50
 
-        addSlotMapping("L52", "thursday", 9);  // 16:40
+        addSlotMapping("L52", "thursday", 9); // 16:40
 
-        addSlotMapping("L53", "thursday", 10);  // 17:40
+        addSlotMapping("L53", "thursday", 10); // 17:40
 
-        addSlotMapping("L54", "thursday", 11);  // 18:30
+        addSlotMapping("L54", "thursday", 11); // 18:30
 
-        addSlotMapping("L55", "friday", 6);  // 14:00
+        addSlotMapping("L55", "friday", 6); // 14:00
 
-        addSlotMapping("L56", "friday", 7);  // 14:50
+        addSlotMapping("L56", "friday", 7); // 14:50
 
-        addSlotMapping("L57", "friday", 8);  // 15:50
+        addSlotMapping("L57", "friday", 8); // 15:50
 
-        addSlotMapping("L58", "friday", 9);  // 16:40
+        addSlotMapping("L58", "friday", 9); // 16:40
 
-        addSlotMapping("L59", "friday", 10);  // 17:40
+        addSlotMapping("L59", "friday", 10); // 17:40
 
-        addSlotMapping("L6", "monday", 5);  // 12:30
+        addSlotMapping("L6", "monday", 5); // 12:30
 
-        addSlotMapping("L60", "friday", 11);  // 18:30
+        addSlotMapping("L60", "friday", 11); // 18:30
 
-        addSlotMapping("L7", "tuesday", 0);  // 08:00
+        addSlotMapping("L7", "tuesday", 0); // 08:00
 
-        addSlotMapping("L71", "saturday", 0);  // 08:00
+        addSlotMapping("L71", "saturday", 0); // 08:00
 
-        addSlotMapping("L72", "saturday", 1);  // 08:50
+        addSlotMapping("L72", "saturday", 1); // 08:50
 
-        addSlotMapping("L73", "saturday", 2);  // 09:50
+        addSlotMapping("L73", "saturday", 2); // 09:50
 
-        addSlotMapping("L74", "saturday", 3);  // 10:40
+        addSlotMapping("L74", "saturday", 3); // 10:40
 
-        addSlotMapping("L75", "saturday", 4);  // 11:40
+        addSlotMapping("L75", "saturday", 4); // 11:40
 
-        addSlotMapping("L76", "saturday", 5);  // 12:30
+        addSlotMapping("L76", "saturday", 5); // 12:30
 
-        addSlotMapping("L77", "saturday", 6);  // 14:00
+        addSlotMapping("L77", "saturday", 6); // 14:00
 
-        addSlotMapping("L78", "saturday", 7);  // 14:50
+        addSlotMapping("L78", "saturday", 7); // 14:50
 
-        addSlotMapping("L79", "saturday", 8);  // 15:50
+        addSlotMapping("L79", "saturday", 8); // 15:50
 
-        addSlotMapping("L8", "tuesday", 1);  // 08:50
+        addSlotMapping("L8", "tuesday", 1); // 08:50
 
-        addSlotMapping("L80", "saturday", 9);  // 16:40
+        addSlotMapping("L80", "saturday", 9); // 16:40
 
-        addSlotMapping("L81", "saturday", 10);  // 17:40
+        addSlotMapping("L81", "saturday", 10); // 17:40
 
-        addSlotMapping("L82", "saturday", 11);  // 18:30
+        addSlotMapping("L82", "saturday", 11); // 18:30
 
-        addSlotMapping("L83", "sunday", 0);  // 08:00
+        addSlotMapping("L83", "sunday", 0); // 08:00
 
-        addSlotMapping("L84", "sunday", 1);  // 08:50
+        addSlotMapping("L84", "sunday", 1); // 08:50
 
-        addSlotMapping("L85", "sunday", 2);  // 09:50
+        addSlotMapping("L85", "sunday", 2); // 09:50
 
-        addSlotMapping("L86", "sunday", 3);  // 10:40
+        addSlotMapping("L86", "sunday", 3); // 10:40
 
-        addSlotMapping("L87", "sunday", 4);  // 11:40
+        addSlotMapping("L87", "sunday", 4); // 11:40
 
-        addSlotMapping("L88", "sunday", 5);  // 12:30
+        addSlotMapping("L88", "sunday", 5); // 12:30
 
-        addSlotMapping("L89", "sunday", 6);  // 14:00
+        addSlotMapping("L89", "sunday", 6); // 14:00
 
-        addSlotMapping("L9", "tuesday", 2);  // 09:50
+        addSlotMapping("L9", "tuesday", 2); // 09:50
 
-        addSlotMapping("L90", "sunday", 7);  // 14:50
+        addSlotMapping("L90", "sunday", 7); // 14:50
 
-        addSlotMapping("L91", "sunday", 8);  // 15:50
+        addSlotMapping("L91", "sunday", 8); // 15:50
 
-        addSlotMapping("L92", "sunday", 9);  // 16:40
+        addSlotMapping("L92", "sunday", 9); // 16:40
 
-        addSlotMapping("L93", "sunday", 10);  // 17:40
+        addSlotMapping("L93", "sunday", 10); // 17:40
 
-        addSlotMapping("L94", "sunday", 11);  // 18:30
+        addSlotMapping("L94", "sunday", 11); // 18:30
 
-        addSlotMapping("S1", "tuesday", 11);  // 18:35
+        addSlotMapping("S1", "tuesday", 11); // 18:35
 
-        addSlotMapping("S10", "sunday", 5);  // 12:35
+        addSlotMapping("S10", "sunday", 5); // 12:35
 
-        addSlotMapping("S11", "monday", 5);  // 12:35
+        addSlotMapping("S11", "monday", 5); // 12:35
 
-        addSlotMapping("S15", "friday", 5);  // 12:35
+        addSlotMapping("S15", "friday", 5); // 12:35
 
-        addSlotMapping("S2", "thursday", 11);  // 18:35
+        addSlotMapping("S2", "thursday", 11); // 18:35
 
-        addSlotMapping("S3", "monday", 11);  // 18:35
+        addSlotMapping("S3", "monday", 11); // 18:35
 
-        addSlotMapping("S4", "wednesday", 11);  // 18:35
+        addSlotMapping("S4", "wednesday", 11); // 18:35
 
-        addSlotMapping("S8", "saturday", 5);  // 12:35
+        addSlotMapping("S8", "saturday", 5); // 12:35
 
-        addSlotMapping("TA1", "friday", 2);  // 09:50
+        addSlotMapping("TA1", "friday", 2); // 09:50
 
-        addSlotMapping("TA2", "friday", 8);  // 15:50
+        addSlotMapping("TA2", "friday", 8); // 15:50
 
-        addSlotMapping("TAA1", "tuesday", 4);  // 11:40
+        addSlotMapping("TAA1", "tuesday", 4); // 11:40
 
-        addSlotMapping("TAA2", "tuesday", 10);  // 17:40
+        addSlotMapping("TAA2", "tuesday", 10); // 17:40
 
-        addSlotMapping("TB1", "monday", 3);  // 10:45
+        addSlotMapping("TB1", "monday", 3); // 10:45
 
-        addSlotMapping("TB2", "monday", 9);  // 16:45
+        addSlotMapping("TB2", "monday", 9); // 16:45
 
-        addSlotMapping("TBB1", "wednesday", 4);  // 11:40
+        addSlotMapping("TBB1", "wednesday", 4); // 11:40
 
-        addSlotMapping("TBB2", "wednesday", 10);  // 17:40
+        addSlotMapping("TBB2", "wednesday", 10); // 17:40
 
-        addSlotMapping("TC1", "tuesday", 3);  // 10:45
+        addSlotMapping("TC1", "tuesday", 3); // 10:45
 
-        addSlotMapping("TC2", "tuesday", 9);  // 16:45
+        addSlotMapping("TC2", "tuesday", 9); // 16:45
 
-        addSlotMapping("TCC1", "thursday", 4);  // 11:40
+        addSlotMapping("TCC1", "thursday", 4); // 11:40
 
-        addSlotMapping("TCC2", "thursday", 10);  // 17:40
+        addSlotMapping("TCC2", "thursday", 10); // 17:40
 
-        addSlotMapping("TD1", "wednesday", 3);  // 10:45
+        addSlotMapping("TD1", "wednesday", 3); // 10:45
 
-        addSlotMapping("TD2", "wednesday", 9);  // 16:45
+        addSlotMapping("TD2", "wednesday", 9); // 16:45
 
-        addSlotMapping("TDD1", "friday", 4);  // 11:40
+        addSlotMapping("TDD1", "friday", 4); // 11:40
 
-        addSlotMapping("TDD2", "friday", 10);  // 17:40
+        addSlotMapping("TDD2", "friday", 10); // 17:40
 
-        addSlotMapping("TE1", "thursday", 3);  // 10:45
+        addSlotMapping("TE1", "thursday", 3); // 10:45
 
-        addSlotMapping("TE2", "thursday", 9);  // 16:45
+        addSlotMapping("TE2", "thursday", 9); // 16:45
 
-        addSlotMapping("TF1", "friday", 3);  // 10:45
+        addSlotMapping("TF1", "friday", 3); // 10:45
 
-        addSlotMapping("TF2", "friday", 9);  // 16:45
+        addSlotMapping("TF2", "friday", 9); // 16:45
 
-        addSlotMapping("TG1", "monday", 4);  // 11:40
+        addSlotMapping("TG1", "monday", 4); // 11:40
 
-        addSlotMapping("TG2", "monday", 10);  // 17:40
+        addSlotMapping("TG2", "monday", 10); // 17:40
 
-        addSlotMapping("W21", "saturday", 9);  // 16:45
-        addSlotMapping("W21", "sunday", 9);  // 16:45
+        addSlotMapping("W21", "saturday", 9); // 16:45
+        addSlotMapping("W21", "sunday", 9); // 16:45
 
-        addSlotMapping("W22", "saturday", 10);  // 17:40
-        addSlotMapping("W22", "sunday", 10);  // 17:40
+        addSlotMapping("W22", "saturday", 10); // 17:40
+        addSlotMapping("W22", "sunday", 10); // 17:40
 
-        addSlotMapping("X11", "saturday", 0);  // 08:00
-        addSlotMapping("X11", "sunday", 2);  // 09:50
+        addSlotMapping("X11", "saturday", 0); // 08:00
+        addSlotMapping("X11", "sunday", 2); // 09:50
 
-        addSlotMapping("X12", "saturday", 1);  // 08:55
-        addSlotMapping("X12", "sunday", 3);  // 10:45
+        addSlotMapping("X12", "saturday", 1); // 08:55
+        addSlotMapping("X12", "sunday", 3); // 10:45
 
-        addSlotMapping("X21", "saturday", 6);  // 14:00
-        addSlotMapping("X21", "sunday", 8);  // 15:50
+        addSlotMapping("X21", "saturday", 6); // 14:00
+        addSlotMapping("X21", "sunday", 8); // 15:50
 
-        addSlotMapping("Y11", "saturday", 2);  // 09:50
-        addSlotMapping("Y11", "sunday", 0);  // 08:00
+        addSlotMapping("Y11", "saturday", 2); // 09:50
+        addSlotMapping("Y11", "sunday", 0); // 08:00
 
-        addSlotMapping("Y12", "saturday", 3);  // 10:45
-        addSlotMapping("Y12", "sunday", 1);  // 08:55
+        addSlotMapping("Y12", "saturday", 3); // 10:45
+        addSlotMapping("Y12", "sunday", 1); // 08:55
 
-        addSlotMapping("Y21", "saturday", 8);  // 15:50
-        addSlotMapping("Y21", "sunday", 6);  // 14:00
+        addSlotMapping("Y21", "saturday", 8); // 15:50
+        addSlotMapping("Y21", "sunday", 6); // 14:00
 
-        addSlotMapping("Z21", "saturday", 7);  // 14:55
-        addSlotMapping("Z21", "sunday", 7);  // 14:55
+        addSlotMapping("Z21", "saturday", 7); // 14:55
+        addSlotMapping("Z21", "sunday", 7); // 14:55
 
-        addSlotMapping("Z22", "saturday", 11);  // 18:35
-        addSlotMapping("Z22", "sunday", 11);  // 18:35
+        addSlotMapping("Z22", "saturday", 11); // 18:35
+        addSlotMapping("Z22", "sunday", 11); // 18:35
 
         // Slot aliases for common slot naming variants
         addSlotAlias("TEE1", "TE1");
@@ -464,8 +508,7 @@ public class VTOPService extends Service {
                 this,
                 0,
                 endServiceIntent,
-                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT
-        );
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT);
 
         NotificationHelper notificationHelper = new NotificationHelper(getApplicationContext());
         this.notificationManager = notificationHelper.getManager();
@@ -495,14 +538,18 @@ public class VTOPService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent.getAction() != null && intent.getAction().equals(END_SERVICE_ACTION)) {
             this.endService(true);
-            this.notificationManager.cancel(SettingsRepository.NOTIFICATION_ID_VTOP_DOWNLOAD);  // In case the notification isn't removed for some reason
+            this.notificationManager.cancel(SettingsRepository.NOTIFICATION_ID_VTOP_DOWNLOAD); // In case the
+                                                                                               // notification isn't
+                                                                                               // removed for some
+                                                                                               // reason
         } else {
             this.startForeground(SettingsRepository.NOTIFICATION_ID_VTOP_DOWNLOAD, this.notification.build());
 
             this.counter = 0;
             this.maxProgress = 12;
 
-            SharedPreferences encryptedSharedPreferences = SettingsRepository.getEncryptedSharedPreferences(getApplicationContext());
+            SharedPreferences encryptedSharedPreferences = SettingsRepository
+                    .getEncryptedSharedPreferences(getApplicationContext());
 
             if (encryptedSharedPreferences == null) {
                 error(102, "Failed to fetch credentials.");
@@ -551,10 +598,10 @@ public class VTOPService extends Service {
             @Override
             public void onPageFinished(WebView view, String url) {
                 /*
-                 *  JSON response format
-                 *  {
-                 *      "page_type": "LANDING"|"HOME"|"LOGIN"
-                 *  }
+                 * JSON response format
+                 * {
+                 * "page_type": "LANDING"|"HOME"|"LOGIN"
+                 * }
                  */
                 view.evaluateJavascript("(function() {" +
                         "const response = {" +
@@ -567,45 +614,45 @@ public class VTOPService extends Service {
                         "}" +
                         "return response;" +
                         "})();", responseString -> {
-                    try {
-                        JSONObject response = new JSONObject(responseString);
-                        String pageType = response.getString("page_type");
+                            try {
+                                JSONObject response = new JSONObject(responseString);
+                                String pageType = response.getString("page_type");
 
-                        switch (pageType) {
-                            case "LANDING":
-                                if (counter >= 10) {
-                                    error(101, "Couldn't connect to the server.");
-                                    endService(true);
-                                    return;
+                                switch (pageType) {
+                                    case "LANDING":
+                                        if (counter >= 10) {
+                                            error(101, "Couldn't connect to the server.");
+                                            endService(true);
+                                            return;
+                                        }
+
+                                        openSignIn();
+                                        ++counter;
+
+                                        pageState = PageState.LANDING;
+                                        break;
+                                    case "LOGIN":
+                                        if (pageState == PageState.LOGIN) {
+                                            break;
+                                        }
+
+                                        getCaptchaType();
+                                        pageState = PageState.LOGIN;
+                                        break;
+                                    case "HOME":
+                                        if (pageState == PageState.HOME) {
+                                            break;
+                                        }
+
+                                        getSemesters();
+                                        pageState = PageState.HOME;
+                                        break;
+                                    default:
+                                        throw new Error("Unknown page exception.");
                                 }
-
-                                openSignIn();
-                                ++counter;
-
-                                pageState = PageState.LANDING;
-                                break;
-                            case "LOGIN":
-                                if (pageState == PageState.LOGIN) {
-                                    break;
-                                }
-
-                                getCaptchaType();
-                                pageState = PageState.LOGIN;
-                                break;
-                            case "HOME":
-                                if (pageState == PageState.HOME) {
-                                    break;
-                                }
-
-                                getSemesters();
-                                pageState = PageState.HOME;
-                                break;
-                            default:
-                                throw new Error("Unknown page exception.");
-                        }
-                    } catch (Exception ignored) {
-                    }
-                });
+                            } catch (Exception ignored) {
+                            }
+                        });
             }
 
             @Override
@@ -642,8 +689,10 @@ public class VTOPService extends Service {
     }
 
     /**
-     * VTOP randomly blocks user agents (I'm guessing to prevent people from using this app).
-     * If a user agent is blocked, a new authorised one is fetched from my server and stored in shared preferences.
+     * VTOP randomly blocks user agents (I'm guessing to prevent people from using
+     * this app).
+     * If a user agent is blocked, a new authorised one is fetched from my server
+     * and stored in shared preferences.
      */
     private void updateUserAgent() {
         SettingsRepository.fetchAboutJson(false)
@@ -780,7 +829,6 @@ public class VTOPService extends Service {
         Toast.makeText(getApplicationContext(), "Error " + errorCode + ". " + errorMessage, Toast.LENGTH_SHORT).show();
         this.reloadPage("/login", true);
 
-
     }
 
     /**
@@ -788,10 +836,10 @@ public class VTOPService extends Service {
      */
     private void openSignIn() {
         /*
-         *  JSON response format
-         *  {
-         *      "success": true|false
-         *  }
+         * JSON response format
+         * {
+         * "success": true|false
+         * }
          */
         webView.evaluateJavascript("(function() {" +
                 "const response = {" +
@@ -808,12 +856,12 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                this.reloadPage("/login", false);
-            } catch (Exception e) {
-                error(103, e.getLocalizedMessage());
-            }
-        });
+                    try {
+                        this.reloadPage("/login", false);
+                    } catch (Exception e) {
+                        error(103, e.getLocalizedMessage());
+                    }
+                });
     }
 
     /**
@@ -821,11 +869,11 @@ public class VTOPService extends Service {
      */
     private void getCaptchaType() {
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "captcha_type": "DEFAULT"|"GRECAPTCHA"
-         *  }
+         * {
+         * "captcha_type": "DEFAULT"|"GRECAPTCHA"
+         * }
          */
         webView.evaluateJavascript("(function() {" +
                 "const response = {" +
@@ -836,25 +884,27 @@ public class VTOPService extends Service {
                 "}" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                this.notification.setContentTitle(getString(R.string.captcha_wait));
-                this.notificationManager.notify(SettingsRepository.NOTIFICATION_ID_VTOP_DOWNLOAD, notification.build());
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        this.notification.setContentTitle(getString(R.string.captcha_wait));
+                        this.notificationManager.notify(SettingsRepository.NOTIFICATION_ID_VTOP_DOWNLOAD,
+                                notification.build());
 
-                if (response.getString("captcha_type").equals("DEFAULT")) {
-                    getCaptcha();
-                } else {
-                    executeCaptcha();
-                }
-            } catch (Exception e) {
-                error(104, e.getLocalizedMessage());
-            }
-        });
+                        if (response.getString("captcha_type").equals("DEFAULT")) {
+                            getCaptcha();
+                        } else {
+                            executeCaptcha();
+                        }
+                    } catch (Exception e) {
+                        error(104, e.getLocalizedMessage());
+                    }
+                });
     }
 
     /**
      * For Default Captcha
-     * Function to get the captcha from the portal's sign in page and load it into the ImageView.
+     * Function to get the captcha from the portal's sign in page and load it into
+     * the ImageView.
      */
     private void getCaptcha() {
         this.webView.evaluateJavascript("(function() {" +
@@ -862,23 +912,24 @@ public class VTOPService extends Service {
                 "   captcha: $('#captchaBlock img').get(0).src" +
                 "};" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
+                    try {
+                        JSONObject response = new JSONObject(responseString);
 
-                String base64Captcha = response.getString("captcha").split(",")[1];
-                byte[] decodedString = Base64.decode(base64Captcha, Base64.DEFAULT);
-                Bitmap decodedImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                        String base64Captcha = response.getString("captcha").split(",")[1];
+                        byte[] decodedString = Base64.decode(base64Captcha, Base64.DEFAULT);
+                        Bitmap decodedImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
-                // Enhanced OCR processing with multiple attempts
-                processCaptchaWithEnhancedOCR(decodedImage);
-            } catch (Exception e) {
-                error(105, e.getLocalizedMessage());
-            }
-        });
+                        // Enhanced OCR processing with multiple attempts
+                        processCaptchaWithEnhancedOCR(decodedImage);
+                    } catch (Exception e) {
+                        error(105, e.getLocalizedMessage());
+                    }
+                });
     }
 
     /**
-     * Enhanced OCR processing using neural network and multiple preprocessing approaches
+     * Enhanced OCR processing using neural network and multiple preprocessing
+     * approaches
      */
     private void processCaptchaWithEnhancedOCR(Bitmap originalImage) {
         try {
@@ -891,16 +942,15 @@ public class VTOPService extends Service {
                 String method = result.getBestMethod();
 
                 android.util.Log.d("VTOPService", String.format(
-                    "CAPTCHA solved using %s method with confidence %.2f: %s",
-                    method, confidence, captchaText
-                ));
+                        "CAPTCHA solved using %s method with confidence %.2f: %s",
+                        method, confidence, captchaText));
 
                 // Update notification to show successful captcha recognition
                 this.notification.setContentTitle("Smart CAPTCHA Recognition");
                 this.notification.setContentText(String.format("Solved using %s (%.0f%% confidence)",
-                    method, confidence * 100));
+                        method, confidence * 100));
                 this.notificationManager.notify(SettingsRepository.NOTIFICATION_ID_VTOP_DOWNLOAD,
-                    notification.build());
+                        notification.build());
 
                 // Auto-submit the recognized captcha
                 signIn(captchaText);
@@ -1017,7 +1067,8 @@ public class VTOPService extends Service {
      * Check if text has excessive repeated characters
      */
     private boolean hasExcessiveRepeatedChars(String text) {
-        if (text.length() <= 2) return false;
+        if (text.length() <= 2)
+            return false;
 
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
@@ -1041,8 +1092,8 @@ public class VTOPService extends Service {
     private boolean isLikelyOCRError(String text) {
         // Common OCR error patterns
         String[] errorPatterns = {
-            "1111", "OOOO", "0000", "LLLL", "||||", "IIII",
-            "......", ",,,,", "'''", "\"\"\"", "```"
+                "1111", "OOOO", "0000", "LLLL", "||||", "IIII",
+                "......", ",,,,", "'''", "\"\"\"", "```"
         };
 
         for (String pattern : errorPatterns) {
@@ -1159,21 +1210,22 @@ public class VTOPService extends Service {
         }
 
         /*
-            Overriding the existing onSubmit function and attempting to render the reCaptcha
+         * Overriding the existing onSubmit function and attempting to render the
+         * reCaptcha
          */
         webView.evaluateJavascript("function callBuiltValidation(token) {" +
                 "    Android.signIn(token);" +
                 "}" +
                 "(function() {" +
                 "var executeInterval = setInterval(function() {" +
-                "    try {" +   // typeof grecaptcha != 'undefined' always returns true for some reason
+                "    try {" + // typeof grecaptcha != 'undefined' always returns true for some reason
                 "        grecaptcha.execute();" +
                 "        clearInterval(executeInterval);" +
                 "    } catch (err) {" +
                 "    }" +
                 "}, 500);" +
                 "})();", value -> {
-        });
+                });
     }
 
     /**
@@ -1197,20 +1249,24 @@ public class VTOPService extends Service {
                     }
 
                     /*
-                     *  JSON response format
-                     *  {
-                     *      "authorized": true|false,
-                     *      "error_message": null,
-                     *      "error_code": 0
-                     *  }
+                     * JSON response format
+                     * {
+                     * "authorized": true|false,
+                     * "error_message": null,
+                     * "error_code": 0
+                     * }
                      */
                     webView.evaluateJavascript("(function() {" +
                             "if (typeof captchaInterval != 'undefined') clearInterval(captchaInterval);" +
                             "if (typeof executeInterval != 'undefined') clearInterval(executeInterval);" +
-                            "$('#vtopLoginForm [name=\"username\"]').val('" + username.replaceAll("'", "\\\\'") + "');" +
-                            "$('#vtopLoginForm [name=\"password\"]').val('" + password.replaceAll("'", "\\\\'") + "');" +
-                            "$('#vtopLoginForm [name=\"captchaStr\"]').val('" + captcha.replaceAll("'", "\\\\'") + "');" +
-                            "$('#vtopLoginForm [name=\"gResponse\"]').val('" + captcha.replaceAll("'", "\\\\'") + "');" +
+                            "$('#vtopLoginForm [name=\"username\"]').val('" + username.replaceAll("'", "\\\\'") + "');"
+                            +
+                            "$('#vtopLoginForm [name=\"password\"]').val('" + password.replaceAll("'", "\\\\'") + "');"
+                            +
+                            "$('#vtopLoginForm [name=\"captchaStr\"]').val('" + captcha.replaceAll("'", "\\\\'") + "');"
+                            +
+                            "$('#vtopLoginForm [name=\"gResponse\"]').val('" + captcha.replaceAll("'", "\\\\'") + "');"
+                            +
                             "var response = {" +
                             "    authorised: false," +
                             "    error_message: null," +
@@ -1230,9 +1286,11 @@ public class VTOPService extends Service {
                             "            }" +
                             "            var pageContent = res.toLowerCase();" +
                             "            var invalidCaptchaRegex = new RegExp(/invalid\\s*captcha/);" +
-                            "            var invalidCredentialsRegex = new RegExp(/invalid\\s*(user\\s*name|login\\s*id|user\\s*id)\\s*\\/\\s*password/);" +
+                            "            var invalidCredentialsRegex = new RegExp(/invalid\\s*(user\\s*name|login\\s*id|user\\s*id)\\s*\\/\\s*password/);"
+                            +
                             "            var accountLockedRegex = new RegExp(/account\\s*is\\s*locked/);" +
-                            "            var maxFailAttemptsRegex = new RegExp(/maximum\\s*fail\\s*attempts\\s*reached/);" +
+                            "            var maxFailAttemptsRegex = new RegExp(/maximum\\s*fail\\s*attempts\\s*reached/);"
+                            +
                             "            if (invalidCaptchaRegex.test(pageContent)) {" +
                             "                response.error_message = 'Invalid Captcha';" +
                             "                response.error_code = 1;" +
@@ -1243,7 +1301,8 @@ public class VTOPService extends Service {
                             "                response.error_message = 'Your Account is Locked';" +
                             "                response.error_code = 3;" +
                             "            } else if(maxFailAttemptsRegex.test(pageContent)) {" +
-                            "                response.error_message = 'Maximum login attempts reached, open VTOP in your browser to reset your password';" +
+                            "                response.error_message = 'Maximum login attempts reached, open VTOP in your browser to reset your password';"
+                            +
                             "                response.error_code = 4;" +
                             "            } else {" +
                             "                response.error_message = 'Unknown error';" +
@@ -1254,59 +1313,63 @@ public class VTOPService extends Service {
                             "});" +
                             "return response;" +
                             "})();", responseString -> {
-                        try {
-                            JSONObject response = new JSONObject(responseString);
-                            boolean isAuthorised = response.getBoolean("authorised");
+                                try {
+                                    JSONObject response = new JSONObject(responseString);
+                                    boolean isAuthorised = response.getBoolean("authorised");
 
-                            if (isAuthorised) {
-                                this.reloadPage("/content", false);
-                            } else {
-                                String errorMessage = response.getString("error_message");
-                                Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                                    if (isAuthorised) {
+                                        this.reloadPage("/content", false);
+                                    } else {
+                                        String errorMessage = response.getString("error_message");
+                                        Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT)
+                                                .show();
 
-                                int errorCode = response.getInt("error_code");
-                                if (errorCode == 1) {
-                                    this.reloadPage("/login", false);
-                                } else {
-                                    if (errorCode == 2) {
-                                        try {
-                                            this.callback.onForceSignOut();
-                                        } catch (Exception ignored) {}
+                                        int errorCode = response.getInt("error_code");
+                                        if (errorCode == 1) {
+                                            this.reloadPage("/login", false);
+                                        } else {
+                                            if (errorCode == 2) {
+                                                try {
+                                                    this.callback.onForceSignOut();
+                                                } catch (Exception ignored) {
+                                                }
+                                            }
+
+                                            this.endService(true);
+                                        }
                                     }
-
-                                    this.endService(true);
+                                } catch (Exception e) {
+                                    error(106, e.getLocalizedMessage());
                                 }
-                            }
-                        } catch (Exception e) {
-                            error(106, e.getLocalizedMessage());
-                        }
-                    });
+                            });
                 });
     }
 
     /**
-     * Function to get a list of the semesters. These semesters are obtained from the Timetable page.
+     * Function to get a list of the semesters. These semesters are obtained from
+     * the Timetable page.
      */
     private void getSemesters() {
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "semesters": [
-         *          {
-         *              "name": "Fall Semester 2020-21",
-         *              "id": "CH2020211"
-         *          },
-         *          {
-         *              "name": "Winter Semester 2020-21",
-         *              "id": "CH2020215"
-         *          },
-         *          ...
-         *      ]
-         *  }
+         * {
+         * "semesters": [
+         * {
+         * "name": "Fall Semester 2020-21",
+         * "id": "CH2020211"
+         * },
+         * {
+         * "name": "Winter Semester 2020-21",
+         * "id": "CH2020215"
+         * },
+         * ...
+         * ]
+         * }
          */
         webView.evaluateJavascript("(function() {" +
-                "var data = 'verifyMenu=true&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';" +
+                "var data = 'verifyMenu=true&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';"
+                +
                 "var response = {};" +
                 "$.ajax({" +
                 "    type: 'POST'," +
@@ -1337,50 +1400,55 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
+                    try {
+                        JSONObject response = new JSONObject(responseString);
 
-                if (response.has("error_code")) {
-                    if (response.getInt("error_code") == 1) {
-                        Toast.makeText(getApplicationContext(), "Error " + 107 + ". Unauthorised user agent, attempting to update. Report a bug if this issue prevails.", Toast.LENGTH_SHORT).show();
-                        updateUserAgent();
-                        return;
+                        if (response.has("error_code")) {
+                            if (response.getInt("error_code") == 1) {
+                                Toast.makeText(getApplicationContext(), "Error " + 107
+                                        + ". Unauthorised user agent, attempting to update. Report a bug if this issue prevails.",
+                                        Toast.LENGTH_SHORT).show();
+                                updateUserAgent();
+                                return;
+                            }
+                        }
+
+                        JSONArray semesterArray = response.getJSONArray("semesters");
+                        this.semesters = new HashMap<>();
+
+                        // Store available semesters for later use
+                        StringBuilder availableSemesters = new StringBuilder();
+
+                        for (int i = 0; i < semesterArray.length(); ++i) {
+                            JSONObject semesterObject = semesterArray.getJSONObject(i);
+                            String semesterName = semesterObject.getString("name");
+                            this.semesters.put(semesterName, semesterObject.getString("id"));
+
+                            if (i > 0)
+                                availableSemesters.append(",");
+                            availableSemesters.append(semesterName);
+                        }
+
+                        // Save available semesters to SharedPreferences
+                        this.sharedPreferences.edit().putString("availableSemesters", availableSemesters.toString())
+                                .apply();
+
+                        // Check if user has a preferred semester, otherwise use first one
+                        String preferredSemester = this.sharedPreferences.getString("semester", "");
+                        if (!preferredSemester.isEmpty() && this.semesters.containsKey(preferredSemester)) {
+                            setSemester(preferredSemester);
+                        } else if (semesterArray.length() > 0) {
+                            // Automatically select the current semester (assume first in the list is
+                            // current)
+                            JSONObject currentSemester = semesterArray.getJSONObject(0);
+                            setSemester(currentSemester.getString("name"));
+                        } else {
+                            this.endService(true);
+                        }
+                    } catch (Exception e) {
+                        error(201, e.getLocalizedMessage());
                     }
-                }
-
-                JSONArray semesterArray = response.getJSONArray("semesters");
-                this.semesters = new HashMap<>();
-
-                // Store available semesters for later use
-                StringBuilder availableSemesters = new StringBuilder();
-
-                for (int i = 0; i < semesterArray.length(); ++i) {
-                    JSONObject semesterObject = semesterArray.getJSONObject(i);
-                    String semesterName = semesterObject.getString("name");
-                    this.semesters.put(semesterName, semesterObject.getString("id"));
-
-                    if (i > 0) availableSemesters.append(",");
-                    availableSemesters.append(semesterName);
-                }
-
-                // Save available semesters to SharedPreferences
-                this.sharedPreferences.edit().putString("availableSemesters", availableSemesters.toString()).apply();
-
-                // Check if user has a preferred semester, otherwise use first one
-                String preferredSemester = this.sharedPreferences.getString("semester", "");
-                if (!preferredSemester.isEmpty() && this.semesters.containsKey(preferredSemester)) {
-                    setSemester(preferredSemester);
-                } else if (semesterArray.length() > 0) {
-                    // Automatically select the current semester (assume first in the list is current)
-                    JSONObject currentSemester = semesterArray.getJSONObject(0);
-                    setSemester(currentSemester.getString("name"));
-                } else {
-                    this.endService(true);
-                }
-            } catch (Exception e) {
-                error(201, e.getLocalizedMessage());
-            }
-        });
+                });
     }
 
     /**
@@ -1398,14 +1466,15 @@ public class VTOPService extends Service {
         updateProgress(R.string.downloading_profile);
 
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "name": "JOHN DOE"
-         *  }
+         * {
+         * "name": "JOHN DOE"
+         * }
          */
         webView.evaluateJavascript("(function() {" +
-                "var data = 'verifyMenu=true&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';" +
+                "var data = 'verifyMenu=true&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';"
+                +
                 "var response = {};" +
                 "$.ajax({" +
                 "    type: 'POST'," +
@@ -1428,15 +1497,15 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                sharedPreferences.edit().putString("name", response.getString("name")).apply();
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        sharedPreferences.edit().putString("name", response.getString("name")).apply();
 
-                this.getCreditsCGPA();
-            } catch (Exception e) {
-                error(301, e.getLocalizedMessage());
-            }
-        });
+                        this.getCreditsCGPA();
+                    } catch (Exception e) {
+                        error(301, e.getLocalizedMessage());
+                    }
+                });
     }
 
     /**
@@ -1446,15 +1515,16 @@ public class VTOPService extends Service {
         this.updateProgress(null);
 
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "cgpa": 8.58
-         *      "total_credits": 64
-         *  }
+         * {
+         * "cgpa": 8.58
+         * "total_credits": 64
+         * }
          */
         webView.evaluateJavascript("(function() {" +
-                "var data = 'verifyMenu=true&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';" +
+                "var data = 'verifyMenu=true&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';"
+                +
                 "var response = {};" +
                 "$.ajax({" +
                 "    type: 'POST'," +
@@ -1486,16 +1556,17 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                this.sharedPreferences.edit().putFloat("cgpa", (float) response.getDouble("cgpa")).apply();
-                this.sharedPreferences.edit().putFloat("totalCredits", (float) response.getDouble("total_credits")).apply();
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        this.sharedPreferences.edit().putFloat("cgpa", (float) response.getDouble("cgpa")).apply();
+                        this.sharedPreferences.edit()
+                                .putFloat("totalCredits", (float) response.getDouble("total_credits")).apply();
 
-                this.downloadCourses();
-            } catch (Exception e) {
-                error(302, e.getLocalizedMessage());
-            }
-        });
+                        this.downloadCourses();
+                    } catch (Exception e) {
+                        error(302, e.getLocalizedMessage());
+                    }
+                });
     }
 
     /**
@@ -1505,28 +1576,29 @@ public class VTOPService extends Service {
         this.updateProgress(R.string.downloading_courses);
 
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "courses": [
-         *          {
-         *              "code": "CSE1001",
-         *              "title": "Problem Solving and Programming",
-         *              "type": "lab"|"project"|"theory",
-         *              "credits": 3,
-         *              "slots": [
-         *                  "L45",
-         *                  "L46"
-         *              ],
-         *              "venue": "AB2 - 015",
-         *              "faculty": "JOHN DOE"
-         *          },
-         *          ...
-         *      ]
-         *  }
+         * {
+         * "courses": [
+         * {
+         * "code": "CSE1001",
+         * "title": "Problem Solving and Programming",
+         * "type": "lab"|"project"|"theory",
+         * "credits": 3,
+         * "slots": [
+         * "L45",
+         * "L46"
+         * ],
+         * "venue": "AB2 - 015",
+         * "faculty": "JOHN DOE"
+         * },
+         * ...
+         * ]
+         * }
          */
         webView.evaluateJavascript("(function() {" +
-                "var data = '_csrf=' + $('input[name=\"_csrf\"]').val() + '&semesterSubId=' + '" + semesterID + "' + '&authorizedID=' + $('#authorizedIDX').val();" +
+                "var data = '_csrf=' + $('input[name=\"_csrf\"]').val() + '&semesterSubId=' + '" + semesterID
+                + "' + '&authorizedID=' + $('#authorizedIDX').val();" +
                 "var response = {" +
                 "    courses: []" +
                 "};" +
@@ -1559,16 +1631,22 @@ public class VTOPService extends Service {
                 "        var headingOffset = headings[0].innerText.toLowerCase().includes('invoice') ? -1 : 0;" +
                 "        var cellOffset = cells[0].innerText.toLowerCase().includes('invoice') ? 1 : 0;" +
                 "        var offset = headingOffset + cellOffset;" +
-                "        while (courseIndex < cells.length && creditsIndex < cells.length && slotVenueIndex < cells.length && facultyIndex < cells.length) {" +
+                "        while (courseIndex < cells.length && creditsIndex < cells.length && slotVenueIndex < cells.length && facultyIndex < cells.length) {"
+                +
                 "            var course = {};" +
-                "            var rawCourse = cells[courseIndex + offset].innerText.replace(/\\t/g,'').replace(/\\n/g,' ');" +
+                "            var rawCourse = cells[courseIndex + offset].innerText.replace(/\\t/g,'').replace(/\\n/g,' ');"
+                +
                 "            var rawCourseType = rawCourse.split('(').slice(-1)[0].toLowerCase();" +
-                "            var rawCredits = cells[creditsIndex + offset].innerText.replace(/\\t/g,'').replace(/\\n/g,' ').trim().split(' ');" +
-                "            var rawSlotVenue = cells[slotVenueIndex + offset].innerText.replace(/\\t/g,'').replace(/\\n/g,'').split('-');" +
-                "            var rawFaculty = cells[facultyIndex + offset].innerText.replace(/\\t/g,'').replace(/\\n/g,'').split('-');" +
+                "            var rawCredits = cells[creditsIndex + offset].innerText.replace(/\\t/g,'').replace(/\\n/g,' ').trim().split(' ');"
+                +
+                "            var rawSlotVenue = cells[slotVenueIndex + offset].innerText.replace(/\\t/g,'').replace(/\\n/g,'').split('-');"
+                +
+                "            var rawFaculty = cells[facultyIndex + offset].innerText.replace(/\\t/g,'').replace(/\\n/g,'').split('-');"
+                +
                 "            course.code = rawCourse.split('-')[0].trim();" +
                 "            course.title = rawCourse.split('-').slice(1).join('-').split('(')[0].trim();" +
-                "            course.type = (rawCourseType.includes('lab')) ? 'lab' : ((rawCourseType.includes('project')) ? 'project' : 'theory');" +
+                "            course.type = (rawCourseType.includes('lab')) ? 'lab' : ((rawCourseType.includes('project')) ? 'project' : 'theory');"
+                +
                 "            course.credits = parseInt(rawCredits[rawCredits.length - 1]) || 0;" +
                 "            course.slots = rawSlotVenue[0].trim().split('+');" +
                 "            course.venue = rawSlotVenue.slice(1, rawSlotVenue.length).join(' - ').trim();" +
@@ -1583,103 +1661,104 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                JSONArray courseArray = response.getJSONArray("courses");
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        JSONArray courseArray = response.getJSONArray("courses");
 
-                List<Course> courses = new ArrayList<>();
-                List<Slot> slots = new ArrayList<>();
+                        List<Course> courses = new ArrayList<>();
+                        List<Slot> slots = new ArrayList<>();
 
-                this.theorySlots = new HashMap<>();
-                this.labSlots = new HashMap<>();
-                this.projectSlots = new HashMap<>();
+                        this.theorySlots = new HashMap<>();
+                        this.labSlots = new HashMap<>();
+                        this.projectSlots = new HashMap<>();
 
-                this.theoryCourses = new HashMap<>();
-                this.labCourses = new HashMap<>();
-                this.projectCourses = new HashMap<>();
+                        this.theoryCourses = new HashMap<>();
+                        this.labCourses = new HashMap<>();
+                        this.projectCourses = new HashMap<>();
 
-                for (int i = 0, slotId = 1; i < courseArray.length(); ++i) {
-                    JSONObject courseObject = courseArray.getJSONObject(i);
-                    Course course = new Course();
+                        for (int i = 0, slotId = 1; i < courseArray.length(); ++i) {
+                            JSONObject courseObject = courseArray.getJSONObject(i);
+                            Course course = new Course();
 
-                    course.id = i + 1;
-                    course.code = this.getStringValue(courseObject, "code");
-                    course.title = this.getStringValue(courseObject, "title");
-                    course.type = this.getStringValue(courseObject, "type");
-                    course.credits = this.getIntegerValue(courseObject, "credits");
-                    course.venue = this.getStringValue(courseObject, "venue");
-                    course.faculty = this.getStringValue(courseObject, "faculty");
+                            course.id = i + 1;
+                            course.code = this.getStringValue(courseObject, "code");
+                            course.title = this.getStringValue(courseObject, "title");
+                            course.type = this.getStringValue(courseObject, "type");
+                            course.credits = this.getIntegerValue(courseObject, "credits");
+                            course.venue = this.getStringValue(courseObject, "venue");
+                            course.faculty = this.getStringValue(courseObject, "faculty");
 
-                    courses.add(course);
+                            courses.add(course);
 
-                    Map<String, Slot> slotReference;
+                            Map<String, Slot> slotReference;
 
-                    if (course.type.equals("lab")) {
-                        slotReference = this.labSlots;
-                        this.labCourses.put(course.id, course);
-                    } else if (course.type.equals("project")) {
-                        slotReference = this.projectSlots;
-                        this.projectCourses.put(course.id, course);
-                    } else {
-                        slotReference = this.theorySlots;
-                        this.theoryCourses.put(course.id, course);
-                    }
+                            if (course.type.equals("lab")) {
+                                slotReference = this.labSlots;
+                                this.labCourses.put(course.id, course);
+                            } else if (course.type.equals("project")) {
+                                slotReference = this.projectSlots;
+                                this.projectCourses.put(course.id, course);
+                            } else {
+                                slotReference = this.theorySlots;
+                                this.theoryCourses.put(course.id, course);
+                            }
 
-                    JSONArray slotsArray = courseObject.getJSONArray("slots");
-                    for (int j = 0; j < slotsArray.length(); ++j, ++slotId) {
-                        Slot slot = new Slot();
+                            JSONArray slotsArray = courseObject.getJSONArray("slots");
+                            for (int j = 0; j < slotsArray.length(); ++j, ++slotId) {
+                                Slot slot = new Slot();
 
-                        slot.id = slotId;
-                        slot.slot = slotsArray.getString(j);
-                        slot.courseId = course.id;
+                                slot.id = slotId;
+                                slot.slot = slotsArray.getString(j);
+                                slot.courseId = course.id;
 
-                        slots.add(slot);
-                        slotReference.put(slot.slot, slot);
+                                slots.add(slot);
+                                slotReference.put(slot.slot, slot);
 
-                        String canonical = SLOT_ALIASES.get(slot.slot.toUpperCase(Locale.US));
-                        if (canonical != null && !slotReference.containsKey(canonical)) {
-                            slotReference.put(canonical, slot);
+                                String canonical = SLOT_ALIASES.get(slot.slot.toUpperCase(Locale.US));
+                                if (canonical != null && !slotReference.containsKey(canonical)) {
+                                    slotReference.put(canonical, slot);
+                                }
+                            }
                         }
+
+                        CoursesDao coursesDao = this.appDatabase.coursesDao();
+
+                        Observable<Object> deleteAllObservable = Observable.fromCompletable(coursesDao.deleteAll());
+                        Observable<Object> insertCoursesObservable = Observable
+                                .fromCompletable(coursesDao.insertCourses(courses));
+                        Observable<Object> insertSlotsObservable = Observable
+                                .fromCompletable(coursesDao.insertSlots(slots));
+
+                        Observable
+                                .concat(
+                                        deleteAllObservable,
+                                        insertCoursesObservable,
+                                        insertSlotsObservable)
+                                .subscribeOn(Schedulers.single())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Observer<Object>() {
+                                    @Override
+                                    public void onSubscribe(@NonNull Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onNext(@NonNull Object o) {
+                                    }
+
+                                    @Override
+                                    public void onError(@NonNull Throwable e) {
+                                        error(402, e.getLocalizedMessage());
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                        downloadTimetable();
+                                    }
+                                });
+                    } catch (Exception e) {
+                        error(401, e.getLocalizedMessage());
                     }
-                }
-
-                CoursesDao coursesDao = this.appDatabase.coursesDao();
-
-                Observable<Object> deleteAllObservable = Observable.fromCompletable(coursesDao.deleteAll());
-                Observable<Object> insertCoursesObservable = Observable.fromCompletable(coursesDao.insertCourses(courses));
-                Observable<Object> insertSlotsObservable = Observable.fromCompletable(coursesDao.insertSlots(slots));
-
-                Observable
-                        .concat(
-                                deleteAllObservable,
-                                insertCoursesObservable,
-                                insertSlotsObservable
-                        )
-                        .subscribeOn(Schedulers.single())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<Object>() {
-                            @Override
-                            public void onSubscribe(@NonNull Disposable d) {
-                            }
-
-                            @Override
-                            public void onNext(@NonNull Object o) {
-                            }
-
-                            @Override
-                            public void onError(@NonNull Throwable e) {
-                                error(402, e.getLocalizedMessage());
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                downloadTimetable();
-                            }
-                        });
-            } catch (Exception e) {
-                error(401, e.getLocalizedMessage());
-            }
-        });
+                });
     }
 
     /**
@@ -1688,39 +1767,42 @@ public class VTOPService extends Service {
      */
     private void downloadTimetable() {
         updateProgress(R.string.downloading_timetable);
-        
+
         try {
             CoursesDao coursesDao = this.appDatabase.coursesDao();
-            
+
             // Get all slots from database
             Observable.fromSingle(coursesDao.getAllSlots())
                     .subscribeOn(Schedulers.single())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Observer<List<Slot>>() {
                         @Override
-                        public void onSubscribe(@NonNull Disposable d) {}
-                        
+                        public void onSubscribe(@NonNull Disposable d) {
+                        }
+
                         @Override
                         public void onNext(@NonNull List<Slot> slots) {
-                            android.util.Log.d("VTOPService", "Retrieved " + slots.size() + " slots for timetable generation");
+                            android.util.Log.d("VTOPService",
+                                    "Retrieved " + slots.size() + " slots for timetable generation");
                             generateTimetableFromSlots(slots);
                         }
-                        
+
                         @Override
                         public void onError(@NonNull Throwable e) {
                             android.util.Log.e("VTOPService", "Error fetching slots: " + e.getMessage());
                             downloadAttendance();
                         }
-                        
+
                         @Override
-                        public void onComplete() {}
+                        public void onComplete() {
+                        }
                     });
         } catch (Exception e) {
             android.util.Log.e("VTOPService", "Error in downloadTimetable: " + e.getMessage());
             downloadAttendance();
         }
     }
-    
+
     /**
      * Generate timetable entries by mapping slots to days and periods
      */
@@ -1728,16 +1810,17 @@ public class VTOPService extends Service {
         try {
             // Create standard VIT timetable with 12 theory periods and 6 lab period groups
             List<Timetable> timetableEntries = createStandardVITTimetable();
-            
+
             android.util.Log.d("VTOPService", "Processing " + slots.size() + " slots for timetable");
-            
+
             // Map each slot to its appropriate day and period
             for (Slot slot : slots) {
-                if (slot.slot == null || slot.slot.isEmpty()) continue;
-                
+                if (slot.slot == null || slot.slot.isEmpty())
+                    continue;
+
                 // Handle compound slots (e.g., "TB2+L9" or "A1+B2")
                 String[] slotParts = slot.slot.toUpperCase().replaceAll("\\s", "").split("\\+");
-                
+
                 for (String slotPart : slotParts) {
                     String slotName = slotPart.trim();
                     if (!slotName.isEmpty()) {
@@ -1746,17 +1829,17 @@ public class VTOPService extends Service {
                     }
                 }
             }
-            
+
             android.util.Log.d("VTOPService", "Generated " + timetableEntries.size() + " timetable entries");
-            
+
             // Log each period to debug
             for (int i = 0; i < timetableEntries.size(); i++) {
                 Timetable t = timetableEntries.get(i);
-                android.util.Log.d("VTOPService", "Period " + i + " (" + t.startTime + "-" + t.endTime + 
-                    "): Mon=" + t.monday + " Tue=" + t.tuesday + " Wed=" + t.wednesday + 
-                    " Thu=" + t.thursday + " Fri=" + t.friday + " Sat=" + t.saturday);
+                android.util.Log.d("VTOPService", "Period " + i + " (" + t.startTime + "-" + t.endTime +
+                        "): Mon=" + t.monday + " Tue=" + t.tuesday + " Wed=" + t.wednesday +
+                        " Thu=" + t.thursday + " Fri=" + t.friday + " Sat=" + t.saturday);
             }
-            
+
             // Save to database
             TimetableDao timetableDao = this.appDatabase.timetableDao();
             Observable.fromCompletable(timetableDao.deleteAll())
@@ -1765,53 +1848,55 @@ public class VTOPService extends Service {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Observer<Object>() {
                         @Override
-                        public void onSubscribe(@NonNull Disposable d) {}
-                        
+                        public void onSubscribe(@NonNull Disposable d) {
+                        }
+
                         @Override
-                        public void onNext(@NonNull Object o) {}
-                        
+                        public void onNext(@NonNull Object o) {
+                        }
+
                         @Override
                         public void onError(@NonNull Throwable e) {
                             android.util.Log.e("VTOPService", "Error saving timetable: " + e.getMessage());
                             downloadAttendance();
                         }
-                        
+
                         @Override
                         public void onComplete() {
                             android.util.Log.d("VTOPService", "Timetable saved successfully");
                             downloadAttendance();
                         }
                     });
-            
+
         } catch (Exception e) {
             android.util.Log.e("VTOPService", "Error in generateTimetableFromSlots: " + e.getMessage());
             downloadAttendance();
         }
     }
-    
+
     /**
      * Create standard VIT timetable structure with 12 theory periods
      * Times match VIT Chennai period timings
      */
     private List<Timetable> createStandardVITTimetable() {
         List<Timetable> timetable = new ArrayList<>();
-        
+
         // VIT Chennai period timings
         String[] periodTimes = {
-            "08:00", "08:50",  // Period 0: 8:00-8:50
-            "08:55", "09:45",  // Period 1: 8:55-9:45
-            "09:50", "10:40",  // Period 2: 9:50-10:40
-            "10:45", "11:35",  // Period 3: 10:45-11:35
-            "11:40", "12:30",  // Period 4: 11:40-12:30
-            "12:35", "13:25",  // Period 5: 12:35-1:25
-            "14:00", "14:50",  // Period 6: 2:00-2:50
-            "14:55", "15:45",  // Period 7: 2:55-3:45
-            "15:50", "16:40",  // Period 8: 3:50-4:40
-            "16:45", "17:35",  // Period 9: 4:45-5:35
-            "17:40", "18:30",  // Period 10: 5:40-6:30
-            "18:35", "19:25"   // Period 11: 6:35-7:25
+                "08:00", "08:50", // Period 0: 8:00-8:50
+                "08:55", "09:45", // Period 1: 8:55-9:45
+                "09:50", "10:40", // Period 2: 9:50-10:40
+                "10:45", "11:35", // Period 3: 10:45-11:35
+                "11:40", "12:30", // Period 4: 11:40-12:30
+                "12:35", "13:25", // Period 5: 12:35-1:25
+                "14:00", "14:50", // Period 6: 2:00-2:50
+                "14:55", "15:45", // Period 7: 2:55-3:45
+                "15:50", "16:40", // Period 8: 3:50-4:40
+                "16:45", "17:35", // Period 9: 4:45-5:35
+                "17:40", "18:30", // Period 10: 5:40-6:30
+                "18:35", "19:25" // Period 11: 6:35-7:25
         };
-        
+
         // Create 12 periods (indices 0-11)
         for (int i = 0; i < 12; i++) {
             Timetable period = new Timetable();
@@ -1820,13 +1905,14 @@ public class VTOPService extends Service {
             period.endTime = periodTimes[(i * 2) + 1];
             timetable.add(period);
         }
-        
+
         return timetable;
     }
-    
+
     /**
      * Map a slot to its appropriate timetable period and day(s)
-     * Period indices are 0-based: 0=Period1(08:00-08:50), 1=Period2(08:50-09:40), etc.
+     * Period indices are 0-based: 0=Period1(08:00-08:50), 1=Period2(08:50-09:40),
+     * etc.
      */
     private void mapSlotToTimetable(List<Timetable> timetable, Slot slot, String slotName) {
         String normalizedSlot = slotName.toUpperCase(Locale.US);
@@ -1846,374 +1932,436 @@ public class VTOPService extends Service {
             assignSlotToTimetable(timetable, slot.id, placement.day, placement.periodIndex);
         }
     }
-    
+
     /**
      * Assign a slot to a specific day and period in timetable
      * Skip assignment if period already has a slot for that day (avoid overwriting)
      */
     private void assignSlotToTimetable(List<Timetable> timetable, int slotId, String day, int periodIndex) {
         if (periodIndex < 0 || periodIndex >= timetable.size()) {
-            android.util.Log.w("VTOPService", "Invalid period index: " + periodIndex + " for slot " + slotId + " on " + day);
+            android.util.Log.w("VTOPService",
+                    "Invalid period index: " + periodIndex + " for slot " + slotId + " on " + day);
             return;
         }
-        
+
         Timetable period = timetable.get(periodIndex);
-        
-        // Check if this period already has a slot for this day - if so, skip to avoid overwriting
+
+        // Check if this period already has a slot for this day - if so, skip to avoid
+        // overwriting
         boolean alreadyOccupied = false;
         Integer existingSlot = null;
-        
+
         switch (day.toLowerCase()) {
             case "sunday":
                 existingSlot = period.sunday;
                 alreadyOccupied = (existingSlot != null);
-                if (!alreadyOccupied) period.sunday = slotId;
+                if (!alreadyOccupied)
+                    period.sunday = slotId;
                 break;
             case "monday":
                 existingSlot = period.monday;
                 alreadyOccupied = (existingSlot != null);
-                if (!alreadyOccupied) period.monday = slotId;
+                if (!alreadyOccupied)
+                    period.monday = slotId;
                 break;
             case "tuesday":
                 existingSlot = period.tuesday;
                 alreadyOccupied = (existingSlot != null);
-                if (!alreadyOccupied) period.tuesday = slotId;
+                if (!alreadyOccupied)
+                    period.tuesday = slotId;
                 break;
             case "wednesday":
                 existingSlot = period.wednesday;
                 alreadyOccupied = (existingSlot != null);
-                if (!alreadyOccupied) period.wednesday = slotId;
+                if (!alreadyOccupied)
+                    period.wednesday = slotId;
                 break;
             case "thursday":
                 existingSlot = period.thursday;
                 alreadyOccupied = (existingSlot != null);
-                if (!alreadyOccupied) period.thursday = slotId;
+                if (!alreadyOccupied)
+                    period.thursday = slotId;
                 break;
             case "friday":
                 existingSlot = period.friday;
                 alreadyOccupied = (existingSlot != null);
-                if (!alreadyOccupied) period.friday = slotId;
+                if (!alreadyOccupied)
+                    period.friday = slotId;
                 break;
             case "saturday":
                 existingSlot = period.saturday;
                 alreadyOccupied = (existingSlot != null);
-                if (!alreadyOccupied) period.saturday = slotId;
+                if (!alreadyOccupied)
+                    period.saturday = slotId;
                 break;
         }
-        
+
         if (alreadyOccupied) {
-            android.util.Log.d("VTOPService", "Period " + periodIndex + " on " + day + " already occupied by slot " + existingSlot + ", skipping slot " + slotId);
+            android.util.Log.d("VTOPService", "Period " + periodIndex + " on " + day + " already occupied by slot "
+                    + existingSlot + ", skipping slot " + slotId);
         } else {
-            android.util.Log.d("VTOPService", "Assigned slot " + slotId + " to " + day + " period " + periodIndex + " (" + period.startTime + "-" + period.endTime + ")");
+            android.util.Log.d("VTOPService", "Assigned slot " + slotId + " to " + day + " period " + periodIndex + " ("
+                    + period.startTime + "-" + period.endTime + ")");
         }
     }
 
-    /* DISABLED - This method uses database interfaces that don't exist
-    /**
+    /*
+     * DISABLED - This method uses database interfaces that don't exist
+     * /**
      * Generate timetable from course slots instead of VTOP's broken JavaScript
      */
     /*
-    private void generateTimetableFromSlots() {
-        try {
-            // Get all courses and slots from database
-            tk.therealsuji.vtopchennai.interfaces.CoursesDao coursesDao = appDatabase.coursesDao();
-            tk.therealsuji.vtopchennai.interfaces.SlotsDao slotsDao = appDatabase.slotsDao();
-            
-            List<tk.therealsuji.vtopchennai.models.Course> courses = coursesDao.getAllSync();
-            List<tk.therealsuji.vtopchennai.models.Slot> allSlots = slotsDao.getAllSlots();
-            
-            android.util.Log.d("VTOPService", "Starting slot mapping with " + courses.size() + " courses and " + allSlots.size() + " slots");
-            
-            // Create standard VIT timetable structure
-            List<tk.therealsuji.vtopchennai.models.Timetable> timetable = createStandardVITTimetable();
-            
-            // Map slots to timetable
-            mapSlotsToTimetable(timetable, allSlots);
-            
-            android.util.Log.d("VTOPService", "Completed slot mapping");
-            
-            // Save to database
-            tk.therealsuji.vtopchennai.interfaces.TimetableDao timetableDao = appDatabase.timetableDao();
-            timetableDao.deleteAllSync();
-            timetableDao.insertSync(timetable);
-            
-        } catch (Exception e) {
-            android.util.Log.e("VTOPService", "Error in generateTimetableFromSlots: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-    */
+     * private void generateTimetableFromSlots() {
+     * try {
+     * // Get all courses and slots from database
+     * tk.therealsuji.vtopchennai.interfaces.CoursesDao coursesDao =
+     * appDatabase.coursesDao();
+     * tk.therealsuji.vtopchennai.interfaces.SlotsDao slotsDao =
+     * appDatabase.slotsDao();
+     * 
+     * List<tk.therealsuji.vtopchennai.models.Course> courses =
+     * coursesDao.getAllSync();
+     * List<tk.therealsuji.vtopchennai.models.Slot> allSlots =
+     * slotsDao.getAllSlots();
+     * 
+     * android.util.Log.d("VTOPService", "Starting slot mapping with " +
+     * courses.size() + " courses and " + allSlots.size() + " slots");
+     * 
+     * // Create standard VIT timetable structure
+     * List<tk.therealsuji.vtopchennai.models.Timetable> timetable =
+     * createStandardVITTimetable();
+     * 
+     * // Map slots to timetable
+     * mapSlotsToTimetable(timetable, allSlots);
+     * 
+     * android.util.Log.d("VTOPService", "Completed slot mapping");
+     * 
+     * // Save to database
+     * tk.therealsuji.vtopchennai.interfaces.TimetableDao timetableDao =
+     * appDatabase.timetableDao();
+     * timetableDao.deleteAllSync();
+     * timetableDao.insertSync(timetable);
+     * 
+     * } catch (Exception e) {
+     * android.util.Log.e("VTOPService", "Error in generateTimetableFromSlots: " +
+     * e.getMessage(), e);
+     * throw e;
+     * }
+     * }
+     */
 
-    /* DISABLED - Helper methods for disabled generateTimetableFromSlots()
-    /**
+    /*
+     * DISABLED - Helper methods for disabled generateTimetableFromSlots()
+     * /**
      * Create standard VIT timetable structure with 12 theory + 12 lab periods
      */
     /*
-    private List<tk.therealsuji.vtopchennai.models.Timetable> createStandardVITTimetable() {
-        List<tk.therealsuji.vtopchennai.models.Timetable> timetable = new ArrayList<>();
-        
-        // VIT Chennai standard timings
-        String[] theoryTimes = {
-            "08:00", "08:50",  // Period 1
-            "08:50", "09:40",  // Period 2  
-            "10:00", "10:50",  // Period 3
-            "10:50", "11:40",  // Period 4
-            "11:40", "12:30",  // Period 5
-            "13:30", "14:20",  // Period 6
-            "14:20", "15:10",  // Period 7
-            "15:30", "16:20",  // Period 8
-            "16:20", "17:10",  // Period 9
-            "17:10", "18:00",  // Period 10
-            "18:00", "18:50",  // Period 11
-            "18:50", "19:40"   // Period 12
-        };
-        
-        String[] labTimes = {
-            "08:00", "09:40",  // Lab slot 1-2
-            "10:00", "11:40",  // Lab slot 3-4
-            "11:40", "13:20",  // Lab slot 5-6 (includes lunch)
-            "13:30", "15:10",  // Lab slot 7-8
-            "15:30", "17:10",  // Lab slot 9-10
-            "17:10", "18:50",  // Lab slot 11-12
-            "08:00", "11:40",  // Extended lab 1-4
-            "11:40", "15:10",  // Extended lab 5-8 (includes lunch)
-            "15:30", "18:50",  // Extended lab 9-12
-            "08:00", "13:20",  // Morning session (1-6)
-            "13:30", "18:50",  // Afternoon session (7-12)
-            "08:00", "18:50"   // Full day
-        };
-        
-        // Create 12 theory periods
-        for (int i = 0; i < 12; i++) {
-            tk.therealsuji.vtopchennai.models.Timetable period = new tk.therealsuji.vtopchennai.models.Timetable();
-            period.id = (i * 2) + 1; // Odd IDs for theory
-            period.startTime = theoryTimes[i * 2];
-            period.endTime = theoryTimes[(i * 2) + 1];
-            period.sunday = null;
-            period.monday = null;
-            period.tuesday = null;
-            period.wednesday = null;
-            period.thursday = null;
-            period.friday = null;
-            period.saturday = null;
-            timetable.add(period);
-        }
-        
-        // Create 12 lab periods  
-        for (int i = 0; i < 12; i++) {
-            tk.therealsuji.vtopchennai.models.Timetable period = new tk.therealsuji.vtopchennai.models.Timetable();
-            period.id = (i * 2) + 2; // Even IDs for lab
-            period.startTime = labTimes[i * 2];
-            period.endTime = labTimes[(i * 2) + 1];
-            period.sunday = null;
-            period.monday = null;
-            period.tuesday = null;
-            period.wednesday = null;
-            period.thursday = null;
-            period.friday = null;
-            period.saturday = null;
-            timetable.add(period);
-        }
-        
-        return timetable;
-    }
-
-    /* DISABLED - Helper method for disabled generateTimetableFromSlots()
-    /**
+     * private List<tk.therealsuji.vtopchennai.models.Timetable>
+     * createStandardVITTimetable() {
+     * List<tk.therealsuji.vtopchennai.models.Timetable> timetable = new
+     * ArrayList<>();
+     * 
+     * // VIT Chennai standard timings
+     * String[] theoryTimes = {
+     * "08:00", "08:50", // Period 1
+     * "08:50", "09:40", // Period 2
+     * "10:00", "10:50", // Period 3
+     * "10:50", "11:40", // Period 4
+     * "11:40", "12:30", // Period 5
+     * "13:30", "14:20", // Period 6
+     * "14:20", "15:10", // Period 7
+     * "15:30", "16:20", // Period 8
+     * "16:20", "17:10", // Period 9
+     * "17:10", "18:00", // Period 10
+     * "18:00", "18:50", // Period 11
+     * "18:50", "19:40" // Period 12
+     * };
+     * 
+     * String[] labTimes = {
+     * "08:00", "09:40", // Lab slot 1-2
+     * "10:00", "11:40", // Lab slot 3-4
+     * "11:40", "13:20", // Lab slot 5-6 (includes lunch)
+     * "13:30", "15:10", // Lab slot 7-8
+     * "15:30", "17:10", // Lab slot 9-10
+     * "17:10", "18:50", // Lab slot 11-12
+     * "08:00", "11:40", // Extended lab 1-4
+     * "11:40", "15:10", // Extended lab 5-8 (includes lunch)
+     * "15:30", "18:50", // Extended lab 9-12
+     * "08:00", "13:20", // Morning session (1-6)
+     * "13:30", "18:50", // Afternoon session (7-12)
+     * "08:00", "18:50" // Full day
+     * };
+     * 
+     * // Create 12 theory periods
+     * for (int i = 0; i < 12; i++) {
+     * tk.therealsuji.vtopchennai.models.Timetable period = new
+     * tk.therealsuji.vtopchennai.models.Timetable();
+     * period.id = (i * 2) + 1; // Odd IDs for theory
+     * period.startTime = theoryTimes[i * 2];
+     * period.endTime = theoryTimes[(i * 2) + 1];
+     * period.sunday = null;
+     * period.monday = null;
+     * period.tuesday = null;
+     * period.wednesday = null;
+     * period.thursday = null;
+     * period.friday = null;
+     * period.saturday = null;
+     * timetable.add(period);
+     * }
+     * 
+     * // Create 12 lab periods
+     * for (int i = 0; i < 12; i++) {
+     * tk.therealsuji.vtopchennai.models.Timetable period = new
+     * tk.therealsuji.vtopchennai.models.Timetable();
+     * period.id = (i * 2) + 2; // Even IDs for lab
+     * period.startTime = labTimes[i * 2];
+     * period.endTime = labTimes[(i * 2) + 1];
+     * period.sunday = null;
+     * period.monday = null;
+     * period.tuesday = null;
+     * period.wednesday = null;
+     * period.thursday = null;
+     * period.friday = null;
+     * period.saturday = null;
+     * timetable.add(period);
+     * }
+     * 
+     * return timetable;
+     * }
+     * 
+     * /* DISABLED - Helper method for disabled generateTimetableFromSlots()
+     * /**
      * Map course slots to timetable periods
      */
     /*
-    private void mapSlotsToTimetable(List<tk.therealsuji.vtopchennai.models.Timetable> timetable, List<tk.therealsuji.vtopchennai.models.Slot> allSlots) {
-        for (tk.therealsuji.vtopchennai.models.Slot slot : allSlots) {
-            if (slot.slot == null || slot.slot.equals("NIL")) {
-                android.util.Log.w("VTOPService", "Unknown slot: " + slot.slot);
-                continue;
-            }
-            
-            android.util.Log.d("VTOPService", "Processing slot: " + slot.slot + " (course ID: " + slot.courseId + ")");
-            
-            // Map slot to multiple days if theory, single day if lab
-            mapSlotToMultipleDays(timetable, slot);
-        }
-    }
-
-    /* DISABLED - Helper method for disabled generateTimetableFromSlots()
-    /**
+     * private void
+     * mapSlotsToTimetable(List<tk.therealsuji.vtopchennai.models.Timetable>
+     * timetable, List<tk.therealsuji.vtopchennai.models.Slot> allSlots) {
+     * for (tk.therealsuji.vtopchennai.models.Slot slot : allSlots) {
+     * if (slot.slot == null || slot.slot.equals("NIL")) {
+     * android.util.Log.w("VTOPService", "Unknown slot: " + slot.slot);
+     * continue;
+     * }
+     * 
+     * android.util.Log.d("VTOPService", "Processing slot: " + slot.slot +
+     * " (course ID: " + slot.courseId + ")");
+     * 
+     * // Map slot to multiple days if theory, single day if lab
+     * mapSlotToMultipleDays(timetable, slot);
+     * }
+     * }
+     * 
+     * /* DISABLED - Helper method for disabled generateTimetableFromSlots()
+     * /**
      * Map a single slot to appropriate timetable periods
      * Theory slots appear on multiple days, lab slots on single days
      */
     /*
-    private void mapSlotToMultipleDays(List<tk.therealsuji.vtopchennai.models.Timetable> timetable, tk.therealsuji.vtopchennai.models.Slot slot) {
-        String slotName = slot.slot.toUpperCase();
-        
-        // Theory slots repeat across multiple days
-        switch (slotName) {
-            // Theory slots - appear on multiple days
-            case "A1": case "TA1":
-                assignSlotToTimetable(timetable, slot.id, "monday", 6);    // Period 6: 13:30-14:20
-                assignSlotToTimetable(timetable, slot.id, "wednesday", 7); // Period 7: 14:20-15:10
-                break;
-            case "A2": case "TA2": case "TAA2":
-                assignSlotToTimetable(timetable, slot.id, "tuesday", 6);   // Period 6: 13:30-14:20
-                assignSlotToTimetable(timetable, slot.id, "thursday", 7);  // Period 7: 14:20-15:10
-                break;
-            case "B1": case "TB1":
-                assignSlotToTimetable(timetable, slot.id, "tuesday", 7);   // Period 7: 14:20-15:10
-                assignSlotToTimetable(timetable, slot.id, "thursday", 8);  // Period 8: 15:30-16:20
-                break;
-            case "B2": case "TB2":
-                assignSlotToTimetable(timetable, slot.id, "monday", 9);    // Period 9: 16:20-17:10
-                assignSlotToTimetable(timetable, slot.id, "wednesday", 6); // Period 6: 13:30-14:20
-                break;
-            case "C1": case "TC1":
-                assignSlotToTimetable(timetable, slot.id, "wednesday", 8); // Period 8: 15:30-16:20
-                assignSlotToTimetable(timetable, slot.id, "friday", 6);    // Period 6: 13:30-14:20
-                break;
-            case "C2": case "TC2":
-                assignSlotToTimetable(timetable, slot.id, "wednesday", 6); // Period 6: 13:30-14:20
-                assignSlotToTimetable(timetable, slot.id, "friday", 7);    // Period 7: 14:20-15:10
-                break;
-            case "D1": case "TD1":
-                assignSlotToTimetable(timetable, slot.id, "monday", 7);    // Period 7: 14:20-15:10
-                assignSlotToTimetable(timetable, slot.id, "wednesday", 9); // Period 9: 16:20-17:10
-                break;
-            case "D2": case "TD2":
-                assignSlotToTimetable(timetable, slot.id, "monday", 8);    // Period 8: 15:30-16:20
-                assignSlotToTimetable(timetable, slot.id, "thursday", 6);  // Period 6: 13:30-14:20
-                break;
-            case "E1": case "TE1":
-                assignSlotToTimetable(timetable, slot.id, "tuesday", 8);   // Period 8: 15:30-16:20
-                assignSlotToTimetable(timetable, slot.id, "thursday", 9);  // Period 9: 16:20-17:10
-                break;
-            case "E2": case "TE2":
-                assignSlotToTimetable(timetable, slot.id, "tuesday", 8);   // Period 8: 15:30-16:20
-                assignSlotToTimetable(timetable, slot.id, "friday", 6);    // Period 6: 13:30-14:20
-                break;
-            case "F1": case "TF1":
-                assignSlotToTimetable(timetable, slot.id, "monday", 6);    // Period 6: 13:30-14:20
-                assignSlotToTimetable(timetable, slot.id, "friday", 8);    // Period 8: 15:30-16:20
-                break;
-            case "F2": case "TF2":
-                assignSlotToTimetable(timetable, slot.id, "monday", 7);    // Period 7: 14:20-15:10
-                assignSlotToTimetable(timetable, slot.id, "wednesday", 8); // Period 8: 15:30-16:20
-                break;
-            case "G1": case "TG1":
-                assignSlotToTimetable(timetable, slot.id, "tuesday", 9);   // Period 9: 16:20-17:10
-                assignSlotToTimetable(timetable, slot.id, "friday", 7);    // Period 7: 14:20-15:10
-                break;
-            case "G2": case "TG2":
-                assignSlotToTimetable(timetable, slot.id, "tuesday", 7);   // Period 7: 14:20-15:10
-                assignSlotToTimetable(timetable, slot.id, "thursday", 8);  // Period 8: 15:30-16:20
-                break;
-            
-            // Lab slots - single day assignments
-            case "L1": case "L2":
-                assignSlotToTimetable(timetable, slot.id, "monday", 0);    // 08:00-09:40
-                break;
-            case "L3": case "L4":
-                assignSlotToTimetable(timetable, slot.id, "monday", 2);    // 10:00-11:40
-                break;
-            case "L5": case "L6":
-                assignSlotToTimetable(timetable, slot.id, "monday", 4);    // 11:40-13:20
-                break;
-            case "L7": case "L8":
-                assignSlotToTimetable(timetable, slot.id, "monday", 6);    // 13:30-15:10
-                break;
-            case "L9": case "L10":
-                assignSlotToTimetable(timetable, slot.id, "tuesday", 2);   // 10:00-11:40
-                break;
-            case "L11": case "L12":
-                assignSlotToTimetable(timetable, slot.id, "tuesday", 4);   // 11:40-13:20
-                break;
-            case "L13": case "L14":
-                assignSlotToTimetable(timetable, slot.id, "wednesday", 0); // 08:00-09:40
-                break;
-            case "L15": case "L16":
-                assignSlotToTimetable(timetable, slot.id, "wednesday", 2); // 10:00-11:40
-                break;
-            case "L17": case "L18":
-                assignSlotToTimetable(timetable, slot.id, "wednesday", 4); // 11:40-13:20
-                break;
-            case "L19": case "L20":
-                assignSlotToTimetable(timetable, slot.id, "thursday", 0);  // 08:00-09:40
-                break;
-            case "L21": case "L22":
-                assignSlotToTimetable(timetable, slot.id, "thursday", 2);  // 10:00-11:40
-                break;
-            case "L23": case "L24":
-                assignSlotToTimetable(timetable, slot.id, "thursday", 4);  // 11:40-13:20
-                break;
-            case "L25": case "L26":
-                assignSlotToTimetable(timetable, slot.id, "friday", 0);    // 08:00-09:40
-                break;
-            case "L27": case "L28":
-                assignSlotToTimetable(timetable, slot.id, "friday", 2);    // 10:00-11:40
-                break;
-            case "L29": case "L30":
-                assignSlotToTimetable(timetable, slot.id, "friday", 4);    // 11:40-13:20
-                break;
-            case "L31": case "L32":
-                assignSlotToTimetable(timetable, slot.id, "saturday", 0);  // 08:00-09:40
-                break;
-            case "L33": case "L34":
-                assignSlotToTimetable(timetable, slot.id, "saturday", 2);  // 10:00-11:40
-                break;
-            case "L35": case "L36":
-                assignSlotToTimetable(timetable, slot.id, "saturday", 4);  // 11:40-13:20
-                break;
-            
-            default:
-                android.util.Log.w("VTOPService", "Unmapped slot: " + slotName);
-                break;
-        }
-    }
-
-    /* DISABLED - Helper method for disabled generateTimetableFromSlots()
-    /**
+     * private void
+     * mapSlotToMultipleDays(List<tk.therealsuji.vtopchennai.models.Timetable>
+     * timetable, tk.therealsuji.vtopchennai.models.Slot slot) {
+     * String slotName = slot.slot.toUpperCase();
+     * 
+     * // Theory slots repeat across multiple days
+     * switch (slotName) {
+     * // Theory slots - appear on multiple days
+     * case "A1": case "TA1":
+     * assignSlotToTimetable(timetable, slot.id, "monday", 6); // Period 6:
+     * 13:30-14:20
+     * assignSlotToTimetable(timetable, slot.id, "wednesday", 7); // Period 7:
+     * 14:20-15:10
+     * break;
+     * case "A2": case "TA2": case "TAA2":
+     * assignSlotToTimetable(timetable, slot.id, "tuesday", 6); // Period 6:
+     * 13:30-14:20
+     * assignSlotToTimetable(timetable, slot.id, "thursday", 7); // Period 7:
+     * 14:20-15:10
+     * break;
+     * case "B1": case "TB1":
+     * assignSlotToTimetable(timetable, slot.id, "tuesday", 7); // Period 7:
+     * 14:20-15:10
+     * assignSlotToTimetable(timetable, slot.id, "thursday", 8); // Period 8:
+     * 15:30-16:20
+     * break;
+     * case "B2": case "TB2":
+     * assignSlotToTimetable(timetable, slot.id, "monday", 9); // Period 9:
+     * 16:20-17:10
+     * assignSlotToTimetable(timetable, slot.id, "wednesday", 6); // Period 6:
+     * 13:30-14:20
+     * break;
+     * case "C1": case "TC1":
+     * assignSlotToTimetable(timetable, slot.id, "wednesday", 8); // Period 8:
+     * 15:30-16:20
+     * assignSlotToTimetable(timetable, slot.id, "friday", 6); // Period 6:
+     * 13:30-14:20
+     * break;
+     * case "C2": case "TC2":
+     * assignSlotToTimetable(timetable, slot.id, "wednesday", 6); // Period 6:
+     * 13:30-14:20
+     * assignSlotToTimetable(timetable, slot.id, "friday", 7); // Period 7:
+     * 14:20-15:10
+     * break;
+     * case "D1": case "TD1":
+     * assignSlotToTimetable(timetable, slot.id, "monday", 7); // Period 7:
+     * 14:20-15:10
+     * assignSlotToTimetable(timetable, slot.id, "wednesday", 9); // Period 9:
+     * 16:20-17:10
+     * break;
+     * case "D2": case "TD2":
+     * assignSlotToTimetable(timetable, slot.id, "monday", 8); // Period 8:
+     * 15:30-16:20
+     * assignSlotToTimetable(timetable, slot.id, "thursday", 6); // Period 6:
+     * 13:30-14:20
+     * break;
+     * case "E1": case "TE1":
+     * assignSlotToTimetable(timetable, slot.id, "tuesday", 8); // Period 8:
+     * 15:30-16:20
+     * assignSlotToTimetable(timetable, slot.id, "thursday", 9); // Period 9:
+     * 16:20-17:10
+     * break;
+     * case "E2": case "TE2":
+     * assignSlotToTimetable(timetable, slot.id, "tuesday", 8); // Period 8:
+     * 15:30-16:20
+     * assignSlotToTimetable(timetable, slot.id, "friday", 6); // Period 6:
+     * 13:30-14:20
+     * break;
+     * case "F1": case "TF1":
+     * assignSlotToTimetable(timetable, slot.id, "monday", 6); // Period 6:
+     * 13:30-14:20
+     * assignSlotToTimetable(timetable, slot.id, "friday", 8); // Period 8:
+     * 15:30-16:20
+     * break;
+     * case "F2": case "TF2":
+     * assignSlotToTimetable(timetable, slot.id, "monday", 7); // Period 7:
+     * 14:20-15:10
+     * assignSlotToTimetable(timetable, slot.id, "wednesday", 8); // Period 8:
+     * 15:30-16:20
+     * break;
+     * case "G1": case "TG1":
+     * assignSlotToTimetable(timetable, slot.id, "tuesday", 9); // Period 9:
+     * 16:20-17:10
+     * assignSlotToTimetable(timetable, slot.id, "friday", 7); // Period 7:
+     * 14:20-15:10
+     * break;
+     * case "G2": case "TG2":
+     * assignSlotToTimetable(timetable, slot.id, "tuesday", 7); // Period 7:
+     * 14:20-15:10
+     * assignSlotToTimetable(timetable, slot.id, "thursday", 8); // Period 8:
+     * 15:30-16:20
+     * break;
+     * 
+     * // Lab slots - single day assignments
+     * case "L1": case "L2":
+     * assignSlotToTimetable(timetable, slot.id, "monday", 0); // 08:00-09:40
+     * break;
+     * case "L3": case "L4":
+     * assignSlotToTimetable(timetable, slot.id, "monday", 2); // 10:00-11:40
+     * break;
+     * case "L5": case "L6":
+     * assignSlotToTimetable(timetable, slot.id, "monday", 4); // 11:40-13:20
+     * break;
+     * case "L7": case "L8":
+     * assignSlotToTimetable(timetable, slot.id, "monday", 6); // 13:30-15:10
+     * break;
+     * case "L9": case "L10":
+     * assignSlotToTimetable(timetable, slot.id, "tuesday", 2); // 10:00-11:40
+     * break;
+     * case "L11": case "L12":
+     * assignSlotToTimetable(timetable, slot.id, "tuesday", 4); // 11:40-13:20
+     * break;
+     * case "L13": case "L14":
+     * assignSlotToTimetable(timetable, slot.id, "wednesday", 0); // 08:00-09:40
+     * break;
+     * case "L15": case "L16":
+     * assignSlotToTimetable(timetable, slot.id, "wednesday", 2); // 10:00-11:40
+     * break;
+     * case "L17": case "L18":
+     * assignSlotToTimetable(timetable, slot.id, "wednesday", 4); // 11:40-13:20
+     * break;
+     * case "L19": case "L20":
+     * assignSlotToTimetable(timetable, slot.id, "thursday", 0); // 08:00-09:40
+     * break;
+     * case "L21": case "L22":
+     * assignSlotToTimetable(timetable, slot.id, "thursday", 2); // 10:00-11:40
+     * break;
+     * case "L23": case "L24":
+     * assignSlotToTimetable(timetable, slot.id, "thursday", 4); // 11:40-13:20
+     * break;
+     * case "L25": case "L26":
+     * assignSlotToTimetable(timetable, slot.id, "friday", 0); // 08:00-09:40
+     * break;
+     * case "L27": case "L28":
+     * assignSlotToTimetable(timetable, slot.id, "friday", 2); // 10:00-11:40
+     * break;
+     * case "L29": case "L30":
+     * assignSlotToTimetable(timetable, slot.id, "friday", 4); // 11:40-13:20
+     * break;
+     * case "L31": case "L32":
+     * assignSlotToTimetable(timetable, slot.id, "saturday", 0); // 08:00-09:40
+     * break;
+     * case "L33": case "L34":
+     * assignSlotToTimetable(timetable, slot.id, "saturday", 2); // 10:00-11:40
+     * break;
+     * case "L35": case "L36":
+     * assignSlotToTimetable(timetable, slot.id, "saturday", 4); // 11:40-13:20
+     * break;
+     * 
+     * default:
+     * android.util.Log.w("VTOPService", "Unmapped slot: " + slotName);
+     * break;
+     * }
+     * }
+     * 
+     * /* DISABLED - Helper method for disabled generateTimetableFromSlots()
+     * /**
      * Assign a slot to a specific day and period in timetable
      */
     /*
-    private void assignSlotToTimetable(List<tk.therealsuji.vtopchennai.models.Timetable> timetable, int slotId, String day, int periodIndex) {
-        // Find the timetable entry for this period
-        int timetableId = (periodIndex * 2) + 1; // Theory periods have odd IDs
-        
-        for (tk.therealsuji.vtopchennai.models.Timetable period : timetable) {
-            if (period.id == timetableId) {
-                // Assign slot to the appropriate day
-                switch (day.toLowerCase()) {
-                    case "sunday":
-                        period.sunday = slotId;
-                        break;
-                    case "monday":
-                        period.monday = slotId;
-                        break;
-                    case "tuesday":
-                        period.tuesday = slotId;
-                        break;
-                    case "wednesday":
-                        period.wednesday = slotId;
-                        break;
-                    case "thursday":
-                        period.thursday = slotId;
-                        break;
-                    case "friday":
-                        period.friday = slotId;
-                        break;
-                    case "saturday":
-                        period.saturday = slotId;
-                        break;
-                }
-                
-                android.util.Log.d("VTOPService", "Assigned slot " + slotId + " to " + day + " period " + periodIndex + " (timetable id " + timetableId + ")");
-                break;
-            }
-        }
-    }
-    */
+     * private void
+     * assignSlotToTimetable(List<tk.therealsuji.vtopchennai.models.Timetable>
+     * timetable, int slotId, String day, int periodIndex) {
+     * // Find the timetable entry for this period
+     * int timetableId = (periodIndex * 2) + 1; // Theory periods have odd IDs
+     * 
+     * for (tk.therealsuji.vtopchennai.models.Timetable period : timetable) {
+     * if (period.id == timetableId) {
+     * // Assign slot to the appropriate day
+     * switch (day.toLowerCase()) {
+     * case "sunday":
+     * period.sunday = slotId;
+     * break;
+     * case "monday":
+     * period.monday = slotId;
+     * break;
+     * case "tuesday":
+     * period.tuesday = slotId;
+     * break;
+     * case "wednesday":
+     * period.wednesday = slotId;
+     * break;
+     * case "thursday":
+     * period.thursday = slotId;
+     * break;
+     * case "friday":
+     * period.friday = slotId;
+     * break;
+     * case "saturday":
+     * period.saturday = slotId;
+     * break;
+     * }
+     * 
+     * android.util.Log.d("VTOPService", "Assigned slot " + slotId + " to " + day +
+     * " period " + periodIndex + " (timetable id " + timetableId + ")");
+     * break;
+     * }
+     * }
+     * }
+     */
 
     /**
      * Download attendance using jQuery AJAX with CSRF token.
-     * This uses VTOP's own AJAX mechanism with the required CSRF token for authentication.
+     * This uses VTOP's own AJAX mechanism with the required CSRF token for
+     * authentication.
      */
     private void downloadAttendance() {
         updateProgress(R.string.downloading_attendance);
@@ -2227,37 +2375,39 @@ public class VTOPService extends Service {
 
         // Use jQuery AJAX with CSRF token
         String ajaxScript = "(function() {" +
-            "var authorizedID = $('#authorizedIDX').val() || $('#authorizedID').val() || '';" +
-            "var semesterSubId = '" + semesterID + "';" +
-            "var csrfToken = $('input[name=\"_csrf\"]').val() || '';" +
-            "console.log('Fetching attendance - authorizedID:', authorizedID, 'semesterSubId:', semesterSubId, 'csrf:', csrfToken.substring(0, 10));" +
-            "if (typeof $ === 'undefined' || !$.ajax) {" +
-            "  console.error('jQuery not loaded');" +
-            "  return 'ERROR:jQuery not available';" +
-            "}" +
-            "var data = '_csrf=' + csrfToken + '&authorizedID=' + authorizedID + '&semesterSubId=' + semesterSubId;" +
-            "var attendanceHTML = '';" +
-            "$.ajax({" +
-            "  type: 'POST'," +
-            "  url: 'processViewStudentAttendance'," +
-            "  data: data," +
-            "  async: false," +  // Synchronous call for WebView compatibility
-            "  success: function(res) {" +
-            "    console.log('AJAX success, HTML length:', res.length);" +
-            "    attendanceHTML = res;" +
-            "  }," +
-            "  error: function(xhr, status, error) {" +
-            "    console.error('AJAX error:', status, error, 'Status:', xhr.status);" +
-            "    attendanceHTML = 'ERROR:' + status;" +
-            "  }" +
-            "});" +
-            "window.__attendanceHTML = attendanceHTML;" +
-            "return 'ATTENDANCE_FETCHED:' + attendanceHTML.length;" +
-            "})();";
-        
+                "var authorizedID = $('#authorizedIDX').val() || $('#authorizedID').val() || '';" +
+                "var semesterSubId = '" + semesterID + "';" +
+                "var csrfToken = $('input[name=\"_csrf\"]').val() || '';" +
+                "console.log('Fetching attendance - authorizedID:', authorizedID, 'semesterSubId:', semesterSubId, 'csrf:', csrfToken.substring(0, 10));"
+                +
+                "if (typeof $ === 'undefined' || !$.ajax) {" +
+                "  console.error('jQuery not loaded');" +
+                "  return 'ERROR:jQuery not available';" +
+                "}" +
+                "var data = '_csrf=' + csrfToken + '&authorizedID=' + authorizedID + '&semesterSubId=' + semesterSubId;"
+                +
+                "var attendanceHTML = '';" +
+                "$.ajax({" +
+                "  type: 'POST'," +
+                "  url: 'processViewStudentAttendance'," +
+                "  data: data," +
+                "  async: false," + // Synchronous call for WebView compatibility
+                "  success: function(res) {" +
+                "    console.log('AJAX success, HTML length:', res.length);" +
+                "    attendanceHTML = res;" +
+                "  }," +
+                "  error: function(xhr, status, error) {" +
+                "    console.error('AJAX error:', status, error, 'Status:', xhr.status);" +
+                "    attendanceHTML = 'ERROR:' + status;" +
+                "  }" +
+                "});" +
+                "window.__attendanceHTML = attendanceHTML;" +
+                "return 'ATTENDANCE_FETCHED:' + attendanceHTML.length;" +
+                "})();";
+
         webView.evaluateJavascript(ajaxScript, ajaxResult -> {
             android.util.Log.d("VTOPService", "AJAX script result: " + ajaxResult);
-            
+
             // Since we used async: false, result is immediately available
             webView.evaluateJavascript("window.__attendanceHTML || 'EMPTY'", htmlResult -> {
                 if (htmlResult == null || htmlResult.equals("\"EMPTY\"") || htmlResult.equals("null")) {
@@ -2265,14 +2415,14 @@ public class VTOPService extends Service {
                     error(601, "No attendance data received");
                     return;
                 }
-                
+
                 // Remove quotes and unescape
                 String html = htmlResult;
                 if (html.startsWith("\"") && html.endsWith("\"")) {
                     html = html.substring(1, html.length() - 1);
                     html = html.replace("\\\"", "\"").replace("\\n", "\n").replace("\\t", "\t").replace("\\\\", "\\");
                 }
-                
+
                 android.util.Log.d("VTOPService", "Received attendance HTML (length: " + html.length() + ")");
                 parseAttendanceHTML(html);
             });
@@ -2284,9 +2434,10 @@ public class VTOPService extends Service {
      */
     private void parseAttendanceHTML(String htmlResponse) {
         try {
-            android.util.Log.d("VTOPService", "HTML Response Preview: " + htmlResponse.substring(0, Math.min(500, htmlResponse.length())));
+            android.util.Log.d("VTOPService",
+                    "HTML Response Preview: " + htmlResponse.substring(0, Math.min(500, htmlResponse.length())));
             android.util.Log.d("VTOPService", "Starting HTML parsing - Total length: " + htmlResponse.length());
-            
+
             // Unescape HTML entities - the response contains escaped HTML
             String unescapedHtml = htmlResponse;
             // Handle unicode escapes: \u003C = < and \u003E = >
@@ -2296,23 +2447,24 @@ public class VTOPService extends Service {
             unescapedHtml = unescapedHtml.replace("\\u003e", ">");
             unescapedHtml = unescapedHtml.replace("\\r", "\r");
             unescapedHtml = unescapedHtml.replace("\\n", "\n");
-            
+
             android.util.Log.d("VTOPService", "Unescaped HTML length: " + unescapedHtml.length());
-            
+
             // Parse HTML with JSoup
             org.jsoup.nodes.Document doc = org.jsoup.Jsoup.parse(unescapedHtml);
             android.util.Log.d("VTOPService", "HTML parsed successfully");
-            
+
             // The div with id="getStudentDetails" contains the table (not the table itself)
             org.jsoup.nodes.Element container = doc.getElementById("getStudentDetails");
             android.util.Log.d("VTOPService", "Container lookup: " + (container != null ? "FOUND" : "NOT FOUND"));
-            
+
             org.jsoup.nodes.Element table = null;
-            
+
             if (container != null) {
                 // Find the actual table within the container
                 table = container.selectFirst("table");
-                android.util.Log.d("VTOPService", "Table lookup in container: " + (table != null ? "FOUND" : "NOT FOUND"));
+                android.util.Log.d("VTOPService",
+                        "Table lookup in container: " + (table != null ? "FOUND" : "NOT FOUND"));
             } else {
                 // Fallback: search for table directly in document
                 android.util.Log.d("VTOPService", "Container is null, searching for table directly in document");
@@ -2323,23 +2475,24 @@ public class VTOPService extends Service {
                     android.util.Log.d("VTOPService", "Using first table found");
                 }
             }
-            
+
             if (table == null) {
                 android.util.Log.w("VTOPService", "No attendance table found");
                 android.util.Log.d("VTOPService", "Full HTML length: " + htmlResponse.length());
-                android.util.Log.d("VTOPService", "HTML snippet: " + htmlResponse.substring(0, Math.min(2000, htmlResponse.length())));
+                android.util.Log.d("VTOPService",
+                        "HTML snippet: " + htmlResponse.substring(0, Math.min(2000, htmlResponse.length())));
                 error(601, "No attendance data available");
                 return;
             }
-            
+
             android.util.Log.d("VTOPService", "Successfully found attendance table");
-            
+
             // Find column indices from header row - look for both thead and tr > th
             org.jsoup.select.Elements headers = table.select("th");
             android.util.Log.d("VTOPService", "Found " + headers.size() + " header cells");
-            
+
             int courseTypeIdx = -1, slotIdx = -1, attendedIdx = -1, totalIdx = -1, percentageIdx = -1;
-            
+
             for (int i = 0; i < headers.size(); i++) {
                 String heading = headers.get(i).text().toLowerCase();
                 android.util.Log.d("VTOPService", "Header[" + i + "]: " + heading);
@@ -2355,129 +2508,133 @@ public class VTOPService extends Service {
                     percentageIdx = i;
                 }
             }
-            
-            android.util.Log.d("VTOPService", String.format("Columns - Type:%d Slot:%d Attended:%d Total:%d Pct:%d", 
-                courseTypeIdx, slotIdx, attendedIdx, totalIdx, percentageIdx));
-            
+
+            android.util.Log.d("VTOPService", String.format("Columns - Type:%d Slot:%d Attended:%d Total:%d Pct:%d",
+                    courseTypeIdx, slotIdx, attendedIdx, totalIdx, percentageIdx));
+
             // Parse table rows (handle both tbody and direct tr elements)
             org.jsoup.select.Elements rows = table.select("tr");
             android.util.Log.d("VTOPService", "Found " + rows.size() + " table rows total");
-            
+
             // Skip header row (first tr with th elements)
             List<Attendance> attendance = new ArrayList<>();
             int attendedClasses = 0;
             int totalClasses = 0;
             int rowCount = 0;
-            
+
             for (int i = 0; i < rows.size(); i++) {
                 org.jsoup.select.Elements cells = rows.get(i).select("td");
                 org.jsoup.select.Elements headerCells = rows.get(i).select("th");
-                
+
                 // Skip header rows (rows with th elements instead of td)
                 if (headerCells.size() > 0) {
-                    android.util.Log.d("VTOPService", "Row " + i + " is header row (has " + headerCells.size() + " th cells), skipping");
+                    android.util.Log.d("VTOPService",
+                            "Row " + i + " is header row (has " + headerCells.size() + " th cells), skipping");
                     continue;
                 }
-                
+
                 // Skip empty rows
                 if (cells.size() == 0) {
                     android.util.Log.d("VTOPService", "Row " + i + " has no td cells, skipping");
                     continue;
                 }
-                
+
                 if (cells.size() < 10) {
-                    android.util.Log.d("VTOPService", "Row " + i + " has only " + cells.size() + " cells (need at least 10), skipping");
+                    android.util.Log.d("VTOPService",
+                            "Row " + i + " has only " + cells.size() + " cells (need at least 10), skipping");
                     continue; // Skip invalid rows
                 }
-                
+
                 android.util.Log.d("VTOPService", "Row " + i + " has " + cells.size() + " td cells, processing...");
-                
+
                 try {
                     Attendance item = new Attendance();
                     item.id = i + 1;
-                    
+
                     // Extract course type
                     String courseTypeText = cells.get(courseTypeIdx).text().trim();
-                    int courseType = courseTypeText.toLowerCase().contains("lab") ? 
-                                    Course.TYPE_LAB : Course.TYPE_THEORY;
-                    
+                    int courseType = courseTypeText.toLowerCase().contains("lab") ? Course.TYPE_LAB
+                            : Course.TYPE_THEORY;
+
                     // Extract slot (first part if multiple slots like "A1+TA1")
                     String slotText = cells.get(slotIdx).text().trim();
                     String[] slots = slotText.split("\\+");
                     String slot = slots.length > 0 ? slots[0].trim() : slotText;
-                    
+
                     item.courseId = this.getCourseId(slot, courseType);
-                    
+
                     // Extract attendance numbers
                     String attendedText = cells.get(attendedIdx).text().trim();
                     String totalText = cells.get(totalIdx).text().trim();
-                    
+
                     item.attended = attendedText.isEmpty() ? null : Integer.parseInt(attendedText);
                     item.total = totalText.isEmpty() ? null : Integer.parseInt(totalText);
-                    
+
                     if (item.attended != null && item.total != null && item.total != 0) {
                         // Calculate with 2 decimal precision
                         item.percentage = (int) Math.round((item.attended * 10000.0) / item.total) / 100;
                         attendedClasses += item.attended;
                         totalClasses += item.total;
-                        
+
                         android.util.Log.d("VTOPService", String.format(
-                            "Row %d: Slot=%s CourseType=%s Attended=%d Total=%d Percentage=%d%%",
-                            i, slot, courseType == Course.TYPE_LAB ? "LAB" : "THEORY", 
-                            item.attended, item.total, item.percentage));
+                                "Row %d: Slot=%s CourseType=%s Attended=%d Total=%d Percentage=%d%%",
+                                i, slot, courseType == Course.TYPE_LAB ? "LAB" : "THEORY",
+                                item.attended, item.total, item.percentage));
                     }
-                    
+
                     attendance.add(item);
                     rowCount++;
-                    
+
                 } catch (Exception e) {
                     android.util.Log.w("VTOPService", "Row parse error at " + i + ": " + e.getMessage());
                     e.printStackTrace();
                 }
             }
-            
+
             // Calculate overall attendance with 2 decimal precision
             float overallAttendance = 0.0f;
             if (totalClasses != 0) {
                 overallAttendance = Math.round((attendedClasses * 10000.0) / totalClasses) / 100.0f;
             }
-            
-            android.util.Log.d("VTOPService", String.format("Attendance - Attended:%d Total:%d Overall:%.2f%%", 
-                attendedClasses, totalClasses, overallAttendance));
-            
+
+            android.util.Log.d("VTOPService", String.format("Attendance - Attended:%d Total:%d Overall:%.2f%%",
+                    attendedClasses, totalClasses, overallAttendance));
+
             // Save to preferences
             sharedPreferences.edit()
-                .putFloat("overallAttendance", overallAttendance)
-                .putInt("attendedClasses", attendedClasses)
-                .putInt("totalClasses", totalClasses)
-                .apply();
-            
+                    .putFloat("overallAttendance", overallAttendance)
+                    .putInt("attendedClasses", attendedClasses)
+                    .putInt("totalClasses", totalClasses)
+                    .apply();
+
             // Save to database
             AttendanceDao attendanceDao = appDatabase.attendanceDao();
             Observable<Object> deleteObs = Observable.fromCompletable(attendanceDao.delete());
             Observable<Object> insertObs = Observable.fromCompletable(attendanceDao.insert(attendance));
-            
+
             Observable.concat(deleteObs, insertObs)
-                .subscribeOn(Schedulers.single())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Object>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {}
-                    
-                    @Override
-                    public void onNext(@NonNull Object o) {}
-                    
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        error(602, e.getLocalizedMessage());
-                    }
-                    
-                    @Override
-                    public void onComplete() {
-                        downloadDetailedAttendance();
-                    }
-                });
-                
+                    .subscribeOn(Schedulers.single())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<Object>() {
+                        @Override
+                        public void onSubscribe(@NonNull Disposable d) {
+                        }
+
+                        @Override
+                        public void onNext(@NonNull Object o) {
+                        }
+
+                        @Override
+                        public void onError(@NonNull Throwable e) {
+                            error(602, e.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            downloadDetailedAttendance();
+                        }
+                    });
+
         } catch (Exception e) {
             android.util.Log.e("VTOPService", "HTML parse error: " + e.getMessage(), e);
             error(601, e.getLocalizedMessage());
@@ -2492,7 +2649,8 @@ public class VTOPService extends Service {
 
         // First, get all the attendance data with view links
         webView.evaluateJavascript("(function() {" +
-                "var data = '_csrf=' + $('input[name=\"_csrf\"]').val() + '&semesterSubId=' + '" + semesterID + "' + '&authorizedID=' + $('#authorizedIDX').val();" +
+                "var data = '_csrf=' + $('input[name=\"_csrf\"]').val() + '&semesterSubId=' + '" + semesterID
+                + "' + '&authorizedID=' + $('#authorizedIDX').val();" +
                 "var response = {" +
                 "    courses: []" +
                 "};" +
@@ -2533,24 +2691,24 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                JSONArray coursesArray = response.getJSONArray("courses");
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        JSONArray coursesArray = response.getJSONArray("courses");
 
-                if (coursesArray.length() == 0) {
-                    // No detailed attendance data available, proceed to marks
-                    downloadMarks();
-                    return;
-                }
+                        if (coursesArray.length() == 0) {
+                            // No detailed attendance data available, proceed to marks
+                            downloadMarks();
+                            return;
+                        }
 
-                // Process each course's detailed attendance
-                processDetailedAttendanceForCourses(coursesArray, 0);
+                        // Process each course's detailed attendance
+                        processDetailedAttendanceForCourses(coursesArray, 0);
 
-            } catch (Exception e) {
-                android.util.Log.e("VTOPService", "Error processing detailed attendance courses", e);
-                downloadMarks(); // Continue with marks download on error
-            }
-        });
+                    } catch (Exception e) {
+                        android.util.Log.e("VTOPService", "Error processing detailed attendance courses", e);
+                        downloadMarks(); // Continue with marks download on error
+                    }
+                });
     }
 
     /**
@@ -2611,92 +2769,100 @@ public class VTOPService extends Service {
                 appDatabase.attendanceRecordDao().getAll(),
                 appDatabase.coursesDao().getAllCourses(),
                 appDatabase.coursesDao().getAllSlots(),
-                (records, courses, slots) -> new Object[]{records, courses, slots}
-        )
-        .subscribeOn(Schedulers.single())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(result -> {
-            @SuppressWarnings("unchecked")
-            java.util.List<AttendanceRecord> records = (java.util.List<AttendanceRecord>) ((Object[]) result)[0];
-            @SuppressWarnings("unchecked")
-            java.util.List<tk.therealsuji.vtopchennai.models.Course> courses = (java.util.List<tk.therealsuji.vtopchennai.models.Course>) ((Object[]) result)[1];
-            @SuppressWarnings("unchecked")
-            java.util.List<tk.therealsuji.vtopchennai.models.Slot> slots = (java.util.List<tk.therealsuji.vtopchennai.models.Slot>) ((Object[]) result)[2];
+                (records, courses, slots) -> new Object[] { records, courses, slots })
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {
+                    @SuppressWarnings("unchecked")
+                    java.util.List<AttendanceRecord> records = (java.util.List<AttendanceRecord>) ((Object[]) result)[0];
+                    @SuppressWarnings("unchecked")
+                    java.util.List<tk.therealsuji.vtopchennai.models.Course> courses = (java.util.List<tk.therealsuji.vtopchennai.models.Course>) ((Object[]) result)[1];
+                    @SuppressWarnings("unchecked")
+                    java.util.List<tk.therealsuji.vtopchennai.models.Slot> slots = (java.util.List<tk.therealsuji.vtopchennai.models.Slot>) ((Object[]) result)[2];
 
-            java.util.Map<Integer, String> courseCodeById = new java.util.HashMap<>();
-            for (tk.therealsuji.vtopchennai.models.Course c : courses) {
-                courseCodeById.put(c.id, c.code != null ? c.code : "");
-            }
-            java.util.Map<Integer, java.util.List<String>> slotsByCourseId = new java.util.HashMap<>();
-            for (tk.therealsuji.vtopchennai.models.Slot s : slots) {
-                if (s.courseId != null && s.slot != null && !s.slot.isEmpty()) {
-                    slotsByCourseId.computeIfAbsent(s.courseId, k -> new java.util.ArrayList<>()).add(s.slot);
-                }
-            }
-
-            java.util.Map<String, Integer> weightByCourseDate = new java.util.HashMap<>();
-            boolean debugOd = true;
-            for (AttendanceRecord record : records) {
-                if (record.status == null) continue;
-                String status = record.status.trim().toLowerCase();
-                boolean isOD = status.equals("od") || status.equals("on duty") || status.contains("od") || status.contains("on duty") || status.contains("duty");
-                if (!isOD) continue;
-
-                String dateKey = record.dateString != null ? record.dateString : String.valueOf(record.date);
-                String key = (record.courseId != null ? record.courseId : -1) + "|" + dateKey;
-
-                int weight = 1;
-                String reason = "lecture-default";
-                if (record.courseId != null) {
-                    String code = courseCodeById.getOrDefault(record.courseId, "");
-                    java.util.List<String> courseSlots = slotsByCourseId.get(record.courseId);
-
-                    boolean isLabDouble = code != null && code.endsWith("P") && !(code.startsWith("BSTS"));
-                    boolean eActsAsLab = false;
-                    if (!isLabDouble && code != null && code.endsWith("E") && courseSlots != null) {
-                        for (String raw : courseSlots) {
-                            String s = raw.replaceAll("\\s", "");
-                            if (s.matches(".*L\\d+.*")) {
-                                eActsAsLab = true;
-                            }
+                    java.util.Map<Integer, String> courseCodeById = new java.util.HashMap<>();
+                    for (tk.therealsuji.vtopchennai.models.Course c : courses) {
+                        courseCodeById.put(c.id, c.code != null ? c.code : "");
+                    }
+                    java.util.Map<Integer, java.util.List<String>> slotsByCourseId = new java.util.HashMap<>();
+                    for (tk.therealsuji.vtopchennai.models.Slot s : slots) {
+                        if (s.courseId != null && s.slot != null && !s.slot.isEmpty()) {
+                            slotsByCourseId.computeIfAbsent(s.courseId, k -> new java.util.ArrayList<>()).add(s.slot);
                         }
                     }
 
-                    if (isLabDouble || eActsAsLab) {
-                        weight = 2;
-                        reason = isLabDouble ? "code-P" : "E-acts-as-Lab(Lx)";
+                    java.util.Map<String, Integer> weightByCourseDate = new java.util.HashMap<>();
+                    boolean debugOd = true;
+                    for (AttendanceRecord record : records) {
+                        if (record.status == null)
+                            continue;
+                        String status = record.status.trim().toLowerCase();
+                        boolean isOD = status.equals("od") || status.equals("on duty") || status.contains("od")
+                                || status.contains("on duty") || status.contains("duty");
+                        if (!isOD)
+                            continue;
+
+                        String dateKey = record.dateString != null ? record.dateString : String.valueOf(record.date);
+                        String key = (record.courseId != null ? record.courseId : -1) + "|" + dateKey;
+
+                        int weight = 1;
+                        String reason = "lecture-default";
+                        if (record.courseId != null) {
+                            String code = courseCodeById.getOrDefault(record.courseId, "");
+                            java.util.List<String> courseSlots = slotsByCourseId.get(record.courseId);
+
+                            boolean isLabDouble = code != null && code.endsWith("P") && !(code.startsWith("BSTS"));
+                            boolean eActsAsLab = false;
+                            if (!isLabDouble && code != null && code.endsWith("E") && courseSlots != null) {
+                                for (String raw : courseSlots) {
+                                    String s = raw.replaceAll("\\s", "");
+                                    if (s.matches(".*L\\d+.*")) {
+                                        eActsAsLab = true;
+                                    }
+                                }
+                            }
+
+                            if (isLabDouble || eActsAsLab) {
+                                weight = 2;
+                                reason = isLabDouble ? "code-P" : "E-acts-as-Lab(Lx)";
+                            }
+                        }
+                        if (debugOd) {
+                            String codeLog = record.courseId != null ? courseCodeById.get(record.courseId) : "null";
+                            java.util.List<String> slotLog = record.courseId != null
+                                    ? slotsByCourseId.get(record.courseId)
+                                    : null;
+                            android.util.Log.d("ODCalc",
+                                    "OD key=" + key + ", code=" + codeLog + ", slots=" + String.valueOf(slotLog)
+                                            + ", status=" + status + ", weight=" + weight + ", reason=" + reason);
+                        }
+                        Integer prev = weightByCourseDate.get(key);
+                        if (prev == null || weight > prev) {
+                            weightByCourseDate.put(key, weight);
+                        }
                     }
-                }
-                if (debugOd) {
-                    String codeLog = record.courseId != null ? courseCodeById.get(record.courseId) : "null";
-                    java.util.List<String> slotLog = record.courseId != null ? slotsByCourseId.get(record.courseId) : null;
-                    android.util.Log.d("ODCalc", "OD key=" + key + ", code=" + codeLog + ", slots=" + String.valueOf(slotLog) + ", status=" + status + ", weight=" + weight + ", reason=" + reason);
-                }
-                Integer prev = weightByCourseDate.get(key);
-                if (prev == null || weight > prev) {
-                    weightByCourseDate.put(key, weight);
-                }
-            }
 
-            int odUsedWeighted = 0;
-            for (Integer w : weightByCourseDate.values()) {
-                odUsedWeighted += (w != null ? w : 0);
-            }
+                    int odUsedWeighted = 0;
+                    for (Integer w : weightByCourseDate.values()) {
+                        odUsedWeighted += (w != null ? w : 0);
+                    }
 
-            if (debugOd) {
-                android.util.Log.d("ODCalc", "Final weighted OD used=" + odUsedWeighted + ", unique keys=" + weightByCourseDate.size());
-            }
+                    if (debugOd) {
+                        android.util.Log.d("ODCalc", "Final weighted OD used=" + odUsedWeighted + ", unique keys="
+                                + weightByCourseDate.size());
+                    }
 
-            Intent intent = new Intent("OD_COUNT_UPDATED");
-            intent.putExtra("odUsed", odUsedWeighted);
-            sendBroadcast(intent);
-        }, throwable -> {
-            android.util.Log.e("VTOPService", "Error calculating weighted OD count", throwable);
-        });
+                    Intent intent = new Intent("OD_COUNT_UPDATED");
+                    intent.putExtra("odUsed", odUsedWeighted);
+                    sendBroadcast(intent);
+                }, throwable -> {
+                    android.util.Log.e("VTOPService", "Error calculating weighted OD count", throwable);
+                });
     }
 
     /**
-     * Add fallback OD estimates for courses that don't have detailed attendance links
+     * Add fallback OD estimates for courses that don't have detailed attendance
+     * links
      */
     private void addFallbackODEstimatesForMissingCourses(Runnable onComplete) {
         // Get current detailed attendance records count
@@ -2706,7 +2872,8 @@ public class VTOPService extends Service {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(currentRecords -> {
                     // Get total classes from main attendance
-                    android.content.SharedPreferences sharedPreferences = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
+                    android.content.SharedPreferences sharedPreferences = android.preference.PreferenceManager
+                            .getDefaultSharedPreferences(this);
                     int totalClassesFromMain = sharedPreferences.getInt("totalClasses", 0);
                     int attendedClassesFromMain = sharedPreferences.getInt("attendedClasses", 0);
 
@@ -2723,7 +2890,9 @@ public class VTOPService extends Service {
                             }
                         }
 
-                        double odPercentageInDetailed = currentDetailedRecords > 0 ? (double) currentODCount / currentDetailedRecords : 0.1; // fallback 10%
+                        double odPercentageInDetailed = currentDetailedRecords > 0
+                                ? (double) currentODCount / currentDetailedRecords
+                                : 0.1; // fallback 10%
                         int estimatedAdditionalOD = (int) Math.round(missingRecords * odPercentageInDetailed);
 
                         // Create dummy OD records for the estimated count
@@ -2765,9 +2934,11 @@ public class VTOPService extends Service {
     /**
      * Fetch detailed attendance for a specific course
      */
-    private void fetchDetailedAttendanceForCourse(String classId, String slotName, Integer courseId, Runnable onComplete) {
+    private void fetchDetailedAttendanceForCourse(String classId, String slotName, Integer courseId,
+            Runnable onComplete) {
         webView.evaluateJavascript("(function() {" +
-                "var data = '_csrf=' + $('input[name=\"_csrf\"]').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&classId=' + '" + classId + "' + '&slotName=' + '" + slotName + "';" +
+                "var data = '_csrf=' + $('input[name=\"_csrf\"]').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&classId=' + '"
+                + classId + "' + '&slotName=' + '" + slotName + "';" +
                 "var response = {" +
                 "    records: []" +
                 "};" +
@@ -2803,87 +2974,93 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                JSONArray recordsArray = response.getJSONArray("records");
-                List<AttendanceRecord> attendanceRecords = new ArrayList<>();
-
-                for (int i = 0; i < recordsArray.length(); i++) {
-                    JSONObject recordObj = recordsArray.getJSONObject(i);
-
-                    AttendanceRecord record = new AttendanceRecord();
-                    record.courseId = courseId;
-                    record.dateString = recordObj.getString("date");
-                    record.status = recordObj.getString("status");
-                    // Store slot name to differentiate E-course lecture vs lab in detailed view
                     try {
-                        record.remarks = slotName;
-                    } catch (Exception ignored) {}
+                        JSONObject response = new JSONObject(responseString);
+                        JSONArray recordsArray = response.getJSONArray("records");
+                        List<AttendanceRecord> attendanceRecords = new ArrayList<>();
 
-                    // Try to parse date
-                    try {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
-                        Date parsedDate = dateFormat.parse(record.dateString);
-                        if (parsedDate != null) {
-                            record.date = parsedDate.getTime();
+                        for (int i = 0; i < recordsArray.length(); i++) {
+                            JSONObject recordObj = recordsArray.getJSONObject(i);
+
+                            AttendanceRecord record = new AttendanceRecord();
+                            record.courseId = courseId;
+                            record.dateString = recordObj.getString("date");
+                            record.status = recordObj.getString("status");
+                            // Store slot name to differentiate E-course lecture vs lab in detailed view
+                            try {
+                                record.remarks = slotName;
+                            } catch (Exception ignored) {
+                            }
+
+                            // Try to parse date
+                            try {
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+                                Date parsedDate = dateFormat.parse(record.dateString);
+                                if (parsedDate != null) {
+                                    record.date = parsedDate.getTime();
+                                }
+                            } catch (Exception dateE) {
+                                // If date parsing fails, use current time as fallback
+                                record.date = System.currentTimeMillis();
+                            }
+
+                            // Set session info based on slot
+                            try {
+                                if (slotName != null && slotName.replaceAll("\\s", "").matches(".*L\\d+.*")) {
+                                    record.session = "Lab";
+                                } else {
+                                    record.session = "Class";
+                                }
+                            } catch (Exception ignored) {
+                                record.session = "Class";
+                            }
+
+                            attendanceRecords.add(record);
                         }
-                    } catch (Exception dateE) {
-                        // If date parsing fails, use current time as fallback
-                        record.date = System.currentTimeMillis();
-                    }
 
-                    // Set session info based on slot
-                    try {
-                        if (slotName != null && slotName.replaceAll("\\s", "").matches(".*L\\d+.*")) {
-                            record.session = "Lab";
+                        if (!attendanceRecords.isEmpty()) {
+                            // Save detailed attendance records to database
+                            AttendanceRecordDao attendanceRecordDao = appDatabase.attendanceRecordDao();
+                            Observable<Object> clearObservable = Observable
+                                    .fromCompletable(attendanceRecordDao.clearByCourse(courseId));
+                            Observable<Object> insertObservable = Observable
+                                    .fromCompletable(attendanceRecordDao.insertAll(attendanceRecords));
+
+                            Observable
+                                    .concat(clearObservable, insertObservable)
+                                    .subscribeOn(Schedulers.single())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(new Observer<Object>() {
+                                        @Override
+                                        public void onSubscribe(@NonNull Disposable d) {
+                                        }
+
+                                        @Override
+                                        public void onNext(@NonNull Object o) {
+                                        }
+
+                                        @Override
+                                        public void onError(@NonNull Throwable e) {
+                                            android.util.Log.e("VTOPService", "Error saving detailed attendance", e);
+                                            onComplete.run(); // Continue even on error
+                                        }
+
+                                        @Override
+                                        public void onComplete() {
+                                            android.util.Log.d("VTOPService", "Saved " + attendanceRecords.size()
+                                                    + " detailed attendance records for course " + courseId);
+                                            onComplete.run();
+                                        }
+                                    });
                         } else {
-                            record.session = "Class";
+                            onComplete.run();
                         }
-                    } catch (Exception ignored) {
-                        record.session = "Class";
+
+                    } catch (Exception e) {
+                        android.util.Log.e("VTOPService", "Error processing detailed attendance response", e);
+                        onComplete.run(); // Continue even on error
                     }
-
-                    attendanceRecords.add(record);
-                }
-
-                if (!attendanceRecords.isEmpty()) {
-                    // Save detailed attendance records to database
-                    AttendanceRecordDao attendanceRecordDao = appDatabase.attendanceRecordDao();
-                    Observable<Object> clearObservable = Observable.fromCompletable(attendanceRecordDao.clearByCourse(courseId));
-                    Observable<Object> insertObservable = Observable.fromCompletable(attendanceRecordDao.insertAll(attendanceRecords));
-
-                    Observable
-                            .concat(clearObservable, insertObservable)
-                            .subscribeOn(Schedulers.single())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new Observer<Object>() {
-                                @Override
-                                public void onSubscribe(@NonNull Disposable d) {}
-
-                                @Override
-                                public void onNext(@NonNull Object o) {}
-
-                                @Override
-                                public void onError(@NonNull Throwable e) {
-                                    android.util.Log.e("VTOPService", "Error saving detailed attendance", e);
-                                    onComplete.run(); // Continue even on error
-                                }
-
-                                @Override
-                                public void onComplete() {
-                                    android.util.Log.d("VTOPService", "Saved " + attendanceRecords.size() + " detailed attendance records for course " + courseId);
-                                    onComplete.run();
-                                }
-                            });
-                } else {
-                    onComplete.run();
-                }
-
-            } catch (Exception e) {
-                android.util.Log.e("VTOPService", "Error processing detailed attendance response", e);
-                onComplete.run(); // Continue even on error
-            }
-        });
+                });
     }
 
     /**
@@ -2894,33 +3071,35 @@ public class VTOPService extends Service {
 
         // Check if WebView is still valid before proceeding
         if (webView == null || isWebViewDestroyed) {
-            android.util.Log.w("VTOPService", "WebView is null or destroyed, skipping marks and continuing with grades");
+            android.util.Log.w("VTOPService",
+                    "WebView is null or destroyed, skipping marks and continuing with grades");
             downloadGrades();
             return;
         }
 
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "marks": [
-         *          {
-         *              "slot": "A1",
-         *              "course_type": "Theory Only",
-         *              "title": "CAT 1",
-         *              "score": 26,
-         *              "max_score": 30,
-         *              "weightage": 13,
-         *              "max_weightage": 15,
-         *              "average": null
-         *              "status": "Present"
-         *          },
-         *          ...
-         *      ]
-         *  }
+         * {
+         * "marks": [
+         * {
+         * "slot": "A1",
+         * "course_type": "Theory Only",
+         * "title": "CAT 1",
+         * "score": 26,
+         * "max_score": 30,
+         * "weightage": 13,
+         * "max_weightage": 15,
+         * "average": null
+         * "status": "Present"
+         * },
+         * ...
+         * ]
+         * }
          */
         webView.evaluateJavascript("(function() {" +
-                "var data = 'semesterSubId=' + '" + semesterID + "' + '&authorizedID=' + $('#authorizedIDX').val()  + '&_csrf=' + $('input[name=\"_csrf\"]').val();" +
+                "var data = 'semesterSubId=' + '" + semesterID
+                + "' + '&authorizedID=' + $('#authorizedIDX').val()  + '&_csrf=' + $('input[name=\"_csrf\"]').val();" +
                 "var response = {" +
                 "    marks: []" +
                 "};" +
@@ -2947,13 +3126,17 @@ public class VTOPService extends Service {
                 "            }" +
                 "        }" +
                 "        for (var i = 1; i < rows.length; ++i) {" +
-                "            var rawCourseType = rows[i].getElementsByTagName('td')[courseTypeIndex].innerText.trim().toLowerCase();" +
-                "            var courseType = (rawCourseType.includes('lab')) ? 'lab' : ((rawCourseType.includes('project')) ? 'project' : 'theory');" +
-                "            var slot = rows[i++].getElementsByTagName('td')[slotIndex].innerText.split('+')[0].trim();" +
+                "            var rawCourseType = rows[i].getElementsByTagName('td')[courseTypeIndex].innerText.trim().toLowerCase();"
+                +
+                "            var courseType = (rawCourseType.includes('lab')) ? 'lab' : ((rawCourseType.includes('project')) ? 'project' : 'theory');"
+                +
+                "            var slot = rows[i++].getElementsByTagName('td')[slotIndex].innerText.split('+')[0].trim();"
+                +
                 "            var innerTable = rows[i].getElementsByTagName('table')[0];" +
                 "            var innerRows = innerTable.getElementsByTagName('tr');" +
                 "            var innerHeadings = innerRows[0].getElementsByTagName('td');" +
-                "            var titleIndex, scoreIndex, maxScoreIndex, weightageIndex, maxWeightageIndex, averageIndex, statusIndex;" +
+                "            var titleIndex, scoreIndex, maxScoreIndex, weightageIndex, maxWeightageIndex, averageIndex, statusIndex;"
+                +
                 "            for (var j = 0; j < innerHeadings.length; ++j) {" +
                 "                var innerHeading = innerHeadings[j].innerText.toLowerCase();" +
                 "                if (innerHeading.includes('title')) {" +
@@ -2973,7 +3156,8 @@ public class VTOPService extends Service {
                 "                }" +
                 "            }" +
                 "            var innerCells = innerTable.getElementsByTagName('td');" +
-                "            while(titleIndex < innerCells.length && scoreIndex < innerCells.length && maxScoreIndex < innerCells.length && weightageIndex < innerCells.length && maxWeightageIndex < innerCells.length && averageIndex < innerCells.length && statusIndex < innerCells.length) {" +
+                "            while(titleIndex < innerCells.length && scoreIndex < innerCells.length && maxScoreIndex < innerCells.length && weightageIndex < innerCells.length && maxWeightageIndex < innerCells.length && averageIndex < innerCells.length && statusIndex < innerCells.length) {"
+                +
                 "                var mark = {};" +
                 "                mark.slot = slot;" +
                 "                mark.course_type = courseType;" +
@@ -2999,161 +3183,168 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                JSONArray marksArray = response.getJSONArray("marks");
-                Map<Integer, Mark> marks = new HashMap<>();
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        JSONArray marksArray = response.getJSONArray("marks");
+                        Map<Integer, Mark> marks = new HashMap<>();
 
-                this.cumulativeMarks = new HashMap<>();
+                        this.cumulativeMarks = new HashMap<>();
 
-                for (int i = 0, j = 0; i < marksArray.length(); ++i) {
-                    JSONObject markObject = marksArray.getJSONObject(i);
-                    Mark mark = new Mark();
+                        for (int i = 0, j = 0; i < marksArray.length(); ++i) {
+                            JSONObject markObject = marksArray.getJSONObject(i);
+                            Mark mark = new Mark();
 
-                    int courseType = Course.TYPE_THEORY;
+                            int courseType = Course.TYPE_THEORY;
 
-                    if (markObject.getString("course_type").equals("lab")) {
-                        courseType = Course.TYPE_LAB;
-                    } else if (markObject.getString("course_type").equals("project")) {
-                        courseType = Course.TYPE_PROJECT;
-                    }
-
-                    mark.id = i + 1;
-                    mark.courseId = this.getCourseId(markObject.getString("slot"), courseType);
-
-                    // Skip marks that can't be associated with courses (e.g., courses with null slots)
-                    if (mark.courseId == null) {
-                        continue;
-                    }
-
-                    mark.title = this.getStringValue(markObject, "title");
-                    mark.score = this.getDoubleValue(markObject, "score");
-                    mark.maxScore = this.getDoubleValue(markObject, "max_score");
-                    mark.weightage = this.getDoubleValue(markObject, "weightage");
-                    mark.maxWeightage = this.getDoubleValue(markObject, "max_weightage");
-                    mark.average = this.getDoubleValue(markObject, "average");
-                    mark.status = this.getStringValue(markObject, "status");
-
-                    String courseCode = this.getCourseCode(mark.courseId, courseType);
-                    Integer courseCredits = this.getCourseCredits(mark.courseId, courseType);
-
-                    // Handle Wildlife Ecology course transfer - if course code is CF0C575M,
-                    // find the first available course with a different (non-null) course code
-                    if ("CF0C575M".equals(courseCode)) {
-                        // Look for Wildlife Ecology courses with different course codes
-                        Integer alternativeCourseId = null;
-                        String alternativeCourseCode = null;
-
-                        // Check theory courses first
-                        for (Map.Entry<Integer, Course> entry : this.theoryCourses.entrySet()) {
-                            Course course = entry.getValue();
-                            if ("Wildlife Ecology".equals(course.title) &&
-                                course.code != null &&
-                                !course.code.equals("CF0C575M") &&
-                                !course.code.trim().isEmpty()) {
-                                alternativeCourseId = entry.getKey();
-                                alternativeCourseCode = course.code;
-                                courseCredits = course.credits;
-                                break;
+                            if (markObject.getString("course_type").equals("lab")) {
+                                courseType = Course.TYPE_LAB;
+                            } else if (markObject.getString("course_type").equals("project")) {
+                                courseType = Course.TYPE_PROJECT;
                             }
-                        }
 
-                        // If not found in theory, check lab courses
-                        if (alternativeCourseId == null) {
-                            for (Map.Entry<Integer, Course> entry : this.labCourses.entrySet()) {
-                                Course course = entry.getValue();
-                                if ("Wildlife Ecology".equals(course.title) &&
-                                    course.code != null &&
-                                    !course.code.equals("CF0C575M") &&
-                                    !course.code.trim().isEmpty()) {
-                                    alternativeCourseId = entry.getKey();
-                                    alternativeCourseCode = course.code;
-                                    courseCredits = course.credits;
-                                    break;
+                            mark.id = i + 1;
+                            mark.courseId = this.getCourseId(markObject.getString("slot"), courseType);
+
+                            // Skip marks that can't be associated with courses (e.g., courses with null
+                            // slots)
+                            if (mark.courseId == null) {
+                                continue;
+                            }
+
+                            mark.title = this.getStringValue(markObject, "title");
+                            mark.score = this.getDoubleValue(markObject, "score");
+                            mark.maxScore = this.getDoubleValue(markObject, "max_score");
+                            mark.weightage = this.getDoubleValue(markObject, "weightage");
+                            mark.maxWeightage = this.getDoubleValue(markObject, "max_weightage");
+                            mark.average = this.getDoubleValue(markObject, "average");
+                            mark.status = this.getStringValue(markObject, "status");
+
+                            String courseCode = this.getCourseCode(mark.courseId, courseType);
+                            Integer courseCredits = this.getCourseCredits(mark.courseId, courseType);
+
+                            // Handle Wildlife Ecology course transfer - if course code is CF0C575M,
+                            // find the first available course with a different (non-null) course code
+                            if ("CF0C575M".equals(courseCode)) {
+                                // Look for Wildlife Ecology courses with different course codes
+                                Integer alternativeCourseId = null;
+                                String alternativeCourseCode = null;
+
+                                // Check theory courses first
+                                for (Map.Entry<Integer, Course> entry : this.theoryCourses.entrySet()) {
+                                    Course course = entry.getValue();
+                                    if ("Wildlife Ecology".equals(course.title) &&
+                                            course.code != null &&
+                                            !course.code.equals("CF0C575M") &&
+                                            !course.code.trim().isEmpty()) {
+                                        alternativeCourseId = entry.getKey();
+                                        alternativeCourseCode = course.code;
+                                        courseCredits = course.credits;
+                                        break;
+                                    }
+                                }
+
+                                // If not found in theory, check lab courses
+                                if (alternativeCourseId == null) {
+                                    for (Map.Entry<Integer, Course> entry : this.labCourses.entrySet()) {
+                                        Course course = entry.getValue();
+                                        if ("Wildlife Ecology".equals(course.title) &&
+                                                course.code != null &&
+                                                !course.code.equals("CF0C575M") &&
+                                                !course.code.trim().isEmpty()) {
+                                            alternativeCourseId = entry.getKey();
+                                            alternativeCourseCode = course.code;
+                                            courseCredits = course.credits;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // If alternative course found, transfer the marks
+                                if (alternativeCourseId != null && alternativeCourseCode != null) {
+                                    mark.courseId = alternativeCourseId;
+                                    courseCode = alternativeCourseCode;
                                 }
                             }
+
+                            if (!this.cumulativeMarks.containsKey(courseCode)) {
+                                this.cumulativeMarks.put(courseCode, new CumulativeMark(++j));
+                            }
+
+                            Objects.requireNonNull(this.cumulativeMarks.get(courseCode)).courseCode = courseCode;
+                            Objects.requireNonNull(this.cumulativeMarks.get(courseCode)).addWeightage(mark.weightage,
+                                    mark.maxWeightage, courseType, courseCredits);
+
+                            // Generating a unique hash signature to keep a track of read marks
+                            mark.signature = (courseCode + markObject.getString("course_type") + mark.title
+                                    + mark.score).hashCode();
+                            marks.put(mark.signature, mark);
                         }
 
-                        // If alternative course found, transfer the marks
-                        if (alternativeCourseId != null && alternativeCourseCode != null) {
-                            mark.courseId = alternativeCourseId;
-                            courseCode = alternativeCourseCode;
+                        for (Map.Entry<String, CumulativeMark> cumulativeMark : this.cumulativeMarks.entrySet()) {
+                            Double theoryTotal = cumulativeMark.getValue().theoryTotal;
+                            Double labTotal = cumulativeMark.getValue().labTotal;
+                            Double projectTotal = cumulativeMark.getValue().projectTotal;
+
+                            Double theoryMax = cumulativeMark.getValue().theoryMax;
+                            Double labMax = cumulativeMark.getValue().labMax;
+                            Double projectMax = cumulativeMark.getValue().projectMax;
+
+                            if (theoryTotal == null) {
+                                theoryTotal = (double) 0;
+                                theoryMax = (double) 0;
+                            }
+
+                            if (labTotal == null) {
+                                labTotal = (double) 0;
+                                labMax = (double) 0;
+                            }
+
+                            if (projectTotal == null) {
+                                projectTotal = (double) 0;
+                                projectMax = (double) 0;
+                            }
+
+                            int theoryCredits = cumulativeMark.getValue().theoryCredits;
+                            int labCredits = cumulativeMark.getValue().labCredits;
+                            int projectCredits = cumulativeMark.getValue().projectCredits;
+
+                            double grandTotal = (theoryTotal * theoryCredits + labTotal * labCredits
+                                    + projectTotal * projectCredits);
+                            double grandMax = (theoryMax * theoryCredits + labMax * labCredits
+                                    + projectMax * projectCredits);
+
+                            grandTotal /= theoryCredits + labCredits + projectCredits;
+                            grandMax /= theoryCredits + labCredits + projectCredits;
+
+                            Objects.requireNonNull(
+                                    this.cumulativeMarks.get(cumulativeMark.getKey())).grandTotal = grandTotal;
+                            Objects.requireNonNull(
+                                    this.cumulativeMarks.get(cumulativeMark.getKey())).grandMax = grandMax;
                         }
+
+                        appDatabase.marksDao()
+                                .insertMarks(marks)
+                                .subscribeOn(Schedulers.single())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new CompletableObserver() {
+                                    @Override
+                                    public void onSubscribe(@NonNull Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                        downloadGrades();
+                                    }
+
+                                    @Override
+                                    public void onError(@NonNull Throwable e) {
+                                        error(702, e.getLocalizedMessage());
+                                    }
+                                });
+                    } catch (Exception e) {
+                        error(701, e.getLocalizedMessage());
                     }
-
-                    if (!this.cumulativeMarks.containsKey(courseCode)) {
-                        this.cumulativeMarks.put(courseCode, new CumulativeMark(++j));
-                    }
-
-                    Objects.requireNonNull(this.cumulativeMarks.get(courseCode)).courseCode = courseCode;
-                    Objects.requireNonNull(this.cumulativeMarks.get(courseCode)).addWeightage(mark.weightage, mark.maxWeightage, courseType, courseCredits);
-
-                    // Generating a unique hash signature to keep a track of read marks
-                    mark.signature = (courseCode + markObject.getString("course_type") + mark.title + mark.score).hashCode();
-                    marks.put(mark.signature, mark);
-                }
-
-                for (Map.Entry<String, CumulativeMark> cumulativeMark : this.cumulativeMarks.entrySet()) {
-                    Double theoryTotal = cumulativeMark.getValue().theoryTotal;
-                    Double labTotal = cumulativeMark.getValue().labTotal;
-                    Double projectTotal = cumulativeMark.getValue().projectTotal;
-
-                    Double theoryMax = cumulativeMark.getValue().theoryMax;
-                    Double labMax = cumulativeMark.getValue().labMax;
-                    Double projectMax = cumulativeMark.getValue().projectMax;
-
-                    if (theoryTotal == null) {
-                        theoryTotal = (double) 0;
-                        theoryMax = (double) 0;
-                    }
-
-                    if (labTotal == null) {
-                        labTotal = (double) 0;
-                        labMax = (double) 0;
-                    }
-
-                    if (projectTotal == null) {
-                        projectTotal = (double) 0;
-                        projectMax = (double) 0;
-                    }
-
-                    int theoryCredits = cumulativeMark.getValue().theoryCredits;
-                    int labCredits = cumulativeMark.getValue().labCredits;
-                    int projectCredits = cumulativeMark.getValue().projectCredits;
-
-                    double grandTotal = (theoryTotal * theoryCredits + labTotal * labCredits + projectTotal * projectCredits);
-                    double grandMax = (theoryMax * theoryCredits + labMax * labCredits + projectMax * projectCredits);
-
-                    grandTotal /= theoryCredits + labCredits + projectCredits;
-                    grandMax /= theoryCredits + labCredits + projectCredits;
-
-                    Objects.requireNonNull(this.cumulativeMarks.get(cumulativeMark.getKey())).grandTotal = grandTotal;
-                    Objects.requireNonNull(this.cumulativeMarks.get(cumulativeMark.getKey())).grandMax = grandMax;
-                }
-
-                appDatabase.marksDao()
-                        .insertMarks(marks)
-                        .subscribeOn(Schedulers.single())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new CompletableObserver() {
-                            @Override
-                            public void onSubscribe(@NonNull Disposable d) {
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                downloadGrades();
-                            }
-
-                            @Override
-                            public void onError(@NonNull Throwable e) {
-                                error(702, e.getLocalizedMessage());
-                            }
-                        });
-            } catch (Exception e) {
-                error(701, e.getLocalizedMessage());
-            }
-        });
+                });
     }
 
     /**
@@ -3163,21 +3354,22 @@ public class VTOPService extends Service {
         updateProgress(null);
 
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "grades": [
-         *          {
-         *              "course_code": "CSE1001",
-         *              "grade": "S"
-         *          },
-         *          ...
-         *      ],
-         *      "gpa": 8.58
-         *  }
+         * {
+         * "grades": [
+         * {
+         * "course_code": "CSE1001",
+         * "grade": "S"
+         * },
+         * ...
+         * ],
+         * "gpa": 8.58
+         * }
          */
         webView.evaluateJavascript("(function() {" +
-                "var data = 'semesterSubId=' + '" + semesterID + "' + '&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val();" +
+                "var data = 'semesterSubId=' + '" + semesterID
+                + "' + '&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val();" +
                 "var response = {" +
                 "    grades: []," +
                 "    gpa: null" +
@@ -3226,58 +3418,60 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                JSONArray gradesArray = response.getJSONArray("grades");
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        JSONArray gradesArray = response.getJSONArray("grades");
 
-                for (int i = 0; i < gradesArray.length(); ++i) {
-                    JSONObject gradesObject = gradesArray.getJSONObject(i);
+                        for (int i = 0; i < gradesArray.length(); ++i) {
+                            JSONObject gradesObject = gradesArray.getJSONObject(i);
 
-                    String courseCode = this.getStringValue(gradesObject, "course_code");
+                            String courseCode = this.getStringValue(gradesObject, "course_code");
 
-                    if (this.cumulativeMarks.containsKey(courseCode)) {
-                        Objects.requireNonNull(this.cumulativeMarks.get(courseCode)).grade = gradesObject.getString("grade");
+                            if (this.cumulativeMarks.containsKey(courseCode)) {
+                                Objects.requireNonNull(this.cumulativeMarks.get(courseCode)).grade = gradesObject
+                                        .getString("grade");
+                            }
+                        }
+
+                        this.sharedPreferences.edit().putString("gpa", response.getString("gpa")).apply();
+
+                        List<CumulativeMark> cumulativeMarks = new ArrayList<>(this.cumulativeMarks.values());
+                        MarksDao marksDao = this.appDatabase.marksDao();
+
+                        Observable<Object> deleteAllObservable = Observable
+                                .fromCompletable(marksDao.deleteCumulativeMarks());
+                        Observable<Object> insertCumulativeMarks = Observable
+                                .fromCompletable(marksDao.insertCumulativeMarks(cumulativeMarks));
+
+                        Observable
+                                .concat(
+                                        deleteAllObservable,
+                                        insertCumulativeMarks)
+                                .subscribeOn(Schedulers.single())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Observer<Object>() {
+                                    @Override
+                                    public void onSubscribe(@NonNull Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onNext(@NonNull Object o) {
+                                    }
+
+                                    @Override
+                                    public void onError(@NonNull Throwable e) {
+                                        error(802, e.getLocalizedMessage());
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                        downloadExamSchedule();
+                                    }
+                                });
+                    } catch (Exception e) {
+                        error(801, e.getLocalizedMessage());
                     }
-                }
-
-                this.sharedPreferences.edit().putString("gpa", response.getString("gpa")).apply();
-
-                List<CumulativeMark> cumulativeMarks = new ArrayList<>(this.cumulativeMarks.values());
-                MarksDao marksDao = this.appDatabase.marksDao();
-
-                Observable<Object> deleteAllObservable = Observable.fromCompletable(marksDao.deleteCumulativeMarks());
-                Observable<Object> insertCumulativeMarks = Observable.fromCompletable(marksDao.insertCumulativeMarks(cumulativeMarks));
-
-                Observable
-                        .concat(
-                                deleteAllObservable,
-                                insertCumulativeMarks
-                        )
-                        .subscribeOn(Schedulers.single())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<Object>() {
-                            @Override
-                            public void onSubscribe(@NonNull Disposable d) {
-                            }
-
-                            @Override
-                            public void onNext(@NonNull Object o) {
-                            }
-
-                            @Override
-                            public void onError(@NonNull Throwable e) {
-                                error(802, e.getLocalizedMessage());
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                downloadExamSchedule();
-                            }
-                        });
-            } catch (Exception e) {
-                error(801, e.getLocalizedMessage());
-            }
-        });
+                });
     }
 
     /**
@@ -3287,26 +3481,27 @@ public class VTOPService extends Service {
         updateProgress(R.string.downloading_exam_schedule);
 
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "FAT": [
-         *          {
-         *              "slot": "A1",
-         *              "date": "01-JAN-2020",
-         *              "start_time": "9:30 AM",
-         *              "end_time": "12:30 PM",
-         *              "venue": "DB-101",
-         *              "seat_location": "R1C1",
-         *              "seat_number": 1
-         *          },
-         *          ...
-         *      ],
-         *      ...
-         *  }
+         * {
+         * "FAT": [
+         * {
+         * "slot": "A1",
+         * "date": "01-JAN-2020",
+         * "start_time": "9:30 AM",
+         * "end_time": "12:30 PM",
+         * "venue": "DB-101",
+         * "seat_location": "R1C1",
+         * "seat_number": 1
+         * },
+         * ...
+         * ],
+         * ...
+         * }
          */
         webView.evaluateJavascript("(function() {" +
-                "var data = 'semesterSubId=' + '" + semesterID + "' + '&authorizedID=' + $('#authorizedIDX').val()  + '&_csrf=' + $('input[name=\"_csrf\"]').val();" +
+                "var data = 'semesterSubId=' + '" + semesterID
+                + "' + '&authorizedID=' + $('#authorizedIDX').val()  + '&_csrf=' + $('input[name=\"_csrf\"]').val();" +
                 "var response = {};" +
                 "$.ajax({" +
                 "    type: 'POST'," +
@@ -3377,91 +3572,98 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                Iterator<String> keys = response.keys();
-                List<Exam> exams = new ArrayList<>();
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        Iterator<String> keys = response.keys();
+                        List<Exam> exams = new ArrayList<>();
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
-                SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm a", Locale.ENGLISH);
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+                        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm a", Locale.ENGLISH);
 
-                int index = 1;
+                        int index = 1;
 
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    JSONArray examsArray = response.getJSONArray(key);
+                        while (keys.hasNext()) {
+                            String key = keys.next();
+                            JSONArray examsArray = response.getJSONArray(key);
 
-                    for (int i = 0; i < examsArray.length(); ++i) {
-                        JSONObject examObject = examsArray.getJSONObject(i);
-                        Exam exam = new Exam();
-                        Pattern pattern = Pattern.compile("\\d");
-                        Matcher matcher = pattern.matcher(key);
+                            for (int i = 0; i < examsArray.length(); ++i) {
+                                JSONObject examObject = examsArray.getJSONObject(i);
+                                Exam exam = new Exam();
+                                Pattern pattern = Pattern.compile("\\d");
+                                Matcher matcher = pattern.matcher(key);
 
-                        exam.id = ++index;
-                        exam.courseId = getCourseId(examObject.getString("slot"), Course.TYPE_THEORY);
-                        exam.title = key;
+                                exam.id = ++index;
+                                exam.courseId = getCourseId(examObject.getString("slot"), Course.TYPE_THEORY);
+                                exam.title = key;
 
-                        if (matcher.find()) {
-                            exam.title = new StringBuilder(key).insert(matcher.start(), " ").toString().trim().replaceAll(" +", " ");
+                                if (matcher.find()) {
+                                    exam.title = new StringBuilder(key).insert(matcher.start(), " ").toString().trim()
+                                            .replaceAll(" +", " ");
+                                }
+
+                                if (!examObject.isNull("date")) {
+                                    if (!examObject.isNull("start_time")) {
+                                        exam.startTime = Objects
+                                                .requireNonNull(dateTimeFormat.parse(examObject.getString("date") + " "
+                                                        + examObject.getString("start_time")))
+                                                .getTime();
+                                    } else {
+                                        exam.startTime = Objects
+                                                .requireNonNull(dateFormat.parse(examObject.getString("date")))
+                                                .getTime();
+                                    }
+
+                                    if (!examObject.isNull("end_time")) {
+                                        exam.endTime = Objects.requireNonNull(dateTimeFormat.parse(
+                                                examObject.getString("date") + " " + examObject.getString("end_time")))
+                                                .getTime();
+                                    }
+                                }
+
+                                exam.venue = getStringValue(examObject, "venue");
+                                exam.seatLocation = getStringValue(examObject, "seat_location");
+                                exam.seatNumber = getIntegerValue(examObject, "seat_number");
+
+                                exams.add(exam);
+                            }
                         }
 
-                        if (!examObject.isNull("date")) {
-                            if (!examObject.isNull("start_time")) {
-                                exam.startTime = Objects.requireNonNull(dateTimeFormat.parse(examObject.getString("date") + " " + examObject.getString("start_time"))).getTime();
-                            } else {
-                                exam.startTime = Objects.requireNonNull(dateFormat.parse(examObject.getString("date"))).getTime();
-                            }
+                        SettingsRepository.setExamNotifications(this.getApplicationContext(), exams);
 
-                            if (!examObject.isNull("end_time")) {
-                                exam.endTime = Objects.requireNonNull(dateTimeFormat.parse(examObject.getString("date") + " " + examObject.getString("end_time"))).getTime();
-                            }
-                        }
+                        ExamsDao examsDao = appDatabase.examsDao();
 
-                        exam.venue = getStringValue(examObject, "venue");
-                        exam.seatLocation = getStringValue(examObject, "seat_location");
-                        exam.seatNumber = getIntegerValue(examObject, "seat_number");
+                        Observable<Object> deleteAllObservable = Observable.fromCompletable(examsDao.deleteAll());
+                        Observable<Object> insertExamsObservable = Observable.fromCompletable(examsDao.insert(exams));
 
-                        exams.add(exam);
+                        Observable
+                                .concat(
+                                        deleteAllObservable,
+                                        insertExamsObservable)
+                                .subscribeOn(Schedulers.single())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Observer<Object>() {
+                                    @Override
+                                    public void onSubscribe(@NonNull Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onNext(@NonNull Object o) {
+                                    }
+
+                                    @Override
+                                    public void onError(@NonNull Throwable e) {
+                                        error(902, e.getLocalizedMessage());
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                        downloadProctor();
+                                    }
+                                });
+                    } catch (Exception e) {
+                        error(901, e.getLocalizedMessage());
                     }
-                }
-
-                SettingsRepository.setExamNotifications(this.getApplicationContext(), exams);
-
-                ExamsDao examsDao = appDatabase.examsDao();
-
-                Observable<Object> deleteAllObservable = Observable.fromCompletable(examsDao.deleteAll());
-                Observable<Object> insertExamsObservable = Observable.fromCompletable(examsDao.insert(exams));
-
-                Observable
-                        .concat(
-                                deleteAllObservable,
-                                insertExamsObservable
-                        )
-                        .subscribeOn(Schedulers.single())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<Object>() {
-                            @Override
-                            public void onSubscribe(@NonNull Disposable d) {
-                            }
-
-                            @Override
-                            public void onNext(@NonNull Object o) {
-                            }
-
-                            @Override
-                            public void onError(@NonNull Throwable e) {
-                                error(902, e.getLocalizedMessage());
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                downloadProctor();
-                            }
-                        });
-            } catch (Exception e) {
-                error(901, e.getLocalizedMessage());
-            }
-        });
+                });
     }
 
     /**
@@ -3470,20 +3672,21 @@ public class VTOPService extends Service {
     private void downloadProctor() {
         updateProgress(R.string.downloading_staff);
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "proctor" [
-         *          {
-         *              "key": "",
-         *              "value": ""
-         *          },
-         *          ...
-         *      ]
-         *  }
+         * {
+         * "proctor" [
+         * {
+         * "key": "",
+         * "value": ""
+         * },
+         * ...
+         * ]
+         * }
          */
         webView.evaluateJavascript("(function() {" +
-                "var data = 'verifyMenu=true&winImage=' + $('#winImage').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';" +
+                "var data = 'verifyMenu=true&winImage=' + $('#winImage').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';"
+                +
                 "var response = {" +
                 "    proctor: []" +
                 "};" +
@@ -3508,58 +3711,57 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                JSONArray proctorArray = response.getJSONArray("proctor");
-                List<Staff> staff = new ArrayList<>();
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        JSONArray proctorArray = response.getJSONArray("proctor");
+                        List<Staff> staff = new ArrayList<>();
 
-                for (int i = 0; i < proctorArray.length(); ++i) {
-                    JSONObject proctorObject = proctorArray.getJSONObject(i);
-                    Staff staffItem = new Staff();
+                        for (int i = 0; i < proctorArray.length(); ++i) {
+                            JSONObject proctorObject = proctorArray.getJSONObject(i);
+                            Staff staffItem = new Staff();
 
-                    staffItem.id = i + 1;
-                    staffItem.type = "proctor";
-                    staffItem.key = this.getStringValue(proctorObject, "key");
-                    staffItem.value = this.getStringValue(proctorObject, "value");
+                            staffItem.id = i + 1;
+                            staffItem.type = "proctor";
+                            staffItem.key = this.getStringValue(proctorObject, "key");
+                            staffItem.value = this.getStringValue(proctorObject, "value");
 
-                    staff.add(staffItem);
-                }
+                            staff.add(staffItem);
+                        }
 
-                StaffDao staffDao = appDatabase.staffDao();
+                        StaffDao staffDao = appDatabase.staffDao();
 
-                Observable<Object> deleteAllObservable = Observable.fromCompletable(staffDao.deleteAll());
-                Observable<Object> insertStaffObservable = Observable.fromCompletable(staffDao.insert(staff));
+                        Observable<Object> deleteAllObservable = Observable.fromCompletable(staffDao.deleteAll());
+                        Observable<Object> insertStaffObservable = Observable.fromCompletable(staffDao.insert(staff));
 
-                Observable
-                        .concat(
-                                deleteAllObservable,
-                                insertStaffObservable
-                        )
-                        .subscribeOn(Schedulers.single())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<Object>() {
-                            @Override
-                            public void onSubscribe(@NonNull Disposable d) {
-                            }
+                        Observable
+                                .concat(
+                                        deleteAllObservable,
+                                        insertStaffObservable)
+                                .subscribeOn(Schedulers.single())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Observer<Object>() {
+                                    @Override
+                                    public void onSubscribe(@NonNull Disposable d) {
+                                    }
 
-                            @Override
-                            public void onNext(@NonNull Object o) {
-                            }
+                                    @Override
+                                    public void onNext(@NonNull Object o) {
+                                    }
 
-                            @Override
-                            public void onError(@NonNull Throwable e) {
-                                error(1002, e.getLocalizedMessage());
-                            }
+                                    @Override
+                                    public void onError(@NonNull Throwable e) {
+                                        error(1002, e.getLocalizedMessage());
+                                    }
 
-                            @Override
-                            public void onComplete() {
-                                downloadDeanHOD(staff.size());
-                            }
-                        });
-            } catch (Exception e) {
-                error(1001, e.getLocalizedMessage());
-            }
-        });
+                                    @Override
+                                    public void onComplete() {
+                                        downloadDeanHOD(staff.size());
+                                    }
+                                });
+                    } catch (Exception e) {
+                        error(1001, e.getLocalizedMessage());
+                    }
+                });
     }
 
     /**
@@ -3568,27 +3770,28 @@ public class VTOPService extends Service {
     private void downloadDeanHOD(final int lastIndex) {
         updateProgress(null);
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "dean": [
-         *          {
-         *              "key": "",
-         *              "value": ""
-         *          },
-         *          ...
-         *      ],
-         *      "hod": [
-         *          {
-         *              "key": "",
-         *              "value": ""
-         *          },
-         *          ...
-         *      ],
-         *  }
+         * {
+         * "dean": [
+         * {
+         * "key": "",
+         * "value": ""
+         * },
+         * ...
+         * ],
+         * "hod": [
+         * {
+         * "key": "",
+         * "value": ""
+         * },
+         * ...
+         * ],
+         * }
          */
         webView.evaluateJavascript("(function() {" +
-                "var data = 'verifyMenu=true&winImage=' + $('#winImage').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';" +
+                "var data = 'verifyMenu=true&winImage=' + $('#winImage').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';"
+                +
                 "var response = {};" +
                 "$.ajax({" +
                 "    type: 'POST'," +
@@ -3617,61 +3820,72 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                Iterator<String> keys = response.keys();
-                List<Staff> staff = new ArrayList<>();
-                int index = lastIndex;
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        Iterator<String> keys = response.keys();
+                        List<Staff> staff = new ArrayList<>();
+                        int index = lastIndex;
 
-                while (keys.hasNext()) {
-                    String staffType = keys.next();
-                    JSONArray staffArray = response.getJSONArray(staffType);
+                        while (keys.hasNext()) {
+                            String staffType = keys.next();
+                            JSONArray staffArray = response.getJSONArray(staffType);
 
-                    if (staffType.contains("dean")) {
-                        staffType = "dean";
-                    } else if (staffType.contains("hod")) {
-                        staffType = "hod";
-                    } else {
-                        staffType = staffType.toLowerCase();
+                            if (staffType.contains("dean")) {
+                                staffType = "dean";
+                            } else if (staffType.contains("hod")) {
+                                staffType = "hod";
+                            } else {
+                                staffType = staffType.toLowerCase();
+                            }
+
+                            for (int i = 0; i < staffArray.length(); ++i) {
+                                JSONObject staffObject = staffArray.getJSONObject(i);
+                                Staff staffItem = new Staff();
+
+                                staffItem.id = ++index;
+                                staffItem.type = staffType;
+                                staffItem.key = this.getStringValue(staffObject, "key");
+
+                                String originalEmail = this.getStringValue(staffObject, "value");
+                                if (originalEmail != null) {
+                                    String newEmail = EMAIL_REPLACEMENTS.get(originalEmail.toLowerCase());
+                                    if (newEmail != null) {
+                                        staffItem.value = newEmail;
+                                    } else {
+                                        staffItem.value = originalEmail;
+                                    }
+                                } else {
+                                    staffItem.value = null;
+                                }
+
+                                staff.add(staffItem);
+                            }
+                        }
+
+                        StaffDao staffDao = appDatabase.staffDao();
+                        staffDao
+                                .insert(staff)
+                                .subscribeOn(Schedulers.single())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new CompletableObserver() {
+                                    @Override
+                                    public void onSubscribe(@NonNull Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                        downloadSpotlight();
+                                    }
+
+                                    @Override
+                                    public void onError(@NonNull Throwable e) {
+                                        error(1004, e.getLocalizedMessage());
+                                    }
+                                });
+                    } catch (Exception e) {
+                        error(1003, e.getLocalizedMessage());
                     }
-
-                    for (int i = 0; i < staffArray.length(); ++i) {
-                        JSONObject staffObject = staffArray.getJSONObject(i);
-                        Staff staffItem = new Staff();
-
-                        staffItem.id = ++index;
-                        staffItem.type = staffType;
-                        staffItem.key = this.getStringValue(staffObject, "key");
-                        staffItem.value = this.getStringValue(staffObject, "value");
-
-                        staff.add(staffItem);
-                    }
-                }
-
-                StaffDao staffDao = appDatabase.staffDao();
-                staffDao
-                        .insert(staff)
-                        .subscribeOn(Schedulers.single())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new CompletableObserver() {
-                            @Override
-                            public void onSubscribe(@NonNull Disposable d) {
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                downloadSpotlight();
-                            }
-
-                            @Override
-                            public void onError(@NonNull Throwable e) {
-                                error(1004, e.getLocalizedMessage());
-                            }
-                        });
-            } catch (Exception e) {
-                error(1003, e.getLocalizedMessage());
-            }
-        });
+                });
     }
 
     /**
@@ -3681,21 +3895,22 @@ public class VTOPService extends Service {
         updateProgress(R.string.downloading_spotlight);
 
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "spotlight": [
-         *          {
-         *              "announcement": "",
-         *              "category": "",
-         *              "link": null
-         *          },
-         *          ...
-         *      ]
-         *  }
+         * {
+         * "spotlight": [
+         * {
+         * "announcement": "",
+         * "category": "",
+         * "link": null
+         * },
+         * ...
+         * ]
+         * }
          */
         webView.evaluateJavascript("(function() {" +
-                "var data = '_csrf=' + $('input[name=\"_csrf\"]').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&x=';" +
+                "var data = '_csrf=' + $('input[name=\"_csrf\"]').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&x=';"
+                +
                 "var response = {" +
                 "    spotlight: []" +
                 "};" +
@@ -3717,11 +3932,13 @@ public class VTOPService extends Service {
                 "                continue;" +
                 "            }" +
                 "            const category = title.textContent;" +
-                "            var announcements = sheets[i].getElementsByClassName('offcanvas-body')[0].getElementsByTagName('li');" +
+                "            var announcements = sheets[i].getElementsByClassName('offcanvas-body')[0].getElementsByTagName('li');"
+                +
                 "            for(var j = 0; j < announcements.length; ++j) {" +
                 "                var spotlightItem = {};" +
                 "                spotlightItem.category = category;" +
-                "                spotlightItem.announcement = announcements[j].textContent.replace(/\\t/g,'').replace(/\\n/g,' ').trim();" +
+                "                spotlightItem.announcement = announcements[j].textContent.replace(/\\t/g,'').replace(/\\n/g,' ').trim();"
+                +
                 "                if (announcements[j].getElementsByTagName('a').length == 0) {" +
                 "                    spotlightItem.link = null;" +
                 "                } else {" +
@@ -3739,48 +3956,48 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                JSONArray spotlightArray = response.getJSONArray("spotlight");
-                Map<Integer, Spotlight> spotlight = new HashMap<>();
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        JSONArray spotlightArray = response.getJSONArray("spotlight");
+                        Map<Integer, Spotlight> spotlight = new HashMap<>();
 
-                for (int i = 0; i < spotlightArray.length(); ++i) {
-                    JSONObject spotlightObject = spotlightArray.getJSONObject(i);
-                    Spotlight spotlightItem = new Spotlight();
+                        for (int i = 0; i < spotlightArray.length(); ++i) {
+                            JSONObject spotlightObject = spotlightArray.getJSONObject(i);
+                            Spotlight spotlightItem = new Spotlight();
 
-                    spotlightItem.id = i + 1;
-                    spotlightItem.announcement = this.getStringValue(spotlightObject, "announcement");
-                    spotlightItem.category = this.getStringValue(spotlightObject, "category");
-                    spotlightItem.link = this.getStringValue(spotlightObject, "link");
+                            spotlightItem.id = i + 1;
+                            spotlightItem.announcement = this.getStringValue(spotlightObject, "announcement");
+                            spotlightItem.category = this.getStringValue(spotlightObject, "category");
+                            spotlightItem.link = this.getStringValue(spotlightObject, "link");
 
-                    // Generating a unique hash signature to keep a track of read announcements
-                    spotlightItem.signature = (spotlightItem.announcement + spotlightItem.link).hashCode();
-                    spotlight.put(spotlightItem.signature, spotlightItem);
-                }
+                            // Generating a unique hash signature to keep a track of read announcements
+                            spotlightItem.signature = (spotlightItem.announcement + spotlightItem.link).hashCode();
+                            spotlight.put(spotlightItem.signature, spotlightItem);
+                        }
 
-                appDatabase.spotlightDao()
-                        .insert(spotlight)
-                        .subscribeOn(Schedulers.single())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new CompletableObserver() {
-                            @Override
-                            public void onSubscribe(@NonNull Disposable d) {
-                            }
+                        appDatabase.spotlightDao()
+                                .insert(spotlight)
+                                .subscribeOn(Schedulers.single())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new CompletableObserver() {
+                                    @Override
+                                    public void onSubscribe(@NonNull Disposable d) {
+                                    }
 
-                            @Override
-                            public void onComplete() {
-                                downloadReceipts();
-                            }
+                                    @Override
+                                    public void onComplete() {
+                                        downloadReceipts();
+                                    }
 
-                            @Override
-                            public void onError(@NonNull Throwable e) {
-                                error(1102, e.getLocalizedMessage());
-                            }
-                        });
-            } catch (Exception e) {
-                error(1101, e.getLocalizedMessage());
-            }
-        });
+                                    @Override
+                                    public void onError(@NonNull Throwable e) {
+                                        error(1102, e.getLocalizedMessage());
+                                    }
+                                });
+                    } catch (Exception e) {
+                        error(1101, e.getLocalizedMessage());
+                    }
+                });
     }
 
     /**
@@ -3790,20 +4007,21 @@ public class VTOPService extends Service {
         updateProgress(R.string.downloading_receipts);
 
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "receipts": [
-         *          {
-         *              "number": "10067",
-         *              "amount": 97500,
-         *              "date": "14-AUG-2020"
-         *          }
-         *      ]
-         *  }
+         * {
+         * "receipts": [
+         * {
+         * "number": "10067",
+         * "amount": 97500,
+         * "date": "14-AUG-2020"
+         * }
+         * ]
+         * }
          */
         webView.evaluateJavascript("(function() {" +
-                "var data = 'verifyMenu=true&winImage=' + $('#winImage').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';" +
+                "var data = 'verifyMenu=true&winImage=' + $('#winImage').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';"
+                +
                 "var response = {" +
                 "    receipts: []" +
                 "};" +
@@ -3827,7 +4045,8 @@ public class VTOPService extends Service {
                 "                amountIndex = i + headings.length;" +
                 "            }" +
                 "        }" +
-                "        while (receiptIndex < cells.length && amountIndex < cells.length && dateIndex < cells.length) {" +
+                "        while (receiptIndex < cells.length && amountIndex < cells.length && dateIndex < cells.length) {"
+                +
                 "            var receipt = {};" +
                 "            receipt.number = parseInt(cells[receiptIndex].innerText.trim()) || null;" +
                 "            receipt.amount = parseFloat(cells[amountIndex].innerText.trim()) || 0;" +
@@ -3841,66 +4060,66 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                JSONArray receiptsArray = response.getJSONArray("receipts");
-                List<Receipt> receipts = new ArrayList<>();
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        JSONArray receiptsArray = response.getJSONArray("receipts");
+                        List<Receipt> receipts = new ArrayList<>();
 
-                for (int i = 0; i < receiptsArray.length(); ++i) {
-                    JSONObject receiptsObject = receiptsArray.getJSONObject(i);
-                    Receipt receipt = new Receipt();
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+                        for (int i = 0; i < receiptsArray.length(); ++i) {
+                            JSONObject receiptsObject = receiptsArray.getJSONObject(i);
+                            Receipt receipt = new Receipt();
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
 
-                    // If this is true, there's a web scrapping issue
-                    if (receiptsObject.isNull("number")) {
-                        continue;
+                            // If this is true, there's a web scrapping issue
+                            if (receiptsObject.isNull("number")) {
+                                continue;
+                            }
+
+                            String receiptDateString = this.getStringValue(receiptsObject, "date");
+                            Date receiptDate = receiptDateString != null ? dateFormat.parse(receiptDateString) : null;
+
+                            receipt.number = receiptsObject.getInt("number");
+                            receipt.amount = this.getDoubleValue(receiptsObject, "amount");
+                            receipt.date = receiptDate != null ? receiptDate.getTime() : 0;
+
+                            receipts.add(receipt);
+                        }
+
+                        ReceiptsDao receiptsDao = appDatabase.receiptsDao();
+
+                        Observable<Object> deleteAllObservable = Observable.fromCompletable(receiptsDao.deleteAll());
+                        Observable<Object> insertReceiptsObservable = Observable
+                                .fromCompletable(receiptsDao.insert(receipts));
+
+                        Observable
+                                .concat(
+                                        deleteAllObservable,
+                                        insertReceiptsObservable)
+                                .subscribeOn(Schedulers.single())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Observer<Object>() {
+                                    @Override
+                                    public void onSubscribe(@NonNull Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onNext(@NonNull Object o) {
+                                    }
+
+                                    @Override
+                                    public void onError(@NonNull Throwable e) {
+                                        error(1202, e.getLocalizedMessage());
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                        checkDues();
+                                    }
+                                });
+                    } catch (Exception e) {
+                        error(1201, e.getLocalizedMessage());
                     }
-
-                    String receiptDateString = this.getStringValue(receiptsObject, "date");
-                    Date receiptDate = receiptDateString != null ? dateFormat.parse(receiptDateString) : null;
-
-                    receipt.number = receiptsObject.getInt("number");
-                    receipt.amount = this.getDoubleValue(receiptsObject, "amount");
-                    receipt.date = receiptDate != null ? receiptDate.getTime() : 0;
-
-                    receipts.add(receipt);
-                }
-
-                ReceiptsDao receiptsDao = appDatabase.receiptsDao();
-
-                Observable<Object> deleteAllObservable = Observable.fromCompletable(receiptsDao.deleteAll());
-                Observable<Object> insertReceiptsObservable = Observable.fromCompletable(receiptsDao.insert(receipts));
-
-                Observable
-                        .concat(
-                                deleteAllObservable,
-                                insertReceiptsObservable
-                        )
-                        .subscribeOn(Schedulers.single())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<Object>() {
-                            @Override
-                            public void onSubscribe(@NonNull Disposable d) {
-                            }
-
-                            @Override
-                            public void onNext(@NonNull Object o) {
-                            }
-
-                            @Override
-                            public void onError(@NonNull Throwable e) {
-                                error(1202, e.getLocalizedMessage());
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                checkDues();
-                            }
-                        });
-            } catch (Exception e) {
-                error(1201, e.getLocalizedMessage());
-            }
-        });
+                });
     }
 
     /**
@@ -3910,14 +4129,15 @@ public class VTOPService extends Service {
         updateProgress(null);
 
         /*
-         *  JSON response format
+         * JSON response format
          *
-         *  {
-         *      "due_payments": true|false
-         *  }
+         * {
+         * "due_payments": true|false
+         * }
          */
         webView.evaluateJavascript("(function() {" +
-                "var data = 'verifyMenu=true&winImage=' + $('#winImage').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';" +
+                "var data = 'verifyMenu=true&winImage=' + $('#winImage').val() + '&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';"
+                +
                 "var response = {};" +
                 "$.ajax({" +
                 "    type: 'POST'," +
@@ -3934,21 +4154,236 @@ public class VTOPService extends Service {
                 "});" +
                 "return response;" +
                 "})();", responseString -> {
-            try {
-                JSONObject response = new JSONObject(responseString);
-                boolean duePayments = response.getBoolean("due_payments");
+                    try {
+                        JSONObject response = new JSONObject(responseString);
+                        boolean duePayments = response.getBoolean("due_payments");
 
-                if (duePayments) {
-                    sharedPreferences.edit().putBoolean("duePayments", true).apply();
-                } else {
-                    sharedPreferences.edit().remove("duePayments").apply();
-                }
-            } catch (Exception e) {
-                error(1203, e.getLocalizedMessage());
-            }
+                        if (duePayments) {
+                            sharedPreferences.edit().putBoolean("duePayments", true).apply();
+                        } else {
+                            sharedPreferences.edit().remove("duePayments").apply();
+                        }
+                    } catch (Exception e) {
+                        error(1203, e.getLocalizedMessage());
+                    }
 
+                    downloadLeaveHistory();
+                });
+    }
+
+    /**
+     * Function to download the leave/OD history for hostellers.
+     * Uses VTOP hostel leave endpoints similar to UniCC implementation.
+     */
+    private void downloadLeaveHistory() {
+        // Check if user is a hosteller - only fetch leave data for hostellers
+        SharedPreferences encryptedPrefs = SettingsRepository.getEncryptedSharedPreferences(getApplicationContext());
+        String studentType = encryptedPrefs != null ? encryptedPrefs.getString("student_type", "").toLowerCase().trim() : "";
+        
+        // User is hosteller if they are NOT a day scholar
+        // (student_type could be "hosteller", "HOSTELLER", or empty if not set but user has hostel tab visible)
+        boolean isDayScholar = studentType.contains("day") || studentType.equals("day_scholar");
+        boolean isHosteller = !isDayScholar;
+        
+        android.util.Log.d("VTOPService", "Leave download check - studentType: '" + studentType + "', isHosteller: " + isHosteller);
+        
+        // Always clear old leave data first (removes sample data)
+        LeaveDao leaveDao = appDatabase.leaveDao();
+        leaveDao.deleteAll()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    android.util.Log.d("VTOPService", "Old leave data cleared");
+                    
+                    if (!isHosteller) {
+                        android.util.Log.d("VTOPService", "Skipping leave download - user is a day scholar");
+                        finishUp();
+                        return;
+                    }
+                    
+                    // Continue with downloading leave data for hostellers
+                    downloadLeaveHistoryFromVTOP();
+                }, error -> {
+                    android.util.Log.e("VTOPService", "Error clearing leave data", error);
+                    finishUp();
+                });
+    }
+    
+    /**
+     * Actually fetch leave data from VTOP after clearing old data.
+     */
+    private void downloadLeaveHistoryFromVTOP() {
+        updateProgress(R.string.downloading_leave_history);
+        
+        // Check if WebView is still valid
+        if (webView == null || isWebViewDestroyed) {
+            android.util.Log.w("VTOPService", "WebView null/destroyed, skipping leave download");
             finishUp();
+            return;
+        }
+        
+        /*
+         * Two-step process following UniCC implementation:
+         * 1. First call /vtop/hostels/student/leave/1 to load the leave page
+         * 2. Then call /vtop/hostels/student/leave/6 with control=history to get leave data
+         */
+        String leaveScript = 
+            "(function() {" +
+            "  var authorizedID = $('#authorizedIDX').val() || $('#authorizedID').val() || '';" +
+            "  var csrfToken = $('input[name=\"_csrf\"]').val() || '';" +
+            "  var response = { leaves: [], debug: '' };" +
+            "  if (typeof $ === 'undefined' || !$.ajax) { response.debug = 'no jQuery'; return response; }" +
+            "  response.debug = 'auth:' + (authorizedID ? 'yes' : 'no');" +
+            "  var step1ok = false;" +
+            "  $.ajax({ type: 'POST', url: 'hostels/student/leave/1', async: false," +
+            "    data: { verifyMenu: 'true', authorizedID: authorizedID, _csrf: csrfToken, nocache: String(Date.now()) }," +
+            "    success: function(r) { step1ok = true; response.debug += ',s1:' + r.length; }," +
+            "    error: function(x,s,e) { response.debug += ',s1err:' + s; }" +
+            "  });" +
+            "  if (!step1ok) { return response; }" +
+            "  $.ajax({ type: 'POST', url: 'hostels/student/leave/6', async: false," +
+            "    data: { history: '', authorizedID: authorizedID, _csrf: csrfToken, form: 'undefined', control: 'history', x: String(Date.now()) }," +
+            "    success: function(r) {" +
+            "      response.debug += ',s2:' + r.length;" +
+            "      try {" +
+            "        var doc = $(r);" +
+            "        var tbl = doc.find('#LeaveHistoryTable');" +
+            "        if (tbl.length === 0) { tbl = $(r).filter('#LeaveHistoryTable'); }" +
+            "        response.debug += ',tbl:' + tbl.length;" +
+            "        var rows = tbl.find('tbody tr');" +
+            "        response.debug += ',rows:' + rows.length;" +
+            "        rows.each(function() {" +
+            "          var c = $(this).find('td');" +
+            "          if (c.length >= 8) {" +
+            "            response.leaves.push({" +
+            "              leaveId: c.eq(1).text().trim()," +
+            "              visitPlace: c.eq(2).text().trim()," +
+            "              reason: c.eq(3).text().trim()," +
+            "              leaveType: c.eq(4).text().trim()," +
+            "              fromDate: c.eq(5).text().trim()," +
+            "              toDate: c.eq(6).text().trim()," +
+            "              status: c.eq(7).text().trim()," +
+            "              remarks: c.length > 8 ? c.eq(8).text().trim() : ''" +
+            "            });" +
+            "          }" +
+            "        });" +
+            "      } catch(ex) { response.debug += ',err:' + ex.message; }" +
+            "    }," +
+            "    error: function(x,s,e) { response.debug += ',s2err:' + s; }" +
+            "  });" +
+            "  return response;" +
+            "})();";
+        
+        webView.evaluateJavascript(leaveScript, responseString -> {
+            try {
+                android.util.Log.d("VTOPService", "Leave response: " + responseString);
+                
+                if (responseString == null || responseString.equals("null") || responseString.isEmpty()) {
+                    android.util.Log.w("VTOPService", "No leave data received");
+                    finishUp();
+                    return;
+                }
+                
+                JSONObject response = new JSONObject(responseString);
+                
+                // Log debug info
+                String debug = response.optString("debug", "no debug");
+                android.util.Log.d("VTOPService", "Leave debug: " + debug);
+                
+                JSONArray leavesArray = response.optJSONArray("leaves");
+                
+                if (leavesArray == null || leavesArray.length() == 0) {
+                    android.util.Log.d("VTOPService", "No leave history found");
+                    finishUp();
+                    return;
+                }
+                
+                List<Leave> leaves = new ArrayList<>();
+                
+                for (int i = 0; i < leavesArray.length(); i++) {
+                    JSONObject leaveObj = leavesArray.getJSONObject(i);
+                    
+                    String leaveId = getStringValue(leaveObj, "leaveId");
+                    if (leaveId == null || leaveId.isEmpty()) {
+                        continue;
+                    }
+                    
+                    String fromDate = getStringValue(leaveObj, "fromDate");
+                    String toDate = getStringValue(leaveObj, "toDate");
+                    // Store original VTOP leave type (e.g., "LOCAL GUARDIAN", "OUTING", "HOME TOWN")
+                    String leaveType = getStringValue(leaveObj, "leaveType");
+                    String reason = getStringValue(leaveObj, "reason");
+                    String visitPlace = getStringValue(leaveObj, "visitPlace");
+                    String status = mapLeaveStatus(getStringValue(leaveObj, "status"));
+                    String remarks = getStringValue(leaveObj, "remarks");
+                    
+                    Leave leave = new Leave(leaveId, fromDate, toDate, leaveType, reason, visitPlace, status, remarks);
+                    leaves.add(leave);
+                    
+                    android.util.Log.d("VTOPService", "Parsed leave: " + leaveId + " - " + leaveType + " - " + status);
+                }
+                
+                if (leaves.isEmpty()) {
+                    android.util.Log.d("VTOPService", "No valid leaves parsed");
+                    finishUp();
+                    return;
+                }
+                
+                // Save to database (old data already cleared in downloadLeaveHistory)
+                LeaveDao leaveDao = appDatabase.leaveDao();
+                
+                leaveDao.insertAll(leaves)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(() -> {
+                            android.util.Log.d("VTOPService", "Leave data saved successfully: " + leaves.size() + " records");
+                            finishUp();
+                        }, error -> {
+                            android.util.Log.e("VTOPService", "Error saving leave data", error);
+                            finishUp();
+                        });
+                
+            } catch (Exception e) {
+                android.util.Log.e("VTOPService", "Error parsing leave data", e);
+                // Continue to finishUp even on error - leave is non-critical
+                finishUp();
+            }
         });
+    }
+    
+    /**
+     * Map VTOP leave type string to our Leave type constants.
+     * VTOP types: HOME TOWN, LOCAL GUARDIAN, OUTING, SUMMER VACATION, ON DUTY, MEDICAL, EMERGENCY, etc.
+     */
+    private String mapLeaveType(String vtopType) {
+        if (vtopType == null) return Leave.TYPE_OTHER;
+        String type = vtopType.toUpperCase().trim();
+        // Home related
+        if (type.contains("HOME")) return Leave.TYPE_HOME_LEAVE;
+        if (type.contains("VACATION")) return Leave.TYPE_HOME_LEAVE;
+        // On Duty
+        if (type.contains("ON DUTY") || type.contains("OD")) return Leave.TYPE_ON_DUTY;
+        // Medical
+        if (type.contains("MEDICAL")) return Leave.TYPE_MEDICAL;
+        // Emergency
+        if (type.contains("EMERGENCY")) return Leave.TYPE_EMERGENCY;
+        // Outing and Local Guardian - map to OTHER but store original type
+        // These will display correctly in the UI using the original leaveType from VTOP
+        return Leave.TYPE_OTHER;
+    }
+    
+    /**
+     * Map VTOP leave status string to our Leave status constants.
+     */
+    private String mapLeaveStatus(String vtopStatus) {
+        if (vtopStatus == null) return Leave.STATUS_PENDING;
+        String status = vtopStatus.toUpperCase().trim();
+        if (status.contains("APPROVED") && !status.contains("NOT")) return Leave.STATUS_APPROVED;
+        if (status.contains("PENDING")) return Leave.STATUS_PENDING;
+        if (status.contains("CLOSED")) return Leave.STATUS_CLOSED;
+        if (status.contains("CANCELLED") || status.contains("CANCELED")) return Leave.STATUS_CANCELLED;
+        if (status.contains("REJECTED") || status.contains("NOT APPROVED")) return Leave.STATUS_REJECTED;
+        return Leave.STATUS_PENDING;
     }
 
     /**
@@ -3965,7 +4400,6 @@ public class VTOPService extends Service {
         this.sharedPreferences.edit().putLong("lastRefreshed", Calendar.getInstance().getTimeInMillis()).apply();
 
         // Firebase Analytics Logging
-
 
         try {
             this.callback.onComplete();
@@ -4160,52 +4594,54 @@ public class VTOPService extends Service {
         }
     }
 
-    private enum PageState {LANDING, LOGIN, HOME}
+    private enum PageState {
+        LANDING, LOGIN, HOME
+    }
 }
 
 /*
  * Error codes
  *
- * Error 101    Errors connecting to the server
- * Error 102    Error fetching user credentials
- * Error 103    Error opening sign in page
- * Error 104    Error getting captcha type
- * Error 105    Error getting default captcha image
- * Error 106    Error while attempting to sign in
- * Error 107    Unauthorised user agent used
+ * Error 101 Errors connecting to the server
+ * Error 102 Error fetching user credentials
+ * Error 103 Error opening sign in page
+ * Error 104 Error getting captcha type
+ * Error 105 Error getting default captcha image
+ * Error 106 Error while attempting to sign in
+ * Error 107 Unauthorised user agent used
  *
- * Error 201    Error fetching list of semesters
+ * Error 201 Error fetching list of semesters
  *
- * Error 301    Error fetching user's name
- * Error 302    Error fetching user's credits & GPA
+ * Error 301 Error fetching user's name
+ * Error 302 Error fetching user's credits & GPA
  *
- * Error 401    Error downloading courses
- * Error 402    Error saving courses to the database
+ * Error 401 Error downloading courses
+ * Error 402 Error saving courses to the database
  *
- * Error 501    Error downloading timetable
- * Error 502    Error saving timetable to the database
+ * Error 501 Error downloading timetable
+ * Error 502 Error saving timetable to the database
  *
- * Error 601    Error downloading attendance
- * Error 602    Error saving attendance to the database
+ * Error 601 Error downloading attendance
+ * Error 602 Error saving attendance to the database
  *
- * Error 701    Error downloading marks
- * Error 702    Error saving marks to the database
+ * Error 701 Error downloading marks
+ * Error 702 Error saving marks to the database
  *
- * Error 801    Error downloading grades
- * Error 802    Error saving grades to the database
+ * Error 801 Error downloading grades
+ * Error 802 Error saving grades to the database
  *
- * Error 901    Error downloading exam schedule
- * Error 902    Error saving exam schedule to the database
+ * Error 901 Error downloading exam schedule
+ * Error 902 Error saving exam schedule to the database
  *
- * Error 1001   Error downloading proctor info
- * Error 1002   Error saving proctor info to the database
- * Error 1003   Error downloading dean & hod info
- * Error 1004   Error saving dean & hod info to the database
+ * Error 1001 Error downloading proctor info
+ * Error 1002 Error saving proctor info to the database
+ * Error 1003 Error downloading dean & hod info
+ * Error 1004 Error saving dean & hod info to the database
  *
- * Error 1101   Error downloading spotlight
- * Error 1102   Error saving spotlight to the database
+ * Error 1101 Error downloading spotlight
+ * Error 1102 Error saving spotlight to the database
  *
- * Error 1201   Error downloading receipts
- * Error 1202   Error saving receipts to the database
- * Error 1203   Error checking for due payments
+ * Error 1201 Error downloading receipts
+ * Error 1202 Error saving receipts to the database
+ * Error 1203 Error checking for due payments
  */

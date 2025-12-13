@@ -13,6 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+import tk.therealsuji.vtopchennai.adapters.StatsCarouselAdapter;
+import tk.therealsuji.vtopchennai.models.StatsItem;
 import androidx.annotation.OptIn;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.content.ContextCompat;
@@ -34,8 +38,6 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import tk.therealsuji.vtopchennai.helpers.AppDatabase;
 import tk.therealsuji.vtopchennai.models.AttendanceRecord;
-
-
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -72,7 +74,8 @@ public class HomeFragment extends Fragment {
                 List<InAppMessage> unread = InAppMessageManager.getInstance().getUnreadMessages();
                 if (!unread.isEmpty() && getView() != null) {
                     InAppMessage latest = unread.get(0);
-                    Snackbar snackbar = Snackbar.make(getView(), latest.title + ": " + latest.message, Snackbar.LENGTH_LONG);
+                    Snackbar snackbar = Snackbar.make(getView(), latest.title + ": " + latest.message,
+                            Snackbar.LENGTH_LONG);
                     if (latest.hasAction()) {
                         snackbar.setAction("Open", v -> {
                             // Open the action URL in a WebViewActivity or browser
@@ -90,7 +93,6 @@ public class HomeFragment extends Fragment {
     };
 
     private FirebaseAnalytics mFirebaseAnalytics;
-    private BadgeDrawable spotlightBadge;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -98,280 +100,42 @@ public class HomeFragment extends Fragment {
 
     private boolean isDarkMode() {
         return (getResources().getConfiguration().uiMode &
-                android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
-                android.content.res.Configuration.UI_MODE_NIGHT_YES;
-    }
-
-    private void createFallbackBadge(View spotlightButton) {
-        try {
-            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("StudentCC", Context.MODE_PRIVATE);
-            boolean eventsViewed = sharedPreferences.getBoolean("has_viewed_events_announcement", false);
-
-            if (eventsViewed) {
-                // Don't show fallback badge if events have been viewed
-                return;
-            }
-
-            // Remove any existing custom badges first
-            removeCustomBadges(spotlightButton);
-
-            // Create a red badge as fallback
-            android.widget.TextView fallbackBadge = new android.widget.TextView(requireContext());
-            fallbackBadge.setText("Events");
-            fallbackBadge.setTextColor(android.graphics.Color.WHITE);
-            fallbackBadge.setTextSize(10);
-            fallbackBadge.setPadding(8, 4, 8, 4);
-            fallbackBadge.setTag("custom_events_badge"); // Tag for easy identification
-
-            // Create a rounded background programmatically
-            android.graphics.drawable.GradientDrawable background = new android.graphics.drawable.GradientDrawable();
-            background.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
-            background.setCornerRadius(12);
-            background.setColor(android.graphics.Color.RED);
-            fallbackBadge.setBackground(background);
-
-            // Position the badge
-            android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
-                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
-                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
-            );
-            params.gravity = android.view.Gravity.TOP | android.view.Gravity.END;
-            params.setMargins(0, (int) (4 * getResources().getDisplayMetrics().density),
-                            (int) (4 * getResources().getDisplayMetrics().density), 0);
-
-            fallbackBadge.setLayoutParams(params);
-            fallbackBadge.setGravity(android.view.Gravity.CENTER);
-
-            // Add to parent if it's a FrameLayout
-            if (spotlightButton.getParent() instanceof android.widget.FrameLayout) {
-                ((android.widget.FrameLayout) spotlightButton.getParent()).addView(fallbackBadge);
-            }
-        } catch (Exception e) {
-            // Silently handle badge creation errors
-        }
-    }
-
-    private void removeCustomBadges(View spotlightButton) {
-        try {
-            if (spotlightButton.getParent() instanceof android.widget.FrameLayout) {
-                android.widget.FrameLayout parent = (android.widget.FrameLayout) spotlightButton.getParent();
-                for (int i = parent.getChildCount() - 1; i >= 0; i--) {
-                    View child = parent.getChildAt(i);
-                    if (child instanceof android.widget.TextView && "custom_events_badge".equals(child.getTag())) {
-                        parent.removeView(child);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // Silently handle badge removal errors
-        }
-    }
-
-    @OptIn(markerClass = ExperimentalBadgeUtils.class)
-    private void attachMaterialBadge(View spotlightButton) {
-        try {
-            BadgeUtils.attachBadgeDrawable(spotlightBadge, spotlightButton);
-        } catch (Exception e) {
-            // Silently handle material badge attachment errors
-        }
-    }
-
-    private boolean hasExistingEventsBadge(View spotlightButton) {
-        try {
-            if (spotlightButton.getParent() instanceof android.widget.FrameLayout) {
-                android.widget.FrameLayout parent = (android.widget.FrameLayout) spotlightButton.getParent();
-                for (int i = 0; i < parent.getChildCount(); i++) {
-                    View child = parent.getChildAt(i);
-                    if (child instanceof android.widget.TextView && "custom_events_badge".equals(child.getTag())) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private BroadcastReceiver odCountReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if ("OD_COUNT_UPDATED".equals(intent.getAction())) {
-                int odUsed = intent.getIntExtra("odUsed", 0);
-                android.util.Log.d("HomeFragment", "Received OD count broadcast: " + odUsed + " used");
-                if (!isAdded()) {
-                    return;
-                }
-                View root = getView();
-                if (root == null) {
-                    return;
-                }
-                Context currentContext = getContext();
-                if (currentContext == null) {
-                    return;
-                }
-
-                TextView odRemainingCount = root.findViewById(R.id.od_remaining_count);
-                if (odRemainingCount != null) {
-                    android.util.Log.d("HomeFragment", "Updating OD display: " + odUsed + "/40");
-                    odRemainingCount.setText(odUsed + "/40");
-
-                    // Update text color based on completed OD classes
-                    if (odUsed >= 36) { // 36+ out of 40 (most OD used)
-                        odRemainingCount.setTextColor(MaterialColors.getColor(currentContext, com.google.android.material.R.attr.colorError, ContextCompat.getColor(currentContext, android.R.color.holo_red_dark)));
-                    } else if (odUsed >= 28) { // 28+ out of 40 (moderate OD used)
-                        odRemainingCount.setTextColor(MaterialColors.getColor(currentContext, com.google.android.material.R.attr.colorSecondary, ContextCompat.getColor(currentContext, android.R.color.holo_orange_dark)));
-                    } else {
-                        odRemainingCount.setTextColor(MaterialColors.getColor(currentContext, com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(currentContext, android.R.color.holo_green_dark)));
-                    }
-                }
-            }
-        }
-    };
-
-    private void refreshODCount() {
-        Context currentContext = getContext();
-        if (currentContext == null) {
-            return;
-        }
-
-        AppDatabase appDatabase = AppDatabase.getInstance(currentContext);
-        Disposable disposable = io.reactivex.rxjava3.core.Single.zip(
-                appDatabase.attendanceRecordDao().getAll(),
-                appDatabase.coursesDao().getAllCourses(),
-                appDatabase.coursesDao().getAllSlots(),
-                (records, courses, slots) -> new Object[]{records, courses, slots}
-        )
-                .subscribeOn(Schedulers.single())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> {
-                    if (!isAdded()) {
-                        return;
-                    }
-
-                    @SuppressWarnings("unchecked")
-                    java.util.List<AttendanceRecord> attendanceRecords = (java.util.List<AttendanceRecord>) ((Object[]) result)[0];
-                    @SuppressWarnings("unchecked")
-                    java.util.List<tk.therealsuji.vtopchennai.models.Course> courses = (java.util.List<tk.therealsuji.vtopchennai.models.Course>) ((Object[]) result)[1];
-                    @SuppressWarnings("unchecked")
-                    java.util.List<tk.therealsuji.vtopchennai.models.Slot> slots = (java.util.List<tk.therealsuji.vtopchennai.models.Slot>) ((Object[]) result)[2];
-
-                    java.util.Map<Integer, String> courseCodeById = new java.util.HashMap<>();
-                    for (tk.therealsuji.vtopchennai.models.Course c : courses) {
-                        courseCodeById.put(c.id, c.code != null ? c.code : "");
-                    }
-                    java.util.Map<Integer, java.util.List<String>> slotsByCourseId = new java.util.HashMap<>();
-                    for (tk.therealsuji.vtopchennai.models.Slot s : slots) {
-                        if (s.courseId != null && s.slot != null && !s.slot.isEmpty()) {
-                            slotsByCourseId.computeIfAbsent(s.courseId, k -> new java.util.ArrayList<>()).add(s.slot);
-                        }
-                    }
-
-                    java.util.Map<String, Integer> weightByCourseDate = new java.util.HashMap<>();
-
-                    for (AttendanceRecord record : attendanceRecords) {
-                        if (record.status != null) {
-                            String status = record.status.trim().toLowerCase();
-
-                            boolean isOD = status.equals("od") ||
-                                    status.equals("on duty") ||
-                                    status.contains("od") ||
-                                    status.contains("on duty") ||
-                                    status.contains("duty");
-                            if (!isOD) continue;
-
-                            String dateKey = record.dateString != null ? record.dateString : String.valueOf(record.date);
-                            String key = (record.courseId != null ? record.courseId : -1) + "|" + dateKey;
-
-                            int weight = 1;
-                            if (record.courseId != null) {
-                                String code = courseCodeById.getOrDefault(record.courseId, "");
-                                java.util.List<String> courseSlots = slotsByCourseId.get(record.courseId);
-                                boolean isLabDouble = code != null && code.endsWith("P") && !(code.startsWith("BSTS"));
-                                boolean eActsAsLab = false;
-                                if (!isLabDouble && code != null && code.endsWith("E") && courseSlots != null) {
-                                    for (String raw : courseSlots) {
-                                        String s = raw.replaceAll("\\s", "");
-                                        if (s.matches(".*L\\d+.*")) {
-                                            eActsAsLab = true;
-                                        }
-                                    }
-                                }
-                                if (isLabDouble || eActsAsLab) {
-                                    weight = 2;
-                                }
-                            }
-                            Integer prev = weightByCourseDate.get(key);
-                            if (prev == null || weight > prev) {
-                                weightByCourseDate.put(key, weight);
-                            }
-                        }
-                    }
-
-                    int odUsed = 0;
-                    for (Integer w : weightByCourseDate.values()) {
-                        odUsed += (w != null ? w : 0);
-                    }
-
-                    View root = getView();
-                    if (root == null) {
-                        return;
-                    }
-
-                    Context context = getContext();
-                    if (context == null) {
-                        return;
-                    }
-
-                    TextView odRemainingCount = root.findViewById(R.id.od_remaining_count);
-                    if (odRemainingCount != null) {
-                        odRemainingCount.setText(odUsed + "/40");
-
-                        // Update text color based on completed OD classes
-                        if (odUsed >= 36) { // 36+ out of 40 (most OD used)
-                            odRemainingCount.setTextColor(MaterialColors.getColor(context, com.google.android.material.R.attr.colorError, ContextCompat.getColor(context, android.R.color.holo_red_dark)));
-                        } else if (odUsed >= 28) { // 28+ out of 40 (moderate OD used)
-                            odRemainingCount.setTextColor(MaterialColors.getColor(context, com.google.android.material.R.attr.colorSecondary, ContextCompat.getColor(context, android.R.color.holo_orange_dark)));
-                        } else {
-                            odRemainingCount.setTextColor(MaterialColors.getColor(context, com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(context, android.R.color.holo_green_dark)));
-                        }
-                    }
-                }, throwable -> {
-                    android.util.Log.e("HomeFragment", "Error in manual OD count update", throwable);
-                });
-
-        disposables.add(disposable);
+                android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES;
     }
 
     @Override
     public void onResume() {
         super.onResume();
         // Register broadcast receiver
-        IntentFilter filter = new IntentFilter("OD_COUNT_UPDATED");
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            requireContext().registerReceiver(odCountReceiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            requireContext().registerReceiver(odCountReceiver, filter);
-        }
+        // IntentFilter filter = new IntentFilter("OD_COUNT_UPDATED");
+        // if (android.os.Build.VERSION.SDK_INT >=
+        // android.os.Build.VERSION_CODES.TIRAMISU) {
+        // requireContext().registerReceiver(odCountReceiver, filter,
+        // android.content.Context.RECEIVER_NOT_EXPORTED);
+        // } else {
+        // requireContext().registerReceiver(odCountReceiver, filter);
+        // }
 
         // Manually refresh OD count when fragment resumes
-        refreshODCount();
+        // refreshODCount();
 
-    // Register in-app message receiver for real-time popups
-    IntentFilter msgFilter = new IntentFilter("NEW_IN_APP_MESSAGE");
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-        requireContext().registerReceiver(inAppMessageReceiver, msgFilter, android.content.Context.RECEIVER_NOT_EXPORTED);
-    } else {
-        requireContext().registerReceiver(inAppMessageReceiver, msgFilter);
-    }
+        // Register in-app message receiver for real-time popups
+        IntentFilter msgFilter = new IntentFilter("NEW_IN_APP_MESSAGE");
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            requireContext().registerReceiver(inAppMessageReceiver, msgFilter,
+                    android.content.Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireContext().registerReceiver(inAppMessageReceiver, msgFilter);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         // Unregister broadcast receiver
+        // Unregister broadcast receiver
         try {
-            requireContext().unregisterReceiver(odCountReceiver);
+            // requireContext().unregisterReceiver(odCountReceiver);
         } catch (Exception e) {
             // Receiver might not be registered
         }
@@ -408,15 +172,13 @@ public class HomeFragment extends Fragment {
                     systemWindowInsetLeft,
                     systemWindowInsetTop,
                     systemWindowInsetRight,
-                    0
-            );
+                    0);
 
             timetable.setPageTransformer((page, position) -> page.setPadding(
                     systemWindowInsetLeft,
                     0,
                     systemWindowInsetRight,
-                    (int) (bottomNavigationHeight + 20 * pixelDensity)
-            ));
+                    (int) (bottomNavigationHeight + 20 * pixelDensity)));
 
             // Only one listener can be added per requestKey, so we create a duplicate
             getParentFragmentManager().setFragmentResult("customInsets2", result);
@@ -471,39 +233,41 @@ public class HomeFragment extends Fragment {
         nameTextView.setText(name);
 
         // Set text colors to primary theme color
-        int primaryColor = MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(requireContext(), android.R.color.black));
+        int primaryColor = MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary,
+                ContextCompat.getColor(requireContext(), android.R.color.black));
         greeting.setTextColor(primaryColor);
         nameTextView.setTextColor(primaryColor);
-
 
         // Attendance Card
         CircularProgressDrawable attendanceProgress = homeFragment.findViewById(R.id.attendance_progress);
         TextView attendancePercentage = homeFragment.findViewById(R.id.attendance_percentage);
-        TextView odRemainingCount = homeFragment.findViewById(R.id.od_remaining_count);
+        // OD Card
+        TextView odCountText = homeFragment.findViewById(R.id.od_count_text);
 
-        // Robust attendance logic: always use attended/total for percentage, handle edge cases
+        // Robust attendance logic: always use attended/total for percentage, handle
+        // edge cases
         int attendedClasses = sharedPreferences.getInt("attendedClasses", 0);
         int totalClasses = sharedPreferences.getInt("totalClasses", 0);
         int overallAttendance = (totalClasses > 0) ? Math.round((attendedClasses * 100f) / totalClasses) : 0;
 
-        android.util.Log.d("HomeFragment", "Attendance - Attended: " + attendedClasses + ", Total: " + totalClasses + ", Calculated: " + overallAttendance + "%");
+        android.util.Log.d("HomeFragment", "Attendance - Attended: " + attendedClasses + ", Total: " + totalClasses
+                + ", Calculated: " + overallAttendance + "%");
 
         attendanceProgress.setProgress(overallAttendance);
         attendancePercentage.setText(overallAttendance + "%");
 
         // Set color backgrounds based on attendance
-        View attendanceBackground = homeFragment.findViewById(R.id.attendance_background);
-        if (attendanceBackground != null) {
-            if (overallAttendance >= 85) {
-                attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_high);
-                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnPrimary, android.graphics.Color.WHITE));
-            } else if (overallAttendance >= 75) {
-                attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_medium);
-                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSecondary, android.graphics.Color.WHITE));
-            } else {
-                attendanceBackground.setBackgroundResource(R.drawable.attendance_percentage_background_low);
-                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnError, android.graphics.Color.WHITE));
-            }
+        // We use the theme colors directly for the text since it's on the surface
+        // background
+        if (overallAttendance >= 85) {
+            attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(),
+                    com.google.android.material.R.attr.colorPrimary, android.graphics.Color.GREEN));
+        } else if (overallAttendance >= 75) {
+            attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(),
+                    com.google.android.material.R.attr.colorSecondary, android.graphics.Color.YELLOW));
+        } else {
+            attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(),
+                    com.google.android.material.R.attr.colorError, android.graphics.Color.RED));
         }
 
         // Toggle between percentage and counts
@@ -518,11 +282,14 @@ public class HomeFragment extends Fragment {
             }
             // Keep color logic consistent
             if (overallAttendance >= 85) {
-                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnPrimary, android.R.color.white));
+                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(),
+                        com.google.android.material.R.attr.colorPrimary, android.graphics.Color.GREEN));
             } else if (overallAttendance >= 75) {
-                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnSecondary, android.R.color.white));
+                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(),
+                        com.google.android.material.R.attr.colorSecondary, android.graphics.Color.YELLOW));
             } else {
-                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorOnError, android.R.color.white));
+                attendancePercentage.setTextColor(MaterialColors.getColor(requireContext(),
+                        com.google.android.material.R.attr.colorError, android.graphics.Color.RED));
             }
             mFirebaseAnalytics.logEvent("toggle_attendance_display", bundle);
         });
@@ -533,8 +300,7 @@ public class HomeFragment extends Fragment {
                 appDatabase.attendanceRecordDao().getAll(),
                 appDatabase.coursesDao().getAllCourses(),
                 appDatabase.coursesDao().getAllSlots(),
-                (records, courses, slots) -> new Object[]{records, courses, slots}
-        )
+                (records, courses, slots) -> new Object[] { records, courses, slots })
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
@@ -560,10 +326,13 @@ public class HomeFragment extends Fragment {
                     for (AttendanceRecord record : attendanceRecords) {
                         if (record.status != null) {
                             String status = record.status.trim().toLowerCase();
-                            boolean isOD = status.equals("od") || status.equals("on duty") || status.contains("od") || status.contains("on duty") || status.contains("duty");
-                            if (!isOD) continue;
+                            boolean isOD = status.equals("od") || status.equals("on duty") || status.contains("od")
+                                    || status.contains("on duty") || status.contains("duty");
+                            if (!isOD)
+                                continue;
 
-                            String dateKey = record.dateString != null ? record.dateString : String.valueOf(record.date);
+                            String dateKey = record.dateString != null ? record.dateString
+                                    : String.valueOf(record.date);
                             String key = (record.courseId != null ? record.courseId : -1) + "|" + dateKey;
 
                             int weight = 1;
@@ -594,118 +363,21 @@ public class HomeFragment extends Fragment {
                     for (Integer w : weightByCourseDate2.values()) {
                         odUsed += (w != null ? w : 0);
                     }
-                odRemainingCount.setText(odUsed + "/40");
 
-                    // Set text color based on completed OD classes
-                if (odUsed >= 36) { // 36+ out of 40 (most OD used)
-                        odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorError, ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark)));
-                } else if (odUsed >= 28) { // 28+ out of 40 (moderate OD used)
-                        odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorSecondary, ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)));
-                    } else {
-                        odRemainingCount.setTextColor(MaterialColors.getColor(requireContext(), com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)));
+                    // Update OD Card
+                    if (odCountText != null) {
+                        String odText = odUsed + "/40";
+                        odCountText.setText(odText);
                     }
+
                 }, throwable -> {
                     // Fallback - assume no OD used if no detailed data available
-                odRemainingCount.setText("0/40");
+                    // Fallback - assume no OD used if no detailed data available
+                    if (odCountText != null) {
+                        odCountText.setText("0/40");
+                    }
                     android.util.Log.e("HomeFragment", "Error calculating OD completed", throwable);
                 });
-
-        // Spotlight Button
-        View spotlightButton = homeFragment.findViewById(R.id.image_button_spotlight);
-        TooltipCompat.setTooltipText(spotlightButton, spotlightButton.getContentDescription());
-        spotlightButton.setOnClickListener(view -> {
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Spotlight");
-            mFirebaseAnalytics.logEvent("view_spotlight", bundle);
-
-            // Hide the Events badge and mark as viewed
-            if (!sharedPreferences.getBoolean("has_viewed_events_announcement", false)) {
-                sharedPreferences.edit().putBoolean("has_viewed_events_announcement", true).apply();
-                TextView eventsBadgeClick = homeFragment.findViewById(R.id.text_events_badge);
-                eventsBadgeClick.setVisibility(View.GONE); // Hide the text badge
-
-                // Hide the spotlight badge and custom badges
-                spotlightBadge.setVisible(false);
-                removeCustomBadges(spotlightButton);
-
-                // Track that user clicked on the events announcement
-                Bundle eventsBundle = new Bundle();
-                eventsBundle.putString("action", "events_badge_clicked");
-                mFirebaseAnalytics.logEvent("events_announcement_interaction", eventsBundle);
-            }
-
-            SettingsRepository.openRecyclerViewFragment(
-                this.requireActivity(),
-                R.string.spotlight,
-                RecyclerViewFragment.TYPE_SPOTLIGHT
-            );
-        });
-        // Sync Button
-        View syncButton = homeFragment.findViewById(R.id.image_button_sync);
-        TooltipCompat.setTooltipText(syncButton, syncButton.getContentDescription());
-        syncButton.setOnClickListener(view -> {
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.SOURCE, "HomeFragment");
-            mFirebaseAnalytics.logEvent("sync_data", bundle);
-            // Start sync process using the same mechanism as profile page
-            syncButton.setEnabled(false);
-            syncButton.setAlpha(0.5f);
-
-            // Trigger sync using fragment result (same as profile page)
-            getParentFragmentManager().setFragmentResult("syncData", new Bundle());
-
-            // Listen for sync state changes
-            getParentFragmentManager().setFragmentResultListener("syncDataState", this, (requestKey, result) -> {
-                if (result.getBoolean("isLoading")) {
-                    syncButton.setEnabled(false);
-                    syncButton.setAlpha(0.5f);
-                } else {
-                    syncButton.setEnabled(true);
-                    syncButton.setAlpha(1.0f);
-                }
-            });
-        });
-
-        spotlightBadge = BadgeDrawable.create(requireContext());
-        spotlightBadge.setBadgeGravity(BadgeDrawable.TOP_END);
-        spotlightBadge.setHorizontalOffset((int) (8 * pixelDensity));
-        spotlightBadge.setVerticalOffset((int) (8 * pixelDensity));
-        spotlightBadge.setBackgroundColor(android.graphics.Color.RED);
-        spotlightBadge.setBadgeTextColor(android.graphics.Color.WHITE);
-        spotlightBadge.setMaxCharacterCount(6); // Increased to fit "Events"
-
-        // Set initial state - will be updated by fragment result listener
-        TextView eventsBadge = homeFragment.findViewById(R.id.text_events_badge);
-        eventsBadge.setVisibility(View.GONE); // Hide the text badge
-
-        getParentFragmentManager().setFragmentResultListener("unreadCount", this, (requestKey, result) -> {
-            int spotlightCount = result.getInt("spotlight");
-            boolean eventsViewed = sharedPreferences.getBoolean("has_viewed_events_announcement", false);
-
-            if (!eventsViewed) {
-                // Show "Events" badge for events announcement (handled by createFallbackBadge)
-                eventsBadge.setVisibility(View.GONE);
-                // Only create the badge if it doesn't already exist
-                if (!hasExistingEventsBadge(spotlightButton)) {
-                    createFallbackBadge(spotlightButton);
-                }
-            } else if (spotlightCount > 0) {
-                // Show number badge for unread spotlight items using Material badge
-                eventsBadge.setVisibility(View.GONE);
-                // Remove custom badge and use Material badge for numbers
-                removeCustomBadges(spotlightButton);
-                spotlightBadge.setNumber(spotlightCount);
-                spotlightBadge.setVisible(true);
-                attachMaterialBadge(spotlightButton);
-            } else {
-                // No events badge and no unread items
-                eventsBadge.setVisibility(View.GONE);
-                spotlightBadge.setVisible(false);
-                removeCustomBadges(spotlightButton);
-            }
-        });
-
-        getParentFragmentManager().setFragmentResult("getUnreadCount", new Bundle());
 
         // Timetable Setup
         TabLayout days = homeFragment.findViewById(R.id.tab_layout_days);
@@ -723,7 +395,7 @@ public class HomeFragment extends Fragment {
 
         new TabLayoutMediator(days, timetable, (tab, position) -> {
             // Use 3-letter day abbreviations
-            String[] dayAbbreviations = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+            String[] dayAbbreviations = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
             String dayAbbreviation = dayAbbreviations[position];
             tab.setText(dayAbbreviation);
             tab.view.setContentDescription(dayStrings[position]);
@@ -746,7 +418,8 @@ public class HomeFragment extends Fragment {
                 mFirebaseAnalytics.logEvent("configure_day", bundle);
                 // For Saturday (6) / Sunday (0) allow choosing a working day mapping
                 if (position == 0 || position == 6) {
-                    String[] dayAbbreviationsFull = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+                    String[] dayAbbreviationsFull = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+                            "Saturday" };
                     String[] options = {
                             "Set as Holiday",
                             "Work as Monday",
@@ -787,7 +460,8 @@ public class HomeFragment extends Fragment {
                                                 .putInt("working_override_" + position, -1)
                                                 .apply();
                                         // keep current holiday flag
-                                        v.setAlpha(sharedPreferences.getBoolean("holiday_" + position, false) ? 0.5f : 1.0f);
+                                        v.setAlpha(sharedPreferences.getBoolean("holiday_" + position, false) ? 0.5f
+                                                : 1.0f);
                                         break;
                                 }
 
@@ -804,13 +478,15 @@ public class HomeFragment extends Fragment {
                     if (timetable.getAdapter() != null) {
                         timetable.getAdapter().notifyItemChanged(position);
                     }
-                    Toast.makeText(requireContext(), (!current ? dayStrings[position] + " marked as holiday" : dayStrings[position] + " set to working day"), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), (!current ? dayStrings[position] + " marked as holiday"
+                            : dayStrings[position] + " set to working day"), Toast.LENGTH_SHORT).show();
                 }
                 return true;
             });
         }).attach();
 
-        // This is required to set the tooltip text again since it gets reset to the tab's text
+        // This is required to set the tooltip text again since it gets reset to the
+        // tab's text
         for (int i = 0; i < days.getTabCount(); ++i) {
             TabLayout.Tab tab = days.getTabAt(i);
             int position = i;
@@ -865,6 +541,32 @@ public class HomeFragment extends Fragment {
             public void onTabReselected(TabLayout.Tab tab) {
                 // Optional: Add logic for when the same tab is selected again
             }
+        });
+
+        // Sync Button
+        View syncButton = homeFragment.findViewById(R.id.image_button_sync);
+        TooltipCompat.setTooltipText(syncButton, syncButton.getContentDescription());
+        syncButton.setOnClickListener(view -> {
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.SOURCE, "HomeFragment");
+            mFirebaseAnalytics.logEvent("sync_data", bundle);
+            // Start sync process using the same mechanism as profile page
+            syncButton.setEnabled(false);
+            syncButton.setAlpha(0.5f);
+
+            // Trigger sync using fragment result (same as profile page)
+            getParentFragmentManager().setFragmentResult("syncData", new Bundle());
+
+            // Listen for sync state changes
+            getParentFragmentManager().setFragmentResultListener("syncDataState", this, (requestKey, result) -> {
+                if (result.getBoolean("isLoading")) {
+                    syncButton.setEnabled(false);
+                    syncButton.setAlpha(0.5f);
+                } else {
+                    syncButton.setEnabled(true);
+                    syncButton.setAlpha(1.0f);
+                }
+            });
         });
 
         return homeFragment;

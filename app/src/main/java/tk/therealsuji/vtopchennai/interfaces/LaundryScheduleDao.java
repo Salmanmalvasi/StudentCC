@@ -35,10 +35,12 @@ public interface LaundryScheduleDao {
     Single<List<LaundrySchedule>> getSchedulesByBlockAndDate(String block, String date);
 
     @Query("SELECT * FROM laundry_schedules WHERE block = :block AND date = :date AND (room_number LIKE '%' || :roomNumber || '%' OR :roomNumber LIKE '%' || room_number || '%')")
-    Single<LaundrySchedule> getTodaysSchedule(String block, String date, String roomNumber);
+    io.reactivex.rxjava3.core.Flowable<List<LaundrySchedule>> getTodaysSchedule(String block, String date,
+            String roomNumber);
 
     @Query("SELECT * FROM laundry_schedules WHERE block = :block AND CAST(date as INTEGER) > :currentDate AND (room_number LIKE '%' || :roomNumber || '%' OR :roomNumber LIKE '%' || room_number || '%') ORDER BY CAST(date as INTEGER) LIMIT 1")
-    Single<LaundrySchedule> getNextSchedule(String block, int currentDate, String roomNumber);
+    io.reactivex.rxjava3.core.Flowable<List<LaundrySchedule>> getNextSchedule(String block, int currentDate,
+            String roomNumber);
 
     @Query("DELETE FROM laundry_schedules WHERE block = :block")
     Completable deleteByBlock(String block);

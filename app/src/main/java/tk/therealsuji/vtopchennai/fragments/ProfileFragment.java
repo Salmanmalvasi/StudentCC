@@ -24,7 +24,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
-
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.activities.LoginActivity;
 import tk.therealsuji.vtopchennai.adapters.AnnouncementItemAdapter;
@@ -38,34 +37,33 @@ public class ProfileFragment extends Fragment {
                     R.drawable.ic_courses,
                     R.string.courses,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         SettingsRepository.openViewPagerFragment(
                                 requireActivity(),
                                 R.string.courses,
-                                ViewPagerFragment.TYPE_COURSES
-                        );
+                                ViewPagerFragment.TYPE_COURSES);
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_exams,
                     R.string.exam_schedule,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         SettingsRepository.openViewPagerFragment(
                                 requireActivity(),
                                 R.string.exam_schedule,
-                                ViewPagerFragment.TYPE_EXAMS
-                        );
+                                ViewPagerFragment.TYPE_EXAMS);
                     },
-                    null
-            ),
+                    null),
 
             new ItemData(
                     R.drawable.ic_sync,
                     R.string.sync_data,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         getParentFragmentManager().setFragmentResult("syncData", new Bundle());
                     },
                     profileItem -> {
@@ -73,30 +71,32 @@ public class ProfileFragment extends Fragment {
                         RelativeLayout extraContainer = profileItem.findViewById(R.id.relative_layout_extra_container);
                         extraContainer.addView(progressBar);
 
-                        getParentFragmentManager().setFragmentResultListener("syncDataState", this, (requestKey, result) -> {
-                            if (result.getBoolean("isLoading")) {
-                                profileItem.setEnabled(false);
-                                extraContainer.setVisibility(View.VISIBLE);
-                            } else {
-                                profileItem.setEnabled(true);
-                                extraContainer.setVisibility(View.GONE);
-                            }
-                        });
-                    }
-            ),
+                        getParentFragmentManager().setFragmentResultListener("syncDataState", this,
+                                (requestKey, result) -> {
+                                    if (result.getBoolean("isLoading")) {
+                                        profileItem.setEnabled(false);
+                                        extraContainer.setVisibility(View.VISIBLE);
+                                    } else {
+                                        profileItem.setEnabled(true);
+                                        extraContainer.setVisibility(View.GONE);
+                                    }
+                                });
+                    }),
             new ItemData(
                     R.drawable.ic_timetable,
                     R.string.change_semester,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         changeSemester();
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_gpa_calculator,
                     R.string.attendance_calculator,
-                    context -> {                        if (!isAdded()) return;
+                    context -> {
+                        if (!isAdded())
+                            return;
 
                         FragmentActivity activity = requireActivity();
                         AttendanceCalculatorFragment fragment = new AttendanceCalculatorFragment();
@@ -106,13 +106,13 @@ public class ProfileFragment extends Fragment {
                                 .addToBackStack(null)
                                 .commit();
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_calendar,
                     R.string.skip_advisor,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         FragmentActivity activity = requireActivity();
                         SkipAdvisorFragment fragment = new SkipAdvisorFragment();
                         activity.getSupportFragmentManager().beginTransaction()
@@ -121,13 +121,13 @@ public class ProfileFragment extends Fragment {
                                 .addToBackStack(null)
                                 .commit();
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_staff,
                     R.string.faculty_details,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         FragmentActivity activity = requireActivity();
                         FacultyDetailsFragment fragment = new FacultyDetailsFragment();
                         activity.getSupportFragmentManager().beginTransaction()
@@ -136,22 +136,23 @@ public class ProfileFragment extends Fragment {
                                 .addToBackStack(null)
                                 .commit();
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_link,
                     "StudentCC Website",
                     "Visit the official StudentCC website",
                     context -> {
-                        if (!isAdded()) return;
-                        SettingsRepository.openBrowser(context, "https://salmanmalvasi.github.io/studentcc-landing.html");
-                    }
-            ),
+                        if (!isAdded())
+                            return;
+                        SettingsRepository.openBrowser(context,
+                                "https://salmanmalvasi.github.io/studentcc-landing.html");
+                    }),
             new ItemData(
                     R.drawable.ic_link,
                     R.string.vhelp,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         // Create dialog with VHelp links
                         String[] links = {
                                 context.getString(R.string.vhelp_home),
@@ -168,19 +169,20 @@ public class ProfileFragment extends Fragment {
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle(R.string.vhelp)
                                 .setItems(links, (dialog, which) -> {
-                                    if (!isAdded()) return;
+                                    if (!isAdded())
+                                        return;
                                     SettingsRepository.openBrowser(requireContext(), urls[which]);
                                 })
                                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                                 .show();
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_link,
                     R.string.important_links,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         // Create dialog with important links
                         String[] links = {
                                 context.getString(R.string.vitol_freshers),
@@ -199,26 +201,25 @@ public class ProfileFragment extends Fragment {
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle(R.string.important_links)
                                 .setItems(links, (dialog, which) -> {
-                                    if (!isAdded()) return;
+                                    if (!isAdded())
+                                        return;
                                     SettingsRepository.openBrowser(requireContext(), urls[which]);
                                 })
                                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                                 .show();
                     },
-                    null
-            )
+                    null)
     };
 
-
     // VHelp group removed; handled via single dialog item in Personal section
-
 
     private final ItemData[] themesProfileItems = {
             new ItemData(
                     R.drawable.ic_appearance,
                     R.string.appearance,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         String[] themes = {
                                 context.getString(R.string.light),
                                 context.getString(R.string.dark),
@@ -255,7 +256,8 @@ public class ProfileFragment extends Fragment {
                                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                                     } else {
                                         sharedPreferences.edit().remove("appearance").apply();
-                                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                                        AppCompatDelegate
+                                                .setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                                     }
 
                                     dialogInterface.dismiss();
@@ -264,24 +266,27 @@ public class ProfileFragment extends Fragment {
                                 .setTitle(R.string.appearance)
                                 .show();
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_gpa_calculator,
                     R.string.select_theme,
-                    context -> {                        if (!isAdded()) return;
+                    context -> {
+                        if (!isAdded())
+                            return;
 
-                        Intent intent = new Intent(requireContext(), tk.therealsuji.vtopchennai.activities.ThemeSelectorActivity.class);
+                        Intent intent = new Intent(requireContext(),
+                                tk.therealsuji.vtopchennai.activities.ThemeSelectorActivity.class);
                         requireContext().startActivity(intent);
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_sync,
                     R.string.sync_video_theme,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         String[] videoThemes = {
+                                "None",
                                 context.getString(R.string.marvel_theme),
                                 context.getString(R.string.got_theme),
                                 context.getString(R.string.f1_theme),
@@ -291,31 +296,41 @@ public class ProfileFragment extends Fragment {
                         SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(requireContext());
 
                         int checkedItem = 0;
-                        String currentTheme = sharedPreferences.getString("sync_video_theme", "marvel");
+                        String currentTheme = sharedPreferences.getString("sync_video_theme", "none");
 
-                        if (currentTheme.equals("got")) {
+                        if (currentTheme.equals("marvel")) {
                             checkedItem = 1;
-                        } else if (currentTheme.equals("f1")) {
+                        } else if (currentTheme.equals("got")) {
                             checkedItem = 2;
-                        } else if (currentTheme.equals("matrix")) {
+                        } else if (currentTheme.equals("f1")) {
                             checkedItem = 3;
+                        } else if (currentTheme.equals("matrix")) {
+                            checkedItem = 4;
                         }
 
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                                 .setSingleChoiceItems(videoThemes, checkedItem, (dialogInterface, i) -> {
                                     if (i == 0) {
-                                        sharedPreferences.edit().putString("sync_video_theme", "marvel").apply();
-                                        Toast.makeText(requireContext(), "Marvel theme selected", Toast.LENGTH_SHORT).show();
+                                        sharedPreferences.edit().putString("sync_video_theme", "none").apply();
+                                        Toast.makeText(requireContext(), "Sync video disabled", Toast.LENGTH_SHORT)
+                                                .show();
                                     } else if (i == 1) {
-                                        sharedPreferences.edit().putString("sync_video_theme", "got").apply();
-                                        Toast.makeText(requireContext(), "Game of Thrones theme selected", Toast.LENGTH_SHORT).show();
+                                        sharedPreferences.edit().putString("sync_video_theme", "marvel").apply();
+                                        Toast.makeText(requireContext(), "Marvel theme selected", Toast.LENGTH_SHORT)
+                                                .show();
                                     } else if (i == 2) {
-                                        sharedPreferences.edit().putString("sync_video_theme", "f1").apply();
-                                        Toast.makeText(requireContext(), "Formula 1 theme selected", Toast.LENGTH_SHORT).show();
+                                        sharedPreferences.edit().putString("sync_video_theme", "got").apply();
+                                        Toast.makeText(requireContext(), "Game of Thrones theme selected",
+                                                Toast.LENGTH_SHORT).show();
                                     } else if (i == 3) {
+                                        sharedPreferences.edit().putString("sync_video_theme", "f1").apply();
+                                        Toast.makeText(requireContext(), "Formula 1 theme selected", Toast.LENGTH_SHORT)
+                                                .show();
+                                    } else if (i == 4) {
                                         sharedPreferences.edit().putString("sync_video_theme", "matrix").apply();
-                                        Toast.makeText(requireContext(), "The Matrix theme selected", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(requireContext(), "The Matrix theme selected",
+                                                Toast.LENGTH_SHORT).show();
                                     }
 
                                     dialogInterface.dismiss();
@@ -323,66 +338,67 @@ public class ProfileFragment extends Fragment {
                                 .setTitle(R.string.sync_video_theme)
                                 .show();
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_notifications,
                     R.string.mute_sync_video,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         // This will be a toggle switch handled by the extra view
                     },
                     profileItem -> {
                         MaterialSwitch muteSwitch = new MaterialSwitch(profileItem.getContext());
-                        muteSwitch.setChecked(SettingsRepository.getSharedPreferences(requireContext()).getBoolean("sync_video_muted", false));
+                        muteSwitch.setChecked(SettingsRepository.getSharedPreferences(requireContext())
+                                .getBoolean("sync_video_muted", false));
                         muteSwitch.setOnCheckedChangeListener((compoundButton, isMuted) -> {
-                            SettingsRepository.getSharedPreferences(requireContext()).edit().putBoolean("sync_video_muted", isMuted).apply();
+                            SettingsRepository.getSharedPreferences(requireContext()).edit()
+                                    .putBoolean("sync_video_muted", isMuted).apply();
                             if (isMuted) {
                                 Toast.makeText(requireContext(), "Sync video will be muted", Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(requireContext(), "Sync video will play with sound", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), "Sync video will play with sound", Toast.LENGTH_SHORT)
+                                        .show();
                             }
                         });
-                        
+
                         RelativeLayout extraContainer = profileItem.findViewById(R.id.relative_layout_extra_container);
                         extraContainer.addView(muteSwitch);
                         extraContainer.setVisibility(View.VISIBLE);
-                    }
-            )
+                    })
     };
-
 
     private final ItemData[] otherProfileItems = {
             new ItemData(
                     R.drawable.ic_receipts,
                     R.string.receipts,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         SettingsRepository.openRecyclerViewFragment(
                                 requireActivity(),
                                 R.string.receipts,
-                                RecyclerViewFragment.TYPE_RECEIPTS
-                        );
+                                RecyclerViewFragment.TYPE_RECEIPTS);
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_staff,
                     R.string.staff,
                     context -> {
-                        if (!isAdded()) return;
+                        if (!isAdded())
+                            return;
                         SettingsRepository.openViewPagerFragment(
                                 requireActivity(),
                                 R.string.staff,
-                                ViewPagerFragment.TYPE_STAFF
-                        );
+                                ViewPagerFragment.TYPE_STAFF);
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_notifications,
                     R.string.notifications,
-                    context -> {                        if (!isAdded()) return;
+                    context -> {
+                        if (!isAdded())
+                            return;
 
                         Intent intent = new Intent();
                         intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
@@ -392,84 +408,96 @@ public class ProfileFragment extends Fragment {
 
                         requireContext().startActivity(intent);
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_feedback,
                     R.string.send_feedback,
-                    context -> {                        if (!isAdded()) return;
+                    context -> {
+                        if (!isAdded())
+                            return;
 
                         View bottomSheetLayout = View.inflate(context, R.layout.layout_bottom_sheet_feedback, null);
-                        bottomSheetLayout.findViewById(R.id.text_view_contact_developer).setOnClickListener(view -> SettingsRepository.openBrowser(context, SettingsRepository.DEVELOPER_BASE_URL));
-                        bottomSheetLayout.findViewById(R.id.text_view_open_issue).setOnClickListener(view -> SettingsRepository.openBrowser(context, SettingsRepository.GITHUB_ISSUE_URL));
-                        bottomSheetLayout.findViewById(R.id.text_view_request_feature).setOnClickListener(view -> SettingsRepository.openBrowser(context, SettingsRepository.GITHUB_FEATURE_URL));
+                        bottomSheetLayout.findViewById(R.id.text_view_contact_developer).setOnClickListener(
+                                view -> SettingsRepository.openBrowser(context, SettingsRepository.DEVELOPER_BASE_URL));
+                        bottomSheetLayout.findViewById(R.id.text_view_open_issue).setOnClickListener(
+                                view -> SettingsRepository.openBrowser(context, SettingsRepository.GITHUB_ISSUE_URL));
+                        bottomSheetLayout.findViewById(R.id.text_view_request_feature).setOnClickListener(
+                                view -> SettingsRepository.openBrowser(context, SettingsRepository.GITHUB_FEATURE_URL));
 
                         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
                         bottomSheetDialog.setContentView(bottomSheetLayout);
                         bottomSheetDialog.show();
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_share,
                     R.string.share,
-                    context -> {                        if (!isAdded()) return;
+                    context -> {
+                        if (!isAdded())
+                            return;
 
                         Intent intent = new Intent();
                         intent.setAction(Intent.ACTION_SEND);
                         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject));
-                        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text, SettingsRepository.APP_BASE_URL));
+                        intent.putExtra(Intent.EXTRA_TEXT,
+                                getString(R.string.share_text, SettingsRepository.APP_BASE_URL));
                         intent.setType("text/plain");
 
                         Intent shareIntent = Intent.createChooser(intent, getString(R.string.share_title));
                         requireContext().startActivity(shareIntent);
                     },
-                    null
-            ),
+                    null),
             new ItemData(
                     R.drawable.ic_whats_new,
                     "Code",
                     "View the source code",
-                    context -> {                        if (!isAdded()) return;
+                    context -> {
+                        if (!isAdded())
+                            return;
                         SettingsRepository.openBrowser(context, SettingsRepository.GITHUB_BASE_URL);
-                    }
-            ),
+                    }),
             new ItemData(
                     R.drawable.ic_link,
                     "Unmessify",
                     "Visit kaffeine.tech/unmessify",
-                    context -> {                        if (!isAdded()) return;
+                    context -> {
+                        if (!isAdded())
+                            return;
                         SettingsRepository.openBrowser(context, "https://kaffeine.tech/unmessify");
-                    }
-            ),
+                    }),
             new ItemData(
                     R.drawable.ic_feedback,
                     "StudentCC Community",
                     "Join our WhatsApp community",
-                    context -> {                        if (!isAdded()) return;
+                    context -> {
+                        if (!isAdded())
+                            return;
                         SettingsRepository.openBrowser(context, "https://chat.whatsapp.com/HgXMjKomvYyCSCrmbWFcbG");
-                    }
-            ),
+                    }),
             new ItemData(
                     R.drawable.ic_flappy_bird,
                     "3k Special",
                     "Thanks for 3K downloads! Share with friends! 🚀",
                     context -> {
-                        if (!isAdded()) return;
-                        Intent intent = new Intent(requireContext(), tk.therealsuji.vtopchennai.activities.FlappyGameActivity.class);
+                        if (!isAdded())
+                            return;
+                        Intent intent = new Intent(requireContext(),
+                                tk.therealsuji.vtopchennai.activities.FlappyGameActivity.class);
                         requireContext().startActivity(intent);
-                    }
-            ),
+                    }),
             new ItemData(
                     R.drawable.ic_sign_out,
                     R.string.sign_out,
-                    context -> {                        if (!isAdded()) return;
+                    context -> {
+                        if (!isAdded())
+                            return;
 
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setMessage(R.string.sign_out_text)
                                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                                 .setPositiveButton(R.string.sign_out, (dialogInterface, i) -> {
-                                    if (!isAdded()) return;
+                                    if (!isAdded())
+                                        return;
                                     SettingsRepository.signOut(requireContext());
                                     requireActivity().startActivity(new Intent(requireContext(), LoginActivity.class));
                                     requireActivity().finish();
@@ -492,7 +520,6 @@ public class ProfileFragment extends Fragment {
             R.string.other
     };
 
-
     private final ItemData[] announcementItems = {};
 
     public ProfileFragment() {
@@ -503,8 +530,6 @@ public class ProfileFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-
-
         getParentFragmentManager().setFragmentResultListener("launchSubFragment", this, (requestKey, result) -> {
             String subFragment = result.getString("subFragment");
 
@@ -512,8 +537,7 @@ public class ProfileFragment extends Fragment {
                 SettingsRepository.openViewPagerFragment(
                         requireActivity(),
                         R.string.exam_schedule,
-                        ViewPagerFragment.TYPE_EXAMS
-                );
+                        ViewPagerFragment.TYPE_EXAMS);
             }
         });
     }
@@ -536,16 +560,13 @@ public class ProfileFragment extends Fragment {
                     systemWindowInsetLeft,
                     systemWindowInsetTop,
                     systemWindowInsetRight,
-                    0
-            );
+                    0);
 
             profileView.setPaddingRelative(
                     systemWindowInsetLeft,
                     0,
                     systemWindowInsetRight,
-                    (int) (bottomNavigationHeight + 20 * pixelDensity)
-            );
-
+                    (int) (bottomNavigationHeight + 20 * pixelDensity));
 
         });
 
@@ -554,6 +575,18 @@ public class ProfileFragment extends Fragment {
 
         announcements.setAdapter(new AnnouncementItemAdapter(announcementItems));
         profileGroups.setAdapter(new ProfileGroupAdapter(this.profileGroups, this.profileItems));
+
+        // Set user details
+        SharedPreferences encryptedPrefs = SettingsRepository.getEncryptedSharedPreferences(requireContext());
+        String regNo = encryptedPrefs.getString("username", "Student");
+
+        android.widget.TextView nameView = profileFragment.findViewById(R.id.text_view_name);
+        android.widget.TextView regNoView = profileFragment.findViewById(R.id.text_view_reg_no);
+
+        if (nameView != null)
+            nameView.setText("Student"); // Placeholder as name is not stored
+        if (regNoView != null)
+            regNoView.setText(regNo);
 
         return profileFragment;
     }
@@ -564,7 +597,8 @@ public class ProfileFragment extends Fragment {
         public final OnClickListener onClickListener;
         public final OnInitListener onInitListener;
 
-        public ItemData(@DrawableRes int iconId, @StringRes int titleId, OnClickListener onClickListener, OnInitListener onInitListener) {
+        public ItemData(@DrawableRes int iconId, @StringRes int titleId, OnClickListener onClickListener,
+                OnInitListener onInitListener) {
             this.iconId = iconId;
             this.titleId = titleId;
             this.onClickListener = onClickListener;
@@ -601,12 +635,13 @@ public class ProfileFragment extends Fragment {
         String currentSemester = sharedPreferences.getString("semester", "");
 
         if (availableSemesters.isEmpty()) {
-            Toast.makeText(requireContext(), "No semesters available. Please sync data first.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "No semesters available. Please sync data first.", Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
         String[] semesters = availableSemesters.split(",");
-        final int[] checkedItem = {0};
+        final int[] checkedItem = { 0 };
 
         // Find current semester index
         for (int i = 0; i < semesters.length; i++) {
@@ -629,7 +664,8 @@ public class ProfileFragment extends Fragment {
                     sharedPreferences.edit().putString("semester", selectedSemester).apply();
 
                     // Show confirmation and suggest sync
-                    Toast.makeText(requireContext(), "Semester changed to: " + selectedSemester, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Semester changed to: " + selectedSemester, Toast.LENGTH_SHORT)
+                            .show();
 
                     new MaterialAlertDialogBuilder(requireContext())
                             .setTitle("Semester Changed")

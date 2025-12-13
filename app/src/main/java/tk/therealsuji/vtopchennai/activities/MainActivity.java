@@ -35,7 +35,6 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 
@@ -70,6 +69,7 @@ import tk.therealsuji.vtopchennai.helpers.FirebaseCrashlyticsHelper;
 import tk.therealsuji.vtopchennai.helpers.FirebaseConfigHelper;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
 import tk.therealsuji.vtopchennai.helpers.SpotlightDefaults;
+import tk.therealsuji.vtopchennai.helpers.ThemeManager;
 import tk.therealsuji.vtopchennai.helpers.VTOPHelper;
 
 import android.Manifest;
@@ -92,8 +92,8 @@ public class MainActivity extends AppCompatActivity {
     static final String HOSTEL_INFO_FRAGMENT_TAG = "HOSTEL_INFO_FRAGMENT_TAG";
     static final String PROFILE_FRAGMENT_TAG = "PROFILE_FRAGMENT_TAG";
 
-    ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+    ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     Toast.makeText(this, R.string.notification_permission_granted, Toast.LENGTH_SHORT).show();
                 } else {
@@ -129,8 +129,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Error: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                     }
                 }
-            }
-    );
+            });
 
     private String copyFileToCache(Uri uri) throws Exception {
         DocumentFile documentFile = DocumentFile.fromSingleUri(this, uri);
@@ -140,7 +139,8 @@ public class MainActivity extends AppCompatActivity {
         File file = new File(getCacheDir() + "/Moodle", fileName);
         file.deleteOnExit();
 
-        if ((file.getParentFile() == null || !file.getParentFile().mkdir()) && !file.createNewFile() && !file.exists()) {
+        if ((file.getParentFile() == null || !file.getParentFile().mkdir()) && !file.createNewFile()
+                && !file.exists()) {
             throw new Exception("Failed to copy one or more files.");
         }
 
@@ -155,7 +155,8 @@ public class MainActivity extends AppCompatActivity {
         final String CHANNEL_ID = "laundry_notifications";
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Laundry Notifications", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Laundry Notifications",
+                    NotificationManager.IMPORTANCE_DEFAULT);
             nm.createNotificationChannel(channel);
         }
         String text;
@@ -199,12 +200,16 @@ public class MainActivity extends AppCompatActivity {
             syncVideoDialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
             syncVideoDialog.setContentView(dialogView);
             syncVideoDialog.setCancelable(false);
-            
+
             // Get user's selected video theme from preferences
             SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this);
-            String videoTheme = sharedPreferences.getString("sync_video_theme", "marvel");
+            String videoTheme = sharedPreferences.getString("sync_video_theme", "none");
             isVideoMuted = sharedPreferences.getBoolean("sync_video_muted", false);
-            
+
+            if ("none".equals(videoTheme)) {
+                return;
+            }
+
             // Determine video file based on theme
             String videoFileName;
             if (videoTheme.equals("got")) {
@@ -216,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 videoFileName = "marvel.mp4";
             }
-            
+
             // Set up video from assets folder
             try {
                 // Copy video from assets to cache and play it
@@ -241,14 +246,14 @@ public class MainActivity extends AppCompatActivity {
             syncVideoView.setOnPreparedListener(mp -> {
                 mediaPlayer = mp;
                 mp.setLooping(true);
-                
+
                 // Set volume based on mute preference
                 if (isVideoMuted) {
                     mp.setVolume(0f, 0f);
                 } else {
                     mp.setVolume(1f, 1f);
                 }
-                
+
                 mp.start();
             });
 
@@ -262,20 +267,20 @@ public class MainActivity extends AppCompatActivity {
             syncVideoView.setOnClickListener(v -> {
                 if (mediaPlayer != null) {
                     isVideoMuted = !isVideoMuted;
-                    
+
                     // Toggle volume
                     if (isVideoMuted) {
                         mediaPlayer.setVolume(0f, 0f);
                     } else {
                         mediaPlayer.setVolume(1f, 1f);
                     }
-                    
+
                     // Save preference
                     SettingsRepository.getSharedPreferences(MainActivity.this)
                             .edit()
                             .putBoolean("sync_video_muted", isVideoMuted)
                             .apply();
-                    
+
                     // Show mute indicator
                     showMuteIndicator();
                 }
@@ -296,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 muteIndicator.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
             }
-            
+
             // Show indicator
             muteIndicator.setVisibility(View.VISIBLE);
             muteIndicator.setAlpha(0f);
@@ -304,10 +309,10 @@ public class MainActivity extends AppCompatActivity {
                     .alpha(1f)
                     .setDuration(200)
                     .start();
-            
+
             // Remove any pending hide callbacks
             muteIndicatorHandler.removeCallbacksAndMessages(null);
-            
+
             // Hide after 1.5 seconds
             muteIndicatorHandler.postDelayed(() -> {
                 if (muteIndicator != null) {
@@ -336,10 +341,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void resetSyncVideoDialog() {
         hideSyncVideoDialog();
-        
+
         // Remove pending handler callbacks
         muteIndicatorHandler.removeCallbacksAndMessages(null);
-        
+
         // Clean up references
         if (syncVideoDialog != null) {
             syncVideoDialog = null;
@@ -357,7 +362,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void hideBottomNavigationView() {
         this.bottomNavigationView.clearAnimation();
-        this.bottomNavigationView.post(() -> this.bottomNavigationView.animate().translationY(bottomNavigationView.getMeasuredHeight()));
+        this.bottomNavigationView
+                .post(() -> this.bottomNavigationView.animate().translationY(bottomNavigationView.getMeasuredHeight()));
 
         if (Build.VERSION.SDK_INT >= 29) {
             this.getWindow().getDecorView().post(() -> {
@@ -379,7 +385,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void restartActivity() {
         Intent intent = new Intent(this, this.getClass());
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
@@ -390,7 +397,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (encryptedSharedPreferences != null) {
             String studentType = encryptedSharedPreferences.getString("student_type", "");
-            android.util.Log.d("MainActivity", "Student type: '" + studentType + "' (length: " + studentType.length() + ")");
+            android.util.Log.d("MainActivity",
+                    "Student type: '" + studentType + "' (length: " + studentType.length() + ")");
 
             // Check all student type related data for debugging
             String username = encryptedSharedPreferences.getString("username", "");
@@ -450,48 +458,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void applySelectedTheme() {
-        SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this);
-        int selectedTheme = sharedPreferences.getInt("selectedTheme", 0);
-
-        switch (selectedTheme) {
-            case 1:
-                setTheme(R.style.Theme_VTOP_Red);
-                break;
-            case 2:
-                setTheme(R.style.Theme_VTOP_Blue);
-                break;
-            case 3:
-                setTheme(R.style.Theme_VTOP_Purple);
-                break;
-            case 4:
-                setTheme(R.style.Theme_VTOP_Green);
-                break;
-            case 5:
-                setTheme(R.style.Theme_VTOP_Black);
-                break;
-            default:
-                setTheme(R.style.Theme_VTOP);
-                break;
-        }
+        ThemeManager.applyTheme(this);
     }
 
     private void getUnreadCount() {
-    AppDatabase appDatabase = AppDatabase.getInstance(this.getApplicationContext());
-    Bundle unreadCount = new Bundle();
+        AppDatabase appDatabase = AppDatabase.getInstance(this.getApplicationContext());
+        Bundle unreadCount = new Bundle();
 
-    SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this);
-    boolean eventsViewed = sharedPreferences.getBoolean("has_viewed_events_announcement", false);
-    int defaultSpotlightUnread = eventsViewed ? 0 : SpotlightDefaults.getEventsAnnouncementsCount();
+        SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this);
+        boolean eventsViewed = sharedPreferences.getBoolean("has_viewed_events_announcement", false);
+        int defaultSpotlightUnread = eventsViewed ? 0 : SpotlightDefaults.getEventsAnnouncementsCount();
 
-    Observable.concat(
-            Observable.fromSingle(
-                appDatabase.spotlightDao()
-                    .getUnreadCount()
-                    .map(count -> count + defaultSpotlightUnread)
-                    .onErrorReturnItem(defaultSpotlightUnread)
-            ),
-            Observable.fromSingle(appDatabase.marksDao().getMarksUnreadCount())
-        )
+        Observable.concat(
+                Observable.fromSingle(
+                        appDatabase.spotlightDao()
+                                .getUnreadCount()
+                                .map(count -> count + defaultSpotlightUnread)
+                                .onErrorReturnItem(defaultSpotlightUnread)),
+                Observable.fromSingle(appDatabase.marksDao().getMarksUnreadCount()))
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Integer>() {
@@ -517,7 +501,8 @@ public class MainActivity extends AppCompatActivity {
                         int homeCount = unreadCount.getInt("spotlight");
                         int performanceCount = unreadCount.getInt("marks");
 
-                        // Only show badge on performance tab, not home tab (spotlight badge is handled in HomeFragment)
+                        // Only show badge on performance tab, not home tab (spotlight badge is handled
+                        // in HomeFragment)
                         BadgeDrawable performanceBadge = bottomNavigationView.getOrCreateBadge(R.id.item_performance);
 
                         performanceBadge.setNumber(performanceCount);
@@ -532,7 +517,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Persist the last seen app version so future updates can react once without clearing sessions.
+     * Persist the last seen app version so future updates can react once without
+     * clearing sessions.
      */
     private void ensureVersionTracking() {
         SharedPreferences versionPrefs = getSharedPreferences("app_version_prefs", MODE_PRIVATE);
@@ -546,7 +532,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-    // Record the running app version early so update-specific logic can act once per release
+        // Record the running app version early so update-specific logic can act once
+        // per release
         ensureVersionTracking();
 
         boolean amoledMode = SettingsRepository.getSharedPreferences(this).getBoolean("amoledMode", false);
@@ -571,8 +558,6 @@ public class MainActivity extends AppCompatActivity {
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
-
-
         this.bottomNavigationView = findViewById(R.id.bottom_navigation);
         Menu bottomMenu = this.bottomNavigationView.getMenu();
         int maxNavigationItems = this.bottomNavigationView.getMaxItemCount();
@@ -581,7 +566,8 @@ public class MainActivity extends AppCompatActivity {
                 int itemId = bottomMenu.getItem(index).getItemId();
                 bottomMenu.removeItem(itemId);
             }
-            android.util.Log.w("MainActivity", "Trimmed bottom navigation items to avoid exceeding the maximum of " + maxNavigationItems);
+            android.util.Log.w("MainActivity",
+                    "Trimmed bottom navigation items to avoid exceeding the maximum of " + maxNavigationItems);
         }
 
         Bundle customInsets = new Bundle();
@@ -614,18 +600,21 @@ public class MainActivity extends AppCompatActivity {
                     return windowInsets;
                 });
 
-        getSupportFragmentManager().setFragmentResultListener("bottomNavigationVisibility", this, (requestKey, result) -> {
-            if (result.getBoolean("isVisible")) {
-                this.showBottomNavigationView();
-            } else {
-                this.hideBottomNavigationView();
-            }
-        });
+        getSupportFragmentManager().setFragmentResultListener("bottomNavigationVisibility", this,
+                (requestKey, result) -> {
+                    if (result.getBoolean("isVisible")) {
+                        this.showBottomNavigationView();
+                    } else {
+                        this.hideBottomNavigationView();
+                    }
+                });
 
         Bundle syncDataState = new Bundle();
         syncDataState.putBoolean("isLoading", false);
-        getSupportFragmentManager().setFragmentResultListener("syncData", this, (requestKey, result) -> this.syncData());
-        getSupportFragmentManager().setFragmentResultListener("getUnreadCount", this, (requestKey, result) -> this.getUnreadCount());
+        getSupportFragmentManager().setFragmentResultListener("syncData", this,
+                (requestKey, result) -> this.syncData());
+        getSupportFragmentManager().setFragmentResultListener("getUnreadCount", this,
+                (requestKey, result) -> this.getUnreadCount());
         // Dynamic colors listener disabled
 
         this.getUnreadCount();
@@ -639,13 +628,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Check student type and hide hostel info tab if day scholar
         checkAndUpdateBottomNavigation();
-        
+
         // Test in-app messaging with a custom event (for debugging)
         testInAppMessaging();
-        
+
         // Add device as test device for Firebase In-App Messaging
         addAsTestDevice();
-        
+
         // Initialize and test In-App Messaging
         initializeInAppMessaging();
 
@@ -744,7 +733,7 @@ public class MainActivity extends AppCompatActivity {
             public void onLoading(boolean isLoading) {
                 syncDataState.putBoolean("isLoading", isLoading);
                 getSupportFragmentManager().setFragmentResult("syncDataState", syncDataState);
-                
+
                 // Show video when syncing starts, hide when it stops
                 if (isLoading) {
                     showSyncVideoDialog();
@@ -762,9 +751,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete() {
                 hideSyncVideoDialog();
-                // After a manual sync completes, sync hostel data and push laundry countdown notification for hostellers
+                // After a manual sync completes, sync hostel data and push laundry countdown
+                // notification for hostellers
                 try {
-                    SharedPreferences enc = tk.therealsuji.vtopchennai.helpers.SettingsRepository.getEncryptedSharedPreferences(MainActivity.this);
+                    SharedPreferences enc = tk.therealsuji.vtopchennai.helpers.SettingsRepository
+                            .getEncryptedSharedPreferences(MainActivity.this);
                     String student = enc.getString("student_type", "");
                     if ("hosteller".equals(student)) {
                         // Sync hostel data (laundry and mess menu)
@@ -772,7 +763,8 @@ public class MainActivity extends AppCompatActivity {
 
                         String block = enc.getString("hostel_block", "");
                         String room = enc.getString("room_number", "");
-                        int days = tk.therealsuji.vtopchennai.helpers.HostelDataHelper.getInstance(MainActivity.this).getDaysUntilNextLaundry(block, room);
+                        int days = tk.therealsuji.vtopchennai.helpers.HostelDataHelper.getInstance(MainActivity.this)
+                                .getDaysUntilNextLaundry(block, room);
                         sendLaundryCountdownNotification(days, room);
                     }
                 } catch (Exception ignored) {
@@ -802,7 +794,10 @@ public class MainActivity extends AppCompatActivity {
                                 FragmentManager fragmentManager = getSupportFragmentManager();
                                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                                 transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                                transaction.add(android.R.id.content, UpdateDialogFragment.newInstance(versionName, releaseNotes)).addToBackStack(null).commit();
+                                transaction
+                                        .add(android.R.id.content,
+                                                UpdateDialogFragment.newInstance(versionName, releaseNotes))
+                                        .addToBackStack(null).commit();
 
                                 return;
                             }
@@ -812,7 +807,8 @@ public class MainActivity extends AppCompatActivity {
                         if (SettingsRepository.isRefreshRequired(context)) {
                             new MaterialAlertDialogBuilder(context)
                                     .setMessage(R.string.sync_message)
-                                    .setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss())
+                                    .setNegativeButton(R.string.cancel,
+                                            (dialogInterface, i) -> dialogInterface.dismiss())
                                     .setPositiveButton(R.string.sync, (dialogInterface, i) -> syncData())
                                     .setTitle(R.string.sync_title)
                                     .show();
@@ -827,7 +823,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete() {
                     }
                 });
-
 
     }
 
@@ -880,7 +875,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         compositeDisposable.dispose();
-        
+
         // Clean up video dialog
         resetSyncVideoDialog();
     }
@@ -936,15 +931,18 @@ public class MainActivity extends AppCompatActivity {
 
             // Check for maintenance mode
             if (FirebaseConfigHelper.getBoolean(FirebaseConfigHelper.Keys.MAINTENANCE_MODE)) {
-                String maintenanceMessage = FirebaseConfigHelper.getString(FirebaseConfigHelper.Keys.MAINTENANCE_MESSAGE);
+                String maintenanceMessage = FirebaseConfigHelper
+                        .getString(FirebaseConfigHelper.Keys.MAINTENANCE_MESSAGE);
                 showMaintenanceDialog(maintenanceMessage);
             }
 
             // Log feature flags
             FirebaseCrashlyticsHelper.log("Remote Config - Features enabled: " +
-                    "Attendance: " + FirebaseConfigHelper.getBoolean(FirebaseConfigHelper.Keys.FEATURE_FLAG_ATTENDANCE) +
+                    "Attendance: " + FirebaseConfigHelper.getBoolean(FirebaseConfigHelper.Keys.FEATURE_FLAG_ATTENDANCE)
+                    +
                     ", Marks: " + FirebaseConfigHelper.getBoolean(FirebaseConfigHelper.Keys.FEATURE_FLAG_MARKS) +
-                    ", Timetable: " + FirebaseConfigHelper.getBoolean(FirebaseConfigHelper.Keys.FEATURE_FLAG_TIMETABLE));
+                    ", Timetable: "
+                    + FirebaseConfigHelper.getBoolean(FirebaseConfigHelper.Keys.FEATURE_FLAG_TIMETABLE));
 
             android.util.Log.d("MainActivity", "Firebase Remote Config initialized");
         } catch (Exception e) {
@@ -996,20 +994,20 @@ public class MainActivity extends AppCompatActivity {
                 Bundle testBundle = new Bundle();
                 testBundle.putString("test_mode", "true");
                 testBundle.putString("user_type", "student");
-                
+
                 // Test different event names
                 FirebaseAnalyticsHelper.trackCustomEvent(this, "test_in_app_message", testBundle);
                 FirebaseAnalyticsHelper.trackCustomEvent(this, "welcome_message", testBundle);
                 FirebaseAnalyticsHelper.trackCustomEvent(this, "app_ready", testBundle);
-                
+
                 // Also trigger the built-in app_open event
                 FirebaseAnalyticsHelper.trackCustomEvent(this, "app_open", testBundle);
-                
+
                 android.util.Log.d("MainActivity", "Test in-app messaging events triggered");
-                
+
                 // Use FirebaseHelper to trigger In-App Messaging
                 FirebaseHelper.getInstance().testInAppMessaging();
-                
+
             } catch (Exception e) {
                 android.util.Log.e("MainActivity", "Failed to trigger test in-app messaging: " + e.getMessage());
                 FirebaseCrashlyticsHelper.recordException(e);
@@ -1026,7 +1024,7 @@ public class MainActivity extends AppCompatActivity {
             FirebaseHelper firebaseHelper = FirebaseHelper.getInstance();
             firebaseHelper.triggerInAppMessage("app_open");
             firebaseHelper.triggerInAppMessage("welcome_message");
-            
+
             android.util.Log.d("MainActivity", "Firebase In-App Messaging trigger events sent");
         } catch (Exception e) {
             android.util.Log.e("MainActivity", "Failed to trigger Firebase In-App Messaging: " + e.getMessage());
@@ -1041,15 +1039,15 @@ public class MainActivity extends AppCompatActivity {
             // Use FirebaseHelper to configure In-App Messaging
             FirebaseHelper firebaseHelper = FirebaseHelper.getInstance();
             firebaseHelper.setInAppMessagingEnabled(true);
-            
+
             String deviceId = android.provider.Settings.Secure.getString(
                     getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-            
+
             android.util.Log.d("MainActivity", "Device configured for Firebase In-App Messaging");
             android.util.Log.d("MainActivity", "To add this device as test device in Firebase Console:");
             android.util.Log.d("MainActivity", "1. Go to Firebase Console → In-App Messaging → Test devices");
             android.util.Log.d("MainActivity", "2. Add this device ID: " + deviceId);
-            
+
         } catch (Exception e) {
             android.util.Log.e("MainActivity", "Failed to add as test device: " + e.getMessage());
         }
@@ -1062,17 +1060,17 @@ public class MainActivity extends AppCompatActivity {
         try {
             InAppMessagingHelper inAppHelper = InAppMessagingHelper.getInstance();
             inAppHelper.initialize(this);
-            
+
             // Log device setup instructions
             InAppMessagingHelper.logTestDeviceInstructions(this);
-            
+
             // Test in-app messaging after a delay
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                 inAppHelper.testInAppMessaging();
             }, 5000); // 5 second delay
-            
+
             android.util.Log.d("MainActivity", "In-App Messaging helper initialized");
-            
+
         } catch (Exception e) {
             android.util.Log.e("MainActivity", "Failed to initialize In-App Messaging helper: " + e.getMessage());
         }

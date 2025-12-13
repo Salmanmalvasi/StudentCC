@@ -17,7 +17,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="?attr/colorSurface"
+        android:background="?attr/colorSurfaceVariant"
         app:labelVisibilityMode="labeled"
-        app:menu="@menu/bottom_navigation" />
+        app:menu="@menu/bottom_navigation"
+        app:itemIconTint="@color/selector_navigation_icon"
+        app:itemTextColor="@color/selector_navigation_text"
+        app:itemActiveIndicatorStyle="@style/Widget.Material3.BottomNavigationView.ActiveIndicator"
+        app:indicatorColor="?attr/colorSecondaryContainer" />
 </RelativeLayout>

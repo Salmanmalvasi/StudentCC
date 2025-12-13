@@ -62,12 +62,12 @@ public class HostelDataHelper {
         loadDataFromDatabase();
 
         // Update data from API in background
-        String[] laundryBlocks = {"A", "B", "CB", "CG", "D1", "D2", "E"};
+        String[] laundryBlocks = { "A", "B", "CB", "CG", "D1", "D2", "E" };
         for (String block : laundryBlocks) {
             executorService.execute(() -> updateLaundryDataFromAPI(block));
         }
 
-        String[] messTypes = {"M-N", "M-S", "M-V", "W-N", "W-S", "W-V"};
+        String[] messTypes = { "M-N", "M-S", "M-V", "W-N", "W-S", "W-V" };
         for (String type : messTypes) {
             executorService.execute(() -> updateMessDataFromAPI(type));
         }
@@ -75,7 +75,7 @@ public class HostelDataHelper {
 
     private void loadDataFromDatabase() {
         // Load laundry data from database to memory for immediate access
-        String[] laundryBlocks = {"A", "B", "CB", "CG", "D1", "D2", "E"};
+        String[] laundryBlocks = { "A", "B", "CB", "CG", "D1", "D2", "E" };
         for (String block : laundryBlocks) {
             laundryScheduleDao.getSchedulesByBlock(block)
                     .subscribeOn(Schedulers.io())
@@ -89,7 +89,7 @@ public class HostelDataHelper {
         }
 
         // Load mess data from database to memory for immediate access
-        String[] messTypes = {"M-N", "M-S", "M-V", "W-N", "W-S", "W-V"};
+        String[] messTypes = { "M-N", "M-S", "M-V", "W-N", "W-S", "W-V" };
         for (String type : messTypes) {
             messMenuDao.getMenusByType(type)
                     .subscribeOn(Schedulers.io())
@@ -117,7 +117,8 @@ public class HostelDataHelper {
 
             data.put("list", list);
             laundryData.put(block, data);
-            Log.d(TAG, "Converted laundry data from database for block: " + block + " (" + schedules.size() + " items)");
+            Log.d(TAG,
+                    "Converted laundry data from database for block: " + block + " (" + schedules.size() + " items)");
         } catch (Exception e) {
             Log.e(TAG, "Error converting laundry data for block " + block, e);
         }
@@ -148,12 +149,12 @@ public class HostelDataHelper {
 
     public void syncHostelData() {
         // Public method to manually sync hostel data (called during app sync)
-        String[] laundryBlocks = {"A", "B", "CB", "CG", "D1", "D2", "E"};
+        String[] laundryBlocks = { "A", "B", "CB", "CG", "D1", "D2", "E" };
         for (String block : laundryBlocks) {
             executorService.execute(() -> updateLaundryDataFromAPI(block));
         }
 
-        String[] messTypes = {"M-N", "M-S", "M-V", "W-N", "W-S", "W-V"};
+        String[] messTypes = { "M-N", "M-S", "M-V", "W-N", "W-S", "W-V" };
         for (String type : messTypes) {
             executorService.execute(() -> updateMessDataFromAPI(type));
         }
@@ -214,9 +215,11 @@ public class HostelDataHelper {
                         .andThen(laundryScheduleDao.insertAll(schedules))
                         .subscribeOn(Schedulers.io())
                         .subscribe(
-                                () -> Log.d(TAG, "Saved laundry data to database for block: " + block + " (" + schedules.size() + " items)"),
-                                throwable -> Log.e(TAG, "Error saving laundry data to database for block " + block, throwable)
-                        );
+                                () -> Log.d(TAG,
+                                        "Saved laundry data to database for block: " + block + " (" + schedules.size()
+                                                + " items)"),
+                                throwable -> Log.e(TAG, "Error saving laundry data to database for block " + block,
+                                        throwable));
             }
         } catch (Exception e) {
             Log.e(TAG, "Error processing laundry data for database save for block " + block, e);
@@ -247,9 +250,11 @@ public class HostelDataHelper {
                         .andThen(messMenuDao.insertAll(menus))
                         .subscribeOn(Schedulers.io())
                         .subscribe(
-                                () -> Log.d(TAG, "Saved mess data to database for type: " + type + " (" + menus.size() + " items)"),
-                                throwable -> Log.e(TAG, "Error saving mess data to database for type " + type, throwable)
-                        );
+                                () -> Log.d(TAG,
+                                        "Saved mess data to database for type: " + type + " (" + menus.size()
+                                                + " items)"),
+                                throwable -> Log.e(TAG, "Error saving mess data to database for type " + type,
+                                        throwable));
             }
         } catch (Exception e) {
             Log.e(TAG, "Error processing mess data for database save for type " + type, e);
@@ -257,42 +262,54 @@ public class HostelDataHelper {
     }
 
     // New database-first methods for offline access
-    public Single<LaundrySchedule> getTodaysLaundryScheduleFromDB(String block, String roomNumber) {
+    public io.reactivex.rxjava3.core.Flowable<List<LaundrySchedule>> getTodaysLaundryScheduleFromDB(String block,
+            String roomNumber) {
         Calendar calendar = Calendar.getInstance();
         String currentDate = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
 
         return laundryScheduleDao.getTodaysSchedule(block, currentDate, roomNumber)
                 .subscribeOn(Schedulers.io())
                 .map(this::convertDbLaundryToHelper)
-                .doOnSuccess(schedule -> Log.d(TAG, "Found today's laundry schedule from database"))
+                .doOnNext(schedules -> Log.d(TAG,
+                        "Found today's laundry schedule from database: " + schedules.size() + " items"))
                 .doOnError(throwable -> Log.e(TAG, "Error getting today's laundry schedule from database", throwable));
     }
 
-    public Single<LaundrySchedule> getNextLaundryScheduleFromDB(String block, String roomNumber) {
+    public io.reactivex.rxjava3.core.Flowable<List<LaundrySchedule>> getNextLaundryScheduleFromDB(String block,
+            String roomNumber) {
         Calendar calendar = Calendar.getInstance();
         int currentDate = calendar.get(Calendar.DAY_OF_MONTH);
 
         return laundryScheduleDao.getNextSchedule(block, currentDate, roomNumber)
                 .subscribeOn(Schedulers.io())
                 .map(this::convertDbLaundryToHelper)
-                .doOnSuccess(schedule -> Log.d(TAG, "Found next laundry schedule from database"))
+                .doOnNext(schedules -> Log.d(TAG,
+                        "Found next laundry schedule from database: " + schedules.size() + " items"))
                 .doOnError(throwable -> Log.e(TAG, "Error getting next laundry schedule from database", throwable));
     }
 
-    public Single<MessMenu> getTodaysMessMenuFromDB(String block, String gender, String mealType) {
+    public io.reactivex.rxjava3.core.Single<MessMenu> getMessMenuForDayFromDB(String block, String gender,
+            String mealType, int dayOffset) {
         // Determine mess type based on gender and meal type
         final String messType = (gender.equals("male") ? "M-" : "W-") + mealType; // N, S, or V
 
         Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, dayOffset);
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        String[] days = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-        String today = days[dayOfWeek - 1];
+        String[] days = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+        String targetDay = days[dayOfWeek - 1];
 
-        return messMenuDao.getMenuByTypeAndDay(messType, today)
+        return messMenuDao.getMenuByTypeAndDay(messType, targetDay)
                 .subscribeOn(Schedulers.io())
                 .map(this::convertDbMessToHelper)
-                .doOnSuccess(menu -> Log.d(TAG, "Found today's mess menu from database for " + messType))
-                .doOnError(throwable -> Log.e(TAG, "Error getting today's mess menu from database for " + messType, throwable));
+                .doOnSuccess(menu -> Log.d(TAG, "Found mess menu for " + targetDay + " from database for " + messType))
+                .doOnError(throwable -> Log.e(TAG,
+                        "Error getting mess menu for " + targetDay + " from database for " + messType, throwable));
+    }
+
+    public io.reactivex.rxjava3.core.Single<MessMenu> getTodaysMessMenuFromDB(String block, String gender,
+            String mealType) {
+        return getMessMenuForDayFromDB(block, gender, mealType, 0);
     }
 
     private String fetchJSONFromURL(String urlString) {
@@ -386,7 +403,7 @@ public class HostelDataHelper {
                 // Get current day of week
                 Calendar calendar = Calendar.getInstance();
                 int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-                String[] days = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+                String[] days = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
                 String today = days[dayOfWeek - 1];
 
                 // Find today's menu
@@ -540,7 +557,8 @@ public class HostelDataHelper {
     }
 
     // Conversion methods between database models and helper classes
-    private List<LaundrySchedule> convertDbLaundryToHelper(List<tk.therealsuji.vtopchennai.models.LaundrySchedule> dbSchedules) {
+    private List<LaundrySchedule> convertDbLaundryToHelper(
+            List<tk.therealsuji.vtopchennai.models.LaundrySchedule> dbSchedules) {
         List<LaundrySchedule> helperSchedules = new ArrayList<>();
         for (tk.therealsuji.vtopchennai.models.LaundrySchedule dbSchedule : dbSchedules) {
             LaundrySchedule helperSchedule = new LaundrySchedule();
@@ -587,10 +605,21 @@ public class HostelDataHelper {
         private String date;
         private String roomNumber;
 
-        public String getDate() { return date; }
-        public void setDate(String date) { this.date = date; }
-        public String getRoomNumber() { return roomNumber; }
-        public void setRoomNumber(String roomNumber) { this.roomNumber = roomNumber; }
+        public String getDate() {
+            return date;
+        }
+
+        public void setDate(String date) {
+            this.date = date;
+        }
+
+        public String getRoomNumber() {
+            return roomNumber;
+        }
+
+        public void setRoomNumber(String roomNumber) {
+            this.roomNumber = roomNumber;
+        }
     }
 
     public static class MessMenu {
@@ -600,15 +629,44 @@ public class HostelDataHelper {
         private String snacks;
         private String dinner;
 
-        public String getDay() { return day; }
-        public void setDay(String day) { this.day = day; }
-        public String getBreakfast() { return breakfast; }
-        public void setBreakfast(String breakfast) { this.breakfast = breakfast; }
-        public String getLunch() { return lunch; }
-        public void setLunch(String lunch) { this.lunch = lunch; }
-        public String getSnacks() { return snacks; }
-        public void setSnacks(String snacks) { this.snacks = snacks; }
-        public String getDinner() { return dinner; }
-        public void setDinner(String dinner) { this.dinner = dinner; }
+        public String getDay() {
+            return day;
+        }
+
+        public void setDay(String day) {
+            this.day = day;
+        }
+
+        public String getBreakfast() {
+            return breakfast;
+        }
+
+        public void setBreakfast(String breakfast) {
+            this.breakfast = breakfast;
+        }
+
+        public String getLunch() {
+            return lunch;
+        }
+
+        public void setLunch(String lunch) {
+            this.lunch = lunch;
+        }
+
+        public String getSnacks() {
+            return snacks;
+        }
+
+        public void setSnacks(String snacks) {
+            this.snacks = snacks;
+        }
+
+        public String getDinner() {
+            return dinner;
+        }
+
+        public void setDinner(String dinner) {
+            this.dinner = dinner;
+        }
     }
 }

@@ -37,6 +37,8 @@ import tk.therealsuji.vtopchennai.models.MessMenu;
 import tk.therealsuji.vtopchennai.models.Receipt;
 import tk.therealsuji.vtopchennai.models.SkipRecommendation;
 import tk.therealsuji.vtopchennai.models.Slot;
+import tk.therealsuji.vtopchennai.interfaces.LeaveDao;
+import tk.therealsuji.vtopchennai.models.Leave;
 import tk.therealsuji.vtopchennai.models.Spotlight;
 import tk.therealsuji.vtopchennai.models.Staff;
 import tk.therealsuji.vtopchennai.models.Timetable;
@@ -52,6 +54,7 @@ import tk.therealsuji.vtopchennai.models.Timetable;
                 CumulativeMark.class,
                 Exam.class,
                 LaundrySchedule.class,
+                Leave.class,
                 Mark.class,
                 MessMenu.class,
                 Receipt.class,
@@ -61,12 +64,13 @@ import tk.therealsuji.vtopchennai.models.Timetable;
                 Staff.class,
                 Timetable.class
         },
-    version = 7,
+    version = 8,
         autoMigrations = {
                 @AutoMigration(from = 1, to = 2),
                 @AutoMigration(from = 3, to = 4),
                 @AutoMigration(from = 5, to = 6),
                 @AutoMigration(from = 6, to = 7),
+                @AutoMigration(from = 7, to = 8),
         }
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -119,6 +123,8 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract LaundryScheduleDao laundryScheduleDao();
 
     public abstract MessMenuDao messMenuDao();
+
+    public abstract LeaveDao leaveDao();
 
     // Manual Migrations
     static final Migration MIGRATION_2_3 = new Migration(2, 3) {

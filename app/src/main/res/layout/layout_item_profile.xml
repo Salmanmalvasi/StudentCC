@@ -1,40 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
-    android:clickable="true"
-    android:focusable="true"
-    android:gravity="center_vertical"
-    android:paddingStart="20dp"
-    android:paddingTop="10dp"
-    android:paddingEnd="10dp"
-    android:paddingBottom="10dp">
+    android:layout_marginVertical="4dp"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:strokeColor="?attr/colorOutlineVariant"
+    app:strokeWidth="1dp"
+    android:stateListAnimator="@animator/scale_on_touch">
 
-    <ImageView
-        android:id="@+id/image_view_icon"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:background="@drawable/background_profile_item_icon"
-        android:contentDescription="@null"
-        android:padding="10dp"
-        app:tint="?attr/colorPrimary" />
-
-    <TextView
-        android:id="@+id/text_view_title"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="10dp"
-        android:layout_weight="1"
-        android:textColor="?attr/colorPrimary"
-        android:textSize="18sp" />
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:padding="16dp">
 
-    <RelativeLayout
-        android:id="@+id/relative_layout_extra_container"
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp" />
-</LinearLayout>
+        <ImageView
+            android:id="@+id/image_view_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@null"
+            app:tint="?attr/colorPrimary" />
+
+        <TextView
+            android:id="@+id/text_view_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_weight="1"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp" />
+
+        <RelativeLayout
+            android:id="@+id/relative_layout_extra_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

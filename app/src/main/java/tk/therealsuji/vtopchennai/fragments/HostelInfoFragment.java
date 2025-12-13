@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,70 +48,145 @@ public class HostelInfoFragment extends Fragment {
         roomNumber = encryptedPrefs.getString("room_number", "");
     }
 
+    private int currentDayOffset = 0;
+
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_hostel_info, container, false);
 
         recyclerViewLaundry = view.findViewById(R.id.recycler_view_laundry);
         recyclerViewMessMenu = view.findViewById(R.id.recycler_view_mess_menu);
 
-        setupContent();
+        // Setup navigation buttons
+        view.findViewById(R.id.btn_prev_day).setOnClickListener(v -> {
+            currentDayOffset--;
+            showMessMenu();
+        });
+
+        view.findViewById(R.id.btn_next_day).setOnClickListener(v -> {
+            currentDayOffset++;
+            showMessMenu();
+        });
+
+        // Setup Leave management button
+        View btnViewLeaves = view.findViewById(R.id.btn_view_leaves);
+        if (btnViewLeaves != null) {
+            btnViewLeaves.setOnClickListener(v -> openLeaveFragment());
+        }
+
+        setupContent(view);
 
         return view;
     }
 
-    private void setupContent() {
+    /**
+     * Opens the Leave Fragment to view leave history.
+     */
+    private void openLeaveFragment() {
+        if (getActivity() != null) {
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(android.R.id.content, new LeaveFragment())
+                    .addToBackStack("leave")
+                    .commit();
+        }
+    }
+
+    private void setupContent(View view) {
         if ("hosteller".equals(studentType)) {
             // Show both laundry schedule and mess menu directly
             showLaundrySchedule();
             if (!"O".equals(messType)) {
                 showMessMenu();
             } else {
-                recyclerViewMessMenu.setVisibility(View.GONE);
+                view.findViewById(R.id.card_mess_menu).setVisibility(View.GONE);
             }
         } else {
             // Hide content for day scholars
             recyclerViewLaundry.setVisibility(View.GONE);
-            recyclerViewMessMenu.setVisibility(View.GONE);
+            view.findViewById(R.id.card_mess_menu).setVisibility(View.GONE);
         }
     }
 
-
     private void showLaundrySchedule() {
-        List<HostelDataHelper.LaundrySchedule> schedules = new ArrayList<>();
+        // Subscribe to today's schedule updates
+        Disposable laundryDisposable = hostelDataHelper.getTodaysLaundryScheduleFromDB(hostelBlock, roomNumber)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        dbSchedules -> {
+                            if (!isAdded())
+                                return;
 
-        // Try to get data from database first
-    Disposable laundryDisposable = hostelDataHelper.getTodaysLaundryScheduleFromDB(hostelBlock, roomNumber)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(
-                        dbSchedule -> {
-                if (!isAdded()) {
-                return;
-                }
-
-                            // Convert database model to helper model for adapter compatibility
-                            HostelDataHelper.LaundrySchedule helperSchedule = new HostelDataHelper.LaundrySchedule();
-                            helperSchedule.setDate(dbSchedule.getDate());
-                            helperSchedule.setRoomNumber(dbSchedule.getRoomNumber());
-
-                            schedules.clear();
-                            schedules.add(helperSchedule);
-                            updateLaundryAdapter(schedules);
+                            if (!dbSchedules.isEmpty()) {
+                                // Found today's schedule
+                                updateLaundryAdapter(dbSchedules);
+                            } else {
+                                // No schedule for today, check for next schedule
+                                checkNextLaundrySchedule();
+                            }
                         },
                         throwable -> {
-                            // Fallback to old method if database query fails
-                            android.util.Log.d("HostelInfoFragment", "Database query failed, falling back to memory: " + throwable.getMessage());
+                            android.util.Log.e("HostelInfoFragment", "Error observing laundry schedule", throwable);
                             showLaundryScheduleFallback();
-                        }
-                );
+                        });
 
-    disposables.add(laundryDisposable);
+        disposables.add(laundryDisposable);
+    }
+
+    private void checkNextLaundrySchedule() {
+        // Check for next schedule (one-shot check to avoid UI flickering)
+        Disposable nextDisposable = hostelDataHelper.getNextLaundryScheduleFromDB(hostelBlock, roomNumber)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .firstElement()
+                .subscribe(
+                        dbSchedules -> {
+                            if (!isAdded())
+                                return;
+
+                            List<HostelDataHelper.LaundrySchedule> displayList = new ArrayList<>();
+                            if (!dbSchedules.isEmpty()) {
+                                // Found next schedule, calculate days
+                                HostelDataHelper.LaundrySchedule nextSchedule = dbSchedules.get(0);
+                                try {
+                                    int nextDay = Integer.parseInt(nextSchedule.getDate());
+                                    java.util.Calendar calendar = java.util.Calendar.getInstance();
+                                    int currentDay = calendar.get(java.util.Calendar.DAY_OF_MONTH);
+                                    int daysUntilNext = nextDay - currentDay;
+
+                                    if (daysUntilNext > 0) {
+                                        HostelDataHelper.LaundrySchedule countdownSchedule = new HostelDataHelper.LaundrySchedule();
+                                        countdownSchedule.setDate("Next laundry in " + daysUntilNext + " day"
+                                                + (daysUntilNext == 1 ? "" : "s"));
+                                        countdownSchedule.setRoomNumber("Room " + nextSchedule.getRoomNumber());
+                                        displayList.add(countdownSchedule);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    // Invalid date format
+                                }
+                            }
+
+                            if (displayList.isEmpty()) {
+                                // Fallback to memory check if DB yielded nothing (e.g. before first sync)
+                                showLaundryScheduleFallback();
+                            } else {
+                                updateLaundryAdapter(displayList);
+                            }
+                        },
+                        throwable -> showLaundryScheduleFallback());
+
+        // We don't add this to disposables to avoid memory leaks if it hangs,
+        // but firstElement() should complete or error.
+        // Actually, better to add it.
+        disposables.add(nextDisposable);
     }
 
     private void showLaundryScheduleFallback() {
-        HostelDataHelper.LaundrySchedule todaysSchedule = hostelDataHelper.getTodaysLaundrySchedule(hostelBlock, roomNumber);
+        HostelDataHelper.LaundrySchedule todaysSchedule = hostelDataHelper.getTodaysLaundrySchedule(hostelBlock,
+                roomNumber);
         List<HostelDataHelper.LaundrySchedule> schedules = new ArrayList<>();
 
         if (todaysSchedule != null) {
@@ -122,7 +196,8 @@ public class HostelInfoFragment extends Fragment {
             int daysUntilNext = hostelDataHelper.getDaysUntilNextLaundry(hostelBlock, roomNumber);
             if (daysUntilNext > 0) {
                 HostelDataHelper.LaundrySchedule countdownSchedule = new HostelDataHelper.LaundrySchedule();
-                countdownSchedule.setDate("Next laundry in " + daysUntilNext + " day" + (daysUntilNext == 1 ? "" : "s"));
+                countdownSchedule
+                        .setDate("Next laundry in " + daysUntilNext + " day" + (daysUntilNext == 1 ? "" : "s"));
                 countdownSchedule.setRoomNumber("Countdown");
                 schedules.add(countdownSchedule);
             }
@@ -148,19 +223,22 @@ public class HostelInfoFragment extends Fragment {
 
     private void showMessMenu() {
         // Debug logging
-        android.util.Log.d("HostelInfoFragment", "Getting menu for: block=" + hostelBlock + ", gender=" + gender + ", messType=" + messType);
+        android.util.Log.d("HostelInfoFragment",
+                "Getting menu for: block=" + hostelBlock + ", gender=" + gender + ", messType=" + messType + ", offset="
+                        + currentDayOffset);
 
         List<HostelDataHelper.MessMenu> menus = new ArrayList<>();
 
         // Try to get data from database first
-    Disposable messDisposable = hostelDataHelper.getTodaysMessMenuFromDB(hostelBlock, gender, messType)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(
+        Disposable messDisposable = hostelDataHelper
+                .getMessMenuForDayFromDB(hostelBlock, gender, messType, currentDayOffset)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
                         dbMenu -> {
-                if (!isAdded()) {
-                return;
-                }
+                            if (!isAdded()) {
+                                return;
+                            }
 
                             // Convert database model to helper model for adapter compatibility
                             HostelDataHelper.MessMenu helperMenu = new HostelDataHelper.MessMenu();
@@ -176,12 +254,17 @@ public class HostelInfoFragment extends Fragment {
                         },
                         throwable -> {
                             // Fallback to old method if database query fails
-                            android.util.Log.d("HostelInfoFragment", "Database query failed, falling back to memory: " + throwable.getMessage());
-                            showMessMenuFallback();
-                        }
-                );
+                            android.util.Log.d("HostelInfoFragment",
+                                    "Database query failed, falling back to memory: " + throwable.getMessage());
+                            if (currentDayOffset == 0) {
+                                showMessMenuFallback();
+                            } else {
+                                // Clear adapter if navigation fails for other days
+                                updateMessMenuAdapter(new ArrayList<>());
+                            }
+                        });
 
-    disposables.add(messDisposable);
+        disposables.add(messDisposable);
     }
 
     private void showMessMenuFallback() {

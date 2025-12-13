@@ -48,8 +48,8 @@ import tk.therealsuji.vtopchennai.models.Timetable;
 /**
  * ┬─── Timetable Hierarchy
  * ├─ {@link tk.therealsuji.vtopchennai.fragments.HomeFragment}
- * ├─ {@link TimetableAdapter}      - ViewPager2
- * ╰→ {@link TimetableItemAdapter}  - RecyclerView(Current File)
+ * ├─ {@link TimetableAdapter} - ViewPager2
+ * ╰→ {@link TimetableItemAdapter} - RecyclerView(Current File)
  */
 public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdapter.ViewHolder> {
     public static final int STATUS_PAST = 1;
@@ -106,10 +106,12 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
 
             // Check if the next item has the same course code and is consecutive
             if (currentItem.courseCode != null &&
-                currentItem.courseCode.equals(nextItem.courseCode) &&
-                areConsecutive(currentItem.endTime, nextItem.startTime)) {
+                    currentItem.courseCode.equals(nextItem.courseCode) &&
+                    areConsecutive(currentItem.endTime, nextItem.startTime)) {
 
-                android.util.Log.d("TimetableAdapter", "Combining courses: " + currentItem.courseCode + " from " + currentItem.startTime + "-" + currentItem.endTime + " with " + nextItem.startTime + "-" + nextItem.endTime);
+                android.util.Log.d("TimetableAdapter",
+                        "Combining courses: " + currentItem.courseCode + " from " + currentItem.startTime + "-"
+                                + currentItem.endTime + " with " + nextItem.startTime + "-" + nextItem.endTime);
                 // Combine the items
                 currentItem.endTime = nextItem.endTime;
                 currentItem.slotIds.add(nextItem.slotId);
@@ -136,8 +138,10 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
 
             if (end != null && start != null) {
                 long diffInMinutes = (start.getTime() - end.getTime()) / (1000 * 60);
-                android.util.Log.d("TimetableAdapter", "Time difference between " + endTime + " and " + startTime + ": " + diffInMinutes + " minutes");
-                // Consider courses consecutive if gap is 30 minutes or less (to account for break time)
+                android.util.Log.d("TimetableAdapter",
+                        "Time difference between " + endTime + " and " + startTime + ": " + diffInMinutes + " minutes");
+                // Consider courses consecutive if gap is 30 minutes or less (to account for
+                // break time)
                 return diffInMinutes >= 0 && diffInMinutes <= 30;
             }
         } catch (Exception e) {
@@ -149,7 +153,7 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
     @NonNull
     @Override
     public TimetableItemAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        RelativeLayout timetableItem = (RelativeLayout) LayoutInflater
+        ViewGroup timetableItem = (ViewGroup) LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.layout_item_timatable, parent, false);
 
@@ -169,12 +173,12 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private static final int MULTIPLYING_FACTOR = 5;
 
-        RelativeLayout timetableItem;
+        ViewGroup timetableItem;
         ProgressBar classProgress;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.timetableItem = (RelativeLayout) itemView;
+            this.timetableItem = (ViewGroup) itemView;
             this.classProgress = this.timetableItem.findViewById(R.id.progress_bar_timetable);
         }
 
@@ -189,7 +193,8 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
             android.util.Log.d("TimetableAdapter", "Course Title: " + timetableItem.courseTitle);
             android.util.Log.d("TimetableAdapter", "Course Type: " + timetableItem.courseType);
 
-            @DrawableRes int courseTypeId = R.drawable.ic_theory;
+            @DrawableRes
+            int courseTypeId = R.drawable.ic_theory;
             if (timetableItem.courseType != null && timetableItem.courseType.equals("lab")) {
                 courseTypeId = R.drawable.ic_lab;
             }
@@ -199,13 +204,15 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
             courseCode.setVisibility(View.GONE);
 
             // Set course name/title as the main display
-            if (timetableItem.courseTitle != null && !timetableItem.courseTitle.isEmpty() && !timetableItem.courseTitle.equals("null")) {
+            if (timetableItem.courseTitle != null && !timetableItem.courseTitle.isEmpty()
+                    && !timetableItem.courseTitle.equals("null")) {
                 courseName.setText(timetableItem.courseTitle);
                 courseName.setVisibility(View.VISIBLE);
                 android.util.Log.d("TimetableAdapter", "✓ Using course title: " + timetableItem.courseTitle);
             } else {
                 // Fallback to course code if course title is not available
-                if (timetableItem.courseCode != null && !timetableItem.courseCode.isEmpty() && !timetableItem.courseCode.equals("null")) {
+                if (timetableItem.courseCode != null && !timetableItem.courseCode.isEmpty()
+                        && !timetableItem.courseCode.equals("null")) {
                     courseName.setText(timetableItem.courseCode);
                     courseName.setVisibility(View.VISIBLE);
                     android.util.Log.d("TimetableAdapter", "⚠ Using course code fallback: " + timetableItem.courseCode);
@@ -220,11 +227,11 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
             float cgpa = SettingsRepository.getCGPA(this.timetableItem.getContext());
             if (cgpa < 9 && timetableItem.attendancePercentage != null && timetableItem.attendancePercentage < 75) {
                 ImageView endDrawable = this.timetableItem.findViewById(R.id.image_view_failed_attendance);
-                endDrawable.setImageDrawable(ContextCompat.getDrawable(this.timetableItem.getContext(), R.drawable.ic_feedback));
+                endDrawable.setImageDrawable(
+                        ContextCompat.getDrawable(this.timetableItem.getContext(), R.drawable.ic_feedback));
                 DrawableCompat.setTint(
                         DrawableCompat.wrap(endDrawable.getDrawable()),
-                        MaterialColors.getColor(endDrawable, R.attr.colorError)
-                );
+                        MaterialColors.getColor(endDrawable, R.attr.colorError));
             }
             this.classProgress.setOnClickListener(view -> this.onClick(timetableItem.slotId));
         }
@@ -255,17 +262,21 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                             TextView courseCode = bottomSheetLayout.findViewById(R.id.text_view_course_code);
                             TextView faculty = bottomSheetLayout.findViewById(R.id.text_view_faculty);
                             TextView venue = bottomSheetLayout.findViewById(R.id.text_view_venue);
-                            TextView attendanceExcessText = bottomSheetLayout.findViewById(R.id.text_view_attendance_excess);
+                            TextView attendanceExcessText = bottomSheetLayout
+                                    .findViewById(R.id.text_view_attendance_excess);
                             TextView attendanceText = bottomSheetLayout.findViewById(R.id.text_view_attendance);
 
                             Chip slot = bottomSheetLayout.findViewById(R.id.chip_slot);
 
-                            ProgressBar attendanceProgress = bottomSheetLayout.findViewById(R.id.progress_bar_attendance);
+                            ProgressBar attendanceProgress = bottomSheetLayout
+                                    .findViewById(R.id.progress_bar_attendance);
 
                             courseTitle.setText(course.courseTitle);
                             courseCode.setText(course.courseCode);
-                            faculty.setText(Html.fromHtml(context.getString(R.string.faculty, course.faculty), Html.FROM_HTML_MODE_LEGACY));
-                            venue.setText(Html.fromHtml(context.getString(R.string.venue, course.venue), Html.FROM_HTML_MODE_LEGACY));
+                            faculty.setText(Html.fromHtml(context.getString(R.string.faculty, course.faculty),
+                                    Html.FROM_HTML_MODE_LEGACY));
+                            venue.setText(Html.fromHtml(context.getString(R.string.venue, course.venue),
+                                    Html.FROM_HTML_MODE_LEGACY));
 
                             if (course.courseType.equals("lab")) {
                                 slot.setChipIconResource(R.drawable.ic_lab);
@@ -288,13 +299,15 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
 
                                     if (attendanceText1.getText().toString().contains("%")) {
                                         // Switch to attended/total format
-                                        attendanceText1.setText(String.format(Locale.ENGLISH, "%d/%d", course.attendanceAttended, course.attendanceTotal));
+                                        attendanceText1.setText(String.format(Locale.ENGLISH, "%d/%d",
+                                                course.attendanceAttended, course.attendanceTotal));
                                         // Add visual feedback
                                         attendanceText1.setAlpha(0.7f);
                                         attendanceText1.postDelayed(() -> attendanceText1.setAlpha(1.0f), 150);
                                     } else {
                                         // Switch back to percentage format
-                                        attendanceText1.setText(new DecimalFormat("#'%'").format(course.attendancePercentage));
+                                        attendanceText1
+                                                .setText(new DecimalFormat("#'%'").format(course.attendancePercentage));
                                         // Add visual feedback
                                         attendanceText1.setAlpha(0.7f);
                                         attendanceText1.postDelayed(() -> attendanceText1.setAlpha(1.0f), 150);
@@ -302,23 +315,24 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                                 });
 
                                 //
-                                //  percentage = attended * 100 / total
+                                // percentage = attended * 100 / total
                                 //
-                                //  CALCULATING POSITIVE EXCESS
-                                //  (attended) * 100 / (total + x) = 75
-                                //  100 * attended = 75 * total + 75 * x
-                                //  x = (100 * attended - 75 * total) / 75
-                                //  positiveExcess = floor(x)   <-- can afford these many days off
+                                // CALCULATING POSITIVE EXCESS
+                                // (attended) * 100 / (total + x) = 75
+                                // 100 * attended = 75 * total + 75 * x
+                                // x = (100 * attended - 75 * total) / 75
+                                // positiveExcess = floor(x) <-- can afford these many days off
                                 //
-                                //  CALCULATING NEGATIVE EXCESS
-                                //  (attended + x) * 100 / (total + x) = 75
-                                //  100 * attended + 100 * x = 75 * total + 75 * x
-                                //  25 * x = 75 * total - 100 * attended
-                                //  x = (75 * total - 100 * attended) / 25
-                                //  negativeExcess = ceil(x)    <-- requires these many extra classes
+                                // CALCULATING NEGATIVE EXCESS
+                                // (attended + x) * 100 / (total + x) = 75
+                                // 100 * attended + 100 * x = 75 * total + 75 * x
+                                // 25 * x = 75 * total - 100 * attended
+                                // x = (75 * total - 100 * attended) / 25
+                                // negativeExcess = ceil(x) <-- requires these many extra classes
                                 //
                                 if (SettingsRepository.getCGPA(timetableItem.getContext()) < 9) {
-                                    double attendanceExcess = 100 * course.attendanceAttended - 75 * course.attendanceTotal;
+                                    double attendanceExcess = 100 * course.attendanceAttended
+                                            - 75 * course.attendanceTotal;
 
                                     if (course.attendancePercentage < 75) {
                                         // We use floor() instead of ceil() here because the argument is negative
@@ -344,9 +358,11 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                                     attendanceExcessText.setText(excessText);
 
                                     if (attendanceExcess < 0) {
-                                        attendanceExcessText.setTextColor(MaterialColors.getColor(attendanceExcessText, R.attr.colorError));
+                                        attendanceExcessText.setTextColor(
+                                                MaterialColors.getColor(attendanceExcessText, R.attr.colorError));
                                     } else if (attendanceExcess == 0) {
-                                        attendanceExcessText.setTextColor(MaterialColors.getColor(attendanceExcessText, R.attr.colorSecondary));
+                                        attendanceExcessText.setTextColor(
+                                                MaterialColors.getColor(attendanceExcessText, R.attr.colorSecondary));
                                     }
                                 }
                             }
@@ -354,12 +370,19 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                             // Set up detailed attendance button
                             Button btnDetailedAttendance = bottomSheetLayout.findViewById(R.id.btn_detailed_attendance);
                             btnDetailedAttendance.setOnClickListener(v -> {
-                                Intent intent = new Intent(context, tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.class);
+                                Intent intent = new Intent(context,
+                                        tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.class);
                                 if (course.courseId != null) {
-                                    intent.putExtra(tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.EXTRA_COURSE_ID, course.courseId);
+                                    intent.putExtra(
+                                            tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.EXTRA_COURSE_ID,
+                                            course.courseId);
                                 }
-                                intent.putExtra(tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.EXTRA_COURSE_CODE, course.courseCode);
-                                intent.putExtra(tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.EXTRA_COURSE_TITLE, course.courseTitle);
+                                intent.putExtra(
+                                        tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.EXTRA_COURSE_CODE,
+                                        course.courseCode);
+                                intent.putExtra(
+                                        tk.therealsuji.vtopchennai.ui.attendance.DetailedAttendanceActivity.EXTRA_COURSE_TITLE,
+                                        course.courseTitle);
                                 context.startActivity(intent);
                                 bottomSheetDialog.dismiss();
                             });
@@ -379,8 +402,8 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
             try {
                 ((TextView) this.timetableItem.findViewById(R.id.text_view_timings)).setText(
                         SettingsRepository.getSystemFormattedTime(this.timetableItem.getContext(), startTime) +
-                                " - " + SettingsRepository.getSystemFormattedTime(this.timetableItem.getContext(), endTime)
-                );
+                                " - "
+                                + SettingsRepository.getSystemFormattedTime(this.timetableItem.getContext(), endTime));
             } catch (Exception ignored) {
             }
 
@@ -459,8 +482,7 @@ public class TimetableItemAdapter extends RecyclerView.Adapter<TimetableItemAdap
                     this.classProgress,
                     "progress",
                     this.classProgress.getProgress(),
-                    this.classProgress.getMax()
-            );
+                    this.classProgress.getMax());
             objectAnimator.setDuration(duration);
             objectAnimator.setInterpolator(new LinearInterpolator());
             objectAnimator.setStartDelay(delay);

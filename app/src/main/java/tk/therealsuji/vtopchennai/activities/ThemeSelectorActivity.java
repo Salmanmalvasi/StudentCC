@@ -16,6 +16,7 @@ import com.google.android.material.card.MaterialCardView;
 import tk.therealsuji.vtopchennai.R;
 import tk.therealsuji.vtopchennai.adapters.ThemeAdapter;
 import tk.therealsuji.vtopchennai.helpers.SettingsRepository;
+import tk.therealsuji.vtopchennai.helpers.ThemeManager;
 import tk.therealsuji.vtopchennai.models.Theme;
 
 import java.util.ArrayList;
@@ -30,6 +31,8 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Apply theme before setting content view
+        ThemeManager.applyTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_theme_selector);
 
@@ -43,54 +46,55 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.select_theme);
+            getSupportActionBar().setTitle(""); // Title is in the layout now
         }
     }
 
     private void setupThemes() {
         // Populate available themes
         themes = Arrays.asList(
-            new Theme(
-                "Default",
-                "Clean white interface with dark text",
-                R.style.Theme_VTOP,
-                R.color.colorPrimary,
-                R.color.colorPrimaryContainer
-            ),
-            new Theme(
-                "Red",
-                "Energetic and attention-grabbing",
-                R.style.Theme_VTOP_Red,
-                R.color.colorPrimaryRed,
-                R.color.colorPrimaryContainerRed
-            ),
-            new Theme(
-                "Blue",
-                "Professional and trustworthy",
-                R.style.Theme_VTOP_Blue,
-                R.color.colorPrimaryBlue,
-                R.color.colorPrimaryContainerBlue
-            ),
-            new Theme(
-                "Purple",
-                "Creative and modern",
-                R.style.Theme_VTOP_Purple,
-                R.color.colorPrimaryPurple,
-                R.color.colorPrimaryContainerPurple
-            ),
-            new Theme(
-                "Green",
-                "Fresh and positive",
-                R.style.Theme_VTOP_Green,
-                R.color.colorPrimaryGreen,
-                R.color.colorPrimaryContainerGreen
-            )
-        );
+                new Theme(
+                        ThemeManager.THEME_DEFAULT,
+                        "Clean white interface with dark text",
+                        R.style.Theme_VTOP,
+                        R.color.colorPrimary,
+                        R.color.colorPrimaryContainer),
+                new Theme(
+                        ThemeManager.THEME_SUNSET,
+                        "Energetic and attention-grabbing",
+                        R.style.Theme_VTOP_Red,
+                        R.color.colorPrimaryRed,
+                        R.color.colorPrimaryContainerRed),
+                new Theme(
+                        ThemeManager.THEME_OCEAN,
+                        "Professional and trustworthy",
+                        R.style.Theme_VTOP_Blue,
+                        R.color.colorPrimaryBlue,
+                        R.color.colorPrimaryContainerBlue),
+                new Theme(
+                        ThemeManager.THEME_PURPLE,
+                        "Creative and modern",
+                        R.style.Theme_VTOP_Purple,
+                        R.color.colorPrimaryPurple,
+                        R.color.colorPrimaryContainerPurple),
+                new Theme(
+                        ThemeManager.THEME_FOREST,
+                        "Fresh and positive",
+                        R.style.Theme_VTOP_Green,
+                        R.color.colorPrimaryGreen,
+                        R.color.colorPrimaryContainerGreen),
+                new Theme(
+                        ThemeManager.THEME_MIDNIGHT,
+                        "Dark and elegant",
+                        R.style.Theme_VTOP_Black,
+                        R.color.colorPrimaryBlack,
+                        R.color.colorSecondaryBlack));
     }
 
     private void setupRecyclerView() {
         themeRecyclerView = findViewById(R.id.theme_recycler_view);
-        themeAdapter = new ThemeAdapter(themes, this);
+        String currentTheme = ThemeManager.getCurrentTheme(this);
+        themeAdapter = new ThemeAdapter(themes, currentTheme, this);
         themeRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         themeRecyclerView.setAdapter(themeAdapter);
     }
@@ -101,31 +105,8 @@ public class ThemeSelectorActivity extends AppCompatActivity implements ThemeAda
     }
 
     private void onThemeSelected(Theme theme) {
-        SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(this);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        // Persist selection
-        switch (theme.getName()) {
-            case "Red":
-                editor.putInt("selectedTheme", 1);
-                break;
-            case "Blue":
-                editor.putInt("selectedTheme", 2);
-                break;
-            case "Purple":
-                editor.putInt("selectedTheme", 3);
-                break;
-            case "Green":
-                editor.putInt("selectedTheme", 4);
-                break;
-            case "Black":
-                editor.putInt("selectedTheme", 5);
-                break;
-            default:
-                editor.putInt("selectedTheme", 0);
-                break;
-        }
-        editor.apply();
+        // Persist selection using ThemeManager
+        ThemeManager.saveTheme(this, theme.getName());
 
         // Restart to apply theme
         Intent intent = new Intent(this, MainActivity.class);

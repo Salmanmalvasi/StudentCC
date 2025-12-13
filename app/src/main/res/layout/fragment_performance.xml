@@ -9,110 +9,117 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
-        <LinearLayout
-            android:id="@+id/linear_layout_header"
+        <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_scrollFlags="scroll|snap">
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:titleEnabled="false">
 
             <LinearLayout
+                android:id="@+id/linear_layout_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginBottom="10dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:orientation="vertical"
+                android:padding="24dp">
 
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/performance_header"
-                    android:textColor="?attr/colorOnBackground"
-                    android:textSize="25sp"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/marks_help_button"
-                    style="@style/Widget.Material3.Button.IconButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:contentDescription="@string/help_button_text"
-                    app:icon="@drawable/ic_info"
-                    app:iconTint="?attr/colorOnSurfaceVariant" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/performance_header"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="32sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/marks_help_button"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="@string/help_button_text"
+                        app:icon="@drawable/ic_info"
+                        app:iconTint="?attr/colorOnSurfaceVariant" />
+
+                </LinearLayout>
+
+                <!-- CGPA Display (Placeholder/Future Integration) -->
+                <!-- For now, we keep the existing stats cards but style them better -->
+
+                <HorizontalScrollView
+                    android:id="@+id/horizontal_scroll_view_performance_cards"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:scrollbars="none"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <tk.therealsuji.vtopchennai.widgets.PerformanceCard
+                            android:id="@+id/performance_card_overall"
+                            android:layout_width="160dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="12dp"
+                            app:title="@string/overall_course_score" />
+
+                        <tk.therealsuji.vtopchennai.widgets.PerformanceCard
+                            android:id="@+id/performance_card_theory"
+                            android:layout_width="160dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="12dp"
+                            app:title="@string/theory_weightage" />
+
+                        <tk.therealsuji.vtopchennai.widgets.PerformanceCard
+                            android:id="@+id/performance_card_average"
+                            android:layout_width="160dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="12dp"
+                            app:title="Average" />
+
+                        <tk.therealsuji.vtopchennai.widgets.PerformanceCard
+                            android:id="@+id/performance_card_lab"
+                            android:layout_width="160dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="12dp"
+                            app:title="@string/lab_weightage" />
+
+                        <tk.therealsuji.vtopchennai.widgets.PerformanceCard
+                            android:id="@+id/performance_card_project"
+                            android:layout_width="160dp"
+                            android:layout_height="wrap_content"
+                            app:title="@string/project_weightage" />
+                    </LinearLayout>
+                </HorizontalScrollView>
 
             </LinearLayout>
 
-            <HorizontalScrollView
-                android:id="@+id/horizontal_scroll_view_performance_cards"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:scrollbars="none"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp">
-
-                    <tk.therealsuji.vtopchennai.widgets.PerformanceCard
-                        android:id="@+id/performance_card_overall"
-                        android:layout_width="140dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        app:title="@string/overall_course_score" />
-
-                    <tk.therealsuji.vtopchennai.widgets.PerformanceCard
-                        android:id="@+id/performance_card_theory"
-                        android:layout_width="140dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        app:title="@string/theory_weightage" />
-
-                    <tk.therealsuji.vtopchennai.widgets.PerformanceCard
-                        android:id="@+id/performance_card_average"
-                        android:layout_width="140dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        app:title="Average" />
-
-                    <tk.therealsuji.vtopchennai.widgets.PerformanceCard
-                        android:id="@+id/performance_card_lab"
-                        android:layout_width="140dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        app:title="@string/lab_weightage" />
-
-                    <tk.therealsuji.vtopchennai.widgets.PerformanceCard
-                        android:id="@+id/performance_card_project"
-                        android:layout_width="140dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        app:title="@string/project_weightage" />
-                </LinearLayout>
-            </HorizontalScrollView>
-        </LinearLayout>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout_courses"
-            style="@style/Widget.VTOP.TabLayout"
-            android:layout_width="wrap_content"
+            style="@style/Widget.VTOP.AttendanceTabLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="12dp"
+            android:background="@android:color/transparent"
             android:contentDescription="@string/courses"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:tabMode="scrollable" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager2.widget.ViewPager2
@@ -120,4 +127,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

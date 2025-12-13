@@ -17,8 +17,8 @@ import tk.therealsuji.vtopchennai.fragments.ProfileFragment;
 /**
  * ┬─── Profile Hierarchy
  * ├─ {@link tk.therealsuji.vtopchennai.fragments.ProfileFragment}
- * ├─ {@link ProfileGroupAdapter}   - RecyclerView
- * ╰→ {@link ProfileItemAdapter}    - RecyclerView (Current File)
+ * ├─ {@link ProfileGroupAdapter} - RecyclerView
+ * ╰→ {@link ProfileItemAdapter} - RecyclerView (Current File)
  */
 public class ProfileItemAdapter extends RecyclerView.Adapter<ProfileItemAdapter.ViewHolder> {
     ProfileFragment.ItemData[] profileItems;
@@ -30,7 +30,7 @@ public class ProfileItemAdapter extends RecyclerView.Adapter<ProfileItemAdapter.
     @NonNull
     @Override
     public ProfileItemAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LinearLayout profileItem = (LinearLayout) LayoutInflater
+        com.google.android.material.card.MaterialCardView profileItem = (com.google.android.material.card.MaterialCardView) LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.layout_item_profile, parent, false);
 
@@ -48,11 +48,11 @@ public class ProfileItemAdapter extends RecyclerView.Adapter<ProfileItemAdapter.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        final LinearLayout profileItem;
+        final com.google.android.material.card.MaterialCardView profileItem;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.profileItem = (LinearLayout) itemView;
+            this.profileItem = (com.google.android.material.card.MaterialCardView) itemView;
         }
 
         public void setProfileItem(ProfileFragment.ItemData profileItem) {
@@ -67,7 +67,8 @@ public class ProfileItemAdapter extends RecyclerView.Adapter<ProfileItemAdapter.
             } else {
                 title.setText("");
             }
-            this.profileItem.setOnClickListener(view -> profileItem.onClickListener.onClick(this.profileItem.getContext()));
+            this.profileItem
+                    .setOnClickListener(view -> profileItem.onClickListener.onClick(this.profileItem.getContext()));
 
             if (profileItem.onInitListener != null) {
                 profileItem.onInitListener.onInit(this.profileItem);
