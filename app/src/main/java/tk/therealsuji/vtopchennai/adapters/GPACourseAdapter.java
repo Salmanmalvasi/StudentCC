@@ -23,15 +23,15 @@ public class GPACourseAdapter extends RecyclerView.Adapter<GPACourseAdapter.Cour
         void onCourseDelete(int position);
     }
 
-    public GPACourseAdapter() {
-        this.courses = new ArrayList<>();
+    public GPACourseAdapter(List<GPACourse> courses) {
+        this.courses = courses;
     }
 
     public void setOnCourseDeleteListener(OnCourseDeleteListener listener) {
         this.deleteListener = listener;
     }
 
-    public void setCourses(List<GPACourse> courses) {
+    /*public void setCourses(List<GPACourse> courses) {
         this.courses = courses;
         notifyDataSetChanged();
     }
@@ -46,16 +46,16 @@ public class GPACourseAdapter extends RecyclerView.Adapter<GPACourseAdapter.Cour
             courses.remove(position);
             notifyItemRemoved(position);
         }
-    }
+    }*/
 
-    public void clearCourses() {
+    /*public void clearCourses() {
         courses.clear();
         notifyDataSetChanged();
-    }
+    }*/
 
-    public List<GPACourse> getCourses() {
+    /*public List<GPACourse> getCourses() {
         return courses;
-    }
+    }*/
 
     @NonNull
     @Override
@@ -67,8 +67,7 @@ public class GPACourseAdapter extends RecyclerView.Adapter<GPACourseAdapter.Cour
 
     @Override
     public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
-        GPACourse course = courses.get(position);
-        holder.bind(course, position);
+        holder.bind(courses.get(position));
     }
 
     @Override
@@ -92,12 +91,15 @@ public class GPACourseAdapter extends RecyclerView.Adapter<GPACourseAdapter.Cour
             deleteButton = itemView.findViewById(R.id.delete_course_button);
         }
 
-        public void bind(GPACourse course, int position) {
+        public void bind(GPACourse course) {
             // Set course icon (you can customize this based on course type)
             courseIconText.setText("📚");
 
             // Set course title
-            courseTitleText.setText("Course " + (position + 1));
+            int pos = getAdapterPosition();
+            if (pos != RecyclerView.NO_POSITION) {
+                courseTitleText.setText("Course " + (pos + 1));
+            }
 
             // Set credits badge
             creditHoursText.setText(String.format("%.1f credits", course.getCreditHours()));
@@ -106,8 +108,9 @@ public class GPACourseAdapter extends RecyclerView.Adapter<GPACourseAdapter.Cour
             gradeText.setText(GPACourse.getGradeDisplayText(course.getGrade()));
 
             deleteButton.setOnClickListener(v -> {
-                if (deleteListener != null) {
-                    deleteListener.onCourseDelete(position);
+                int currentPos = getAdapterPosition();
+                if (deleteListener != null && currentPos != RecyclerView.NO_POSITION) {
+                    deleteListener.onCourseDelete(currentPos);
                 }
             });
         }

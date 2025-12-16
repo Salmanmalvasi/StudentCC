@@ -116,7 +116,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
     }
 
     private void setupRecyclerView() {
-        courseAdapter = new GPACourseAdapter();
+        courseAdapter = new GPACourseAdapter(courses);
         courseAdapter.setOnCourseDeleteListener(this);
         coursesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         coursesRecyclerView.setAdapter(courseAdapter);
@@ -208,8 +208,9 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
 
         // Create and add course
         GPACourse course = new GPACourse(creditHours, actualGrade);
-        courseAdapter.addCourse(course);
+//        courseAdapter.addCourse(course);
         courses.add(course);
+        courseAdapter.notifyItemInserted(courses.size() - 1);
 
         // Clear inputs
         creditHoursInput.setText("");
@@ -243,7 +244,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
     private void clearAll() {
         try {
             courses.clear();
-            courseAdapter.clearCourses();
+            courseAdapter.notifyDataSetChanged();
             updateUI();
 
             // Clear result texts
@@ -390,7 +391,7 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
             String expectedGPAStr = expectedGPAInput.getText().toString().trim();
             String semesterCreditsStr = semesterCreditsPredictorInput.getText().toString().trim();
 
-            if (TextUtils.isEmpty(currentCGPAStr) || TextUtils.isEmpty(currentCreditsStr) || 
+            if (TextUtils.isEmpty(currentCGPAStr) || TextUtils.isEmpty(currentCreditsStr) ||
                 TextUtils.isEmpty(expectedGPAStr) || TextUtils.isEmpty(semesterCreditsStr)) {
                 Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
                 return;
@@ -450,8 +451,12 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
     @Override
     public void onCourseDelete(int position) {
         if (position >= 0 && position < courses.size()) {
-            courseAdapter.removeCourse(position);
-            courses = courseAdapter.getCourses();
+            courses.remove(position);
+            courseAdapter.notifyItemRemoved(position);
+            courseAdapter.notifyItemRangeChanged(
+                    position,
+                    courses.size() - position
+            );
             updateUI();
         }
     }
