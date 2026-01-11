@@ -157,4 +157,18 @@
     <color name="progress_ring_color">#F8FAFC</color> <!-- Dark mode light text -->
     <color name="progress_ring_background">#1E293B</color> <!-- Dark mode clean background -->
     <color name="progress_text_color">#F8FAFC</color> <!-- Dark mode light text -->
+
+    <!-- Calendar Event Colors for Dark Theme -->
+    <color name="holiday_bg">#2D1B1E</color> <!-- Dark red background for dark theme -->
+    <color name="holiday_indicator">#F87171</color> <!-- Lighter red indicator for visibility -->
+    <color name="holiday_text">#F87171</color> <!-- Light red text for dark background -->
+    <color name="instructional_bg">#1B2D1F</color> <!-- Dark green background for dark theme -->
+    <color name="instructional_indicator">#34D399</color> <!-- Lighter green indicator for visibility -->
+    <color name="instructional_text">#34D399</color> <!-- Light green text for dark background -->
+    <color name="event_bg">#1B2832</color> <!-- Dark blue background for dark theme -->
+    <color name="event_indicator">#60A5FA</color> <!-- Lighter blue indicator for visibility -->
+    <color name="event_text">#60A5FA</color> <!-- Light blue text for dark background -->
+    <color name="calendar_selected_bg">#3B82F6</color> <!-- Bright blue for selected day in dark theme -->
+    <color name="calendar_selected_day_text">#FFFFFF</color> <!-- White text on selected day -->
+    <color name="calendar_day_default_text">#E0E0E0</color> <!-- Light gray for day numbers in dark theme -->
 </resources>

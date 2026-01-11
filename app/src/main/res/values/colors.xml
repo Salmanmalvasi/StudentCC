@@ -214,4 +214,18 @@
     <color name="red_500">#EF4444</color>
     <color name="gray_400">#9CA3AF</color>
     <color name="gray_500">#6B7280</color>
+
+    <!-- Calendar Event Colors -->
+    <color name="holiday_bg">#FFEBEE</color>
+    <color name="holiday_indicator">#B22222</color>
+    <color name="holiday_text">#8B0000</color> <!-- Dark red text for light background -->
+    <color name="instructional_bg">#E8F5E9</color>
+    <color name="instructional_indicator">#4CAF50</color>
+    <color name="instructional_text">#1B5E20</color> <!-- Dark green text for light background -->
+    <color name="event_bg">#E3F2FD</color>
+    <color name="event_indicator">#2196F3</color>
+    <color name="event_text">#0D47A1</color> <!-- Dark blue text for light background -->
+    <color name="calendar_selected_bg">#1D4ED8</color>
+    <color name="calendar_selected_day_text">#FFFFFF</color>
+    <color name="calendar_day_default_text">#424242</color> <!-- Default gray for day numbers in light theme -->
 </resources>
