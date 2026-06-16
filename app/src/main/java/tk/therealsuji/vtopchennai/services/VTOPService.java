@@ -150,7 +150,7 @@ public class VTOPService extends Service {
             this.startForeground(SettingsRepository.NOTIFICATION_ID_VTOP_DOWNLOAD, this.notification.build());
 
             this.counter = 0;
-            this.maxProgress = 12;
+            this.maxProgress = 14;
 
             SharedPreferences encryptedSharedPreferences = SettingsRepository.getEncryptedSharedPreferences(getApplicationContext());
 
