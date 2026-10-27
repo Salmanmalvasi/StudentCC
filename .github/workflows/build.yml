@@ -57,16 +57,7 @@ jobs:
       run: |
         APK_PATH=$(ls app/build/outputs/apk/release/*.apk | head -1)
         cp "$APK_PATH" "app/build/outputs/apk/release/StudentCC.apk"
-        cat > about.json <<EOF
-{
-  "versionCode": ${VERSION_CODE},
-  "versionName": "${VERSION_NAME}",
-  "tagName": "v${VERSION_NAME}",
-  "releaseNotes": "StudentCC v${VERSION_NAME} — see GitHub release notes for details.",
-  "downloadUrl": "https://github.com/Salmanmalvasi/StudentCC/releases/latest/download/StudentCC.apk",
-  "authorisedUserAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
-}
-EOF
+        python3 -c "import os, json; json.dump({'versionCode': int(os.environ['VERSION_CODE']), 'versionName': os.environ['VERSION_NAME'], 'tagName': 'v' + os.environ['VERSION_NAME'], 'releaseNotes': 'StudentCC v' + os.environ['VERSION_NAME'] + ' — see GitHub release notes for details.', 'downloadUrl': 'https://github.com/Salmanmalvasi/StudentCC/releases/latest/download/StudentCC.apk', 'authorisedUserAgent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'}, open('about.json', 'w'), indent=2)"
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
