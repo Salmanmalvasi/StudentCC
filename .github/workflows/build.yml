@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,9 +21,17 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        cache: 'gradle'
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
+
+    - name: Extract version info
+      run: |
+        VERSION_CODE=$(grep 'versionCode' app/build.gradle | head -1 | awk '{print $2}')
+        VERSION_NAME=$(grep 'versionName' app/build.gradle | head -1 | awk '{print $2}' | tr -d '"')
+        echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+        echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
 
     - name: Create google-services.json
       env:
@@ -36,11 +47,46 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x ./gradlew
 
+    - name: Run Unit Tests
+      run: ./gradlew testDebugUnitTest
+
     - name: Build Release APK
       run: ./gradlew assembleRelease
+
+    - name: Prepare release assets
+      run: |
+        APK_PATH=$(ls app/build/outputs/apk/release/*.apk | head -1)
+        cp "$APK_PATH" "app/build/outputs/apk/release/StudentCC.apk"
+        cat > about.json <<EOF
+{
+  "versionCode": ${VERSION_CODE},
+  "versionName": "${VERSION_NAME}",
+  "tagName": "v${VERSION_NAME}",
+  "releaseNotes": "StudentCC v${VERSION_NAME} — see GitHub release notes for details.",
+  "downloadUrl": "https://github.com/Salmanmalvasi/StudentCC/releases/latest/download/StudentCC.apk",
+  "authorisedUserAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+}
+EOF
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: StudentCC-Release-APK
-        path: app/build/outputs/apk/release/*.apk
+        path: |
+          app/build/outputs/apk/release/StudentCC.apk
+          about.json
+
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ env.VERSION_NAME }}
+        name: StudentCC v${{ env.VERSION_NAME }}
+        files: |
+          app/build/outputs/apk/release/StudentCC.apk
+          about.json
+        generate_release_notes: true
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

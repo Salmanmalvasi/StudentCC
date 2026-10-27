@@ -76,13 +76,19 @@
     </style>
 
     <style name="TextAppearance.VTOP.Chip" parent="TextAppearance.MaterialComponents.Chip">
-        <item name="fontFamily">@font/rubik</item>
+        <item name="fontFamily">@font/outfit</item>
     </style>
 
     <style name="TextAppearance.VTOP.Tab" parent="TextAppearance.MaterialComponents.Button">
-        <item name="fontFamily">@font/rubik</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/outfit</item>
         <item name="android:letterSpacing">0.05</item>
+    </style>
+
+    <style name="TextAppearance.VTOP.DayTab" parent="TextAppearance.MaterialComponents.Button">
+        <item name="fontFamily">@font/outfit</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textAllCaps">true</item>
     </style>
 </resources>

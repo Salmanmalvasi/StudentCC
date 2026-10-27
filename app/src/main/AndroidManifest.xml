@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
@@ -15,6 +17,14 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
+
+    <queries>
+        <package android:name="com.google.android.calendar" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="text/calendar" />
+        </intent>
+    </queries>
 
     <application
         android:name=".VTOP"
@@ -63,17 +73,32 @@
             android:theme="@style/Theme.VTOP"
             android:exported="false" />
         <activity
+            android:name=".activities.InAppMessagesActivity"
+            android:theme="@style/Theme.VTOP"
+            android:exported="false" />
+        <activity
             android:name=".activities.FlappyGameActivity"
             android:theme="@style/Theme.VTOP"
             android:exported="false"
             android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".activities.AllSemestersAnalyticsActivity"
+            android:theme="@style/Theme.VTOP"
+            android:exported="false" />
 
         <service
             android:name=".services.VTOPService"
             android:description="@string/vtop_service_description"
             android:foregroundServiceType="dataSync"
             android:label="VTOP" />
+
+        <service
+            android:name=".services.QuickSyncService"
+            android:description="@string/vtop_service_description"
+            android:foregroundServiceType="dataSync"
+            android:exported="false"
+            android:label="Quick Sync" />
 
         <service
             android:name=".services.ClassTimeMonitorService"
@@ -123,6 +148,40 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/attendance_widget_info" />
         </receiver>
+
+        <!-- Today's Timetable Widget (Class & Venue for today) -->
+        <receiver
+            android:name=".widgets.TodayTimetableWidget"
+            android:label="@string/widget_today_title"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.salmanmalvasi.studentcc.widget.ACTION_REFRESH" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_today_info" />
+        </receiver>
+
+        <!-- RemoteViewsService for Day Timetable Widgets -->
+        <service
+            android:name=".widgets.DayTimetableWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false" />
+
+        <!-- FileProvider for exporting calendar .ics and attachments -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

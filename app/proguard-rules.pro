@@ -23,10 +23,11 @@
     @android.webkit.JavascriptInterface <methods>;
 }
 
-# Keep Room database classes
+# Keep Room database classes and models
 -keep class * extends androidx.room.RoomDatabase
 -keep @androidx.room.Entity class *
 -keep @androidx.room.Dao class *
+-keep class com.salmanmalvasi.studentcc.models.** { *; }
 
 # Keep Firebase classes
 -keep class com.google.firebase.** { *; }

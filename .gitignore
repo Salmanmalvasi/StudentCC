@@ -8,8 +8,21 @@
 .externalNativeBuild
 .cxx
 
-# Exclude markdown files
+# Exclude generated APK and AAB binaries
+*.apk
+**/*.apk
+*.aab
+**/*.aab
+
+# Exclude markdown files except README.md
 *.md
+**/*.md
+!README.md
+
+# Exclude environment variables and secrets
+.env
+.env.*
+*.env
 
 # Exclude UniCC folder
 UniCC-main/

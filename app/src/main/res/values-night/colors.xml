@@ -85,45 +85,45 @@
     <color name="colorOutlineVariantGreen">#1E293B</color>
 
     <!-- Black/Neutral Theme Colors (Dark Mode) -->
-    <color name="colorPrimaryBlack">#FFFFFF</color>
+    <color name="colorPrimaryBlack">#F8F9FA</color>
     <color name="colorOnPrimaryBlack">#000000</color>
-    <color name="colorPrimaryContainerBlack">#000000</color>
-    <color name="colorOnPrimaryContainerBlack">#FFFFFF</color>
-    <color name="colorSecondaryBlack">#9E9E9E</color>
-    <color name="colorOnSecondaryBlack">#E0E0E0</color>
-    <color name="colorSecondaryContainerBlack">#0d1117</color>
-    <color name="colorOnSecondaryContainerBlack">#E0E0E0</color>
-    <color name="colorSurfaceBlack">#161b22</color>
-    <color name="colorOnSurfaceBlack">#e6edf3</color>
-    <color name="colorSurfaceVariantBlack">#21262d</color>
-    <color name="colorOnSurfaceVariantBlack">#8b949e</color>
-    <color name="colorBackgroundBlack">#0d1117</color>
-    <color name="colorErrorBlack">#CCCCCC</color>
+    <color name="colorPrimaryContainerBlack">#161B22</color>
+    <color name="colorOnPrimaryContainerBlack">#F8F9FA</color>
+    <color name="colorSecondaryBlack">#8B949E</color>
+    <color name="colorOnSecondaryBlack">#8B949E</color>
+    <color name="colorSecondaryContainerBlack">#21262D</color>
+    <color name="colorOnSecondaryContainerBlack">#8B949E</color>
+    <color name="colorSurfaceBlack">#161B22</color>
+    <color name="colorOnSurfaceBlack">#F8F9FA</color>
+    <color name="colorSurfaceVariantBlack">#21262D</color>
+    <color name="colorOnSurfaceVariantBlack">#8B949E</color>
+    <color name="colorBackgroundBlack">#0D1117</color>
+    <color name="colorErrorBlack">#F87171</color>
     <color name="colorOnErrorBlack">#000000</color>
-    <color name="colorErrorContainerBlack">#3A3A3A</color>
-    <color name="colorOnErrorContainerBlack">#E0E0E0</color>
-    <color name="colorOutlineBlack">#30363d</color>
-    <color name="colorOutlineVariantBlack">#21262d</color>
+    <color name="colorErrorContainerBlack">#3A1C1C</color>
+    <color name="colorOnErrorContainerBlack">#FCA5A5</color>
+    <color name="colorOutlineBlack">#30363D</color>
+    <color name="colorOutlineVariantBlack">#21262D</color>
 
     <!-- Default Theme Colors (Dark Mode) - Black and White -->
-    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimary">#F8F9FA</color>
     <color name="colorOnPrimary">#000000</color>
-    <color name="colorPrimaryContainer">#1C1C1C</color>
-    <color name="colorOnPrimaryContainer">#FFFFFF</color>
-    <color name="colorSecondary">#2C2C2C</color>
-    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorPrimaryContainer">#161B22</color>
+    <color name="colorOnPrimaryContainer">#F8F9FA</color>
+    <color name="colorSecondary">#8B949E</color>
+    <color name="colorOnSecondary">#8B949E</color>
     <color name="colorSecondaryContainer">#21262D</color>
-    <color name="colorOnSecondaryContainer">#FFFFFF</color>
-    <color name="colorSurface">#161b22</color>
-    <color name="colorOnSurface">#FFFFFF</color>
+    <color name="colorOnSecondaryContainer">#8B949E</color>
+    <color name="colorSurface">#161B22</color>
+    <color name="colorOnSurface">#F8F9FA</color>
     <color name="colorSurfaceVariant">#21262D</color>
-    <color name="colorOnSurfaceVariant">#FFFFFF</color>
-    <color name="colorBackground">#0d1117</color>
-    <color name="colorError">#FFFFFF</color>
+    <color name="colorOnSurfaceVariant">#8B949E</color>
+    <color name="colorBackground">#0D1117</color>
+    <color name="colorError">#F87171</color>
     <color name="colorOnError">#000000</color>
-    <color name="colorErrorContainer">#1C1C1C</color>
-    <color name="colorOnErrorContainer">#FFFFFF</color>
-    <color name="colorOutline">#30363d</color>
+    <color name="colorErrorContainer">#3A1C1C</color>
+    <color name="colorOnErrorContainer">#FCA5A5</color>
+    <color name="colorOutline">#30363D</color>
     <color name="colorOutlineVariant">#21262D</color>
 
     <!-- Additional Colors for Better Readability -->

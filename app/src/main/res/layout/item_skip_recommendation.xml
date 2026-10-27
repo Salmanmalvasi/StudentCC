@@ -4,55 +4,62 @@
     android:id="@+id/recommendation_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
-    app:strokeWidth="1dp"
-    app:strokeColor="?attr/colorOutlineVariant">
+    android:layout_marginBottom="16dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="4dp"
+    android:backgroundTint="?attr/colorSurface"
+    app:strokeWidth="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
-        <!-- Date Header -->
+        <!-- Header Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="16dp">
 
-            <TextView
-                android:id="@+id/date_header"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Monday, Nov 18"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/num_classes"
+                <TextView
+                    android:id="@+id/date_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Monday, Nov 18"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <TextView
+                    android:id="@+id/num_classes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3 classes"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Status Badge -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/status_chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3 classes"
-                android:textSize="14sp"
-                android:textColor="?attr/colorOnSurfaceVariant" />
-
+                android:text="✅ Safe"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:chipStrokeWidth="0dp"
+                app:chipBackgroundColor="?attr/colorSurfaceVariant" />
         </LinearLayout>
-
-        <!-- Status Badge -->
-        <com.google.android.material.chip.Chip
-            android:id="@+id/status_chip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="✅ Safe to Skip"
-            android:textSize="14sp"
-            android:layout_marginBottom="12dp"
-            app:chipStrokeWidth="0dp" />
 
         <!-- Classes List -->
         <LinearLayout
@@ -60,20 +67,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="12dp">
-            
-            <!-- Classes will be added dynamically -->
+            android:layout_marginBottom="16dp" />
 
-        </LinearLayout>
-
-        <!-- Attendance Summary -->
+        <!-- Impact Summary -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp"
+            android:padding="16dp"
             android:background="?attr/colorSurfaceVariant"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -82,19 +85,19 @@
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurfaceVariant"
-                android:layout_marginBottom="4dp" />
+                android:layout_marginBottom="8dp" />
 
             <TextView
                 android:id="@+id/overall_impact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Overall: 87% → 85%"
-                android:textSize="14sp"
+                android:text="Overall: 87% → 85% ✅"
+                android:textSize="15sp"
+                android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface" />
-
         </LinearLayout>
 
-        <!-- Expandable Details Section -->
+        <!-- Expandable Details -->
         <LinearLayout
             android:id="@+id/details_section"
             android:layout_width="match_parent"
@@ -106,49 +109,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?attr/colorOutlineVariant"
-                android:layout_marginVertical="8dp" />
+                android:layout_marginBottom="12dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Subject-wise Impact"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurfaceVariant"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="12dp" />
 
             <LinearLayout
                 android:id="@+id/subject_impacts_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                
-                <!-- Subject impacts will be added dynamically -->
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/risk_reason"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text=""
-                android:textSize="12sp"
-                android:textColor="?attr/colorError"
-                android:visibility="gone" />
-
+                android:orientation="vertical" />
         </LinearLayout>
 
-        <!-- Toggle Details Button -->
+        <!-- Toggle Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/toggle_details"
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Show Details"
-            android:textSize="12sp"
+            android:textSize="13sp"
             android:layout_gravity="end" />
 
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>

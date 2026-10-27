@@ -18,8 +18,8 @@
 
         <item name="colorSurface">@color/colorSurfaceBlack</item>
         <item name="colorOnSurface">@color/colorOnSurfaceBlack</item>
-        <item name="colorSurfaceVariant">@color/colorSecondaryContainerBlack</item>
-        <item name="colorOnSurfaceVariant">@color/colorOnSecondaryContainerBlack</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariantBlack</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariantBlack</item>
 
         <item name="colorError">@color/colorError</item>
         <item name="colorOnError">@color/colorOnError</item>
@@ -35,19 +35,19 @@
         <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
-        <item name="android:fontFamily">@font/rubik</item>
+        <item name="android:fontFamily">@font/outfit</item>
 
-            <!-- Enhanced Attendance Colors for Default Dark Theme (Black & White) -->
-    <item name="attendance_percentage_text_color">@android:color/white</item>
-    <item name="attendance_subtext_color">@color/colorSecondaryBlack</item>
-    <item name="attendance_day_text_color">@color/colorSecondaryBlack</item>
-    <item name="attendance_percentage_text_high_color">@android:color/white</item>
-    <item name="attendance_percentage_text_medium_color">@android:color/white</item>
-    <item name="attendance_percentage_text_low_color">@android:color/white</item>
+        <!-- Enhanced Attendance Colors for Default Dark Theme (Black & White) -->
+        <item name="attendance_percentage_text_color">#F8F9FA</item>
+        <item name="attendance_subtext_color">@color/colorOnSurfaceVariantBlack</item>
+        <item name="attendance_day_text_color">@color/colorOnSurfaceVariantBlack</item>
+        <item name="attendance_percentage_text_high_color">#10B981</item>
+        <item name="attendance_percentage_text_medium_color">#F59E0B</item>
+        <item name="attendance_percentage_text_low_color">#EF4444</item>
 
-    <!-- Calendar Day Text Colors - Default Dark Theme (Black & White) -->
-    <item name="calendar_day_text_color">@color/colorSecondaryBlack</item>
-    <item name="calendar_subtext_color">@color/colorSecondaryBlack</item>
+        <!-- Calendar Day Text Colors - Default Dark Theme (Black & White) -->
+        <item name="calendar_day_text_color">#F8F9FA</item>
+        <item name="calendar_subtext_color">@color/colorOnSurfaceVariantBlack</item>
     </style>
 
     <!-- Main Dark Theme -->
@@ -160,8 +160,8 @@
         <item name="android:windowBackground">@color/colorBackgroundBlack</item>
         <item name="chipStyle">@style/Widget.VTOP.Chip</item>
         <item name="attendance_day_text_color">@color/colorPrimaryBlack</item>
-        <item name="attendance_subtext_color">@color/colorSecondaryBlack</item>
-        <item name="attendance_percentage_text_color">@color/colorSecondaryBlack</item>
+        <item name="attendance_subtext_color">@color/colorOnSurfaceVariantBlack</item>
+        <item name="attendance_percentage_text_color">#F8F9FA</item>
         <item name="calendar_day_text_color">@color/calendar_day_text_black_dark</item>
         <item name="calendar_subtext_color">@color/calendar_subtext_black_dark</item>
     </style>

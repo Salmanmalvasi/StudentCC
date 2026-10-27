@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!DOCTYPE resources [<!ENTITY app_name "StudentCC">]>
+<?xml version="1.0" encoding="utf-8"?>
 
 <resources>
     <string name="app_name">StudentCC</string>
@@ -26,6 +26,8 @@
     <string name="afternoon_greeting">Good Afternoon,</string>
     <string name="evening_greeting">Good Evening,</string>
     <string name="name">JOHN DOE</string>
+    <string name="reg_no">21BCE0000</string>
+    <string name="profile_image">Profile Image</string>
     <string name="spotlight">Spotlight</string>
     <string name="overall_attendance">Overall Attendance</string>
     <string name="todays_classes">Today\'s Classes</string>
@@ -80,14 +82,15 @@
     <string name="receipts">Receipts</string>
     <string name="staff">Staff</string>
     <string name="sync_data">Sync Data</string>
-    <string name="sync_video_theme">Sync Video Theme</string>
-    <string name="marvel_theme">Marvel</string>
-    <string name="got_theme">Game of Thrones</string>
-    <string name="f1_theme">Formula 1</string>
-    <string name="matrix_theme">The Matrix</string>
-    <string name="mute_sync_video">Mute Sync Video</string>
+    <string name="features">Features</string>
     <string name="notifications">Notifications</string>
     <string name="share">Share App</string>
+    <string name="calendar">Calendar</string>
+    <string name="back">Back</string>
+    <string name="calendar_events_title">Events</string>
+    <string name="calendar_select_day_hint">Select a day to view events for that date</string>
+    <string name="calendar_no_events_month_hint">No events scheduled for this month</string>
+    <string name="calendar_no_events_day_hint">No events scheduled for this day</string>
 
     <!-- Download Strings: Strings used while downloading data -->
     <string name="vtop_service_description">Downloads data from VTOP.</string>
@@ -110,6 +113,7 @@
     <string name="downloading_courses">Downloading Course Info</string>
     <string name="downloading_staff">Downloading Staff Info</string>
     <string name="downloading_attendance">Downloading Attendance</string>
+    <string name="downloading_calendar">Downloading Academic Calendar</string>
     <string name="downloading_marks">Downloading Marks</string>
     <string name="downloading_exam_schedule">Downloading Exam Schedule</string>
     <string name="downloading_spotlight">Downloading Spotlight</string>
@@ -119,7 +123,8 @@
 
     <!-- Update Dialog Strings -->
     <string name="update_title">Update Available</string>
-    <string name="update_message">A new version of StudentCC (&lt;b>%s&lt;/b>) has been released! The Update button bellow will take you to the download page.</string>
+    <string name="update_message">A new version of StudentCC (&lt;b>%s&lt;/b>) is available. Tap Update to download and install it.</string>
+    <string name="downloading_update">Downloading update…</string>
     <string name="cancel_update">I\'ll do this later</string>
     <string name="download_update">Download Update</string>
 
@@ -189,6 +194,7 @@
     <string name="gpa_calculator_description">Calculate your CGPA using VIT\'s grading system</string>
     <string name="current_cgpa_display">Current CGPA: %1$.2f</string>
     <string name="current_credits_display">Total Credits: %1$.1f</string>
+    <string name="import_from_marks">Import from Marks</string>
     <string name="important_links">Important Links</string>
     <string name="vitol_freshers">Vitol(Freshers)</string>
     <string name="vitol_seniors">Vitol(Seniors)</string>
@@ -316,7 +322,7 @@
     <!-- Skip Advisor Strings -->
     <string name="skip_advisor">Skip Advisor</string>
     <string name="skip_advisor_title">Smart Skip Advisor</string>
-    <string name="skip_advisor_description">AI-powered recommendations for which classes you can safely skip while maintaining 85%+ overall and 75%+ per-course attendance</string>
+    <string name="skip_advisor_description" formatted="false">AI-powered recommendations for which classes you can safely skip while maintaining 85%+ overall and 75%+ per-course attendance</string>
     <string name="skip_score">Skip Score</string>
     <string name="safe_to_skip">✅ Safe to Skip</string>
     <string name="skip_with_caution">⚠️ Skip with Caution</string>
@@ -326,7 +332,7 @@
     <string name="medium_impact">Medium Impact</string>
     <string name="high_impact">High Impact</string>
     <string name="very_low_impact">Very Low Impact</string>
-    <string name="attendance_projection">Current: %.1f%% → After skip: %.1f%%</string>
+    <string name="attendance_projection" formatted="false">Current: %.1f%% → After skip: %.1f%%</string>
     <string name="long_weekend_opportunity">🎉 Long weekend opportunity</string>
     <string name="exam_approaching">⚠️ Exam approaching</string>
     <string name="lab_critical">⚠️ Lab class (more important)</string>
@@ -336,6 +342,7 @@
     
     <!-- Sync Video Strings -->
     <string name="syncing_data">Syncing your data…</string>
-    <string name="profile_image">Profile Image</string>
-    <string name="reg_no">Registration Number</string>
+    <!-- Day Timetable Widget -->
+    <string name="widget_today_title">Today\'s Classes &amp; Venue</string>
+    <string name="widget_today_desc">Shows today\'s scheduled classes and venues</string>
 </resources>

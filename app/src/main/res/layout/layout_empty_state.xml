@@ -1,22 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginStart="20dp"
-    android:layout_marginEnd="20dp"
+    android:layout_marginStart="32dp"
+    android:layout_marginEnd="32dp"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:minHeight="300dp">
+
+    <ImageView
+        android:id="@+id/image_view_empty_state"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/image_no_data"
+        android:alpha="0.8" />
 
     <TextView
         android:id="@+id/text_view_no_data"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawablePadding="20dp"
+        android:layout_marginTop="24dp"
         android:text="@string/no_data"
         android:textAlignment="center"
-        android:textSize="20sp"
-        app:drawableTopCompat="@drawable/image_no_data" />
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="?attr/colorOnSurface" />
+
+    <TextView
+        android:id="@+id/text_view_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Enjoy your day off!"
+        android:textAlignment="center"
+        android:textSize="14sp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:visibility="gone" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_empty_state_action"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        tools:text="Retry" />
+
+</LinearLayout>
 
     <Button
         android:id="@+id/button"

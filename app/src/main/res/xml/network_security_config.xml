@@ -4,6 +4,13 @@
         <domain includeSubdomains="true">vit.ac.in</domain>
         <trust-anchors>
             <certificates src="system" />
+            <certificates src="@raw/trusted_ca" />
         </trust-anchors>
     </domain-config>
+    <base-config>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/trusted_ca" />
+        </trust-anchors>
+    </base-config>
 </network-security-config>

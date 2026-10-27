@@ -1,31 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="4dp"
-    android:layout_marginEnd="4dp"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="?attr/colorOutlineVariant"
+    android:backgroundTint="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="?attr/colorSurface"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+        android:padding="12dp">
 
         <View
             android:id="@+id/event_color_bar"
             android:layout_width="4dp"
             android:layout_height="match_parent"
             android:layout_marginEnd="12dp"
-            android:background="?attr/colorPrimary"/>
+            android:background="?attr/colorPrimary" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -35,21 +31,35 @@
 
             <TextView
                 android:id="@+id/event_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
+                android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
-                android:text="Event Name"/>
+                android:text="Event Name" />
 
-            <TextView
-                android:id="@+id/event_category"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/category_pill"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:textSize="12sp"
-                android:textColor="?android:attr/textColorSecondary"
-                android:text="Category"/>
+                android:layout_marginTop="6dp"
+                app:cardCornerRadius="100dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0.5dp"
+                app:strokeColor="?attr/colorOutlineVariant"
+                android:backgroundTint="?attr/colorSurfaceVariant">
+
+                <TextView
+                    android:id="@+id/event_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textStyle="bold"
+                    android:text="Category" />
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
 
@@ -58,12 +68,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="10dp"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            android:layout_marginStart="8dp"
+            android:textAppearance="?attr/textAppearanceTitleLarge"
             android:textColor="?attr/colorPrimary"
-            android:text="15"/>
+            android:textStyle="bold"
+            android:text="15" />
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

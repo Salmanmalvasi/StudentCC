@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
+
+        <com.salmanmalvasi.studentcc.widgets.PerformanceCard
+            android:id="@+id/performance_card_overall"
+            android:layout_width="148dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            app:title="@string/overall_course_score" />
+
+        <com.salmanmalvasi.studentcc.widgets.PerformanceCard
+            android:id="@+id/performance_card_theory"
+            android:layout_width="148dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            app:title="@string/theory_weightage" />
+
+        <com.salmanmalvasi.studentcc.widgets.PerformanceCard
+            android:id="@+id/performance_card_average"
+            android:layout_width="148dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            app:title="Average" />
+
+        <com.salmanmalvasi.studentcc.widgets.PerformanceCard
+            android:id="@+id/performance_card_lab"
+            android:layout_width="148dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            app:title="@string/lab_weightage" />
+
+        <com.salmanmalvasi.studentcc.widgets.PerformanceCard
+            android:id="@+id/performance_card_project"
+            android:layout_width="148dp"
+            android:layout_height="wrap_content"
+            app:title="@string/project_weightage" />
+
+    </LinearLayout>
+
+</HorizontalScrollView>

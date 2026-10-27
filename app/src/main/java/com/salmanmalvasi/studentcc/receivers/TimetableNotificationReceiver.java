@@ -1,0 +1,135 @@
+package com.salmanmalvasi.studentcc.receivers;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import com.salmanmalvasi.studentcc.helpers.AppDatabase;
+import com.salmanmalvasi.studentcc.helpers.NotificationHelper;
+import com.salmanmalvasi.studentcc.helpers.SettingsRepository;
+import com.salmanmalvasi.studentcc.interfaces.ExamsDao;
+import com.salmanmalvasi.studentcc.interfaces.TimetableDao;
+import com.salmanmalvasi.studentcc.models.Timetable;
+
+public class TimetableNotificationReceiver extends BroadcastReceiver {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Calendar calendar = Calendar.getInstance();
+        Calendar calendarFuture = Calendar.getInstance();
+
+        Calendar calendarFirstHourToday = Calendar.getInstance();
+        Calendar calendarLastHourToday = Calendar.getInstance();
+
+        calendarFuture.add(Calendar.MINUTE, 30);
+        calendarFirstHourToday.set(Calendar.HOUR_OF_DAY, 0);
+        calendarFirstHourToday.set(Calendar.MINUTE, 0);
+        calendarLastHourToday.set(Calendar.HOUR_OF_DAY, 23);
+        calendarLastHourToday.set(Calendar.MINUTE, 59);
+
+        SimpleDateFormat hour24 = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
+
+        int day = calendar.get(Calendar.DAY_OF_WEEK) - 1; // 0=Sun..6=Sat
+
+        // Respect holiday flags and weekend working-day overrides
+        SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(context);
+        if (sharedPreferences != null) {
+            boolean isHoliday = sharedPreferences.getBoolean("holiday_" + day, false);
+            if (isHoliday) {
+                return;
+            }
+
+            // For weekend (Sun=0, Sat=6), allow mapping to Mon..Fri (1..5)
+            int workingOverride = sharedPreferences.getInt("working_override_" + day, -1);
+            if (workingOverride >= 1 && workingOverride <= 5) {
+                day = workingOverride; // map to weekday index used in TimetableDao.get* switches
+            }
+        }
+
+        final int effectiveDay = day;
+        String currentTime = hour24.format(calendar.getTime());
+        String futureTime = hour24.format(calendarFuture.getTime());
+
+        AppDatabase appDatabase = AppDatabase.getInstance(context);
+        ExamsDao examsDao = appDatabase.examsDao();
+        TimetableDao timetableDao = appDatabase.timetableDao();
+
+        examsDao
+                .isExamsOngoing(calendarFirstHourToday.getTimeInMillis(), calendarLastHourToday.getTimeInMillis())
+                .subscribeOn(Schedulers.single())
+                .subscribe(new SingleObserver<Boolean>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                    }
+
+                    @Override
+                    public void onSuccess(@NonNull Boolean isOngoing) {
+                        if (isOngoing) {
+                            return;
+                        }
+
+                        timetableDao
+                                .getUpcoming(effectiveDay, currentTime, futureTime)
+                                .subscribeOn(Schedulers.single())
+                                .subscribe(new SingleObserver<Timetable.AllData>() {
+                                    @Override
+                                    public void onSubscribe(@NonNull Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onSuccess(Timetable.@NonNull AllData timetableItem) {
+                                        try {
+                                            NotificationHelper notificationHelper = new NotificationHelper(context);
+                                            notificationHelper.getManager().notify(
+                                                    SettingsRepository.NOTIFICATION_ID_TIMETABLE,
+                                                    notificationHelper.notifyUpcoming(timetableItem).build()
+                                            );
+                                        } catch (Exception ignored) {
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(@NonNull Throwable e) {
+                                        timetableDao
+                                                .getOngoing(effectiveDay, currentTime)
+                                                .subscribeOn(Schedulers.single())
+                                                .subscribe(new SingleObserver<Timetable.AllData>() {
+                                                    @Override
+                                                    public void onSubscribe(@NonNull Disposable d) {
+                                                    }
+
+                                                    @Override
+                                                    public void onSuccess(Timetable.@NonNull AllData timetableItem) {
+                                                        try {
+                                                            NotificationHelper notificationHelper = new NotificationHelper(context);
+                                                            notificationHelper.getManager().notify(
+                                                                    SettingsRepository.NOTIFICATION_ID_TIMETABLE,
+                                                                    notificationHelper.notifyOngoing(timetableItem).build()
+                                                            );
+                                                        } catch (Exception ignored) {
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onError(@NonNull Throwable e) {
+                                                    }
+                                                });
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                    }
+                });
+    }
+}

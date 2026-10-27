@@ -60,8 +60,10 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
-                android:padding="10dp"
-                android:textSize="17sp"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:padding="2dp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <ProgressBar

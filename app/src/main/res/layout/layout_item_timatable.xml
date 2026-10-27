@@ -13,7 +13,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:minHeight="80dp">
 
         <ProgressBar
             android:id="@+id/progress_bar_timetable"
@@ -31,7 +32,8 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="16dp">
+            android:paddingVertical="20dp"
+            android:paddingHorizontal="16dp">
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="48dp"
@@ -73,8 +75,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:maxLines="1"
-                    android:singleLine="true"
+                    android:maxLines="2"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="16sp"
                     android:textStyle="bold" />

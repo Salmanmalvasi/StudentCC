@@ -48,6 +48,8 @@
                 android:layout_height="wrap_content"
                 android:text="Course"
                 android:textColor="?attr/colorOnSurface"
+                android:maxLines="2"
+                android:ellipsize="end"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 

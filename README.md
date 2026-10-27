@@ -1,319 +1,283 @@
-# StudentCC - VIT Student Companion App
+# StudentCC — Intelligent Academic Companion for VIT
 
 <div align="center">
-  <img src="app/src/main/res/drawable/app_log### **🆕 New ### **🔧 Technical Enhancements**
-- **Database Schema** - Added venue field to Timetable.AllData model
-- **Query Optimization** - Updated database queries to include venue data
-- **Notification System** - Completely redesigned notification messages
-- **Website Integration** - Seamless integration with your landing page
-- **Color System Architecture** - Comprehensive theme attribute system with proper inheritance
-- **Material Design 3** - Full implementation with custom color palettes
-- **UI Component Styling** - Enhanced tab layouts, text views, and interactive elementsres**
-- **Venue Display** - Notifications now show actual classroom locations
-- **Enhanced GPA Calculator** - More accurate calculations with VIT's system
-- **Ultra-Modern Color System** - Sleek, Discord/Notion-inspired color palettes
-- **Theme-Aware Components** - Calendar days and attendance text adapt to selected themes
-- **Better Color Contrast** - WCAG-compliant colors for optimal readability
-- **Improved UI** - Better theme system and modern design
-- **Better Error Handling** - More robust app stability" alt="StudentCC Logo" width="120" height="120">
-  <h3>Your All-in-One Academic Companion for VIT</h3>
-  <p><strong>BETA VERSION</strong> - Enhanced with modern features and improved user experience</p>
+
+  <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="StudentCC Logo" width="108" height="108" />
+
+  <h3>Your Private, Offline-First, All-in-One Academic Dashboard for VIT</h3>
+
+  <p>
+    <a href="https://github.com/Salmanmalvasi/StudentCC/releases/latest"><img src="https://img.shields.io/badge/Release-v1.6.0-22c55e?style=for-the-badge&logo=android" alt="Latest Release" /></a>
+    <a href="https://github.com/Salmanmalvasi/StudentCC/actions/workflows/build.yml"><img src="https://img.shields.io/badge/CI%2FCD-Passing-0284c7?style=for-the-badge&logo=githubactions" alt="CI/CD Status" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-64748b?style=for-the-badge" alt="License" /></a>
+    <a href="https://developer.android.com/about/versions/nougat"><img src="https://img.shields.io/badge/Min%20SDK-24%20(Android%207.0)-3b82f6?style=for-the-badge&logo=android" alt="Min SDK" /></a>
+    <a href="https://developer.android.com/about/versions/14"><img src="https://img.shields.io/badge/Target%20SDK-34%20(Android%2014)-a855f7?style=for-the-badge&logo=android" alt="Target SDK" /></a>
+  </p>
+
+  <p><strong>StudentCC</strong> is an open-source, modern Android application engineered specifically for students of Vellore Institute of Technology. Built with an offline-first architecture, privacy-first security, and Material Design 3, it transforms clunky portal interactions into an instantaneous, delightful mobile experience.</p>
+
+  <p>
+    <a href="https://salmanmalvasi.github.io/studentcc-landing.html"><strong>Explore Web Landing Page »</strong></a>
+    &nbsp;•&nbsp;
+    <a href="https://github.com/Salmanmalvasi/StudentCC/releases"><strong>Download Latest APK »</strong></a>
+    &nbsp;•&nbsp;
+    <a href="https://github.com/Salmanmalvasi/StudentCC/issues"><strong>Report an Issue »</strong></a>
+  </p>
+
 </div>
 
-## 🆕 What's new in v1.4.1
+---
 
-- Slot-based attendance calculator now weights lab sessions accurately during previews while keeping overall totals precise
-- Faculty popup adds favourites toggle and incorrect-action quick report
-- Stability fixes to prevent crashes during timetable slot previews
+## 🌟 Key Features
 
-## 🚀 Features
+### 📅 Smart 4×3 Timetable & Venue Widget
+- **Home Screen Schedule**: Real-time display of today's classes, venues, and timings directly on your launcher.
+- **Dedicated Quick Settings**: Integrated Settings shortcut button (`ic_settings`) on the widget header to jump straight to preferences and account settings in one tap.
+- **Surface Interactivity**: Clicks on any part of the widget header, schedule overview, or empty state open the app directly.
+- **Android 12+ (API 31+) Support**: Uses `FLAG_MUTABLE` fill-in PendingIntent templates so individual class rows open class details smoothly across all Android versions.
 
-### 📊 **Advanced GPA Calculator**
-- Real-time GPA calculation with VIT's official grading system
-- Support for all VIT grade scales (S, A, B, C, D, E, F, N)
-- Credit tracking and semester-wise GPA calculation
-- CGPA estimator with target GPA planning
+### 🟩 Interactive Attendance Heatmap
+- **Contribution-Style Grid**: 7-row interactive activity calendar inspired by GitHub's contribution heatmap.
+- **Inverted Color Intensity Palette**:
+  - `0 classes`: Slate dark background (`#1E293B`)
+  - `1 class`: Dark forest green (`#14532D`)
+  - `2 classes`: Dark emerald green (`#15803D`)
+  - `3 classes`: Medium vibrant green (`#22C55E`)
+  - `4+ classes`: Brightest light mint green (`#86EFAC`)
+- **Combined Session Weighting**: Counts both Present and On Duty (OD) sessions seamlessly.
+- **Day Inspector**: Tap any cell in the grid to view exact counts of attended, present, OD, absent, and total conducted classes for that date.
 
-### 📈 **Enhanced Attendance Tracking**
-- Large attendance circle (100dp) with theme-adaptive colors
-- Interactive toggle with responsive design
-- Theme-aware text colors matching overall attendance display
-- Real-time attendance percentage calculation with high contrast visibility
-- Modern UI with proper shadows and readable text styling
+### 🗓️ 1-Click Google Calendar Sync
+- Export academic calendars, instructional days, holidays, and exam dates straight to Android's native Calendar Provider and Google Calendar.
+- Automatic idempotency tracking prevents duplicate events upon re-sync.
+- Categorized calendar events with colored highlights for exams, project deadlines, and holidays.
 
-### 🎨 **Ultra-Modern Theme System**
-- 6 custom themes with sleek, modern color palettes (Default, Red, Blue, Purple, Green, Black)
-- Dark/Light mode support with perfect contrast ratios
-- Dynamic color system using Material Design 3
-- Theme-aware UI elements (calendar days, attendance text, percentage indicators)
-- Optimized readability with WCAG-compliant color combinations
-- AMOLED mode for OLED displays
+### 📊 All-Semesters Analytics & CGPA Calculator
+- **Multi-Semester Breakdown**: Historical performance trends, semester-by-semester GPA progressions, and credits completed.
+- **VIT Grade System Alignment**: Full support for 10-point relative grading (`S`, `A`, `B`, `C`, `D`, `E`, `F`, `N`).
+- **Interactive Simulator**: Calculate how upcoming marks or attendance percentages impact overall semester targets.
 
-### 📅 **Smart Notifications**
-- **Venue-based notifications** - Shows actual classroom location instead of slot numbers
-- Class reminders with venue information
-- Exam schedule notifications
-- Customizable notification settings
+### 🏢 Hostel Info & Unmessify Mess Menu
+- **Hostel Insights**: Block details, room information, and automated laundry countdown reminders.
+- **Unmessify Integration**: Integrated daily mess menus (Breakfast, Lunch, Snacks, Dinner) in collaboration with the [Unmessify](https://github.com/Kanishka-Developer/unmessify) open-source initiative.
 
-### 🔐 **Enhanced Security**
-- Encrypted credential storage
-- Multi-stage OCR processing for captcha
-- 4 different image preprocessing attempts
-- Contrast enhancement and color inversion for better accuracy
+### 🚀 Events Hub & Placement Tracker
+- Discover campus club events, technical hackathons, guest lectures, and student chapters.
+- Dedicated placement checklist, company shortlist tracking, and interview schedules.
 
-### 🌐 **Website Integration**
-- Points to your landing page: [https://salmanmalvasi.github.io/studentcc-landing.html](https://salmanmalvasi.github.io/studentcc-landing.html)
-- Disabled unwanted version checking popups
-- Clean user experience without confusing update messages
+### 🎨 Material Design 3 Theming
+- 6 curated palettes: Default Modern, Royal Blue, Emerald Green, Crimson Red, Royal Purple, and AMOLED Pure Black.
+- Dynamic theme adaptation across all widgets, custom charts, and system navigation bars.
 
-## 🛠️ Technical Stack
+---
 
-### **Core Technologies**
-- **Java** - Core Android development with modern practices
-- **Room Database** - Local data persistence with SQLite
-- **Material Design 3** - Modern UI/UX implementation
-- **Firebase** - Analytics tracking and cloud capabilities
+## 🆕 What's New in v1.6.0 (Changes Since v1.5 / v1.4.1)
 
-### **Architecture**
-- **MVVM Pattern** - Clean architecture implementation
-- **RxJava** - Reactive programming for async operations
-- **Room ORM** - Database abstraction layer
-- **SharedPreferences** - User settings and theme persistence
+| Area | Enhancement |
+|---|---|
+| **Home Screen Widgets** | Upgraded default dimensions to **4×3** (`targetCellWidth="4"`, `targetCellHeight="3"`). Added header Settings button, interactive surface clicks, and Android 12+ `FLAG_MUTABLE` collection clicks. |
+| **Attendance Heatmap** | Inverted green color palette (dark green for fewer classes, bright mint green for high class density). Integrated OD + Present counts and interactive day-sheet inspector. |
+| **Calendar Sync** | Added native Android / Google Calendar synchronization for the full academic year and examination timetables. |
+| **Analytics** | Added dedicated `AllSemestersAnalyticsActivity` with multi-semester CGPA tracking, course category breakdown, and performance visualization. |
+| **Caching & Sync Engine** | Implemented `DataFreshnessManager` and `LocalCacheMetrics` to eliminate unnecessary network round-trips, executing background quick-sync only when core datasets become stale. |
+| **FCM Push Notifications** | Resolved duplicate notification delivery in `VTOPFirebaseMessagingService` by isolating data payloads from notification triggers. |
+| **Navigation Reliability** | Added `handleIntentNavigation()` in `MainActivity` with `@Override onNewIntent(Intent)` so widget clicks and push notifications immediately switch to the target tab when the app is running in background. |
+| **Security & Secrets** | Hardened `.gitignore` to protect all environment configs (`.env*`) and APK binaries (`*.apk`), while providing automated fallback configs in `generate-config.sh`. |
+| **CI/CD Automation** | Modernized GitHub Actions workflow with Gradle dependency caching, pre-build unit test validation, artifact uploads, and automated release asset generation. |
 
-### **Key Libraries**
-- **Retrofit** - HTTP client for API calls
-- **OkHttp** - Network interceptor and caching
-- **Glide** - Image loading and caching
-- **Markwon** - Markdown rendering for release notes
+---
 
-## 📈 **Changes from Original VIT Student App**
+## 🏗️ Architecture & Technical Design
 
-### **🔧 Core Modifications**
-- **SettingsRepository.java** - Updated website URLs and disabled version checking
-- **Timetable.java** - Added venue field to data model
-- **TimetableDao.java** - Enhanced 12 database queries with venue data
-- **NotificationHelper.java** - Redesigned notification messages
-- **strings.xml** - Fixed app name in share functionality
-- **Theme System** - Complete overhaul with ultra-modern color palettes
-- **Color Attributes** - Added theme-aware calendar and attendance text colors
-- **UI Components** - Enhanced tab layouts and text styling for better readability
+StudentCC follows clean architectural principles structured around the **Model-View-ViewModel (MVVM)** and **Repository** patterns:
 
-### **🎯 Key Improvements Made**
-- **Eliminated Update Popups** - No more unwanted version checking dialogs
-- **Enhanced Notifications** - Shows actual venue instead of slot numbers
-- **Better User Experience** - Cleaner interface without confusing messages
-- **Improved Data Display** - More useful information in notifications
-- **Website Integration** - Seamless connection to your landing page
-
-### **📊 Impact on User Experience**
-- **100% Reduction** in unwanted update popups
-- **Enhanced Notification Clarity** - Users now see classroom locations
-- **Improved Share Functionality** - Shows proper app name
-- **Better Error Handling** - More robust app stability
-
-## 📱 Screenshots
-
-<div align="center">
-  <img src="preview.gif" alt="StudentCC App Preview" width="300">
-</div>
-
-## 🎯 Key Improvements
-
-### ✅ **Fixed Issues**
-- **Version Checking** - Disabled unwanted update popups
-- **Website URLs** - Updated to point to your landing page
-- **App Name** - Fixed share functionality to show "StudentCC"
-- **Notifications** - Enhanced to show venue instead of slot IDs
-
-### 🆕 **New Features**
-- **Venue Display** - Notifications now show actual classroom locations
-- **Enhanced GPA Calculator** - More accurate calculations with VIT's system
-- **Improved UI** - Better theme system and modern design
-- **Better Error Handling** - More robust app stability
-
-### 🔧 **Technical Enhancements**
-- **Database Schema** - Added venue field to Timetable.AllData model
-- **Query Optimization** - Updated database queries to include venue data
-- **Notification System** - Completely redesigned notification messages
-- **Website Integration** - Seamless integration with your landing page
-
-## 📦 Installation
-
-### **Prerequisites**
-- Android Studio Arctic Fox or later
-- Android SDK API 21+ (Android 5.0+)
-- Java 8 or higher
-
-### **Build Instructions**
-```bash
-# Clone the repository
-git clone https://github.com/Salmanmalvasi/StudentCC.git
-
-# Open in Android Studio
-cd StudentCC
-
-# Sync Gradle files
-./gradlew build
-
-# Install on device
-./gradlew installDebug
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Presentation Layer                     │
+│  Activities (MainActivity, AllSemestersAnalyticsActivity)   │
+│  Fragments  (HomeFragment, PerformanceFragment, Calendar)    │
+│  Widgets    (TodayTimetableWidget, AttendanceWidget)        │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                       Domain / Helper                       │
+│  SettingsRepository  •  DataFreshnessManager  •  VTOPHelper │
+│  FirebaseMessagingHelper  •  HostelDataHelper •  ThemeMgr   │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                         Data Layer                          │
+│  Room Database (SQLite)  •  RxJava3 Observers / Singles     │
+│  EncryptedSharedPreferences (AES-256 GCM)                   │
+│  OkHttp3 Network Stack   •  On-Device Captcha Solver Model  │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## 🔧 Configuration
+### 1. Reactive Offline-First Data Pipeline
+- All UI components observe local state backed by an on-device SQLite database via **Android Room**.
+- UI rendering never waits on network latency; data is emitted instantly via **RxJava3** (`Single`, `Observable`).
+- Network fetches from VTOP update Room records in a background thread, triggering immediate, smooth UI updates without activity reloads.
 
-### **Website URLs**
-The app is configured to use your landing page:
-- **Base URL**: `https://salmanmalvasi.github.io`
-- **Landing Page**: `https://salmanmalvasi.github.io/studentcc-landing.html`
+### 2. Smart Freshness & Differential Sync
+- The `DataFreshnessManager` tracks timestamps for each academic dataset (Timetable, Attendance, Marks, Exams).
+- On app launch, if cache records are fresh, network polling is bypassed entirely (`LocalCacheMetrics.recordRequestSkipped`), saving student battery and cellular data.
+- Stale datasets trigger non-blocking background synchronization with toast confirmation upon completion.
 
-### **Version Checking**
-Version checking is disabled to prevent unwanted popups. The app will not show update dialogs.
+### 3. On-Device Captcha Recognition
+- Captcha images from VTOP are evaluated on-device using custom pre-processing routines (contrast adjustment, thresholding, and character segmentation) paired with a local binary model (`vtop_captcha_model.bin`).
+- Credentials and captcha images never leave the student's device.
 
-## 🎨 Customization
+### 4. Hardware-Backed Encryption
+- Student credentials and session cookies are secured using Android Jetpack Security's `EncryptedSharedPreferences`.
+- Keys are managed by the Android KeyStore using AES-256 GCM encryption.
 
-### **Themes**
-The app supports 6 ultra-modern custom themes with sleek color palettes:
-- **Default** - Clean black & white with optimal contrast
-- **Red Theme** - Modern red tones with proper accessibility
-- **Blue Theme** - Professional blue palette inspired by modern design systems
-- **Purple Theme** - Elegant purple gradients with excellent readability  
-- **Green Theme** - Fresh green colors with nature-inspired tones
-- **Black Theme** - Premium AMOLED-optimized dark theme
+### 5. AppWidget Architecture
+- Uses `AppWidgetProvider` alongside `RemoteViewsService` to render scrollable lists in the launcher process.
+- Compatible with Android 12 through Android 14 via explicit `PendingIntent.FLAG_MUTABLE` list templates and responsive cell sizing.
 
-**Color Features:**
-- Theme-aware calendar day labels (Mon, Tue, Wed, etc.)
-- Attendance text colors matching theme selection
-- High contrast ratios for accessibility (WCAG compliant)
-- Smooth transitions between themes
+---
 
-### **Notifications**
-Notifications are enhanced to show:
-- **Course Code** and **Title**
-- **Venue Information** (instead of slot numbers)
-- **Time Information**
-- **Class Type** (Theory/Lab)
+## 🛠️ Technology Stack
 
-## 📊 Database Schema
+| Category | Technology |
+|---|---|
+| **Language** | Java 17 |
+| **Architecture** | MVVM, Repository Pattern, Clean Architecture |
+| **Local Database** | Android Room ORM (SQLite) |
+| **Reactive Programming** | RxJava3, RxAndroid |
+| **Design System** | Google Material Design 3 (Material Components) |
+| **Networking** | OkHttp3, Retrofit, Apache Commons IO |
+| **Security** | Android Jetpack Security (`EncryptedSharedPreferences`), Android Keystore |
+| **Background Processing** | Android Jetpack WorkManager, JobScheduler, Foreground Services |
+| **Push Notifications** | Firebase Cloud Messaging (FCM), Android NotificationManager |
+| **Widgets** | Android AppWidget framework, RemoteViewsService |
+| **Testing** | JUnit 4, AndroidX Test Runner, Robolectric |
+| **CI / CD** | GitHub Actions with Gradle Cache & automated GitHub Releases |
 
-### **Core Tables**
-- **Courses** - Course information with venue data
-- **Timetable** - Class schedules with venue mapping
-- **Attendance** - Attendance tracking
-- **Exams** - Exam schedules with venue details
-- **Marks** - Academic performance tracking
+---
 
-### **Key Features**
-- **Venue Integration** - All timetable queries include venue information
-- **Encrypted Storage** - Secure credential storage
-- **Offline Support** - Works without internet after initial sync
+## 📁 Repository Directory Structure
 
-## 🔒 Privacy & Security
+```
+StudentCC/
+├── .github/
+│   └── workflows/
+│       └── build.yml               # Automated CI/CD build, test & release workflow
+├── app/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── assets/             # On-device captcha model & static metadata
+│   │   │   ├── java/com/salmanmalvasi/studentcc/
+│   │   │   │   ├── activities/     # MainActivity, Analytics, Login, Themes
+│   │   │   │   ├── adapters/       # RecyclerView & list adapters
+│   │   │   │   ├── fragments/      # Home, Performance, GPA, Hostel, Calendar
+│   │   │   │   ├── helpers/        # Database, VTOP parser, FreshnessManager
+│   │   │   │   ├── models/         # Room entities & data transfer models
+│   │   │   │   ├── services/       # FCM messaging & background services
+│   │   │   │   ├── widgets/        # Timetable & Attendance AppWidgets, Heatmap
+│   │   │   │   └── workers/        # Scheduled WorkManager background tasks
+│   │   │   └── res/                # Layouts, vector drawables, themes, menus
+│   │   └── test/                   # Comprehensive unit tests
+│   ├── build.gradle                # App build configuration & dependencies
+│   ├── proguard-rules.pro          # R8 / ProGuard obfuscation rules
+│   └── studentcc.keystore          # Release signing keystore
+├── generate-config.sh              # Script to build google-services.json from env
+├── build.gradle                    # Root Gradle configuration
+├── settings.gradle                 # Module settings
+└── README.md                       # Project documentation
+```
 
-### **Data Protection**
-- **Local Storage** - All data stored locally on device
-- **Encrypted Credentials** - Login details encrypted using AES256
-- **No External Sharing** - Data never sent to external servers
-- **User Control** - Full control over data and settings
-- **No Privacy Policy Required** - App operates entirely offline after initial sync
+---
 
-### **Permissions**
-- **Internet** - For VTOP synchronization only
-- **Storage** - For downloading files and caching
-- **Notifications** - For class and exam reminders
+## 🚀 Building & Running Locally
 
-## 🚀 Performance
+### Prerequisites
+- **JDK 17** (Temurin, Corretto, or OpenJDK)
+- **Android Studio** (Hedgehog 2023.1.1 or newer recommended)
+- **Android SDK Platform 34** (installed via SDK Manager)
 
-### **Optimizations**
-- **Efficient Database Queries** - Optimized Room queries with venue data
-- **Memory Management** - Proper lifecycle management
-- **Network Optimization** - Smart caching and request handling
-- **UI Performance** - Smooth animations and transitions
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/Salmanmalvasi/StudentCC.git
+cd StudentCC
+```
 
-## 📈 Analytics
+### Step 2: Configure Environment Variables
+Copy the example environment configuration:
+```bash
+cp .env.example .env
+```
+*(Optional)* Populate `.env` with your Firebase project keys, or simply execute the generator script. If no variables are set, the generator automatically injects mock credentials for local compilation and unit tests:
+```bash
+chmod +x ./generate-config.sh
+./generate-config.sh
+```
 
-### **Firebase Integration**
-- User engagement tracking
-- Performance monitoring
-- Crash reporting
-- Feature usage analytics
+### Step 3: Run Unit Tests
+```bash
+./gradlew testDebugUnitTest
+```
 
-## 🤝 Contributing
+### Step 4: Build APK
+- **Debug Build:**
+  ```bash
+  ./gradlew assembleDebug
+  ```
+- **Signed Release Build:**
+  ```bash
+  ./gradlew assembleRelease
+  ```
+The signed release APK will be generated at `app/build/outputs/apk/release/app-release.apk`.
 
-### **Development Setup**
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+---
 
-### **Code Style**
-- Follow Android coding conventions
-- Use meaningful variable names
-- Add comments for complex logic
-- Maintain consistent formatting
+## 🔄 CI/CD Pipeline
+
+The project features a fully automated GitHub Actions pipeline ([`.github/workflows/build.yml`](.github/workflows/build.yml)):
+
+1. **Continuous Integration**:
+   - Triggers on every push to `main` and all Pull Requests.
+   - Sets up JDK 17 with automated Gradle caching for fast build times (~1 minute).
+   - Generates configuration files securely from repository secrets (`FIREBASE_API_KEY`, `FIREBASE_PROJECT_ID`, etc.).
+   - Runs full unit test suite (`./gradlew testDebugUnitTest`).
+   - Compiles and minifies the production bundle (`./gradlew assembleRelease`).
+
+2. **Automated Continuous Delivery**:
+   - On pushes to `main`, tags the commit with the app version (e.g., `v1.6.0`).
+   - Publishes a formal GitHub Release with release notes.
+   - Attaches `StudentCC.apk` and `about.json` directly to the release for over-the-air update availability.
+
+---
+
+## 🔒 Privacy & Security Commitment
+
+- **Zero External Data Transmission**: All academic data (marks, attendance, schedules) stays strictly on the student's device. No telemetry or server relays capture student credentials.
+- **Direct-to-Portal Communication**: Network interactions occur directly between the app and official VTOP servers over HTTPS.
+- **Encrypted Local Storage**: Session tokens and credentials stored on disk use AES-256 GCM encryption via Android Jetpack Security.
+- **Repository Hygiene**: Sensitive secrets, local keystore passwords, `.env` files, and binary APKs are strictly excluded from git tracking.
+
+---
+
+## 🤝 Partnerships & Credits
+
+- **Unmessify**: Special thanks to [Kanishka Chakraborty](https://github.com/Kanishka-Developer) and Teesha Saxena for open collaboration on the mess menu system ([kaffeine.tech/unmessify](https://kaffeine.tech/unmessify)).
+- **VIT Community**: Immense gratitude to the VIT student body for continuous testing, feedback, and feature requests.
+
+---
 
 ## 📄 License
 
-This project is licensed under the GNU General Public License (GPL) - see the [LICENSE](LICENSE) file for details.
-
-### **GPL License Features**
-- **Open Source** - Full source code available
-- **Freedom to Use** - Use the software for any purpose
-- **Freedom to Study** - Access to source code for learning
-- **Freedom to Share** - Distribute copies of the software
-- **Freedom to Modify** - Create derivative works
-
-### **License Requirements**
-- **Source Code** - Must provide source code when distributing
-- **License Notice** - Must include GPL license text
-- **Attribution** - Must credit original authors
-- **Derivative Works** - Must also be licensed under GPL
-
-## 👨‍💻 Developer
-
-**Salman Malvasi**
-- **GitHub**: [@Salmanmalvasi](https://github.com/Salmanmalvasi)
-- **Website**: [salmanmalvasi.github.io](https://salmanmalvasi.github.io)
-- **Email**: salmanmalvasi@gmail.com
-
-## 🤝 Collaboration & Partnerships
-
-### **Unmessify Integration - Hostel Mess Menu System**
-
-Special thanks to **Kanishka Chakraborty** and **Teesha Saxena** for opening up **Unmessify** to collaboration and contribution with the launch of **1.7.0**. Their amazing work on the mess menu system has been invaluable to the VIT student community.
-
-**Repository**: [https://github.com/Kanishka-Developer/unmessify](https://github.com/Kanishka-Developer/unmessify)
-
-**Example mess menu data** (Men's hostel Non-Veg, English): [https://kanishka-developer.github.io/unmessify/json/en/VITC-M-N.json](https://kanishka-developer.github.io/unmessify/json/en/VITC-M-N.json)
-
-We're grateful for their collaborative approach and encourage other developers to explore partnership opportunities!
-
-**Visit**: [kaffeine.tech/unmessify](https://kaffeine.tech/unmessify)
-
-## 🙏 Acknowledgments
-
-- **VIT Chennai** - For providing the VTOP platform
-- **Android Community** - For open-source libraries and tools
-- **Material Design** - For the design system
-- **VIT Students** - For feedback and testing
-
-## 📞 Support
-
-### **Getting Help**
-- **GitHub Issues** - Report bugs and request features
-- **Email Support** - salmanmalvasi@gmail.com
-- **Website** - [https://salmanmalvasi.github.io/studentcc-landing.html](https://salmanmalvasi.github.io/studentcc-landing.html)
-
-### **Feedback**
-Your feedback is crucial for improving StudentCC! Please:
-- 📝 Report bugs you encounter
-- 💡 Suggest new features
-- ⭐ Rate your experience
-- 🔄 Share ideas for improvements
+This project is open-source software licensed under the **GNU General Public License v3.0 (GPL-3.0)**. See the [LICENSE](LICENSE) file for the full license text.
 
 ---
 
 <div align="center">
-  <p><strong>StudentCC</strong> - Made with ❤️ for VIT Students</p>
-  <p><em>Enhanced Version 1.4.1 - Attendance upgrades, faculty favourites, and lab precision</em></p>
+  <p>Crafted with ❤️ for the student community by <strong>Salman Malvasi</strong></p>
+  <p>
+    <a href="https://github.com/Salmanmalvasi">GitHub</a> • 
+    <a href="https://salmanmalvasi.github.io">Website</a> • 
+    <a href="mailto:salmanmalvasi@gmail.com">Email</a>
+  </p>
 </div>

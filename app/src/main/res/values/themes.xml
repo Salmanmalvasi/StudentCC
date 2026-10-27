@@ -41,7 +41,7 @@
         <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
-        <item name="android:fontFamily">@font/rubik</item>
+        <item name="android:fontFamily">@font/outfit</item>
 
         <!-- Enhanced Attendance Colors -->
         <item name="attendance_percentage_text_color">#1A1C1E</item>
@@ -89,7 +89,7 @@
         <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
-        <item name="android:fontFamily">@font/rubik</item>
+        <item name="android:fontFamily">@font/outfit</item>
 
         <!-- Red Theme Attendance Colors -->
         <item name="attendance_percentage_text_color">@color/colorPrimaryRed</item>
@@ -124,7 +124,7 @@
         <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
-        <item name="android:fontFamily">@font/rubik</item>
+        <item name="android:fontFamily">@font/outfit</item>
         <item name="android:windowBackground">@color/colorBackgroundBlue</item>
 
         <!-- Blue Theme Attendance Colors -->
@@ -160,7 +160,7 @@
         <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
-        <item name="android:fontFamily">@font/rubik</item>
+        <item name="android:fontFamily">@font/outfit</item>
         <item name="android:windowBackground">@color/colorBackgroundPurple</item>
 
         <!-- Purple Theme Attendance Colors -->
@@ -196,7 +196,7 @@
         <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
-        <item name="android:fontFamily">@font/rubik</item>
+        <item name="android:fontFamily">@font/outfit</item>
         <item name="android:windowBackground">@color/colorBackgroundGreen</item>
 
         <!-- Green Theme Attendance Colors -->
@@ -218,8 +218,8 @@
         <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainerBlack</item>
         <item name="colorSurface">@color/colorSurfaceBlack</item>
         <item name="colorOnSurface">@color/colorOnSurfaceBlack</item>
-        <item name="colorSurfaceVariant">@color/colorSecondaryContainerBlack</item>
-        <item name="colorOnSurfaceVariant">@color/colorOnSecondaryContainerBlack</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariantBlack</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariantBlack</item>
         <item name="colorError">@color/colorError</item>
         <item name="colorOnError">@color/colorOnError</item>
         <item name="colorErrorContainer">@color/colorErrorContainer</item>
@@ -227,17 +227,17 @@
         <item name="colorOutline">@color/colorOutline</item>
         <item name="colorOutlineVariant">@color/colorOutlineVariant</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
         <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
-        <item name="android:fontFamily">@font/rubik</item>
+        <item name="android:fontFamily">@font/outfit</item>
         <item name="android:windowBackground">@color/colorBackgroundBlack</item>
 
         <!-- Black Theme Attendance Colors -->
-        <item name="attendance_percentage_text_color">@color/colorSecondaryBlack</item>
-        <item name="attendance_subtext_color">@color/colorSecondaryBlack</item>
+        <item name="attendance_percentage_text_color">@color/colorOnSurfaceBlack</item>
+        <item name="attendance_subtext_color">@color/colorOnSurfaceVariantBlack</item>
         <item name="attendance_day_text_color">@color/colorPrimaryBlack</item>
     </style>
 
