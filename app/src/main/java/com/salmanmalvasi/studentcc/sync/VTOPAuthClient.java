@@ -35,6 +35,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.ByteString;
 
 /**
  * Isolated Native REST Authentication Client for VTOP (vtopcc5.vit.ac.in).
@@ -1486,7 +1487,7 @@ public final class VTOPAuthClient {
             // Academic response payload processing:
             // Official backend returns AES-encrypted Base64 string for studentRegisteredCourse.
             String cleanAcadBody = acadBody.trim();
-            if (cleanAcadBody.startsWith("﻿")) {
+            if (cleanAcadBody.startsWith("\uFEFF")) {
                 cleanAcadBody = cleanAcadBody.substring(1).trim();
             }
 
@@ -1494,7 +1495,7 @@ public final class VTOPAuthClient {
             if (cleanAcadBody.matches("^[A-Za-z0-9+/=_-]{20,}$")) {
                 try {
                     String decrypted = decryptAes(cleanAcadBody).trim();
-                    if (decrypted.startsWith("﻿")) {
+                    if (decrypted.startsWith("\uFEFF")) {
                         decrypted = decrypted.substring(1).trim();
                     }
                     if (decrypted.startsWith("{") || decrypted.startsWith("[")) {
@@ -1987,26 +1988,14 @@ public final class VTOPAuthClient {
 
     public static byte[] decodeBase64(String input) {
         if (input == null) return new byte[0];
-        try {
-            if (Build.VERSION.SDK_INT >= 26) {
-                return java.util.Base64.getDecoder().decode(input.trim());
-            }
-            byte[] res = android.util.Base64.decode(input, android.util.Base64.DEFAULT);
-            if (res != null && res.length > 0) return res;
-        } catch (Throwable ignored) {}
-        return java.util.Base64.getDecoder().decode(input.trim());
+        ByteString decoded = ByteString.decodeBase64(input.trim());
+        if (decoded == null) throw new IllegalArgumentException("Invalid Base64 input");
+        return decoded.toByteArray();
     }
 
     public static String encodeBase64(byte[] input) {
         if (input == null || input.length == 0) return "";
-        try {
-            if (Build.VERSION.SDK_INT >= 26) {
-                return java.util.Base64.getEncoder().encodeToString(input);
-            }
-            String res = android.util.Base64.encodeToString(input, android.util.Base64.NO_WRAP);
-            if (res != null && !res.isEmpty()) return res;
-        } catch (Throwable ignored) {}
-        return java.util.Base64.getEncoder().encodeToString(input);
+        return ByteString.of(input).base64();
     }
 
     private static void probeSecondaryAcademicEndpoints(

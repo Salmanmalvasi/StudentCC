@@ -41,6 +41,8 @@ public class ViewPagerFragment extends Fragment {
     AppDatabase appDatabase;
     TabLayout tabLayout;
     ViewPager2 viewPager;
+    private Disposable examRequest;
+    private TabLayoutMediator examTabMediator;
 
     public ViewPagerFragment() {
         // Required empty public constructor
@@ -115,6 +117,11 @@ public class ViewPagerFragment extends Fragment {
     }
 
     private void attachExams() {
+        if (examRequest != null) examRequest.dispose();
+        if (examTabMediator != null) {
+            examTabMediator.detach();
+            examTabMediator = null;
+        }
         ExamsDao examsDao = this.appDatabase.examsDao();
         float pixelDensity = this.getResources().getDisplayMetrics().density;
 
@@ -125,38 +132,39 @@ public class ViewPagerFragment extends Fragment {
                 .subscribe(new SingleObserver<List<String>>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
+                        examRequest = d;
                     }
 
                     @Override
                     public void onSuccess(@NonNull List<String> examTitles) {
+                        if (getView() == null) return;
                         if (examTitles.size() == 0) {
                             displayEmptyState(EmptyStateAdapter.TYPE_NO_DATA,
-                                    "No Exam Schedule on VTOP Yet\n\nVIT releases personal exam timetables & seating allotments 1–2 weeks before CAT/FAT exams.\n\nCheck the Academic Calendar for tentative commencement dates.",
+                                    getString(R.string.exam_schedule_empty),
                                     new EmptyStateAdapter.ButtonAttributes() {
                                         @Override
                                         public void onClick() {
                                             if (getActivity() != null) {
-                                                getParentFragmentManager().beginTransaction()
-                                                        .replace(R.id.frame_layout_fragment_container, new CalendarFragment())
-                                                        .addToBackStack(null)
-                                                        .commit();
+                                                getParentFragmentManager().setFragmentResult("syncData", new Bundle());
                                             }
                                         }
 
                                         @Override
                                         public int getButtonTextId() {
-                                            return R.string.calendar;
+                                            return R.string.exam_schedule_sync;
                                         }
                                     });
                             return;
                         }
 
+                        tabLayout.setVisibility(View.VISIBLE);
                         viewPager.setAdapter(new ExamsAdapter(examTitles));
 
-                        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+                        examTabMediator = new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                             tab.setText(examTitles.get(position));
                             TooltipCompat.setTooltipText(tab.view, null);
-                        }).attach();
+                        });
+                        examTabMediator.attach();
 
                         // This is required to set the tooltip text again since it gets reset to the tab's text
                         for (int i = 0; i < tabLayout.getTabCount(); ++i) {
@@ -369,6 +377,10 @@ public class ViewPagerFragment extends Fragment {
                 break;
             case TYPE_EXAMS:
                 this.attachExams();
+                getParentFragmentManager().setFragmentResultListener("dataUpdated", getViewLifecycleOwner(),
+                        (requestKey, result) -> {
+                            if (getView() != null) attachExams();
+                        });
                 break;
             case TYPE_STAFF:
                 this.attachStaff();
@@ -380,6 +392,11 @@ public class ViewPagerFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
+        if (examRequest != null) examRequest.dispose();
+        if (examTabMediator != null) {
+            examTabMediator.detach();
+            examTabMediator = null;
+        }
         super.onDestroyView();
 
         Bundle bottomNavigationVisibility = new Bundle();

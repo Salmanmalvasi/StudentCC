@@ -41,6 +41,12 @@ public interface CoursesDao {
     @Query("SELECT * FROM courses")
     Single<List<Course>> getAllCourses();
 
+    @Query("UPDATE courses SET vtop_class_id = :classId, semester_id = :semesterId WHERE id = :courseId")
+    Completable updateVtopClass(int courseId, String classId, String semesterId);
+
+    @Query("UPDATE courses SET vtop_class_id = :classId, semester_id = :semesterId, course_system = :courseSystem WHERE id = :courseId")
+    Completable updateVtopMetadata(int courseId, String classId, String semesterId, String courseSystem);
+
     @Query("SELECT * FROM slots")
     Single<List<Slot>> getAllSlots();
 }

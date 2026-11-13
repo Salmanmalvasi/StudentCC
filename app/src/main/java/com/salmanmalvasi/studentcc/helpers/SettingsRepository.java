@@ -77,6 +77,7 @@ public class SettingsRepository {
     public static final String GITHUB_FEATURE_URL = GITHUB_BASE_URL + "/issues";
     public static final String GITHUB_ISSUE_URL = GITHUB_BASE_URL + "/issues";
     public static final String ABOUT_JSON_URL = GITHUB_BASE_URL + "/releases/latest/download/about.json";
+    public static final String GITHUB_LATEST_RELEASE_URL = "https://api.github.com/repos/Salmanmalvasi/StudentCC/releases/latest";
     public static final String DEFAULT_APK_URL = GITHUB_BASE_URL + "/releases/latest/download/StudentCC.apk";
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
@@ -246,7 +247,24 @@ public class SettingsRepository {
     public static Observable<JSONObject> fetchAboutJson(boolean useVersion) {
         return Observable.fromCallable(() -> {
                     try {
-                        JSONObject about = downloadJson(ABOUT_JSON_URL);
+                        JSONObject about;
+                        if (useVersion) {
+                            try {
+                                JSONObject release = downloadJson(GITHUB_LATEST_RELEASE_URL);
+                                String metadataUrl = GitHubReleaseMetadata.aboutAssetUrl(release);
+                                JSONObject metadata = null;
+                                if (!metadataUrl.isEmpty()) {
+                                    try { metadata = downloadJson(metadataUrl); } catch (Exception ignored) {}
+                                }
+                                about = GitHubReleaseMetadata.fromRelease(release, metadata);
+                            } catch (Exception unavailable) {
+                                // Keep older releases and GitHub API rate limiting compatible.
+                                about = downloadJson(ABOUT_JSON_URL);
+                            }
+                        } else {
+                            about = downloadJson(ABOUT_JSON_URL);
+                        }
+                        if (!about.has("authorisedUserAgent")) about.put("authorisedUserAgent", DEFAULT_USER_AGENT);
                         cacheAboutJson(about);
                         return about;
                     } catch (Exception ignored) {
@@ -262,6 +280,9 @@ public class SettingsRepository {
         connection.setConnectTimeout(10000);
         connection.setReadTimeout(10000);
         connection.setRequestProperty("Accept", "application/json");
+        connection.setRequestProperty("User-Agent", "StudentCC/" + BuildConfig.VERSION_NAME);
+        connection.setRequestProperty("Cache-Control", "no-cache");
+        connection.setUseCaches(false);
         connection.setInstanceFollowRedirects(true);
 
         try (InputStream inputStream = connection.getInputStream();
@@ -273,14 +294,7 @@ public class SettingsRepository {
                 response.append(buffer, 0, read);
             }
 
-            JSONObject json = new JSONObject(response.toString());
-            if (!json.has("authorisedUserAgent")) {
-                json.put("authorisedUserAgent", DEFAULT_USER_AGENT);
-            }
-            if (!json.has("downloadUrl")) {
-                json.put("downloadUrl", DEFAULT_APK_URL);
-            }
-            return json;
+            return new JSONObject(response.toString());
         } finally {
             connection.disconnect();
         }
@@ -293,10 +307,13 @@ public class SettingsRepository {
         }
 
         SharedPreferences prefs = getSharedPreferences(context);
-        prefs.edit()
-                .putString("about_download_url", about.optString("downloadUrl", DEFAULT_APK_URL))
-                .putString("about_authorised_user_agent", about.optString("authorisedUserAgent", DEFAULT_USER_AGENT))
-                .apply();
+        SharedPreferences.Editor editor = prefs.edit()
+                .putString("about_authorised_user_agent", about.optString("authorisedUserAgent", DEFAULT_USER_AGENT));
+        if (GitHubReleaseMetadata.isTrustedApkUrl(about.optString("downloadUrl"))) {
+            editor.putString("about_download_url", about.optString("downloadUrl"))
+                    .putString("about_apk_sha256", about.optString("sha256", ""));
+        }
+        editor.apply();
     }
 
     public static void openDownloadPage(Context context) {
@@ -306,20 +323,7 @@ public class SettingsRepository {
     }
 
     public static void downloadApkUpdate(Context context, String url) {
-        Toast.makeText(context, context.getString(R.string.downloading_update), Toast.LENGTH_SHORT).show();
-
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        request.setTitle(context.getString(R.string.app_name));
-        request.setDescription(context.getString(R.string.downloading_update));
-        request.setMimeType("application/vnd.android.package-archive");
-        request.setNotificationVisibility(
-                DownloadManager.Request.VISIBILITY_VISIBLE | DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "StudentCC-update.apk");
-
-        DownloadManager downloadManager = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
-        if (downloadManager != null) {
-            downloadManager.enqueue(request);
-        }
+        ApkUpdateManager.download(context, url, getSharedPreferences(context).getString("about_apk_sha256", ""));
     }
 
     public static void openRecyclerViewFragment(FragmentActivity fragmentActivity, int titleId, int contentType) {

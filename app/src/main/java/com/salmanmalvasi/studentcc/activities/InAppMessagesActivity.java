@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -51,8 +52,8 @@ public class InAppMessagesActivity extends AppCompatActivity {
         loadMessages();
 
         // Register broadcast receiver
-    IntentFilter filter = new IntentFilter("NEW_IN_APP_MESSAGE");
-    registerReceiver(messageReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        IntentFilter filter = new IntentFilter("NEW_IN_APP_MESSAGE");
+        ContextCompat.registerReceiver(this, messageReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     @Override

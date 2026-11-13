@@ -2,19 +2,25 @@ name: Build Release APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 'codex/**' ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: studentcc-release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
 
     - name: Set up JDK 17
       uses: actions/setup-java@v5
@@ -23,15 +29,83 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
+    - name: Create test Firebase configuration
+      run: |
+        chmod +x ./generate-config.sh ./gradlew
+        ./generate-config.sh --mock
+
+    - name: Run unit tests and build debug APK
+      run: ./gradlew testDebugUnitTest assembleDebug --console=plain
+
+  release:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v5
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'gradle'
 
     - name: Extract version info
       run: |
-        VERSION_CODE=$(grep 'versionCode' app/build.gradle | head -1 | awk '{print $2}')
-        VERSION_NAME=$(grep 'versionName' app/build.gradle | head -1 | awk '{print $2}' | tr -d '"')
-        echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
-        echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+        python3 - <<'PY'
+        import os, pathlib, re
+        source = pathlib.Path('app/build.gradle').read_text()
+        code = re.search(r'^\s*versionCode\s+(\d+)\s*$', source, re.M)
+        name = re.search(r'^\s*versionName\s+"(\d+\.\d+\.\d+)"\s*$', source, re.M)
+        if not code or not name:
+            raise SystemExit('Set an integer versionCode and a numeric x.y.z versionName in app/build.gradle')
+        with open(os.environ['GITHUB_ENV'], 'a') as output:
+            output.write(f'VERSION_CODE={code[1]}\nVERSION_NAME={name[1]}\nRELEASE_TAG=v{name[1]}\n')
+        PY
 
-    - name: Create google-services.json
+    - name: Verify new release version
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        python3 - <<'PY'
+        import json, os, urllib.error, urllib.request
+        repo, tag = os.environ['GITHUB_REPOSITORY'], os.environ['RELEASE_TAG']
+        headers = {'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json', 'User-Agent': 'StudentCC-release'}
+        def api(path):
+            try:
+                with urllib.request.urlopen(urllib.request.Request('https://api.github.com/repos/' + repo + path, headers=headers), timeout=30) as response:
+                    return json.load(response)
+            except urllib.error.HTTPError as error:
+                if error.code == 404:
+                    return None
+                raise
+        existing = api('/git/ref/tags/' + tag)
+        publish = existing is None
+        if not publish:
+            print(f'{tag} already exists; building an artifact without replacing that release. Bump both app versions to publish a new update.')
+        else:
+            latest = api('/releases/latest')
+            if latest:
+                about_asset = next((a for a in latest.get('assets', []) if a['name'] == 'about.json'), None)
+                if about_asset:
+                    with urllib.request.urlopen(about_asset['browser_download_url'], timeout=30) as response:
+                        current = json.load(response)
+                    if int(os.environ['VERSION_CODE']) <= int(current['versionCode']):
+                        raise SystemExit('versionCode must be greater than the latest published APK versionCode')
+                import re
+                old = latest['tag_name'].lstrip('vV')
+                if re.fullmatch(r'\d+\.\d+\.\d+', old) and tuple(map(int, os.environ['VERSION_NAME'].split('.'))) <= tuple(map(int, old.split('.'))):
+                    raise SystemExit('versionName must be newer than the latest published stable release')
+        with open(os.environ['GITHUB_ENV'], 'a') as output:
+            output.write('PUBLISH_RELEASE=' + str(publish).lower() + '\n')
+        PY
+
+    - name: Create production Firebase configuration
       env:
         FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
         FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
@@ -40,22 +114,66 @@ jobs:
         FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
       run: |
         chmod +x ./generate-config.sh
-        ./generate-config.sh
+        ./generate-config.sh --require-production
+
+    - name: Restore release signing key
+      env:
+        ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      run: |
+        python3 - <<'PY'
+        import base64, os, pathlib
+        required = ('ANDROID_KEYSTORE_BASE64', 'ANDROID_KEYSTORE_PASSWORD', 'ANDROID_KEY_ALIAS', 'ANDROID_KEY_PASSWORD')
+        missing = [name for name in required if not os.environ.get(name)]
+        if missing:
+            raise SystemExit('Configure release signing secrets: ' + ', '.join(missing))
+        encoded = ''.join(os.environ['ANDROID_KEYSTORE_BASE64'].split())
+        try:
+            contents = base64.b64decode(encoded, validate=True)
+        except ValueError:
+            raise SystemExit('ANDROID_KEYSTORE_BASE64 must contain a valid Base64 keystore')
+        if not contents:
+            raise SystemExit('The release keystore cannot be empty')
+        key = pathlib.Path(os.environ['RUNNER_TEMP']) / 'studentcc-release.keystore'
+        key.write_bytes(contents)
+        key.chmod(0o600)
+        with open(os.environ['GITHUB_ENV'], 'a') as output:
+            output.write('STUDENTCC_KEYSTORE_PATH=' + str(key) + '\n')
+        PY
 
     - name: Make gradlew executable
       run: chmod +x ./gradlew
 
-    - name: Run Unit Tests
-      run: ./gradlew testDebugUnitTest
-
     - name: Build Release APK
-      run: ./gradlew assembleRelease
+      env:
+        STUDENTCC_STATS_BASE_URL: ${{ vars.STUDENTCC_STATS_BASE_URL }}
+        STUDENTCC_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        STUDENTCC_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        STUDENTCC_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      run: ./gradlew assembleRelease -PstudentccStatsBaseUrl="$STUDENTCC_STATS_BASE_URL"
 
     - name: Prepare release assets
       run: |
-        APK_PATH=$(ls app/build/outputs/apk/release/*.apk | head -1)
-        cp "$APK_PATH" "app/build/outputs/apk/release/StudentCC.apk"
-        python3 -c "import os, json; json.dump({'versionCode': int(os.environ['VERSION_CODE']), 'versionName': os.environ['VERSION_NAME'], 'tagName': 'v' + os.environ['VERSION_NAME'], 'releaseNotes': 'StudentCC v' + os.environ['VERSION_NAME'] + ' — see GitHub release notes for details.', 'downloadUrl': 'https://github.com/Salmanmalvasi/StudentCC/releases/latest/download/StudentCC.apk', 'authorisedUserAgent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'}, open('about.json', 'w'), indent=2)"
+        cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/StudentCC.apk
+        python3 - <<'PY'
+        import hashlib, json, os, pathlib
+        apk = pathlib.Path('app/build/outputs/apk/release/StudentCC.apk')
+        checksum = hashlib.sha256(apk.read_bytes()).hexdigest()
+        tag = os.environ['RELEASE_TAG']
+        metadata = {
+            'versionCode': int(os.environ['VERSION_CODE']),
+            'versionName': os.environ['VERSION_NAME'],
+            'tagName': tag,
+            'releaseNotes': f'StudentCC {tag} — see the GitHub release for the full release notes.',
+            'downloadUrl': f'https://github.com/{os.environ["GITHUB_REPOSITORY"]}/releases/download/{tag}/StudentCC.apk',
+            'sha256': checksum,
+            'authorisedUserAgent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'
+        }
+        pathlib.Path('about.json').write_text(json.dumps(metadata, indent=2) + '\n')
+        pathlib.Path('StudentCC.apk.sha256').write_text(checksum + '  StudentCC.apk\n')
+        PY
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
@@ -64,18 +182,29 @@ jobs:
         path: |
           app/build/outputs/apk/release/StudentCC.apk
           about.json
+          StudentCC.apk.sha256
 
     - name: Create Release
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      if: env.PUBLISH_RELEASE == 'true'
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v${{ env.VERSION_NAME }}
+        tag_name: ${{ env.RELEASE_TAG }}
         name: StudentCC v${{ env.VERSION_NAME }}
         files: |
           app/build/outputs/apk/release/StudentCC.apk
           about.json
+          StudentCC.apk.sha256
         generate_release_notes: true
+        make_latest: true
         draft: false
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Remove temporary signing key
+      if: always()
+      run: |
+        python3 - <<'PY'
+        import os, pathlib
+        (pathlib.Path(os.environ['RUNNER_TEMP']) / 'studentcc-release.keystore').unlink(missing_ok=True)
+        PY

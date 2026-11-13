@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
@@ -129,7 +130,6 @@
         <receiver android:name=".receivers.ExamNotificationReceiver" />
         <receiver android:name=".receivers.TimetableNotificationReceiver" />
         <receiver android:name=".receivers.LaundryNotificationReceiver" />
-        <receiver android:name=".receivers.LaundryTomorrowNotificationReceiver" />
         <receiver
             android:name=".receivers.BootReceiver"
             android:exported="true">

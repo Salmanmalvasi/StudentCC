@@ -6,354 +6,199 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
-
-import java.util.List;
-
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.SingleObserver;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import com.salmanmalvasi.studentcc.R;
 import com.salmanmalvasi.studentcc.adapters.EmptyStateAdapter;
 import com.salmanmalvasi.studentcc.adapters.MarksAccordionAdapter;
 import com.salmanmalvasi.studentcc.helpers.AppDatabase;
-import com.salmanmalvasi.studentcc.helpers.RelativePerformanceCalculator;
-import com.salmanmalvasi.studentcc.interfaces.ClassStatsDao;
 import com.salmanmalvasi.studentcc.interfaces.MarksDao;
-import com.salmanmalvasi.studentcc.models.ClassStats;
 import com.salmanmalvasi.studentcc.models.Course;
 import com.salmanmalvasi.studentcc.models.CumulativeMark;
 import com.salmanmalvasi.studentcc.models.Mark;
-import com.salmanmalvasi.studentcc.widgets.PerformanceCard;
+import com.salmanmalvasi.studentcc.sync.DataFreshnessManager;
+import com.salmanmalvasi.studentcc.sync.LocalCacheMetrics;
 
+import java.util.List;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
+/** Local marks appear immediately; independent statistics pools load only for expanded courses. */
 public class PerformanceFragment extends Fragment {
-    private FirebaseAnalytics mFirebaseAnalytics;
-    AppBarLayout appBarLayout;
-    RecyclerView marksRecycler;
-    List<Course.AllData> courses;
-    MarksAccordionAdapter marksAccordionAdapter;
-    int selectedCoursePosition = -1;
-    View activePerformanceCardsRoot;
+    private final CompositeDisposable viewSubscriptions = new CompositeDisposable();
+    private FirebaseAnalytics analytics;
+    private AppBarLayout appBarLayout;
+    private RecyclerView marksRecycler;
+    private TextView screenSummary;
+    private TextView lastUpdated;
+    private MarksAccordionAdapter marksAdapter;
+    private RecyclerView.Adapter<?> contentAdapter;
+    private MarksDao marksDao;
+    private Disposable marksRequest;
 
-    public PerformanceFragment() {
-        // Required empty public constructor
-    }
-
-    private void displayEmptyState(int type, String message) {
-        this.marksRecycler.setAdapter(new EmptyStateAdapter(type, message));
-        this.marksRecycler.setOverScrollMode(View.OVER_SCROLL_NEVER);
-
-        CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) this.appBarLayout.getLayoutParams();
-        AppBarLayout.Behavior behavior = (AppBarLayout.Behavior) layoutParams.getBehavior();
-
-        if (behavior != null) {
-            behavior.setDragCallback(new AppBarLayout.Behavior.DragCallback() {
-                @Override
-                public boolean canDrag(@androidx.annotation.NonNull AppBarLayout appBarLayout) {
-                    return false;
-                }
-            });
-        }
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_performance, container, false);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(requireContext());
-        View performanceFragment = inflater.inflate(R.layout.fragment_performance, container, false);
-
-        this.appBarLayout = performanceFragment.findViewById(R.id.app_bar);
-        this.marksRecycler = performanceFragment.findViewById(R.id.recycler_view_marks);
-        this.marksRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
-        LinearLayout header = performanceFragment.findViewById(R.id.linear_layout_header);
-
-        com.google.android.material.button.MaterialButton helpButton = performanceFragment.findViewById(R.id.marks_help_button);
-        if (helpButton != null) {
-            helpButton.setOnClickListener(v -> showMarksHelpDialog());
-        }
-
-        float pixelDensity = this.getResources().getDisplayMetrics().density;
-
-        getParentFragmentManager().setFragmentResultListener("customInsets", this, (requestKey, result) -> {
-            int systemWindowInsetLeft = result.getInt("systemWindowInsetLeft");
-            int systemWindowInsetTop = result.getInt("systemWindowInsetTop");
-            int systemWindowInsetRight = result.getInt("systemWindowInsetRight");
-            int bottomNavigationHeight = result.getInt("bottomNavigationHeight");
-
-            this.appBarLayout.setPadding(
-                    systemWindowInsetLeft,
-                    systemWindowInsetTop,
-                    systemWindowInsetRight,
-                    0
-            );
-
-            this.marksRecycler.setPadding(
-                    systemWindowInsetLeft,
-                    0,
-                    systemWindowInsetRight,
-                    (int) (bottomNavigationHeight + 20 * pixelDensity)
-            );
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        analytics = FirebaseAnalytics.getInstance(requireContext());
+        appBarLayout = view.findViewById(R.id.app_bar);
+        marksRecycler = view.findViewById(R.id.recycler_view_marks);
+        screenSummary = view.findViewById(R.id.text_view_marks_summary);
+        lastUpdated = view.findViewById(R.id.text_view_marks_last_updated);
+        LinearLayout header = view.findViewById(R.id.linear_layout_header);
+        marksRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
+        marksRecycler.setItemAnimator(null);
+        view.findViewById(R.id.marks_help_button).setOnClickListener(v -> showMarksHelpDialog());
+        float density = getResources().getDisplayMetrics().density;
+        getParentFragmentManager().setFragmentResultListener("customInsets", getViewLifecycleOwner(), (key, result) -> {
+            appBarLayout.setPadding(result.getInt("systemWindowInsetLeft"), result.getInt("systemWindowInsetTop"),
+                    result.getInt("systemWindowInsetRight"), 0);
+            marksRecycler.setPadding(result.getInt("systemWindowInsetLeft"), 0,
+                    result.getInt("systemWindowInsetRight"), (int) (result.getInt("bottomNavigationHeight") + 20 * density));
         });
-
-        this.appBarLayout.addOnOffsetChangedListener((appBarLayout1, verticalOffset) -> {
-            float alpha = 1 - ((float) (-1 * verticalOffset) / header.getHeight());
-            header.setAlpha(alpha);
+        appBarLayout.addOnOffsetChangedListener((bar, offset) -> {
+            if (header.getHeight() > 0) header.setAlpha(Math.max(0, 1f + (float) offset / header.getHeight()));
         });
-
-        AppDatabase appDatabase = AppDatabase.getInstance(requireActivity().getApplicationContext());
-        MarksDao marksDao = appDatabase.marksDao();
-
-        marksAccordionAdapter = new MarksAccordionAdapter();
-        marksAccordionAdapter.setOnCourseExpandListener((course, position, performanceCardsRoot) -> {
-            selectedCoursePosition = position;
-            activePerformanceCardsRoot = performanceCardsRoot;
-            markCourseAsRead(marksDao, course);
+        marksDao = AppDatabase.getInstance(requireContext().getApplicationContext()).marksDao();
+        marksAdapter = new MarksAccordionAdapter();
+        marksAdapter.setOnCourseExpandListener((course, displayedMarks) -> {
+            markCourseAsRead(course, displayedMarks);
             Bundle bundle = new Bundle();
             bundle.putString(FirebaseAnalytics.Param.ITEM_ID, course.courseCode);
-            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
-            updateCumulativeCards(performanceCardsRoot, marksDao, course.courseCode, position);
+            analytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
         });
-        marksRecycler.setAdapter(marksAccordionAdapter);
-
-        TextView marksLastUpdated = performanceFragment.findViewById(R.id.text_view_marks_last_updated);
-        updateMarksLastUpdatedIndicator(marksLastUpdated);
-
-        getParentFragmentManager().setFragmentResultListener("dataUpdated", this, (requestKey, result) -> {
-            if (isAdded()) {
-                loadMarksData(marksDao);
-                updateMarksLastUpdatedIndicator(marksLastUpdated);
-            }
+        contentAdapter = marksAdapter;
+        marksRecycler.setAdapter(marksAdapter);
+        getParentFragmentManager().setFragmentResultListener("dataUpdated", getViewLifecycleOwner(), (key, result) -> {
+            loadMarksData();
+            updateLastUpdated();
         });
-
-        long startNs = System.currentTimeMillis();
-        loadMarksData(marksDao);
-        com.salmanmalvasi.studentcc.sync.LocalCacheMetrics.getInstance()
-                .recordScreenOpen("PerformanceFragment", System.currentTimeMillis() - startNs, true);
-        return performanceFragment;
+        updateLastUpdated();
+        loadMarksData();
     }
 
-    private void updateMarksLastUpdatedIndicator(android.widget.TextView textView) {
-        if (textView == null || getContext() == null) return;
-        String formatted = com.salmanmalvasi.studentcc.sync.DataFreshnessManager.getInstance()
-                .getFormattedLastUpdated(requireContext(), com.salmanmalvasi.studentcc.sync.DataFreshnessManager.DATASET_MARKS);
-        if (!"Not updated yet".equals(formatted)) {
-            textView.setText(formatted);
-            textView.setVisibility(View.VISIBLE);
+    private void loadMarksData() {
+        if (marksRecycler == null) return;
+        if (marksRequest != null) {
+            viewSubscriptions.remove(marksRequest);
+            marksRequest = null;
+        }
+        long openedAt = System.currentTimeMillis();
+        marksRequest = Single.zip(marksDao.getCourses(), marksDao.getAllMarks(), marksDao.getAllCumulativeMarks(),
+                        MarksSnapshot::new)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(snapshot -> {
+                    if (marksRecycler == null) return;
+                    screenSummary.setText(getString(R.string.marks_screen_summary, snapshot.courses.size(), snapshot.marks.size()));
+                    screenSummary.setVisibility(snapshot.marks.isEmpty() ? View.GONE : View.VISIBLE);
+                    if (snapshot.marks.isEmpty()) {
+                        showContent(emptyState(EmptyStateAdapter.TYPE_NO_PERFORMANCE,
+                                getString(R.string.marks_screen_empty), null));
+                        return;
+                    }
+                    marksAdapter.setMarks(snapshot.marks, snapshot.courses, snapshot.cumulativeMarks);
+                    showContent(marksAdapter);
+                    LocalCacheMetrics.getInstance().recordScreenOpen("PerformanceFragment", System.currentTimeMillis() - openedAt, true);
+                }, error -> {
+                    if (marksRecycler == null) return;
+                    screenSummary.setVisibility(View.GONE);
+                    showContent(emptyState(EmptyStateAdapter.TYPE_ERROR,
+                            getString(R.string.marks_screen_error), new EmptyStateAdapter.ButtonAttributes() {
+                        @Override public void onClick() { loadMarksData(); }
+                        @Override public int getButtonTextId() { return R.string.marks_retry; }
+                    }));
+                });
+        viewSubscriptions.add(marksRequest);
+    }
+
+    private void updateLastUpdated() {
+        if (lastUpdated == null || getContext() == null) return;
+        String formatted = DataFreshnessManager.getInstance().getFormattedLastUpdated(requireContext(), DataFreshnessManager.DATASET_MARKS);
+        if ("Not updated yet".equals(formatted)) {
+            lastUpdated.setVisibility(View.GONE);
         } else {
-            textView.setVisibility(View.GONE);
+            lastUpdated.setText(formatted);
+            lastUpdated.setVisibility(View.VISIBLE);
         }
     }
 
-    private void loadMarksData(MarksDao marksDao) {
-        io.reactivex.rxjava3.core.Single.zip(
-                marksDao.getCourses(),
-                marksDao.getAllMarks(),
-                (courseList, allMarks) -> new Object[]{courseList, allMarks})
-                .subscribeOn(Schedulers.single())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<Object[]>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                    }
+    private void showContent(RecyclerView.Adapter<?> adapter) {
+        if (marksRecycler == null || contentAdapter == adapter) return;
+        marksRecycler.setAdapter(adapter);
+        contentAdapter = adapter;
+    }
 
-                    @Override
-                    public void onSuccess(@NonNull Object[] result) {
-                        @SuppressWarnings("unchecked")
-                        List<Course.AllData> courseList = (List<Course.AllData>) result[0];
-                        @SuppressWarnings("unchecked")
-                        List<Mark.AllData> allMarks = (List<Mark.AllData>) result[1];
-
-                        PerformanceFragment.this.courses = courseList;
-                        if (courseList.isEmpty()) {
-                            displayEmptyState(EmptyStateAdapter.TYPE_NO_PERFORMANCE, null);
-                            return;
-                        }
-
-                        marksAccordionAdapter.setMarks(allMarks, courseList);
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        displayEmptyState(EmptyStateAdapter.TYPE_ERROR, "Error: " + e.getLocalizedMessage());
-                    }
-                });
+    private EmptyStateAdapter emptyState(int type, String text, EmptyStateAdapter.ButtonAttributes action) {
+        EmptyStateAdapter adapter = new EmptyStateAdapter(type, text, action) {
+            @Override public long getItemId(int position) { return 0; }
+        };
+        adapter.setHasStableIds(true);
+        return adapter;
     }
 
     public void refreshPerformanceDisplay() {
-        if (activePerformanceCardsRoot != null
-                && courses != null
-                && selectedCoursePosition >= 0
-                && selectedCoursePosition < courses.size()) {
-            Course.AllData course = courses.get(selectedCoursePosition);
-            MarksDao marksDao = AppDatabase.getInstance(requireContext()).marksDao();
-            updateCumulativeCards(activePerformanceCardsRoot, marksDao, course.courseCode, selectedCoursePosition);
-        }
+        loadMarksData();
     }
 
-    private void markCourseAsRead(MarksDao marksDao, Course.AllData course) {
-        if (course.unreadMarkCount != 0 && course.courseId != null) {
-            marksDao.setMarksRead(course.courseId)
-                    .subscribeOn(Schedulers.single())
-                    .subscribe();
-        }
-    }
-
-    private void updateCumulativeCards(View root, MarksDao marksDao, String courseCode, int position) {
-        PerformanceCard overall = root.findViewById(R.id.performance_card_overall);
-        PerformanceCard theory = root.findViewById(R.id.performance_card_theory);
-        PerformanceCard project = root.findViewById(R.id.performance_card_project);
-        PerformanceCard lab = root.findViewById(R.id.performance_card_lab);
-
-        overall.setIndeterminate(true);
-        theory.setIndeterminate(true);
-        project.setIndeterminate(true);
-        lab.setIndeterminate(true);
-
-        marksDao.getCumulativeMark(courseCode)
-                .subscribeOn(Schedulers.single())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<CumulativeMark>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                    }
-
-                    @Override
-                    public void onSuccess(@NonNull CumulativeMark cumulativeMark) {
-                        if (cumulativeMark.grandTotal != null) {
-                            overall.show();
-                            overall.setIndeterminate(false);
-                            overall.setScore(cumulativeMark.grandTotal, cumulativeMark.grandMax);
-                        } else {
-                            overall.hide();
-                        }
-
-                        if (cumulativeMark.theoryTotal != null) {
-                            theory.show();
-                            theory.setIndeterminate(false);
-                            theory.setScore(cumulativeMark.theoryTotal, cumulativeMark.theoryMax);
-                        } else {
-                            theory.hide();
-                        }
-
-                        updatePerformanceCards(root, position);
-
-                        if (cumulativeMark.projectTotal != null) {
-                            project.show();
-                            project.setIndeterminate(false);
-                            project.setScore(cumulativeMark.projectTotal, cumulativeMark.projectMax);
-                        } else {
-                            project.hide();
-                        }
-
-                        if (cumulativeMark.labTotal != null) {
-                            lab.show();
-                            lab.setIndeterminate(false);
-                            lab.setScore(cumulativeMark.labTotal, cumulativeMark.labMax);
-                        } else {
-                            lab.hide();
-                        }
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        Toast.makeText(getContext(), "Error: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void updatePerformanceCards(View root, int position) {
-        if (courses == null || position >= courses.size()) {
-            return;
-        }
-
-        Course.AllData selectedCourse = courses.get(position);
-        String courseCode = selectedCourse.courseCode;
-        PerformanceCard average = root.findViewById(R.id.performance_card_average);
-
-        AppDatabase database = AppDatabase.getInstance(getContext());
-        ClassStatsDao classStatsDao = database.classStatsDao();
-        MarksDao marksDao = database.marksDao();
-
-        if (RelativePerformanceCalculator.isTheoryCourse(courseCode)) {
-            classStatsDao.getAllClassStatsForCourse(courseCode)
-                    .subscribeOn(Schedulers.single())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new SingleObserver<List<ClassStats>>() {
-                        @Override
-                        public void onSubscribe(@NonNull Disposable d) {
-                        }
-
-                        @Override
-                        public void onSuccess(@NonNull List<ClassStats> classStatsList) {
-                            if (classStatsList != null && !classStatsList.isEmpty() && selectedCourse.courseId != null) {
-                                marksDao.getMarks(selectedCourse.courseId)
-                                        .subscribeOn(Schedulers.single())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe(new SingleObserver<List<Mark.AllData>>() {
-                                            @Override
-                                            public void onSubscribe(@NonNull Disposable d) {
-                                            }
-
-                                            @Override
-                                            public void onSuccess(@NonNull List<Mark.AllData> marks) {
-                                                Double weightageAheadValue =
-                                                        RelativePerformanceCalculator.getWeightageMarksAheadValue(marks, classStatsList);
-
-                                                if (weightageAheadValue != null) {
-                                                    average.show();
-                                                    String formattedValue = (weightageAheadValue >= 0 ? "+" : "") +
-                                                            new java.text.DecimalFormat("#.##").format(weightageAheadValue);
-                                                    average.setRelativePerformance(formattedValue);
-                                                } else {
-                                                    average.hide();
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onError(@NonNull Throwable e) {
-                                                average.hide();
-                                            }
-                                        });
-                            } else {
-                                average.hide();
-                            }
-                        }
-
-                        @Override
-                        public void onError(@NonNull Throwable e) {
-                            average.hide();
-                        }
-                    });
-        } else {
-            average.hide();
-        }
+    private void markCourseAsRead(Course.AllData course, List<Mark.AllData> displayedMarks) {
+        if (course.courseId == null || displayedMarks.isEmpty()) return;
+        viewSubscriptions.add(marksDao.setMarksReadSnapshot(course.courseId, displayedMarks).subscribeOn(Schedulers.io())
+                .subscribe(() -> course.unreadMarkCount = 0, error -> { }));
     }
 
     private void showMarksHelpDialog() {
-        if (!isAdded()) {
-            return;
-        }
-
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle(getString(R.string.help_marks_title))
-                .setMessage(getString(R.string.help_marks_content))
-                .setPositiveButton(getString(R.string.got_it), null)
-                .setIcon(R.drawable.ic_info)
-                .show();
+        new MaterialAlertDialogBuilder(requireContext()).setTitle(R.string.marks_screen_title)
+                .setMessage(R.string.marks_help_content_updated).setPositiveButton(R.string.got_it, null)
+                .setNeutralButton(R.string.studentcc_sharing_manage_profile, (dialog, which) -> {
+                    com.google.android.material.bottomnavigation.BottomNavigationView navigation =
+                            requireActivity().findViewById(R.id.bottom_navigation);
+                    if (navigation != null) navigation.setSelectedItemId(R.id.item_profile);
+                }).show();
     }
 
     @Override
     public void onDestroyView() {
+        viewSubscriptions.clear();
+        marksRequest = null;
+        if (marksAdapter != null) marksAdapter.release();
+        if (marksRecycler != null) marksRecycler.setAdapter(null);
+        marksAdapter = null;
+        contentAdapter = null;
+        marksRecycler = null;
+        appBarLayout = null;
+        screenSummary = null;
+        lastUpdated = null;
         super.onDestroyView();
         getParentFragmentManager().setFragmentResult("getUnreadCount", new Bundle());
+    }
+
+    private static final class MarksSnapshot {
+        final List<Course.AllData> courses;
+        final List<Mark.AllData> marks;
+        final List<CumulativeMark> cumulativeMarks;
+        MarksSnapshot(List<Course.AllData> courses, List<Mark.AllData> marks, List<CumulativeMark> cumulativeMarks) {
+            this.courses = courses;
+            this.marks = marks;
+            this.cumulativeMarks = cumulativeMarks;
+        }
     }
 }

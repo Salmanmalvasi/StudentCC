@@ -2,8 +2,12 @@ package com.salmanmalvasi.studentcc.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -17,10 +21,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 
 
@@ -34,13 +38,22 @@ import com.salmanmalvasi.studentcc.BuildConfig;
 import com.salmanmalvasi.studentcc.R;
 import com.salmanmalvasi.studentcc.fragments.dialogs.UpdateDialogFragment;
 import com.salmanmalvasi.studentcc.helpers.SettingsRepository;
+import com.salmanmalvasi.studentcc.helpers.ApkUpdateManager;
+import com.salmanmalvasi.studentcc.helpers.GitHubReleaseMetadata;
 import com.salmanmalvasi.studentcc.helpers.VTOPHelper;
 import com.salmanmalvasi.studentcc.helpers.HostelDataHelper;
+import com.salmanmalvasi.studentcc.integrations.studentcc.StudentCCSharingManager;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
     SharedPreferences encryptedSharedPreferences, sharedPreferences;
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     VTOPHelper vtopHelper;
+    private JSONObject pendingUpdate;
+    private final BroadcastReceiver updateDownloadReceiver = ApkUpdateManager.receiver(this);
 
     // Student type and hostel selection
     private String studentType = ""; // "day_scholar" or "hosteller"
@@ -57,6 +70,12 @@ public class LoginActivity extends AppCompatActivity {
     private LinearLayout layoutHostelSelection, layoutRoomNumber, layoutMessTypeSelection, layoutBlockSelection;
     private LinearLayout layoutMaleBlocks, layoutFemaleBlocks;
     private EditText editTextRoomNumber;
+    private SwitchMaterial loginSharingSwitch;
+    private final Map<String, Boolean> loginSharingDrafts = new HashMap<>();
+    private boolean updatingLoginSharingChoice;
+    private String submittedSharingAccount = "";
+    private Boolean submittedSharingChoice;
+    private boolean loginSharingChoiceApplied;
 
     public void signIn() {
         hideKeyboard(this.getCurrentFocus());
@@ -75,6 +94,8 @@ public class LoginActivity extends AppCompatActivity {
             if (passwordView != null) passwordView.setError("Password is required");
             return;
         }
+
+        captureLoginSharingChoice(username);
 
         // Save login credentials
         encryptedSharedPreferences.edit().putString("username", username).apply();
@@ -140,6 +161,7 @@ public class LoginActivity extends AppCompatActivity {
         if (edtPass != null) {
             edtPass.setEnabled(!isLoading);
         }
+        if (loginSharingSwitch != null) loginSharingSwitch.setEnabled(!isLoading);
     }
 
     private void onNativeAuthSuccess(com.salmanmalvasi.studentcc.sync.VTOPAuthClient.DiagnosticProofResult result, String username) {
@@ -152,6 +174,9 @@ public class LoginActivity extends AppCompatActivity {
             com.salmanmalvasi.studentcc.sync.VTOPAuthClient.DiagnosticProofResult initialProof
     ) {
         setLoadingState(false);
+        if (submittedSharingChoice == null || !submittedSharingAccount.equals(normalizeLoginAccount(username))) {
+            captureLoginSharingChoice(username);
+        }
         try {
             SharedPreferences.Editor encEditor = encryptedSharedPreferences.edit();
             encEditor.putString("username", username);
@@ -415,6 +440,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void startMainActivity() {
+        applySuccessfulLoginSharingChoice();
         com.salmanmalvasi.studentcc.workers.NightlySyncScheduler.schedule(this);
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -432,6 +458,7 @@ public class LoginActivity extends AppCompatActivity {
 
         initializeViews();
         setupClickListeners();
+        setupLoginSharingChoice(savedInstanceState);
 
         try {
             String savedU = encryptedSharedPreferences.getString("username", "");
@@ -494,12 +521,14 @@ public class LoginActivity extends AppCompatActivity {
                     findViewById(R.id.button_sign_in).setEnabled(false);
                     findViewById(R.id.edit_text_username).setEnabled(false);
                     findViewById(R.id.edit_text_password).setEnabled(false);
+                    if (loginSharingSwitch != null) loginSharingSwitch.setEnabled(false);
                 } else {
                     findViewById(R.id.progress_bar_loading).setVisibility(View.INVISIBLE);
 
                     findViewById(R.id.button_sign_in).setEnabled(true);
                     findViewById(R.id.edit_text_username).setEnabled(true);
                     findViewById(R.id.edit_text_password).setEnabled(true);
+                    if (loginSharingSwitch != null) loginSharingSwitch.setEnabled(true);
                 }
             }
 
@@ -541,19 +570,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onNext(@NonNull JSONObject about) {
-                        try {
-                            int versionCode = about.getInt("versionCode");
-                            String versionName = about.getString("tagName");
-                            String releaseNotes = about.getString("releaseNotes");
-
-                            if (versionCode > BuildConfig.VERSION_CODE) {
-                                FragmentManager fragmentManager = getSupportFragmentManager();
-                                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                                transaction.add(android.R.id.content, UpdateDialogFragment.newInstance(versionName, releaseNotes)).addToBackStack(null).commit();
-                            }
-                        } catch (Exception ignored) {
-                        }
+                        pendingUpdate = about;
+                        showAvailableUpdate();
                     }
 
                     @Override
@@ -564,6 +582,98 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete() {
                     }
                 });
+    }
+
+    private void setupLoginSharingChoice(Bundle savedInstanceState) {
+        loginSharingSwitch = findViewById(R.id.switch_studentcc_login_sharing);
+        if (savedInstanceState != null) {
+            Bundle drafts = savedInstanceState.getBundle("studentcc_login_sharing_drafts");
+            if (drafts != null) for (String account : drafts.keySet()) {
+                loginSharingDrafts.put(account, drafts.getBoolean(account));
+            }
+            submittedSharingAccount = savedInstanceState.getString("studentcc_login_submitted_account", "");
+            if (savedInstanceState.containsKey("studentcc_login_submitted_choice")) {
+                submittedSharingChoice = savedInstanceState.getBoolean("studentcc_login_submitted_choice");
+            }
+            loginSharingChoiceApplied = savedInstanceState.getBoolean("studentcc_login_choice_applied", false);
+        }
+        EditText usernameView = findViewById(R.id.edit_text_username);
+        loginSharingSwitch.setOnCheckedChangeListener((button, checked) -> {
+            if (!updatingLoginSharingChoice) {
+                loginSharingDrafts.put(normalizeLoginAccount(usernameView.getText()), checked);
+            }
+        });
+        usernameView.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence text, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence text, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable text) { restoreLoginSharingChoice(text); }
+        });
+        restoreLoginSharingChoice(usernameView.getText());
+    }
+
+    private void restoreLoginSharingChoice(CharSequence username) {
+        String account = normalizeLoginAccount(username);
+        Boolean draft = loginSharingDrafts.get(account);
+        StudentCCSharingManager.SharingState state = StudentCCSharingManager.getInstance(this).getStateForAccount(account);
+        boolean selected = draft != null ? draft : account.isEmpty() || state.setupPending || state.enabled;
+        updatingLoginSharingChoice = true;
+        loginSharingSwitch.setChecked(selected);
+        updatingLoginSharingChoice = false;
+    }
+
+    private static String normalizeLoginAccount(CharSequence username) {
+        return username == null ? "" : username.toString().trim().toUpperCase(Locale.US);
+    }
+
+    private void captureLoginSharingChoice(String username) {
+        submittedSharingAccount = normalizeLoginAccount(username);
+        submittedSharingChoice = loginSharingSwitch != null && loginSharingSwitch.isChecked();
+        loginSharingChoiceApplied = false;
+    }
+
+    /** Successful Sign in confirms the visible choice for the authenticated account only. */
+    private void applySuccessfulLoginSharingChoice() {
+        if (submittedSharingChoice == null || loginSharingChoiceApplied || !SettingsRepository.isSignedIn(this)
+                || !submittedSharingAccount.equals(SettingsRepository.getAuthorizedUsername(this))) return;
+        loginSharingChoiceApplied = true;
+        StudentCCSharingManager manager = StudentCCSharingManager.getInstance(this);
+        io.reactivex.rxjava3.core.Single<StudentCCSharingManager.SharingState> operation = submittedSharingChoice
+                ? manager.enableSharing() : manager.getState().enabled ? manager.withdraw() : manager.dismissSetup();
+        // This app-scoped operation must survive finishing LoginActivity; it holds no Activity callbacks.
+        operation.subscribe(ignored -> {}, ignored -> {});
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Bundle drafts = new Bundle();
+        for (Map.Entry<String, Boolean> draft : loginSharingDrafts.entrySet()) {
+            drafts.putBoolean(draft.getKey(), draft.getValue());
+        }
+        outState.putBundle("studentcc_login_sharing_drafts", drafts);
+        outState.putString("studentcc_login_submitted_account", submittedSharingAccount);
+        if (submittedSharingChoice != null) outState.putBoolean("studentcc_login_submitted_choice", submittedSharingChoice);
+        outState.putBoolean("studentcc_login_choice_applied", loginSharingChoiceApplied);
+        super.onSaveInstanceState(outState);
+    }
+
+    private void showAvailableUpdate() {
+        if (pendingUpdate == null || !GitHubReleaseMetadata.isNewer(pendingUpdate,
+                BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME) || isFinishing() || isDestroyed()
+                || getSupportFragmentManager().isStateSaved()
+                || !getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)
+                || getSupportFragmentManager().findFragmentByTag("github_release_update") != null) return;
+        JSONObject update = pendingUpdate;
+        pendingUpdate = null;
+        UpdateDialogFragment.newInstance(update.optString("tagName", update.optString("versionName")),
+                update.optString("releaseNotes", ""), update.optString("downloadUrl"),
+                update.optString("sha256", "")).show(getSupportFragmentManager(), "github_release_update");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ContextCompat.registerReceiver(this, updateDownloadReceiver,
+                new IntentFilter(android.app.DownloadManager.ACTION_DOWNLOAD_COMPLETE), ContextCompat.RECEIVER_EXPORTED);
     }
 
     @Override
@@ -579,13 +689,14 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-
+        ApkUpdateManager.resume(this, false);
+        showAvailableUpdate();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        unregisterReceiver(updateDownloadReceiver);
         this.vtopHelper.unbind();
     }
 

@@ -54,6 +54,8 @@ public final class VTOPEndpoints {
     public static final String GET_SEMESTER_LIST = "/login/vitian/getSemesterList";
     /** E-014: CGPA, credits registered and earned (regNo) */
     public static final String CGPA_VIEW = "/login/vitian/cgpaView";
+    /** Browser grade-history page used when the cumulative summary is returned as HTML. */
+    public static final String GRADE_HISTORY = "/examinations/examGradeView/StudentGradeHistory";
 
     // ==========================================
     // 3. Attendance

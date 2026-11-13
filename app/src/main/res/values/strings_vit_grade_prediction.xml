@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vit_grade_projected">Projected grade (%2$s): %1$s</string>
+    <string name="vit_grade_predicted">Predicted grade (%2$s): %1$s</string>
+    <string name="vit_grade_relative">relative</string>
+    <string name="vit_grade_absolute">absolute</string>
+    <string name="vit_grade_view_ranges">View grade ranges</string>
+    <string name="vit_grade_ranges_title">VIT grade ranges · %1$s</string>
+    <string name="vit_grade_projected_note">Internal projection · assumes the same percentage in the final exam and all pass requirements.</string>
+    <string name="vit_grade_final_note">Final total estimate · subject to VIT’s grading scheme and final class results.</string>
+    <string name="vit_grade_pass_unknown">Assumes all final exam and embedded lab pass requirements.</string>
+    <string name="vit_grade_pass_failed">Final exam or embedded lab pass requirement not met.</string>
+    <string name="vit_grade_projected_pass_failed">The same-percentage projection falls below a mandatory pass requirement. Your actual final results may differ.</string>
+    <string name="vit_grade_relative_assumption">Relative grading assumes a theory class with more than 10 enrolled students.</string>
+    <string name="vit_grade_absolute_assumption">Absolute grading applies to theory classes of 10 or fewer students, labs, projects and soft skills.</string>
+    <string name="vit_grade_use_absolute">Use absolute grading</string>
+    <string name="vit_grade_use_relative">Use relative grading</string>
+    <string name="vit_grade_insufficient_sample">Grade prediction needs at least 2 contributors and non-zero SD.</string>
+    <string name="vit_grade_missing_total">Complete compatible totals are needed to predict your grade.</string>
+    <string name="vit_grade_ranges_intro">%1$s sample · %2$d contributors\n%3$s\n\nEstimated lower boundaries out of 100:\n%4$s\n\nThe highest qualifying grade applies. Boundaries above 100 are unreachable.</string>
+    <string name="vit_grade_projection_basis">Your projected total: %1$s /100</string>
+    <string name="vit_grade_final_basis">Your final total: %1$s /100</string>
+    <string name="vit_grade_range_line">%1$s: %2$d+</string>
+    <string name="vit_grade_range_failure">F: below the E boundary or failed pass requirements</string>
+    <string name="vit_grade_relative_rules" formatted="false">VIT uses relative grading for theory classes with more than 10 enrolled students. Contributor count does not tell us the full class strength. Smaller classes, labs, projects and soft skills use absolute grading.\n\nTheory requires at least 40% in FAT; embedded courses also require at least 50% in the lab and combined total. An overall 50 or above secures at least E when the pass requirements are met.\n\nRelative S predictions start at 80 or the calculated mean + 1.5 SD boundary, whichever is higher. Absolute S starts at 90. VIT’s special S rule for the top 3 students or top 5% with at least 80 needs the full ranked class and is not estimated here.\n\nRelative ranges use a contributor sample. Official statistics use every student’s rounded-up total; the sample keeps fractional totals. Final university grades can differ.</string>
+    <string name="vit_grade_rules_source">VIT grading rules</string>
+</resources>

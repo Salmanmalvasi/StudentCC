@@ -3,4 +3,5 @@
     <cache-path name="calendar_cache" path="calendar/" />
     <cache-path name="shared_cache" path="." />
     <files-path name="shared_files" path="." />
+    <external-files-path name="update_downloads" path="Download/updates/" />
 </paths>

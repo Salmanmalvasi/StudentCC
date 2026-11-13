@@ -28,9 +28,12 @@ import com.salmanmalvasi.studentcc.R;
 import com.salmanmalvasi.studentcc.activities.LoginActivity;
 import com.salmanmalvasi.studentcc.adapters.AnnouncementItemAdapter;
 import com.salmanmalvasi.studentcc.adapters.ProfileGroupAdapter;
+import com.salmanmalvasi.studentcc.adapters.StudentCCStatisticsSharingAdapter;
 import com.salmanmalvasi.studentcc.helpers.SettingsRepository;
 
 public class ProfileFragment extends Fragment {
+    private StudentCCStatisticsSharingAdapter sharingAdapter;
+    private RecyclerView sharingRecycler;
 
     private final ItemData[] personalProfileItems = {
             new ItemData(
@@ -474,7 +477,7 @@ public class ProfileFragment extends Fragment {
         getParentFragmentManager().setFragmentResultListener("launchSubFragment", this, (requestKey, result) -> {
             String subFragment = result.getString("subFragment");
 
-            if (subFragment.equals("ExamSchedule")) {
+            if ("ExamSchedule".equals(subFragment) && isAdded()) {
                 SettingsRepository.openViewPagerFragment(
                         requireActivity(),
                         R.string.exam_schedule,
@@ -513,6 +516,10 @@ public class ProfileFragment extends Fragment {
 
         RecyclerView announcements = profileFragment.findViewById(R.id.recycler_view_announcements);
         RecyclerView profileGroups = profileFragment.findViewById(R.id.recycler_view_profile_groups);
+        sharingRecycler = profileFragment.findViewById(R.id.recycler_view_profile_sharing);
+        sharingRecycler.setItemAnimator(null);
+        sharingAdapter = new StudentCCStatisticsSharingAdapter();
+        sharingRecycler.setAdapter(sharingAdapter);
 
         announcements.setAdapter(new AnnouncementItemAdapter(announcementItems));
         profileGroups.setAdapter(new ProfileGroupAdapter(this.profileGroups, this.profileItems));
@@ -530,6 +537,15 @@ public class ProfileFragment extends Fragment {
             regNoView.setText(regNo);
 
         return profileFragment;
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (sharingAdapter != null) sharingAdapter.release();
+        if (sharingRecycler != null) sharingRecycler.setAdapter(null);
+        sharingAdapter = null;
+        sharingRecycler = null;
+        super.onDestroyView();
     }
 
     public static class ItemData {

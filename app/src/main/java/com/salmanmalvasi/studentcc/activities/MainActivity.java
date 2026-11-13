@@ -3,6 +3,8 @@ package com.salmanmalvasi.studentcc.activities;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -23,10 +25,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
+import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.core.app.NotificationCompat;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -68,6 +69,8 @@ import com.salmanmalvasi.studentcc.helpers.FirebaseMessagingHelper;
 import com.salmanmalvasi.studentcc.helpers.FirebaseCrashlyticsHelper;
 import com.salmanmalvasi.studentcc.helpers.FirebaseConfigHelper;
 import com.salmanmalvasi.studentcc.helpers.SettingsRepository;
+import com.salmanmalvasi.studentcc.helpers.ApkUpdateManager;
+import com.salmanmalvasi.studentcc.helpers.GitHubReleaseMetadata;
 import com.salmanmalvasi.studentcc.helpers.SpotlightDefaults;
 import com.salmanmalvasi.studentcc.helpers.ThemeManager;
 import com.salmanmalvasi.studentcc.helpers.VTOPHelper;
@@ -79,6 +82,13 @@ public class MainActivity extends AppCompatActivity {
     CompositeDisposable compositeDisposable = new CompositeDisposable();
     VTOPHelper vtopHelper;
     private boolean classTimeMonitorStarted = false;
+    private static final String UPDATE_DIALOG_TAG = "github_release_update";
+    private static final long UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000L;
+    private long lastUpdateCheckElapsed = -UPDATE_CHECK_INTERVAL_MS;
+    private boolean updateCheckRunning;
+    private String promptedRelease = "";
+    private JSONObject pendingRelease;
+    private final BroadcastReceiver updateDownloadReceiver = ApkUpdateManager.receiver(this);
 
     static final String HOME_FRAGMENT_TAG = "HOME_FRAGMENT_TAG";
     static final String PERFORMANCE_FRAGMENT_TAG = "PERFORMANCE_FRAGMENT_TAG";
@@ -632,67 +642,55 @@ public class MainActivity extends AppCompatActivity {
 
                 // Notify active fragments of validated updates in-place without activity restart
                 getSupportFragmentManager().setFragmentResult("dataUpdated", new Bundle());
-                sendBroadcast(new Intent("DATA_UPDATED"));
+                sendBroadcast(new Intent("DATA_UPDATED").setPackage(getPackageName()));
                 getUnreadCount();
                 checkAndUpdateBottomNavigation();
             }
         });
 
-        /* Keep legacy loading logic reference (collapsed) */
-        Context context = this;
-        SettingsRepository.fetchAboutJson(true)
-                .subscribe(new Observer<JSONObject>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                        compositeDisposable.add(d);
-                    }
+        checkForAppUpdate(true);
+    }
 
-                    @Override
-                    public void onNext(@NonNull JSONObject about) {
-                        try {
-                            int versionCode = about.getInt("versionCode");
-                            String versionName = about.getString("tagName");
-                            String releaseNotes = about.getString("releaseNotes");
+    private void checkForAppUpdate(boolean remindSync) {
+        long elapsed = android.os.SystemClock.elapsedRealtime();
+        if (updateCheckRunning || elapsed - lastUpdateCheckElapsed < UPDATE_CHECK_INTERVAL_MS) return;
+        updateCheckRunning = true;
+        lastUpdateCheckElapsed = elapsed;
+        compositeDisposable.add(SettingsRepository.fetchAboutJson(true).subscribe(about -> {
+            updateCheckRunning = false;
+            pendingRelease = about;
+            boolean newer = showAvailableUpdate();
+            if (!newer && remindSync && !isFinishing() && !isDestroyed()
+                    && getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)
+                    && SettingsRepository.isRefreshRequired(this)) {
+                new MaterialAlertDialogBuilder(this).setMessage(R.string.sync_message)
+                        .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.sync, (dialog, which) -> syncData())
+                        .setTitle(R.string.sync_title).show();
+            }
+        }, error -> updateCheckRunning = false));
+    }
 
-                            if (versionCode > BuildConfig.VERSION_CODE) {
-                                FragmentManager fragmentManager = getSupportFragmentManager();
-                                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                                transaction
-                                        .add(android.R.id.content,
-                                                UpdateDialogFragment.newInstance(versionName, releaseNotes))
-                                        .addToBackStack(null).commit();
-
-                                return;
-                            }
-                        } catch (Exception ignored) {
-                        }
-
-                        if (SettingsRepository.isRefreshRequired(context)) {
-                            new MaterialAlertDialogBuilder(context)
-                                    .setMessage(R.string.sync_message)
-                                    .setNegativeButton(R.string.cancel,
-                                            (dialogInterface, i) -> dialogInterface.dismiss())
-                                    .setPositiveButton(R.string.sync, (dialogInterface, i) -> syncData())
-                                    .setTitle(R.string.sync_title)
-                                    .show();
-                        }
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                    }
-
-                    @Override
-                    public void onComplete() {
-                    }
-                });
-
+    private boolean showAvailableUpdate() {
+        if (pendingRelease == null || !GitHubReleaseMetadata.isNewer(pendingRelease,
+                BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)) return false;
+        if (isFinishing() || isDestroyed() || getSupportFragmentManager().isStateSaved()
+                || !getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) return true;
+        String release = pendingRelease.optString("tagName", pendingRelease.optString("downloadUrl"));
+        if (!release.equals(promptedRelease) && getSupportFragmentManager().findFragmentByTag(UPDATE_DIALOG_TAG) == null) {
+            promptedRelease = release;
+            UpdateDialogFragment.newInstance(pendingRelease.optString("tagName", pendingRelease.optString("versionName")),
+                    pendingRelease.optString("releaseNotes", ""), pendingRelease.optString("downloadUrl"),
+                    pendingRelease.optString("sha256", "")).show(getSupportFragmentManager(), UPDATE_DIALOG_TAG);
+        }
+        return true;
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        ContextCompat.registerReceiver(this, updateDownloadReceiver,
+                new IntentFilter(android.app.DownloadManager.ACTION_DOWNLOAD_COMPLETE), ContextCompat.RECEIVER_EXPORTED);
         startClassTimeMonitorServiceIfNeeded();
     }
 
@@ -701,6 +699,9 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         // Update bottom navigation based on student type
         checkAndUpdateBottomNavigation();
+        ApkUpdateManager.resume(this, false);
+        showAvailableUpdate();
+        checkForAppUpdate(false);
     }
 
     @Override
@@ -768,6 +769,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        unregisterReceiver(updateDownloadReceiver);
         this.vtopHelper.unbind();
     }
 

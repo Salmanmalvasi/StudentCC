@@ -18,11 +18,25 @@
 *.md
 **/*.md
 !README.md
+!docs/unicc-integration.md
+!docs/app-updates.md
+!docs/vit-grade-estimates.md
+!docs/release-notes-1.6.1.md
 
 # Exclude environment variables and secrets
 .env
 .env.*
 *.env
+!/.env.example
+*.keystore
+*.jks
+!app/src/test/resources/studentcc/localhost-test-only.jks
+/app/google-services.json
+
+# The statistics service and administrative data are maintained privately.
+/statistics-server/
+/stats/
+/StudentCC-admin/
 
 # Exclude UniCC folder
 UniCC-main/

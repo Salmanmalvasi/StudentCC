@@ -80,6 +80,14 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
 
     private GPACourseAdapter courseAdapter;
     private List<GPACourse> courses;
+    private String lastAutofilledCgpa;
+    private String lastAutofilledCredits;
+    private SharedPreferences academicPreferences;
+    private final SharedPreferences.OnSharedPreferenceChangeListener academicPreferenceListener = (preferences, key) -> {
+        if (("cgpa".equals(key) || "totalCredits".equals(key)) && getView() != null && isAdded()) {
+            requireActivity().runOnUiThread(() -> { if (getView() != null && isAdded()) autoFillCurrentData(); });
+        }
+    };
 
     @Nullable
     @Override
@@ -95,8 +103,19 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         setupRecyclerView();
         setupGradeDropdown();
         setupClickListeners();
+        academicPreferences = SettingsRepository.getSharedPreferences(requireContext());
+        academicPreferences.registerOnSharedPreferenceChangeListener(academicPreferenceListener);
         autoFillCurrentData();
+        getParentFragmentManager().setFragmentResultListener("dataUpdated", getViewLifecycleOwner(),
+                (requestKey, result) -> autoFillCurrentData());
         updateUI();
+    }
+
+    @Override public void onResume() {
+        super.onResume();
+        if (getView() != null) {
+            autoFillCurrentData();
+        }
     }
 
     private void initializeViews(View view) {
@@ -245,9 +264,12 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
         SharedPreferences sharedPreferences = SettingsRepository.getSharedPreferences(requireContext());
 
         // Auto-fill current CGPA
-        float currentCGPA = sharedPreferences.getFloat("cgpa", 0);
-        if (currentCGPA > 0) {
-            currentCGPAInput.setText(String.format("%.2f", currentCGPA));
+        Object savedCgpa = sharedPreferences.getAll().get("cgpa");
+        float currentCGPA = savedCgpa instanceof Number ? ((Number) savedCgpa).floatValue() : Float.NaN;
+        if (Float.isFinite(currentCGPA) && currentCGPA >= 0 && currentCGPA <= 10) {
+            String updated = String.format(java.util.Locale.US, "%.2f", currentCGPA);
+            updateAutofilledInput(currentCGPAInput, lastAutofilledCgpa, updated);
+            lastAutofilledCgpa = updated;
             currentCGPADisplay.setText(getString(R.string.current_cgpa_display, currentCGPA));
         } else {
             currentCGPADisplay.setText("Current CGPA: --");
@@ -262,12 +284,25 @@ public class GPACalculatorFragment extends Fragment implements GPACourseAdapter.
             totalCredits = sharedPreferences.getFloat("totalCredits", 0);
         }
 
-        if (totalCredits > 0) {
-            currentCreditsInput.setText(String.format("%.1f", totalCredits));
+        if (sharedPreferences.contains("totalCredits") && Float.isFinite(totalCredits) && totalCredits >= 0) {
+            String updated = String.format(java.util.Locale.US, "%.1f", totalCredits);
+            updateAutofilledInput(currentCreditsInput, lastAutofilledCredits, updated);
+            lastAutofilledCredits = updated;
             currentCreditsDisplay.setText(getString(R.string.current_credits_display, totalCredits));
         } else {
             currentCreditsDisplay.setText("Total Credits: --");
         }
+    }
+
+    @Override public void onDestroyView() {
+        if (academicPreferences != null) academicPreferences.unregisterOnSharedPreferenceChangeListener(academicPreferenceListener);
+        academicPreferences = null;
+        super.onDestroyView();
+    }
+
+    private void updateAutofilledInput(TextInputEditText input, String previous, String updated) {
+        String current = input.getText() == null ? "" : input.getText().toString().trim();
+        if (current.isEmpty() || current.equals(previous)) input.setText(updated);
     }
 
     private void addCourse() {

@@ -482,6 +482,33 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <LinearLayout
+                        android:id="@+id/layout_studentcc_login_sharing"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch_studentcc_login_sharing"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:checked="true"
+                            android:text="@string/studentcc_sharing_login_choice"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="14sp"
+                            app:useMaterialThemeColors="true" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/studentcc_sharing_login_disclosure"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_sign_in"
                         android:layout_width="match_parent"

@@ -79,6 +79,7 @@ public class TransactionalDataActivator {
         if (stagedData == null) {
             return ActivationResult.failure("Staged data container is null");
         }
+        final String sharingAccount = context == null ? null : SettingsRepository.getAuthorizedUsername(context);
 
         // Phase 1: Validate relational consistency before database interaction
         if (!quickSyncOnly) {
@@ -112,6 +113,7 @@ public class TransactionalDataActivator {
                 List<AttendanceRecord> existingRecords = new ArrayList<>();
                 List<Mark> existingMarks = new ArrayList<>();
                 List<Timetable> existingTimetables = new ArrayList<>();
+                List<com.salmanmalvasi.studentcc.models.Exam> existingExams = new ArrayList<>();
 
                 try {
                     List<Course> c = coursesDao.getAllCourses().blockingGet();
@@ -138,6 +140,11 @@ public class TransactionalDataActivator {
                     if (t != null) existingTimetables.addAll(t);
                 } catch (Exception ignored) {}
 
+                try {
+                    List<com.salmanmalvasi.studentcc.models.Exam> e = examsDao.getExams().blockingGet();
+                    if (e != null) existingExams.addAll(e);
+                } catch (Exception ignored) {}
+
                 beforeCounts[0] = existingMarks.size();
                 beforeCounts[1] = existingRecords.size();
                 beforeCounts[2] = existingAttendance.size();
@@ -161,6 +168,7 @@ public class TransactionalDataActivator {
                 if (!stagedData.courses.isEmpty()) {
                     for (Course sc : stagedData.courses) {
                         if (sc.code == null) continue;
+                        sc.semesterId = stagedData.semesterId;
                         String key = (sc.code.trim().toUpperCase(Locale.ROOT) + "_" +
                                 (sc.type != null ? sc.type.trim().toLowerCase(Locale.ROOT) : "")).trim();
 
@@ -215,6 +223,12 @@ public class TransactionalDataActivator {
                         DataFreshnessManager.getInstance().recordSuccessfulRefresh(context, DataFreshnessManager.DATASET_PROFILE_COURSES);
                     }
                 } else if (!existingCourses.isEmpty()) {
+                    for (Course cached : stagedData.cachedCourses) {
+                        if (cached.vtopClassId != null && !cached.vtopClassId.trim().isEmpty()
+                                && stagedData.semesterId.equals(cached.semesterId)) {
+                            coursesDao.updateVtopMetadata(cached.id, cached.vtopClassId, stagedData.semesterId, cached.courseSystem).blockingAwait();
+                        }
+                    }
                     LocalCacheMetrics.getInstance().recordDatasetRetainedOnFailure(DataFreshnessManager.DATASET_PROFILE_COURSES);
                     Log.i(TAG, "Cache integrity preserved: retained " + existingCourses.size() + " existing courses from cache");
                 }
@@ -265,21 +279,22 @@ public class TransactionalDataActivator {
                 }
 
                 // 5. Marks and Cumulative Marks (Cache Integrity: never delete existing if replacement is empty)
+                List<Course> activeMarkCourses = coursesDao.getAllCourses().blockingGet();
+                if (!stagedData.courses.isEmpty()) {
+                    marksDao.retainCumulativeMarksForCourses(activeMarkCourses, existingCourses).blockingAwait();
+                }
                 if (!stagedData.marks.isEmpty()) {
-                    try {
-                        List<Mark> readMarks = marksDao.getMarksRead().blockingGet();
-                        if (readMarks != null && !readMarks.isEmpty()) {
-                            Set<Integer> readSigs = new HashSet<>();
-                            for (Mark rm : readMarks) {
-                                if (rm.signature != null) readSigs.add(rm.signature);
-                            }
-                            for (Mark m : stagedData.marks) {
-                                if (m.signature != null && readSigs.contains(m.signature)) {
-                                    m.isRead = true;
-                                }
-                            }
-                        }
-                    } catch (Exception ignored) {}
+                    List<Course> currentCourses = coursesDao.getAllCourses().blockingGet();
+                    List<Mark> snapshot = com.salmanmalvasi.studentcc.helpers.CumulativeMarksCalculator
+                            .mergeMarks(stagedData.marks, existingMarks, currentCourses, existingCourses);
+                    if (snapshot.isEmpty()) {
+                        // Roll back the transaction instead of replacing a valid cache with unlinked rows.
+                        throw new IllegalStateException("Downloaded marks could not be linked to active courses");
+                    }
+                    stagedData.marks.clear();
+                    stagedData.marks.addAll(snapshot);
+                    com.salmanmalvasi.studentcc.helpers.MarksReadState.preserve(stagedData.marks, existingMarks,
+                            stagedData.getEffectiveCourses(), existingCourses);
 
                     marksDao.deleteMarks().blockingAwait();
                     marksDao.insertMarks(stagedData.marks).blockingAwait();
@@ -287,23 +302,38 @@ public class TransactionalDataActivator {
                         DataFreshnessManager.getInstance().recordSuccessfulRefresh(context, DataFreshnessManager.DATASET_MARKS);
                     }
                 } else if (!existingMarks.isEmpty()) {
+                    List<Mark> retainedMarks = com.salmanmalvasi.studentcc.helpers.CumulativeMarksCalculator
+                            .relinkCachedMarks(existingMarks, existingCourses, activeMarkCourses);
                     marksDao.deleteMarks().blockingAwait();
-                    marksDao.insertMarks(existingMarks).blockingAwait();
+                    marksDao.insertMarks(retainedMarks).blockingAwait();
                     LocalCacheMetrics.getInstance().recordDatasetRetainedOnFailure(DataFreshnessManager.DATASET_MARKS);
-                    Log.i(TAG, "Cache integrity preserved: retained " + existingMarks.size() + " existing marks");
+                    Log.i(TAG, "Cache integrity preserved: retained " + retainedMarks.size() + " matching cached marks");
                 }
 
-                if (!stagedData.cumulativeMarks.isEmpty()) {
-                    marksDao.deleteCumulativeMarks().blockingAwait();
-                    marksDao.insertCumulativeMarks(stagedData.cumulativeMarks).blockingAwait();
+                if (!stagedData.marks.isEmpty()) {
+                    // JSON/per-course endpoints return assessments without cumulative records.
+                    // Rebuild from the activated snapshot for both Quick Sync and Full Sync.
+                    List<CumulativeMark> totals = com.salmanmalvasi.studentcc.helpers.CumulativeMarksCalculator
+                            .calculate(coursesDao.getAllCourses().blockingGet(), marksDao.getRawMarks().blockingGet());
+                    marksDao.replaceCumulativeMarks(totals, activeMarkCourses, existingCourses).blockingAwait();
+                } else if (!stagedData.cumulativeMarks.isEmpty()) {
+                    marksDao.replaceCumulativeMarks(stagedData.cumulativeMarks, activeMarkCourses, existingCourses).blockingAwait();
+                }
+
+                // Course replacement cascades into exams. Restore cached schedules when the
+                // optional exam endpoint fails, returns an unsupported response, or is skipped.
+                if (!quickSyncOnly && !stagedData.exams.isEmpty()) {
+                    examsDao.deleteAll().blockingAwait();
+                    examsDao.insert(stagedData.exams).blockingAwait();
+                } else if (!stagedData.courses.isEmpty() && !existingExams.isEmpty()) {
+                    List<com.salmanmalvasi.studentcc.models.Exam> retainedExams = ExamScheduleParser
+                            .relinkCachedExams(existingExams, existingCourses, stagedData.courses);
+                    examsDao.deleteAll().blockingAwait();
+                    if (!retainedExams.isEmpty()) examsDao.insert(retainedExams).blockingAwait();
+                    Log.i(TAG, "Cache integrity preserved: retained " + retainedExams.size() + " exam schedule entries");
                 }
 
                 if (!quickSyncOnly) {
-                    // 6. Activate Exams (Full Sync ONLY)
-                    if (!stagedData.exams.isEmpty()) {
-                        examsDao.deleteAll().blockingAwait();
-                        examsDao.insert(stagedData.exams).blockingAwait();
-                    }
 
                     // 7. Activate Calendar events (Full Sync ONLY)
                     if (!stagedData.calendarEvents.isEmpty()) {
@@ -385,6 +415,39 @@ public class TransactionalDataActivator {
                     beforeCounts[3], stagedData.courses.size(), afterCourses));
 
             Log.i(TAG, "Transactional activation succeeded for generation: " + stagedData.syncGenerationId);
+            if (context != null && (stagedData.profileAttributes.containsKey("cgpa") || stagedData.profileAttributes.containsKey("creditsEarned"))
+                    && stagedData.profileAttributes.containsKey("cgpaAccount")) {
+                try {
+                    if (SettingsRepository.getAuthorizedUsername(context).equalsIgnoreCase(stagedData.profileAttributes.get("cgpaAccount"))) {
+                        android.content.SharedPreferences.Editor academicSettings = SettingsRepository.getSharedPreferences(context).edit();
+                        Double cgpa = stagedData.profileAttributes.containsKey("cgpa")
+                                ? Double.valueOf(stagedData.profileAttributes.get("cgpa")) : null;
+                        boolean validCgpa = com.salmanmalvasi.studentcc.integrations.studentcc.StudentCCAcademicSummary.threshold(cgpa) != null;
+                        if (validCgpa) academicSettings.putFloat("cgpa", cgpa.floatValue());
+                        if (stagedData.profileAttributes.containsKey("creditsEarned")) {
+                            double credits = Double.parseDouble(stagedData.profileAttributes.get("creditsEarned"));
+                            if (Double.isFinite(credits) && credits >= 0) academicSettings.putFloat("totalCredits", (float) credits);
+                        }
+                        academicSettings.apply();
+                        if (validCgpa) {
+                            com.salmanmalvasi.studentcc.integrations.studentcc.StudentCCSharingManager manager =
+                                    com.salmanmalvasi.studentcc.integrations.studentcc.StudentCCSharingManager.getInstance(context);
+                            manager.recordVerifiedCgpa(stagedData.profileAttributes.get("cgpaAccount"), cgpa);
+                            manager.onAcademicDataSyncCompleted(stagedData.profileAttributes.get("cgpaAccount"));
+                        }
+                    }
+                } catch (Exception ignored) {
+                    // A missing academic summary must not interrupt academic-data activation.
+                }
+            }
+            if (context != null && !stagedData.marks.isEmpty()) {
+                try {
+                    com.salmanmalvasi.studentcc.integrations.studentcc.StudentCCSharingManager
+                            .getInstance(context).onSyncCompleted(sharingAccount, stagedData.semesterId);
+                } catch (Exception ignored) {
+                    // Sharing runs after the commit and remains independent of academic synchronization.
+                }
+            }
             if (context != null) {
                 try {
                     com.salmanmalvasi.studentcc.widgets.TodayTimetableWidget.updateAllWidgets(context);

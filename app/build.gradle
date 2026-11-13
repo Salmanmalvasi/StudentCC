@@ -4,6 +4,26 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
+// Signing values belong in protected environment variables or private user Gradle properties.
+def signingValue = { String environmentName, String propertyName ->
+    providers.environmentVariable(environmentName).orElse(providers.gradleProperty(propertyName)).getOrNull()
+}
+def releaseKeystorePath = signingValue('STUDENTCC_KEYSTORE_PATH', 'studentccKeystorePath')
+def releaseKeystorePassword = signingValue('STUDENTCC_KEYSTORE_PASSWORD', 'studentccKeystorePassword')
+def releaseKeyAlias = signingValue('STUDENTCC_KEY_ALIAS', 'studentccKeyAlias')
+def releaseKeyPassword = signingValue('STUDENTCC_KEY_PASSWORD', 'studentccKeyPassword')
+def releaseSigningReady = [releaseKeystorePath, releaseKeystorePassword, releaseKeyAlias, releaseKeyPassword]
+        .every { value -> value != null && !value.isEmpty() }
+
+gradle.taskGraph.whenReady { graph ->
+    def needsPrivateSigning = [':app:packageRelease', ':app:signReleaseBundle', ':app:packageQa', ':app:packageLocal']
+            .any { taskPath -> graph.hasTask(taskPath) }
+    if (needsPrivateSigning && !releaseSigningReady) {
+        throw new GradleException('Configure the STUDENTCC_KEYSTORE_PATH, STUDENTCC_KEYSTORE_PASSWORD, '
+                + 'STUDENTCC_KEY_ALIAS and STUDENTCC_KEY_PASSWORD environment variables or private user Gradle properties.')
+    }
+}
+
 android {
     compileSdk 34
 
@@ -16,8 +36,15 @@ android {
         }
         minSdkVersion 24
         targetSdkVersion 34
-        versionCode 12
-        versionName "1.6.0"
+        versionCode 21
+        versionName "1.6.1"
+
+        // Use the hosted pool by default; retain an override for alternate deployments.
+        buildConfigField "String", "STUDENTCC_STATS_BASE_URL", groovy.json.JsonOutput.toJson(
+                providers.gradleProperty("studentccStatsBaseUrl")
+                        .map { it.trim() ?: "https://studentcc-statistics.salmanmalvasi-studentcc.workers.dev" }
+                        .getOrElse("https://studentcc-statistics.salmanmalvasi-studentcc.workers.dev"))
+        buildConfigField "boolean", "STUDENTCC_STATS_LOCAL_MODE", "false"
 
         // Vector drawable support for smaller APK
         vectorDrawables.useSupportLibrary = true
@@ -57,10 +84,12 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('studentcc.keystore')
-            storePassword 'studentcc123'
-            keyAlias 'studentcc'
-            keyPassword 'studentcc123'
+            if (releaseSigningReady) {
+                storeFile file(releaseKeystorePath)
+                storePassword releaseKeystorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
         }
     }
 
@@ -75,6 +104,18 @@ android {
         debug {
             minifyEnabled false
             shrinkResources false
+        }
+        qa {
+            initWith debug
+            signingConfig signingConfigs.release
+            matchingFallbacks = ['debug']
+        }
+        local {
+            initWith debug
+            signingConfig signingConfigs.release
+            matchingFallbacks = ['debug']
+            buildConfigField "String", "STUDENTCC_STATS_BASE_URL", '"http://127.0.0.1:8766"'
+            buildConfigField "boolean", "STUDENTCC_STATS_LOCAL_MODE", "true"
         }
     }
     namespace 'com.salmanmalvasi.studentcc'
@@ -94,6 +135,7 @@ dependencies {
 
 
     implementation 'com.google.android.material:material:1.8.0'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
 
     implementation 'com.squareup.retrofit2:adapter-rxjava3:2.9.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'

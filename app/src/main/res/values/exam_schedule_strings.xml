@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="exam_schedule_empty">Your exam timetable is not saved yet.\n\nSync StudentCC to check VTOP for dates and seating. If VTOP has not published your timetable, it will appear after a later sync.</string>
+    <string name="exam_schedule_sync">Sync exam schedule</string>
+    <string name="exam_schedule_page_empty">No exam entries are available for this assessment. Sync StudentCC to refresh your timetable.</string>
+    <string name="exam_schedule_date_pending">Date to be announced</string>
+    <string name="exam_schedule_time_pending">Time to be announced</string>
+    <string name="exam_schedule_venue_pending">Venue to be announced</string>
+    <string name="exam_schedule_seat">Seat %1$s</string>
+    <string name="exam_schedule_upcoming">UPCOMING</string>
+    <string name="exam_schedule_today">TODAY</string>
+    <string name="exam_schedule_completed">COMPLETED</string>
+    <string name="exam_schedule_pending">AWAITING DETAILS</string>
+    <string name="exam_schedule_course_fallback">Exam</string>
+    <string name="exam_schedule_from_time">Starts at %1$s</string>
+</resources>

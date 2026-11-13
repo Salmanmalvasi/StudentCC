@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="update_download_failed">The update could not be downloaded. Try again when you are online.</string>
+    <string name="update_invalid_apk">This download is not a valid newer StudentCC update. Please download the latest release again.</string>
+    <string name="update_allow_install">Allow StudentCC to install updates, then return to StudentCC to continue.</string>
+    <string name="update_install_failed">The update is downloaded. Tap Update again to open the Android installer.</string>
+</resources>

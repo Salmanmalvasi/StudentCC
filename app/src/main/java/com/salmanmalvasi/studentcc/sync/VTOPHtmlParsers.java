@@ -36,6 +36,74 @@ import java.util.regex.Pattern;
 public class VTOPHtmlParsers {
     private static final String TAG = "VTOPHtmlParsers";
 
+    /** Reads the cumulative summary, accepting both td and th headings used by VTOP. */
+    public static Map<String, String> parseCgpa(String html) {
+        Map<String, String> summary = new HashMap<>();
+        if (html == null || html.trim().isEmpty()) return summary;
+        Elements tables = Jsoup.parse(html).getElementsByTag("table");
+        for (int t = tables.size() - 1; t >= 0; t--) {
+            List<Elements> rows = new ArrayList<>();
+            for (Element row : tables.get(t).getElementsByTag("tr")) {
+                if (row.closest("table") != tables.get(t)) continue;
+                Elements cells = new Elements();
+                for (Element cell : row.children()) {
+                    if (cell.tagName().equals("td") || cell.tagName().equals("th")) cells.add(cell);
+                }
+                if (!cells.isEmpty()) rows.add(cells);
+            }
+            Map<String, String> tableSummary = new HashMap<>();
+            for (int r = 0; r < rows.size(); r++) {
+                Elements headings = rows.get(r);
+                for (int c = 0; c < headings.size(); c++) {
+                    String heading = academicCellText(headings.get(c)).toLowerCase(Locale.US);
+                    String key = academicHeadingKey(heading);
+                    if (key == null || tableSummary.containsKey(key)) continue;
+                    // Some pages show label/value rows instead of column headings.
+                    if (c + 1 < headings.size()) putAcademicNumber(tableSummary, key, academicCellText(headings.get(c + 1)));
+                    if (tableSummary.containsKey(key)) continue;
+                    if (r + 1 < rows.size() && c < rows.get(r + 1).size()) {
+                        putAcademicNumber(tableSummary, key, academicCellText(rows.get(r + 1).get(c)));
+                    }
+                }
+            }
+            if (!tableSummary.isEmpty()) {
+                for (Map.Entry<String, String> item : tableSummary.entrySet()) summary.putIfAbsent(item.getKey(), item.getValue());
+                if (summary.containsKey("cgpa") && summary.containsKey("creditsEarned")) break;
+            }
+        }
+        return summary;
+    }
+
+    private static String academicCellText(Element cell) {
+        Element copy = cell.clone();
+        // Grade-history summaries may put a note marker immediately beside the number.
+        // Element.text() would otherwise turn 9.12<sup>1</sup> into an invalid 9.121.
+        copy.select("sup, script, style").remove();
+        return copy.text().replace('\u00a0', ' ').replaceAll("\\s+", " ").trim();
+    }
+
+    private static String academicHeadingKey(String heading) {
+        String label = heading.replaceAll("[\\s:*†‡]+$", "").trim();
+        if (label.matches("(?:cgpa|cumulative gpa|cumulative grade point average)(?:\\s*\\(\\s*(?:out of 10|/\\s*10|10 point scale)\\s*\\))?")) {
+            return "cgpa";
+        }
+        return label.matches("(?:total\\s+)?credits?\\s+earned|earned\\s+credits?|earned") ? "creditsEarned" : null;
+    }
+
+    static void putAcademicNumber(Map<String, String> summary, String key, String raw) {
+        if (raw == null) return;
+        String number = raw.replace('\u00a0', ' ').trim().replaceAll("\\s*[*†‡]+$", "").trim();
+        if (key.equals("cgpa")) number = number.replaceAll("\\s*/\\s*10(?:\\.0+)?$", "").trim();
+        if (!number.matches("[+]?[0-9]+(?:\\.[0-9]+)?")) return;
+        try {
+            double value = Double.parseDouble(number);
+            if (!Double.isFinite(value) || value > Float.MAX_VALUE || value < 0 || (key.equals("cgpa") && value > 10)) return;
+            summary.put(key, Double.toString(value));
+        } catch (NumberFormatException ignored) {
+            // Missing or invalid values stay unknown instead of becoming a synthetic zero.
+        }
+    }
+
     public static class DetailedAttendanceLink {
         public final String courseCode;
         public final String courseTitle;
@@ -100,9 +168,14 @@ public class VTOPHtmlParsers {
         Elements headings = table.getElementsByTag("th");
         int courseIndex = -1, courseCodeIndex = -1, courseTitleIndex = -1, courseTypeIndex = -1;
         int creditsIndex = -1, slotVenueIndex = -1, facultyIndex = -1;
+        int classNumberIndex = -1, courseSystemIndex = -1;
         for (int i = 0; i < headings.size(); ++i) {
             String heading = headings.get(i).text().toLowerCase(Locale.US).trim();
-            if (heading.equals("course")) {
+            if (heading.contains("class") && (heading.contains("nbr") || heading.contains("number") || heading.contains("id"))) {
+                classNumberIndex = i;
+            } else if (heading.contains("course") && heading.contains("system")) {
+                courseSystemIndex = i;
+            } else if (heading.equals("course")) {
                 courseIndex = i;
             } else if (heading.equals("course code") || (heading.contains("code") && heading.contains("course"))) {
                 courseCodeIndex = i;
@@ -181,7 +254,7 @@ public class VTOPHtmlParsers {
                 course.id = courseIdCounter++;
                 course.code = finalCode;
                 course.title = finalTitle;
-                course.type = rawType.toLowerCase(Locale.US).contains("lab") ? "lab" : (rawType.toLowerCase(Locale.US).contains("project") ? "project" : "theory");
+                course.type = parsedCourseType(rawType);
                 try {
                     String[] credTokens = rawCredits.split("\\s+");
                     course.credits = Double.parseDouble(credTokens[credTokens.length - 1]);
@@ -194,6 +267,15 @@ public class VTOPHtmlParsers {
             }
 
             if (course != null && course.code != null && !course.code.isEmpty()) {
+                if (!rawType.trim().isEmpty()) course.type = parsedCourseType(rawType);
+                if (classNumberIndex >= 0 && classNumberIndex < rowCells.size()) {
+                    course.vtopClassId = rowCells.get(classNumberIndex).text().trim();
+                }
+                if (courseSystemIndex >= 0 && courseSystemIndex < rowCells.size()) {
+                    course.courseSystem = rowCells.get(courseSystemIndex).text().trim();
+                } else if ((rawType + " " + rawCourse).toUpperCase(Locale.US).contains("ACE")) {
+                    course.courseSystem = "ACE";
+                }
                 outCourses.add(course);
                 List<Slot> parsedSlots = parseSlotsForCourse(rawSlotVenue, course.id, slotIdCounter);
                 outSlots.addAll(parsedSlots);
@@ -277,7 +359,7 @@ public class VTOPHtmlParsers {
         }
         String title = titleBuilder.toString().split("\\(")[0].trim();
         String rawCourseType = rawCourse.contains("(") ? rawCourse.substring(rawCourse.lastIndexOf('(')).toLowerCase(Locale.US) : "";
-        String type = rawCourseType.contains("lab") ? "lab" : (rawCourseType.contains("project") ? "project" : "theory");
+        String type = parsedCourseType(rawCourseType);
 
         double credits = 0.0;
         try {
@@ -304,6 +386,16 @@ public class VTOPHtmlParsers {
         course.venue = venue;
         course.faculty = faculty;
         return course;
+    }
+
+    /** Theory qualifiers decide component pairing; lab/project values retain their existing routing keys. */
+    private static String parsedCourseType(String rawType) {
+        String type = rawType == null ? "" : rawType.toLowerCase(Locale.US).replace("(", "").replace(")", "").trim();
+        if (type.contains("lab")) return "lab";
+        if (type.contains("project")) return "project";
+        if (type.contains("embedded") && type.contains("theory")) return "embedded theory";
+        if (type.contains("theory") && type.contains("only")) return "theory only";
+        return "theory";
     }
 
     private static List<Slot> parseSlotsForCourse(String rawSlotVenue, int courseId, int startSlotId) {
@@ -724,11 +816,16 @@ public class VTOPHtmlParsers {
         int courseTypeIndex = -1;
         int slotIndex = -1;
         int creditIndex = -1;
+        int classNumberIndex = -1, courseSystemIndex = -1;
 
         Elements headers = rows.first().select("th, td");
         for (int i = 0; i < headers.size(); i++) {
             String hText = headers.get(i).text().toLowerCase(Locale.US);
-            if (hText.contains("course") && hText.contains("type")) {
+            if (hText.contains("class") && (hText.contains("nbr") || hText.contains("number") || hText.contains("id"))) {
+                classNumberIndex = i;
+            } else if (hText.contains("course") && hText.contains("system")) {
+                courseSystemIndex = i;
+            } else if (hText.contains("course") && hText.contains("type")) {
                 courseTypeIndex = i;
             } else if (hText.contains("slot")) {
                 slotIndex = i;
@@ -795,6 +892,12 @@ public class VTOPHtmlParsers {
             if (courses != null) {
                 for (Course c : courses) {
                     if (courseId != null && c.id == courseId) {
+                        if (classNumberIndex >= 0 && classNumberIndex < cells.size()) {
+                            c.vtopClassId = cells.get(classNumberIndex).text().trim();
+                        }
+                        if (courseSystemIndex >= 0 && courseSystemIndex < cells.size()) {
+                            c.courseSystem = cells.get(courseSystemIndex).text().trim();
+                        }
                         if (courseCode.isEmpty() && c.code != null) {
                             courseCode = c.code;
                         }
@@ -802,7 +905,7 @@ public class VTOPHtmlParsers {
                             courseCredits = c.credits;
                         }
                         break;
-                    } else if (!courseCode.isEmpty() && courseCode.equalsIgnoreCase(c.code)) {
+                    } else if (courseId == null && !courseCode.isEmpty() && courseCode.equalsIgnoreCase(c.code)) {
                         if (courseId == null) {
                             courseId = c.id;
                         }
@@ -1026,50 +1129,7 @@ public class VTOPHtmlParsers {
      * Parses examination schedule from doSearchExamScheduleForStudent.
      */
     public static List<Exam> parseExamSchedule(String html, Map<String, Integer> courseIdBySlot) {
-        List<Exam> exams = new ArrayList<>();
-        if (html == null) return exams;
-        Document doc = Jsoup.parse(html);
-        Elements rows = doc.select("table tr");
-        if (rows.isEmpty()) return exams;
-
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy hh:mm a", Locale.ENGLISH);
-
-        String currentTitle = "Exam";
-        for (Element row : rows) {
-            Elements ths = row.getElementsByTag("th");
-            if (!ths.isEmpty() && ths.first().hasAttr("colspan")) {
-                currentTitle = ths.first().text().trim();
-                continue;
-            }
-
-            Elements cells = row.getElementsByTag("td");
-            if (cells.size() >= 6) {
-                String slot = cells.get(1).text().split("\\+")[0].trim();
-                Integer courseId = (courseIdBySlot != null) ? courseIdBySlot.get(slot) : null;
-                if (courseId == null) continue;
-
-                Exam exam = new Exam();
-                exam.courseId = courseId;
-                exam.title = currentTitle;
-                String dateStr = cells.get(2).text().trim();
-                String timingStr = cells.get(3).text().trim();
-                exam.venue = cells.get(4).text().trim();
-                exam.seatLocation = cells.get(5).text().trim();
-
-                try {
-                    String[] timeParts = timingStr.split("to|-");
-                    if (timeParts.length >= 2) {
-                        Date start = sdf.parse(dateStr + " " + timeParts[0].trim());
-                        Date end = sdf.parse(dateStr + " " + timeParts[1].trim());
-                        if (start != null) exam.startTime = start.getTime();
-                        if (end != null) exam.endTime = end.getTime();
-                    }
-                } catch (Exception ignored) {
-                }
-                exams.add(exam);
-            }
-        }
-        return exams;
+        return ExamScheduleParser.parse(html, Collections.emptyList(), courseIdBySlot).exams;
     }
 
     /**

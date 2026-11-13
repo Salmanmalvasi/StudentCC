@@ -16,6 +16,7 @@ import androidx.fragment.app.DialogFragment;
 import io.noties.markwon.Markwon;
 import com.salmanmalvasi.studentcc.R;
 import com.salmanmalvasi.studentcc.helpers.SettingsRepository;
+import com.salmanmalvasi.studentcc.helpers.ApkUpdateManager;
 
 public class UpdateDialogFragment extends DialogFragment {
     String versionName, releaseNotes;
@@ -25,11 +26,17 @@ public class UpdateDialogFragment extends DialogFragment {
     }
 
     public static UpdateDialogFragment newInstance(String versionName, String releaseNotes) {
+        return newInstance(versionName, releaseNotes, "", "");
+    }
+
+    public static UpdateDialogFragment newInstance(String versionName, String releaseNotes, String downloadUrl, String sha256) {
         Bundle args = new Bundle();
         UpdateDialogFragment fragment = new UpdateDialogFragment();
 
         args.putString("versionName", versionName);
         args.putString("releaseNotes", releaseNotes);
+        args.putString("downloadUrl", downloadUrl);
+        args.putString("sha256", sha256);
 
         fragment.setArguments(args);
         return fragment;
@@ -42,8 +49,8 @@ public class UpdateDialogFragment extends DialogFragment {
         Bundle args = getArguments();
 
         if (args != null) {
-            this.versionName = args.getString("versionName");
-            this.releaseNotes = args.getString("releaseNotes");
+            this.versionName = args.getString("versionName", "");
+            this.releaseNotes = args.getString("releaseNotes", "");
         }
 
         TextView description = dialogFragment.findViewById(R.id.text_view_description);
@@ -54,7 +61,12 @@ public class UpdateDialogFragment extends DialogFragment {
         markwon.setMarkdown(releaseNotes, this.releaseNotes);
 
         dialogFragment.findViewById(R.id.button_cancel).setOnClickListener(view -> this.dismiss());
-        dialogFragment.findViewById(R.id.button_update).setOnClickListener(view -> SettingsRepository.openDownloadPage(this.requireContext()));
+        dialogFragment.findViewById(R.id.button_update).setOnClickListener(view -> {
+            String url = args == null ? "" : args.getString("downloadUrl", "");
+            if (url.isEmpty()) SettingsRepository.openDownloadPage(requireContext());
+            else ApkUpdateManager.download(requireContext(), url, args.getString("sha256", ""));
+            dismiss();
+        });
 
         return dialogFragment;
     }

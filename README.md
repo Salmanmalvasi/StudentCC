@@ -57,6 +57,14 @@
 - **VIT Grade System Alignment**: Full support for 10-point relative grading (`S`, `A`, `B`, `C`, `D`, `E`, `F`, `N`).
 - **Interactive Simulator**: Calculate how upcoming marks or attendance percentages impact overall semester targets.
 
+### Class Insights from UniCC and StudentCC
+- Expand a theory course on the marks screen to see separate class averages, standard deviation and contributor counts from UniCC and StudentCC.
+- Compatible completed internal totals are compared on the same 60-mark basis, with credit weighting for supported embedded theory/lab courses.
+- Aggregate statistics are cached locally, with explicit loading, missing-data, small-sample and offline states. Final letter grades remain the university's released results.
+- UniCC requests send the VTOP class number only. StudentCC sharing starts selected beside an inline disclosure on the sign-in screen. Successful sign-in applies that choice, and the Profile switch can enable it directly. Confirmed sharing sends complete course totals and only whether CGPA is at least 9 under a random participant identifier; names, VTOP passwords, sessions and exact CGPA are not uploaded.
+- Each pool keeps its own contributors. StudentCC shows statistics from the first contribution, updates changed totals without double counting, and supports removing your contributions.
+- Production builds use the hosted StudentCC statistics service; a separate local variant supports development.
+
 ### 🏢 Hostel Info & Unmessify Mess Menu
 - **Hostel Insights**: Block details, room information, and automated laundry countdown reminders.
 - **Unmessify Integration**: Integrated daily mess menus (Breakfast, Lunch, Snacks, Dinner) in collaboration with the [Unmessify](https://github.com/Kanishka-Developer/unmessify) open-source initiative.
@@ -253,7 +261,7 @@ The project features a fully automated GitHub Actions pipeline ([`.github/workfl
 
 ## 🔒 Privacy & Security Commitment
 
-- **Zero External Data Transmission**: All academic data (marks, attendance, schedules) stays strictly on the student's device. No telemetry or server relays capture student credentials.
+- **Local Academic Storage and Optional Contributions**: Personal academic records are stored on the device. UniCC reads use the VTOP class number and send no personal marks or session credentials. Sharing starts selected beside a disclosure on the sign-in screen; successful sign-in applies the visible choice without a separate popup. The Profile switch enables sharing directly beside the same disclosure. Confirmed sharing sends complete internal /60 and final /100 course totals, class/semester identifiers, and only whether the account's synced CGPA is at least 9. StudentCC stores pseudonymous records so later syncs replace them without duplicate counts, and withdrawal removes both totals and the CGPA-threshold record. Names, passwords, sessions and exact CGPA are not uploaded. Class statistics show the distinct count of participants with 9+ CGPA who confirmed public class tally sharing, across both assessment stages. The separate global tally remains administrator-only. Existing opt-outs remain respected, and earlier private-tally consent requires a fresh choice before joining the public class tally.
 - **Direct-to-Portal Communication**: Network interactions occur directly between the app and official VTOP servers over HTTPS.
 - **Encrypted Local Storage**: Session tokens and credentials stored on disk use AES-256 GCM encryption via Android Jetpack Security.
 - **Repository Hygiene**: Sensitive secrets, local keystore passwords, `.env` files, and binary APKs are strictly excluded from git tracking.
@@ -263,6 +271,7 @@ The project features a fully automated GitHub Actions pipeline ([`.github/workfl
 ## 🤝 Partnerships & Credits
 
 - **Unmessify**: Special thanks to [Kanishka Chakraborty](https://github.com/Kanishka-Developer) and Teesha Saxena for open collaboration on the mess menu system ([kaffeine.tech/unmessify](https://kaffeine.tech/unmessify)).
+- **UniCC class statistics**: The marks screen uses [UniCC's hosted API](https://github.com/Arya4930/UniCC) by Arya4930. This is a StudentCC client integration with the existing public API; it does not assert an endorsement or formal partnership.
 - **VIT Community**: Immense gratitude to the VIT student body for continuous testing, feedback, and feature requests.
 
 ---

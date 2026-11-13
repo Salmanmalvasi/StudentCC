@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.CompletableObserver;
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -111,7 +112,6 @@ public class VTOPService extends Service {
     WebView webView;
 
     Map<Integer, Course> theoryCourses, labCourses, projectCourses;
-    Map<String, CumulativeMark> cumulativeMarks;
     Map<String, Slot> theorySlots, labSlots, projectSlots;
     Map<String, String> semesters;
     String username, password, semesterID;
@@ -1795,7 +1795,7 @@ public class VTOPService extends Service {
         if (isQuickSync) {
             this.maxProgress = 3;
             loadCoursesAndSlotsFromDatabase(() -> {
-                downloadAttendance();
+                getCreditsCGPA(this::downloadAttendance);
             });
         } else {
             getName();
@@ -1810,6 +1810,11 @@ public class VTOPService extends Service {
      */
     private void loadCoursesAndSlotsFromDatabase(Runnable onLoaded) {
         if (this.theorySlots != null && !this.theorySlots.isEmpty()) {
+            List<Course> cachedCourses = new ArrayList<>();
+            if (theoryCourses != null) cachedCourses.addAll(theoryCourses.values());
+            if (labCourses != null) cachedCourses.addAll(labCourses.values());
+            if (projectCourses != null) cachedCourses.addAll(projectCourses.values());
+            if (!cachedCoursesMatchSemester(cachedCourses)) { downloadCourses(); return; }
             if (onLoaded != null)
                 onLoaded.run();
             return;
@@ -1821,6 +1826,7 @@ public class VTOPService extends Service {
                 this.appDatabase.coursesDao().getAllCourses(),
                 this.appDatabase.coursesDao().getAllSlots(),
                 (courses, slots) -> {
+                    if (!cachedCoursesMatchSemester(courses)) return -1;
                     this.theorySlots = new HashMap<>();
                     this.labSlots = new HashMap<>();
                     this.projectSlots = new HashMap<>();
@@ -1832,9 +1838,10 @@ public class VTOPService extends Service {
                     Map<Integer, Course> courseById = new HashMap<>();
                     for (Course course : courses) {
                         courseById.put(course.id, course);
-                        if ("lab".equalsIgnoreCase(course.type)) {
+                        String type = course.type == null ? "" : course.type.toLowerCase(Locale.ROOT);
+                        if (type.contains("lab")) {
                             this.labCourses.put(course.id, course);
-                        } else if ("project".equalsIgnoreCase(course.type)) {
+                        } else if (type.contains("project")) {
                             this.projectCourses.put(course.id, course);
                         } else {
                             this.theoryCourses.put(course.id, course);
@@ -1844,9 +1851,10 @@ public class VTOPService extends Service {
                     for (Slot slot : slots) {
                         Course course = courseById.get(slot.courseId);
                         Map<String, Slot> slotReference;
-                        if (course != null && "lab".equalsIgnoreCase(course.type)) {
+                        String type = course == null || course.type == null ? "" : course.type.toLowerCase(Locale.ROOT);
+                        if (type.contains("lab")) {
                             slotReference = this.labSlots;
-                        } else if (course != null && "project".equalsIgnoreCase(course.type)) {
+                        } else if (type.contains("project")) {
                             slotReference = this.projectSlots;
                         } else {
                             slotReference = this.theorySlots;
@@ -1867,7 +1875,7 @@ public class VTOPService extends Service {
                 .subscribe(count -> {
                     android.util.Log.i("VTOPService",
                             "Loaded " + count + " courses and slots from database cache for quick sync.");
-                    if (count == 0) {
+                    if (count <= 0) {
                         downloadCourses();
                     } else if (onLoaded != null) {
                         onLoaded.run();
@@ -1876,6 +1884,15 @@ public class VTOPService extends Service {
                     android.util.Log.e("VTOPService", "Error loading courses from database: " + error.getMessage());
                     downloadCourses();
                 });
+    }
+
+    private boolean cachedCoursesMatchSemester(List<Course> courses) {
+        if (semesterID == null || semesterID.trim().isEmpty()) return false;
+        for (Course course : courses) {
+            if (course.semesterId != null && !course.semesterId.trim().isEmpty()
+                    && !semesterID.trim().equalsIgnoreCase(course.semesterId.trim())) return false;
+        }
+        return true;
     }
 
     /**
@@ -1936,16 +1953,13 @@ public class VTOPService extends Service {
      * Function to sve the earned credits and CGPA in SharedPreferences.
      */
     private void getCreditsCGPA() {
-        this.updateProgress(null);
+        getCreditsCGPA(this::downloadCourses);
+    }
 
-        /*
-         * JSON response format
-         *
-         * {
-         * "cgpa": 8.58
-         * "total_credits": 64
-         * }
-         */
+    private void getCreditsCGPA(Runnable next) {
+        this.updateProgress(null);
+        final String cgpaAccount = SettingsRepository.getAuthorizedUsername(getApplicationContext());
+
         webView.evaluateJavascript("(function() {" +
                 "var data = 'verifyMenu=true&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val() + '&nocache=@(new Date().getTime())';"
                 +
@@ -1982,20 +1996,33 @@ public class VTOPService extends Service {
                 "})();", responseString -> {
                     try {
                         JSONObject response = new JSONObject(responseString);
-                        if (response.has("cgpa")) {
-                            this.sharedPreferences.edit().putFloat("cgpa", (float) response.getDouble("cgpa")).apply();
+                        SharedPreferences.Editor editor = this.sharedPreferences.edit();
+                        Double cgpa = response.has("cgpa") ? response.getDouble("cgpa") : null;
+                        boolean validCgpa = cgpa != null && Double.isFinite(cgpa) && cgpa >= 0 && cgpa <= 10;
+                        if (validCgpa) {
+                            editor.putFloat("cgpa", cgpa.floatValue())
+                                    .putLong("cgpaVerifiedAt", System.currentTimeMillis());
                         }
                         if (response.has("total_credits")) {
-                            this.sharedPreferences.edit()
-                                    .putFloat("totalCredits", (float) response.getDouble("total_credits")).apply();
+                            double credits = response.getDouble("total_credits");
+                            if (Double.isFinite(credits) && credits >= 0) editor.putFloat("totalCredits", (float) credits);
+                        }
+                        editor.apply();
+                        if (validCgpa) {
+                            try {
+                                com.salmanmalvasi.studentcc.integrations.studentcc.StudentCCSharingManager
+                                        .getInstance(getApplicationContext()).recordVerifiedCgpa(cgpaAccount, cgpa);
+                            } catch (RuntimeException ignored) {
+                                // Optional sharing cannot block saving or displaying the personal CGPA.
+                            }
                         }
                         if (!response.has("cgpa") && !response.has("total_credits")) {
                             android.util.Log.w("VTOPService", "getCreditsCGPA: no data in response, continuing...");
                         }
-                        // Continue to next step regardless — CGPA is not critical for sync
-                        this.downloadCourses();
                     } catch (Exception e) {
-                        error(302, e.getLocalizedMessage());
+                        android.util.Log.w("VTOPService", "Optional cumulative summary could not be read; retaining saved data.");
+                    } finally {
+                        next.run();
                     }
                 });
     }
@@ -2045,10 +2072,12 @@ public class VTOPService extends Service {
                 "        }" +
                 "        var table = doc.getElementById('studentDetailsList').getElementsByTagName('table')[0];" +
                 "        var headings = table.getElementsByTagName('th');" +
-                "        var courseIndex, creditsIndex, slotVenueIndex, facultyIndex;" +
+                "        var courseIndex, creditsIndex, slotVenueIndex, facultyIndex, classNumberIndex;" +
                 "        for(var i = 0; i < headings.length; ++i) {" +
                 "            var heading = headings[i].innerText.toLowerCase();" +
-                "            if (heading == 'course') {" +
+                "            if (heading.includes('class') && (heading.includes('nbr') || heading.includes('number') || heading.includes('id'))) {" +
+                "                classNumberIndex = i;" +
+                "            } else if (heading == 'course') {" +
                 "                courseIndex = i;" +
                 "            } else if (heading == 'l t p j c') {" +
                 "                creditsIndex = i;" +
@@ -2075,6 +2104,8 @@ public class VTOPService extends Service {
                 "            var rawFaculty = cells[facultyIndex + offset].innerText.replace(/\\t/g,'').replace(/\\n/g,'').split('-');"
                 +
                 "            course.code = rawCourse.split('-')[0].trim();" +
+                "            course.class_id = classNumberIndex === undefined ? null : cells[classNumberIndex + offset].innerText.trim();" +
+                "            course.course_system = rawCourse.toUpperCase().includes('ACE') ? 'ACE' : null;" +
                 "            course.title = rawCourse.split('-').slice(1).join('-').split('(')[0].trim();" +
                 "            course.type = (rawCourseType.includes('lab')) ? 'lab' : ((rawCourseType.includes('project')) ? 'project' : 'theory');"
                 +
@@ -2087,6 +2118,7 @@ public class VTOPService extends Service {
                 "            creditsIndex += headings.length + headingOffset;" +
                 "            slotVenueIndex += headings.length + headingOffset;" +
                 "            facultyIndex += headings.length + headingOffset;" +
+                "            if (classNumberIndex !== undefined) classNumberIndex += headings.length + headingOffset;" +
                 "        }" +
                 "    }" +
                 "});" +
@@ -2118,6 +2150,9 @@ public class VTOPService extends Service {
                             course.credits = this.getDoubleValue(courseObject, "credits");
                             course.venue = this.getStringValue(courseObject, "venue");
                             course.faculty = this.getStringValue(courseObject, "faculty");
+                            course.vtopClassId = this.getStringValue(courseObject, "class_id");
+                            course.semesterId = this.semesterID;
+                            course.courseSystem = this.getStringValue(courseObject, "course_system");
 
                             courses.add(course);
 
@@ -2155,17 +2190,30 @@ public class VTOPService extends Service {
                         this.appDatabase = AppDatabase.getInstance(getApplicationContext());
                         CoursesDao coursesDao = this.appDatabase.coursesDao();
 
-                        Observable<Object> deleteAllObservable = Observable.fromCompletable(coursesDao.deleteAll());
-                        Observable<Object> insertCoursesObservable = Observable
-                                .fromCompletable(coursesDao.insertCourses(courses));
-                        Observable<Object> insertSlotsObservable = Observable
-                                .fromCompletable(coursesDao.insertSlots(slots));
-
-                        Observable
-                                .concat(
-                                        deleteAllObservable,
-                                        insertCoursesObservable,
-                                        insertSlotsObservable)
+                        Observable<Object> saveCoursesObservable = Observable.fromCompletable(
+                                io.reactivex.rxjava3.core.Completable.fromAction(() -> appDatabase.runInTransaction(() -> {
+                                    List<Course> previousCourses = coursesDao.getAllCourses().blockingGet();
+                                    MarksDao marksDao = appDatabase.marksDao();
+                                    List<Mark> previousMarks = marksDao.getRawMarks().blockingGet();
+                                    List<CumulativeMark> previousTotals = marksDao.getAllCumulativeMarks().blockingGet();
+                                    List<Mark> retainedMarks = com.salmanmalvasi.studentcc.helpers.CumulativeMarksCalculator
+                                            .relinkCachedMarks(previousMarks, previousCourses, courses);
+                                    List<CumulativeMark> retainedTotals = com.salmanmalvasi.studentcc.helpers.CumulativeMarksCalculator
+                                            .retainTotalsForCourses(previousTotals, courses, previousCourses);
+                                    List<Exam> previousExams = appDatabase.examsDao().getExams().blockingGet();
+                                    List<Exam> retainedExams = com.salmanmalvasi.studentcc.sync.ExamScheduleParser
+                                            .relinkCachedExams(previousExams, previousCourses, courses);
+                                    coursesDao.deleteAll().blockingAwait();
+                                    coursesDao.insertCourses(courses).blockingAwait();
+                                    coursesDao.insertSlots(slots).blockingAwait();
+                                    // Course deletion sets mark foreign keys to null. Restore only matching class snapshots.
+                                    marksDao.deleteMarks().blockingAwait();
+                                    if (!retainedMarks.isEmpty()) marksDao.insertMarks(retainedMarks).blockingAwait();
+                                    marksDao.deleteCumulativeMarks().blockingAwait();
+                                    if (!retainedTotals.isEmpty()) marksDao.insertCumulativeMarks(retainedTotals).blockingAwait();
+                                    if (!retainedExams.isEmpty()) appDatabase.examsDao().insert(retainedExams).blockingAwait();
+                                })));
+                        saveCoursesObservable
                                 .subscribeOn(Schedulers.single())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new Observer<Object>() {
@@ -3149,7 +3197,7 @@ public class VTOPService extends Service {
 
                         @Override
                         public void onComplete() {
-                            Intent dataUpdatedIntent = new Intent("DATA_UPDATED");
+                            Intent dataUpdatedIntent = new Intent("DATA_UPDATED").setPackage(getPackageName());
                             sendBroadcast(dataUpdatedIntent);
                             downloadDetailedAttendance();
                         }
@@ -3372,7 +3420,7 @@ public class VTOPService extends Service {
                                 + weightByCourseDate.size());
                     }
 
-                    Intent intent = new Intent("OD_COUNT_UPDATED");
+                    Intent intent = new Intent("OD_COUNT_UPDATED").setPackage(getPackageName());
                     intent.putExtra("odUsed", odUsedWeighted);
                     sendBroadcast(intent);
                 }, throwable -> {
@@ -3640,10 +3688,14 @@ public class VTOPService extends Service {
                 "        var table = doc.getElementById('fixedTableContainer');" +
                 "        var rows = table.getElementsByTagName('tr');" +
                 "        var headings = rows[0].getElementsByTagName('td');" +
-                "        var courseTypeIndex, slotIndex;" +
+                "        var courseTypeIndex, slotIndex, classNumberIndex, courseSystemIndex;" +
                 "        for (var i = 0; i < headings.length; ++i) {" +
                 "            var heading = headings[i].innerText.toLowerCase();" +
-                "            if (heading.includes('course') && heading.includes('type')) {" +
+                "            if (heading.includes('class') && (heading.includes('nbr') || heading.includes('number') || heading.includes('id'))) {" +
+                "                classNumberIndex = i;" +
+                "            } else if (heading.includes('course') && heading.includes('system')) {" +
+                "                courseSystemIndex = i;" +
+                "            } else if (heading.includes('course') && heading.includes('type')) {" +
                 "                courseTypeIndex = i;" +
                 "            } else if (heading.includes('slot')) {" +
                 "                slotIndex = i;" +
@@ -3654,6 +3706,8 @@ public class VTOPService extends Service {
                 +
                 "            var courseType = (rawCourseType.includes('lab')) ? 'lab' : ((rawCourseType.includes('project')) ? 'project' : 'theory');"
                 +
+                "            var classNumber = classNumberIndex === undefined ? null : rows[i].getElementsByTagName('td')[classNumberIndex].innerText.trim();" +
+                "            var courseSystem = courseSystemIndex === undefined ? null : rows[i].getElementsByTagName('td')[courseSystemIndex].innerText.trim();" +
                 "            var slot = rows[i++].getElementsByTagName('td')[slotIndex].innerText.split('+')[0].trim();"
                 +
                 "            var innerTable = rows[i].getElementsByTagName('table')[0];" +
@@ -3680,18 +3734,22 @@ public class VTOPService extends Service {
                 "                }" +
                 "            }" +
                 "            var innerCells = innerTable.getElementsByTagName('td');" +
-                "            while(titleIndex < innerCells.length && scoreIndex < innerCells.length && maxScoreIndex < innerCells.length && weightageIndex < innerCells.length && maxWeightageIndex < innerCells.length && averageIndex < innerCells.length && statusIndex < innerCells.length) {"
+                "            while(titleIndex < innerCells.length && scoreIndex < innerCells.length && maxScoreIndex < innerCells.length && weightageIndex < innerCells.length && maxWeightageIndex < innerCells.length) {"
                 +
                 "                var mark = {};" +
                 "                mark.slot = slot;" +
                 "                mark.course_type = courseType;" +
+                "                mark.class_id = classNumber;" +
+                "                mark.course_system = courseSystem;" +
                 "                mark.title = innerCells[titleIndex].innerText.trim();" +
-                "                mark.score = parseFloat(innerCells[scoreIndex].innerText) || 0;" +
+                "                var scoredValue = parseFloat(innerCells[scoreIndex].innerText);" +
+                "                mark.score = Number.isFinite(scoredValue) ? scoredValue : null;" +
                 "                mark.max_score = parseFloat(innerCells[maxScoreIndex].innerText) || null;" +
-                "                mark.weightage = parseFloat(innerCells[weightageIndex].innerText) || 0;" +
+                "                var weightedValue = parseFloat(innerCells[weightageIndex].innerText);" +
+                "                mark.weightage = Number.isFinite(weightedValue) ? weightedValue : null;" +
                 "                mark.max_weightage = parseFloat(innerCells[maxWeightageIndex].innerText) || null;" +
-                "                mark.average = parseFloat(innerCells[averageIndex].innerText) || null;" +
-                "                mark.status = innerCells[statusIndex].innerText.trim();" +
+                "                mark.average = averageIndex === undefined ? null : parseFloat(innerCells[averageIndex].innerText) || null;" +
+                "                mark.status = statusIndex === undefined ? null : innerCells[statusIndex].innerText.trim();" +
                 "                response.marks.push(mark);" +
                 "                titleIndex += innerHeadings.length;" +
                 "                scoreIndex += innerHeadings.length;" +
@@ -3712,9 +3770,7 @@ public class VTOPService extends Service {
                         JSONArray marksArray = response.getJSONArray("marks");
                         Map<Integer, Mark> marks = new HashMap<>();
 
-                        this.cumulativeMarks = new HashMap<>();
-
-                        for (int i = 0, j = 0; i < marksArray.length(); ++i) {
+                        for (int i = 0; i < marksArray.length(); ++i) {
                             JSONObject markObject = marksArray.getJSONObject(i);
                             Mark mark = new Mark();
 
@@ -3743,8 +3799,18 @@ public class VTOPService extends Service {
                             mark.average = this.getDoubleValue(markObject, "average");
                             mark.status = this.getStringValue(markObject, "status");
 
+                            Course linkedCourse = courseType == Course.TYPE_LAB ? this.labCourses.get(mark.courseId)
+                                    : courseType == Course.TYPE_PROJECT ? this.projectCourses.get(mark.courseId)
+                                    : this.theoryCourses.get(mark.courseId);
+                            String classNumber = this.getStringValue(markObject, "class_id");
+                            if (linkedCourse != null && classNumber != null && !classNumber.trim().isEmpty()) {
+                                linkedCourse.vtopClassId = classNumber.trim();
+                                linkedCourse.semesterId = this.semesterID;
+                                String courseSystem = this.getStringValue(markObject, "course_system");
+                                if (courseSystem != null) linkedCourse.courseSystem = courseSystem;
+                            }
+
                             String courseCode = this.getCourseCode(mark.courseId, courseType);
-                            Double courseCredits = this.getCourseCredits(mark.courseId, courseType);
 
                             // Handle Wildlife Ecology course transfer - if course code is CF0C575M,
                             // find the first available course with a different (non-null) course code
@@ -3762,7 +3828,6 @@ public class VTOPService extends Service {
                                             !course.code.trim().isEmpty()) {
                                         alternativeCourseId = entry.getKey();
                                         alternativeCourseCode = course.code;
-                                        courseCredits = course.credits;
                                         break;
                                     }
                                 }
@@ -3777,8 +3842,7 @@ public class VTOPService extends Service {
                                                 !course.code.trim().isEmpty()) {
                                             alternativeCourseId = entry.getKey();
                                             alternativeCourseCode = course.code;
-                                            courseCredits = course.credits;
-                                            break;
+                                                break;
                                         }
                                     }
                                 }
@@ -3790,64 +3854,37 @@ public class VTOPService extends Service {
                                 }
                             }
 
-                            if (!this.cumulativeMarks.containsKey(courseCode)) {
-                                this.cumulativeMarks.put(courseCode, new CumulativeMark(++j));
-                            }
-
-                            Objects.requireNonNull(this.cumulativeMarks.get(courseCode)).courseCode = courseCode;
-                            Objects.requireNonNull(this.cumulativeMarks.get(courseCode)).addWeightage(mark.weightage,
-                                    mark.maxWeightage, courseType, courseCredits);
-
                             // Generating a unique hash signature to keep a track of read marks
                             mark.signature = (courseCode + markObject.getString("course_type") + mark.title
                                     + mark.score).hashCode();
                             marks.put(mark.signature, mark);
                         }
 
-                        for (Map.Entry<String, CumulativeMark> cumulativeMark : this.cumulativeMarks.entrySet()) {
-                            Double theoryTotal = cumulativeMark.getValue().theoryTotal;
-                            Double labTotal = cumulativeMark.getValue().labTotal;
-                            Double projectTotal = cumulativeMark.getValue().projectTotal;
-
-                            Double theoryMax = cumulativeMark.getValue().theoryMax;
-                            Double labMax = cumulativeMark.getValue().labMax;
-                            Double projectMax = cumulativeMark.getValue().projectMax;
-
-                            if (theoryTotal == null) {
-                                theoryTotal = (double) 0;
-                                theoryMax = (double) 0;
+                        Completable.fromAction(() -> appDatabase.runInTransaction(() -> {
+                            List<Course> previousCourses = appDatabase.coursesDao().getAllCourses().blockingGet();
+                            List<Course> linkedCourses = new ArrayList<>();
+                            linkedCourses.addAll(this.theoryCourses.values());
+                            linkedCourses.addAll(this.labCourses.values());
+                            linkedCourses.addAll(this.projectCourses.values());
+                            for (Course linked : linkedCourses) {
+                                if (linked.vtopClassId != null && !linked.vtopClassId.trim().isEmpty()) {
+                                    appDatabase.coursesDao().updateVtopMetadata(linked.id, linked.vtopClassId,
+                                            this.semesterID, linked.courseSystem).blockingAwait();
+                                }
                             }
-
-                            if (labTotal == null) {
-                                labTotal = (double) 0;
-                                labMax = (double) 0;
-                            }
-
-                            if (projectTotal == null) {
-                                projectTotal = (double) 0;
-                                projectMax = (double) 0;
-                            }
-
-                            double theoryCredits = cumulativeMark.getValue().theoryCredits;
-                            double labCredits = cumulativeMark.getValue().labCredits;
-                            double projectCredits = cumulativeMark.getValue().projectCredits;
-
-                            double grandTotal = (theoryTotal * theoryCredits + labTotal * labCredits
-                                    + projectTotal * projectCredits);
-                            double grandMax = (theoryMax * theoryCredits + labMax * labCredits
-                                    + projectMax * projectCredits);
-
-                            grandTotal /= theoryCredits + labCredits + projectCredits;
-                            grandMax /= theoryCredits + labCredits + projectCredits;
-
-                            Objects.requireNonNull(
-                                    this.cumulativeMarks.get(cumulativeMark.getKey())).grandTotal = grandTotal;
-                            Objects.requireNonNull(
-                                    this.cumulativeMarks.get(cumulativeMark.getKey())).grandMax = grandMax;
-                        }
-
-                        appDatabase.marksDao()
-                                .insertMarks(marks)
+                            // Empty/failed responses leave the assessment cache and its totals intact.
+                            if (marks.isEmpty()) return;
+                            MarksDao marksDao = appDatabase.marksDao();
+                            List<Course> courses = appDatabase.coursesDao().getAllCourses().blockingGet();
+                            List<Mark> snapshot = com.salmanmalvasi.studentcc.helpers.CumulativeMarksCalculator
+                                    .mergeMarks(marks.values(), marksDao.getRawMarks().blockingGet(), courses, previousCourses);
+                            if (snapshot.isEmpty()) return;
+                            Map<Integer, Mark> snapshotByIndex = new java.util.LinkedHashMap<>();
+                            for (int index = 0; index < snapshot.size(); index++) snapshotByIndex.put(index, snapshot.get(index));
+                            marksDao.insertMarks(snapshotByIndex).blockingAwait();
+                            marksDao.replaceCumulativeMarks(com.salmanmalvasi.studentcc.helpers.CumulativeMarksCalculator
+                                    .calculate(courses, snapshot), courses, previousCourses).blockingAwait();
+                        }))
                                 .subscribeOn(Schedulers.single())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new CompletableObserver() {
@@ -3857,6 +3894,15 @@ public class VTOPService extends Service {
 
                                     @Override
                                     public void onComplete() {
+                                        if (!marks.isEmpty()) {
+                                            try {
+                                                com.salmanmalvasi.studentcc.integrations.studentcc.StudentCCSharingManager
+                                                        .getInstance(getApplicationContext())
+                                                        .onSyncCompleted(username, semesterID);
+                                            } catch (Exception ignored) {
+                                                // Sharing is independent of the successful academic-data save.
+                                            }
+                                        }
                                         if (isQuickSync) {
                                             android.util.Log.i("VTOPService",
                                                     "QuickSync completed: Attendance, Detailed Attendance, and Marks updated.");
@@ -3963,40 +4009,26 @@ public class VTOPService extends Service {
                         JSONObject response = new JSONObject(responseString);
                         JSONArray gradesArray = response.getJSONArray("grades");
 
-                        for (int i = 0; i < gradesArray.length(); ++i) {
-                            JSONObject gradesObject = gradesArray.getJSONObject(i);
+                        String gpa = this.getStringValue(response, "gpa");
+                        if (gpa != null && !gpa.trim().isEmpty()) this.sharedPreferences.edit().putString("gpa", gpa).apply();
 
-                            String courseCode = this.getStringValue(gradesObject, "course_code");
-
-                            if (this.cumulativeMarks.containsKey(courseCode)) {
-                                Objects.requireNonNull(this.cumulativeMarks.get(courseCode)).grade = gradesObject
-                                        .getString("grade");
+                        Completable.fromAction(() -> appDatabase.runInTransaction(() -> {
+                            MarksDao marksDao = appDatabase.marksDao();
+                            for (int i = 0; i < gradesArray.length(); ++i) {
+                                JSONObject gradesObject = gradesArray.optJSONObject(i);
+                                if (gradesObject == null) continue;
+                                String courseCode = gradesObject.optString("course_code", "").trim();
+                                String grade = gradesObject.optString("grade", "").trim();
+                                if (!courseCode.isEmpty() && !grade.isEmpty() && !"null".equalsIgnoreCase(grade)) {
+                                    marksDao.updateReleasedGrade(courseCode, grade).blockingAwait();
+                                }
                             }
-                        }
-
-                        this.sharedPreferences.edit().putString("gpa", response.getString("gpa")).apply();
-
-                        List<CumulativeMark> cumulativeMarks = new ArrayList<>(this.cumulativeMarks.values());
-                        MarksDao marksDao = this.appDatabase.marksDao();
-
-                        Observable<Object> deleteAllObservable = Observable
-                                .fromCompletable(marksDao.deleteCumulativeMarks());
-                        Observable<Object> insertCumulativeMarks = Observable
-                                .fromCompletable(marksDao.insertCumulativeMarks(cumulativeMarks));
-
-                        Observable
-                                .concat(
-                                        deleteAllObservable,
-                                        insertCumulativeMarks)
+                        }))
                                 .subscribeOn(Schedulers.single())
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new Observer<Object>() {
+                                .subscribe(new CompletableObserver() {
                                     @Override
                                     public void onSubscribe(@NonNull Disposable d) {
-                                    }
-
-                                    @Override
-                                    public void onNext(@NonNull Object o) {
                                     }
 
                                     @Override
@@ -4020,206 +4052,52 @@ public class VTOPService extends Service {
      */
     private void downloadExamSchedule() {
         updateProgress(R.string.downloading_exam_schedule);
-
-        /*
-         * JSON response format
-         *
-         * {
-         * "FAT": [
-         * {
-         * "slot": "A1",
-         * "date": "01-JAN-2020",
-         * "start_time": "9:30 AM",
-         * "end_time": "12:30 PM",
-         * "venue": "DB-101",
-         * "seat_location": "R1C1",
-         * "seat_number": 1
-         * },
-         * ...
-         * ],
-         * ...
-         * }
-         */
+        // Parse the raw portal table in Java; the table uses both TH and TD headers
+        // and VTOP can add course/seat columns or use a different time format.
         webView.evaluateJavascript("(function() {" +
                 "var data = 'semesterSubId=' + '" + semesterID
-                + "' + '&authorizedID=' + $('#authorizedIDX').val()  + '&_csrf=' + $('input[name=\"_csrf\"]').val();" +
-                "var response = {};" +
-                "try {" +
-                "    $.ajax({" +
-                "        type: 'POST'," +
-                "        url: 'examinations/doSearchExamScheduleForStudent'," +
-                "        data: data," +
-                "        async: false," +
-                "        success: function(res) {" +
-                "            if(!res || res.toLowerCase().includes('not found') || res.toLowerCase().includes('max concurrent') || res.toLowerCase().includes('error')) {" +
-                "                return;" +
-                "            }" +
-                "            var doc = new DOMParser().parseFromString(res, 'text/html');" +
-                "            var trs = doc.getElementsByTagName('tr');" +
-                "            if (!trs || trs.length === 0) return;" +
-                "            var columns = trs[0].getElementsByTagName('td');" +
-                "            if (!columns || columns.length === 0) return;" +
-                "            var slotIndex, dateIndex, timingIndex, venueIndex, locationIndex, numberIndex;" +
-                "            for (var i = 0; i < columns.length; ++i) {" +
-                "                var heading = columns[i].innerText.toLowerCase();" +
-                "                if (heading.includes('slot')) {" +
-                "                    slotIndex = i;" +
-                "                } else if (heading.includes('date')) {" +
-                "                    dateIndex = i;" +
-                "                } else if (heading.includes('exam') && heading.includes('time')) {" +
-                "                    timingIndex = i;" +
-                "                } else if (heading.includes('venue')) {" +
-                "                    venueIndex = i;" +
-                "                } else if (heading.includes('location')) {" +
-                "                    locationIndex = i;" +
-                "                } else if (heading.includes('seat') && heading.includes('no.')) {" +
-                "                    numberIndex = i;" +
-                "                }" +
-                "            }" +
-                "            var examTitle = '', exam = {}, cells = doc.getElementsByTagName('td');" +
-                "            for (var i = columns.length; i < cells.length; ++i) {" +
-                "                if (cells[i].colSpan > 1) {" +
-                "                    examTitle = cells[i].innerText.trim();" +
-                "                    response[examTitle] = [];" +
-                "                    continue;" +
-                "                }" +
-                "                var index = (i - Object.keys(response).length) % columns.length;" +
-                "                if (index == slotIndex) {" +
-                "                    exam.slot = cells[i].innerText.trim().split('+')[0];" +
-                "                } else if (index == dateIndex) {" +
-                "                    var date = cells[i].innerText.trim().toUpperCase();" +
-                "                    exam.date = date == '' ? null : date;" +
-                "                } else if (index == timingIndex) {" +
-                "                    var timings = cells[i].innerText.trim().split('-');" +
-                "                    if (timings.length == 2) {" +
-                "                        exam.start_time = timings[0].trim();" +
-                "                        exam.end_time = timings[1].trim();" +
-                "                    } else {" +
-                "                        exam.start_time = null;" +
-                "                        exam.end_time = null;" +
-                "                    }" +
-                "                } else if (index == venueIndex) {" +
-                "                    var venue = cells[i].innerText.trim();" +
-                "                    exam.venue = venue.replace(/-/g,'') == '' ? null : venue;" +
-                "                } else if (index == locationIndex) {" +
-                "                    var location = cells[i].innerText.trim();" +
-                "                    exam.seat_location = location.replace(/-/g,'') == '' ? null : location;" +
-                "                } else if (index == numberIndex) {" +
-                "                    var number = cells[i].innerText.trim();" +
-                "                    exam.seat_number = number.replace(/-/g,'') == '' ? null : parseInt(number);" +
-                "                }" +
-                "                if (Object.keys(exam).length == 7) {" +
-                "                    response[examTitle].push(exam);" +
-                "                    exam = {};" +
-                "                }" +
-                "            }" +
-                "        }," +
-                "        error: function(xhr, status, error) {" +
-                "            // Server congested or returned error; ignore gracefully" +
-                "        }" +
-                "    });" +
-                "} catch(e) {}" +
-                "return response;" +
-                "})();", responseString -> {
-                    try {
-                        if (responseString == null || responseString.trim().isEmpty() || responseString.equals("null")) {
-                            android.util.Log.i("VTOPService", "Exam schedule empty, continuing to proctor.");
+                + "' + '&authorizedID=' + $('#authorizedIDX').val() + '&_csrf=' + $('input[name=\"_csrf\"]').val();" +
+                "var response = {html: ''};" +
+                "try { $.ajax({type:'POST', url:'examinations/doSearchExamScheduleForStudent'," +
+                "data:data, async:false, success:function(res) { response.html = typeof res === 'string' ? res : ''; }}); } catch(e) {}" +
+                "return response; })();", responseString -> {
+            try {
+                JSONObject response = new JSONObject(responseString);
+                List<Course> courses = new ArrayList<>();
+                if (theoryCourses != null) courses.addAll(theoryCourses.values());
+                if (labCourses != null) courses.addAll(labCourses.values());
+                if (projectCourses != null) courses.addAll(projectCourses.values());
+                Map<String, Integer> courseIdBySlot = new HashMap<>();
+                if (theorySlots != null) {
+                    for (Slot slot : theorySlots.values()) courseIdBySlot.put(slot.slot, slot.courseId);
+                }
+                com.salmanmalvasi.studentcc.sync.ExamScheduleParser.Result schedule =
+                        com.salmanmalvasi.studentcc.sync.ExamScheduleParser.parse(response.optString("html"), courses, courseIdBySlot);
+                android.util.Log.i("VTOPService", "Exam schedule: parsed=" + schedule.exams.size()
+                        + ", rejected=" + schedule.rejectedRows + ", recognized=" + schedule.recognized);
+                if (!schedule.hasUsableSchedule()) {
+                    downloadProctor();
+                    return;
+                }
+                ExamsDao examsDao = appDatabase.examsDao();
+                io.reactivex.rxjava3.core.Completable.fromAction(() -> appDatabase.runInTransaction(() -> {
+                    examsDao.deleteAll().blockingAwait();
+                    examsDao.insert(schedule.exams).blockingAwait();
+                }))
+                        .subscribeOn(Schedulers.single())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(() -> {
+                            SettingsRepository.setExamNotifications(getApplicationContext(), schedule.exams);
                             downloadProctor();
-                            return;
-                        }
-                        JSONObject response = new JSONObject(responseString);
-                        Iterator<String> keys = response.keys();
-                        List<Exam> exams = new ArrayList<>();
-
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
-                        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm a", Locale.ENGLISH);
-
-                        int index = 1;
-
-                        while (keys.hasNext()) {
-                            String key = keys.next();
-                            JSONArray examsArray = response.getJSONArray(key);
-
-                            for (int i = 0; i < examsArray.length(); ++i) {
-                                JSONObject examObject = examsArray.getJSONObject(i);
-                                Exam exam = new Exam();
-                                Pattern pattern = Pattern.compile("\\d");
-                                Matcher matcher = pattern.matcher(key);
-
-                                exam.id = ++index;
-                                exam.courseId = getCourseId(examObject.getString("slot"), Course.TYPE_THEORY);
-                                exam.title = key;
-
-                                if (matcher.find()) {
-                                    exam.title = new StringBuilder(key).insert(matcher.start(), " ").toString().trim()
-                                            .replaceAll(" +", " ");
-                                }
-
-                                if (!examObject.isNull("date")) {
-                                    if (!examObject.isNull("start_time")) {
-                                        exam.startTime = Objects
-                                                .requireNonNull(dateTimeFormat.parse(examObject.getString("date") + " "
-                                                        + examObject.getString("start_time")))
-                                                .getTime();
-                                    } else {
-                                        exam.startTime = Objects
-                                                .requireNonNull(dateFormat.parse(examObject.getString("date")))
-                                                .getTime();
-                                    }
-
-                                    if (!examObject.isNull("end_time")) {
-                                        exam.endTime = Objects.requireNonNull(dateTimeFormat.parse(
-                                                examObject.getString("date") + " " + examObject.getString("end_time")))
-                                                .getTime();
-                                    }
-                                }
-
-                                exam.venue = getStringValue(examObject, "venue");
-                                exam.seatLocation = getStringValue(examObject, "seat_location");
-                                exam.seatNumber = getIntegerValue(examObject, "seat_number");
-
-                                exams.add(exam);
-                            }
-                        }
-
-                        SettingsRepository.setExamNotifications(this.getApplicationContext(), exams);
-
-                        ExamsDao examsDao = appDatabase.examsDao();
-
-                        Observable<Object> deleteAllObservable = Observable.fromCompletable(examsDao.deleteAll());
-                        Observable<Object> insertExamsObservable = Observable.fromCompletable(examsDao.insert(exams));
-
-                        Observable
-                                .concat(
-                                        deleteAllObservable,
-                                        insertExamsObservable)
-                                .subscribeOn(Schedulers.single())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new Observer<Object>() {
-                                    @Override
-                                    public void onSubscribe(@NonNull Disposable d) {
-                                    }
-
-                                    @Override
-                                    public void onNext(@NonNull Object o) {
-                                    }
-
-                                    @Override
-                                    public void onError(@NonNull Throwable e) {
-                                        error(902, e.getLocalizedMessage());
-                                    }
-
-                                    @Override
-                                    public void onComplete() {
-                                        downloadProctor();
-                                    }
-                                });
-                    } catch (Exception e) {
-                        android.util.Log.w("VTOPService", "Could not parse exam schedule (server limit or not available): " + e.getMessage());
-                        // Exam schedule is non-critical; do not block whole sync pipeline with error 901
-                        downloadProctor();
-                    }
-                });
+                        }, error -> {
+                            android.util.Log.w("VTOPService", "Exam schedule could not be saved; retained previous timetable");
+                            downloadProctor();
+                        });
+            } catch (Exception e) {
+                android.util.Log.w("VTOPService", "Exam schedule response unavailable; retained previous timetable");
+                downloadProctor();
+            }
+        });
     }
 
     /**
@@ -5205,6 +5083,13 @@ public class VTOPService extends Service {
         this.sharedPreferences.edit().putBoolean("isVTOPSignedIn", true).apply();
         this.sharedPreferences.edit().putLong("lastRefreshed", Calendar.getInstance().getTimeInMillis()).apply();
 
+        try {
+            com.salmanmalvasi.studentcc.integrations.studentcc.StudentCCSharingManager
+                    .getInstance(getApplicationContext()).onAcademicDataSyncCompleted(this.username);
+        } catch (Exception ignored) {
+            // Disclosed sharing is independent of completing the academic-data sync.
+        }
+
         if (this.syncMetrics != null) {
             this.syncMetrics.finish();
             android.util.Log.i("VTOPService", this.syncMetrics.generateSummary());
@@ -5215,7 +5100,7 @@ public class VTOPService extends Service {
         } catch (Exception ignored) {
         }
 
-        Intent dataUpdatedIntent = new Intent("DATA_UPDATED");
+        Intent dataUpdatedIntent = new Intent("DATA_UPDATED").setPackage(getPackageName());
         sendBroadcast(dataUpdatedIntent);
 
         this.endService(true);

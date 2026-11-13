@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="marks_screen_title">Your marks</string>
+    <string name="marks_screen_subtitle">Scores, weighted totals and class insights</string>
+    <string name="marks_screen_summary">%1$d courses · %2$d assessments</string>
+    <string name="marks_screen_empty">Your marks will appear here after a successful VTOP sync.</string>
+    <string name="marks_screen_error">Could not load your saved marks. Try again.</string>
+    <string name="marks_retry">Try again</string>
+    <string name="marks_weighted">Weighted total</string>
+    <string name="marks_weighted_detail">Weighted: %1$s / %2$s</string>
+    <string name="marks_score_unavailable">Not released</string>
+    <string name="marks_assessment_count">%1$d of %2$d assessments recorded</string>
+    <string name="marks_new_assessments">%1$d new</string>
+    <string name="marks_assessments_title">Assessments</string>
+    <string name="marks_expand_course">Expand %1$s</string>
+    <string name="marks_collapse_course">Collapse %1$s</string>
+    <string name="marks_component_theory">Theory</string>
+    <string name="marks_component_lab">Lab</string>
+    <string name="marks_component_project">Project</string>
+    <string name="marks_course_grade">Released grade: %1$s</string>
+    <string name="marks_course_combined">Combined course total: %1$s / %2$s</string>
+    <string name="unicc_insights_title">UniCC</string>
+    <string name="unicc_insights_source">UniCC internal marks (/60)</string>
+    <string name="unicc_loading">Getting class statistics…</string>
+    <string name="unicc_mean_label">Average /60</string>
+    <string name="unicc_sd_label">Spread (SD)</string>
+    <string name="unicc_count_label">Contributors</string>
+    <string name="unicc_refresh">Refresh</string>
+    <string name="unicc_information">About UniCC class insights</string>
+    <string name="unicc_above_mean">You are %1$s marks above the UniCC average.</string>
+    <string name="unicc_below_mean">You are %1$s marks below the UniCC average.</string>
+    <string name="unicc_at_mean">Your total matches the UniCC average.</string>
+    <string name="unicc_incomplete_basis">Complete compatible internal totals are needed for a personal comparison.</string>
+    <string name="unicc_small_sample">Small sample · %1$d UniCC contributors.</string>
+    <string name="unicc_sample_note">Only the UniCC pool is included.</string>
+    <string name="unicc_updated">Updated %1$s</string>
+    <string name="unicc_cached">Saved statistics · updated %1$s</string>
+    <string name="unicc_stale">Offline · showing saved statistics from %1$s</string>
+    <string name="unicc_no_data">No UniCC statistics are available for this class yet. Check again later or open UniCC to view its service.</string>
+    <string name="unicc_unavailable">UniCC statistics are temporarily unavailable. Your saved marks remain available.</string>
+    <string name="unicc_missing_class">Sync StudentCC again to link this course to its VTOP class.</string>
+    <string name="unicc_lab_component">Class insights use the theory class for embedded courses. Open the theory component to view them.</string>
+    <string name="unicc_project_component">UniCC class insights currently support theory courses and compatible embedded theory/lab courses.</string>
+    <string name="unicc_help_content">UniCC calculates averages and standard deviation from contributing students in the same VTOP class. Spread (SD) describes how far marks typically vary around the average.\n\nThe API provides internal marks statistics out of 60. A projected grade applies VIT’s relative boundaries after scaling your total and the sample to /100, assuming the same percentage performance in the final exam. It also assumes a theory class of more than 10 students and passing the final exam and any embedded lab. Use View grade ranges for details. Predictions need at least two contributors and non-zero SD.\n\nA personal comparison requires compatible completed assessments; supported embedded courses use theory and lab credits. UniCC rounds each contribution up to a whole mark, so the comparable personal total uses the same rounding.\n\nStudentCC requests statistics using your VTOP class number. Your marks, password and VTOP session are not sent to UniCC by this integration.</string>
+    <string name="marks_help_content_updated">Open a course to see its assessment scores, weighted total and any released grade. Class insights show separate averages, standard deviation, contributor counts and VIT grade predictions for UniCC and StudentCC.\n\nEach service uses its own contributors. Refresh checks for newer statistics. StudentCC also shows the number of participating students with 9+ CGPA in the class. Sharing starts selected on the sign-in screen. Signing in applies that choice; the Profile switch also enables sharing directly.\n\nInternal grade predictions assume the same percentage performance in the final exam. The university’s final grade depends on the complete class results, applicable grading scheme and pass requirements.</string>
+</resources>

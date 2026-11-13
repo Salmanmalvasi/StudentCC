@@ -26,8 +26,9 @@ public interface ExamsDao {
             "THEN 1 ELSE 0 END AS exams_ongoing")
     Single<Boolean> isExamsOngoing(long startTime, long endTime);
 
-    @Query("SELECT code AS courseCode, slot, courses.title AS courseTitle, start_time AS startTime, end_time AS endTime, exams.venue AS venue, seat_location AS seatLocation, seat_number AS seatNumber " +
-            "FROM courses, slots, exams WHERE exams.course_id = courses.id AND slots.course_id = courses.id AND exams.title = :examTitle ORDER BY start_time")
+    @Query("SELECT courses.code AS courseCode, slots.slot AS slot, courses.title AS courseTitle, exams.start_time AS startTime, exams.end_time AS endTime, exams.venue AS venue, exams.seat_location AS seatLocation, exams.seat_number AS seatNumber " +
+            "FROM exams LEFT JOIN courses ON exams.course_id = courses.id LEFT JOIN slots ON slots.course_id = courses.id " +
+            "WHERE exams.title = :examTitle ORDER BY CASE WHEN exams.start_time IS NULL THEN 1 ELSE 0 END, exams.start_time")
     Single<List<Exam.AllData>> getExams(String examTitle);
 
     @Query("SELECT code AS courseCode, courses.title AS courseTitle, start_time AS startTime, end_time AS endTime " +

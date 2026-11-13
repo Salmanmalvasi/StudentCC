@@ -122,18 +122,18 @@ public final class VTOPJsonParsers {
         if (!isJson(jsonStr)) return cgpaMap;
 
         try {
-            JSONObject root = new JSONObject(jsonStr);
+            JSONObject root = jsonStr.trim().startsWith("[")
+                    ? new JSONArray(jsonStr).optJSONObject(0) : new JSONObject(jsonStr);
+            if (root == null) return cgpaMap;
             JSONObject data = root.optJSONObject("data");
+            if (data == null && root.optJSONArray("data") != null) data = root.optJSONArray("data").optJSONObject(0);
             if (data == null) data = root;
+            JSONObject nested = data.optJSONObject("cgpaView");
+            if (nested != null) data = nested;
 
-            String cgpa = optString(data, "cgpa", "cgpaView", "CGPA", "cumulativeGpa");
-            if (!cgpa.isEmpty()) cgpaMap.put("cgpa", cgpa);
-
-            String earned = optString(data, "creditEarned", "creditsEarned", "totalEarnedCredits");
-            if (!earned.isEmpty()) cgpaMap.put("creditsEarned", earned);
-
-            String registered = optString(data, "creditRegistered", "creditsRegistered", "totalUnits");
-            if (!registered.isEmpty()) cgpaMap.put("creditsRegistered", registered);
+            VTOPHtmlParsers.putAcademicNumber(cgpaMap, "cgpa", optString(data, "cgpa", "cgpaView", "CGPA", "cumulativeGpa"));
+            VTOPHtmlParsers.putAcademicNumber(cgpaMap, "creditsEarned", optString(data, "creditEarned", "creditsEarned", "totalEarnedCredits", "total_credits"));
+            VTOPHtmlParsers.putAcademicNumber(cgpaMap, "creditsRegistered", optString(data, "creditRegistered", "creditsRegistered", "totalUnits"));
 
         } catch (Exception e) {
             Log.w(TAG, "Error parsing CGPA JSON: " + e.getMessage());
@@ -276,7 +276,7 @@ public final class VTOPJsonParsers {
         logCourseResponseStructure(jsonStr);
 
         try {
-            JSONObject root = new JSONObject(jsonStr);
+            JSONObject root = jsonStr.trim().startsWith("[") ? new JSONObject() : new JSONObject(jsonStr);
             JSONArray courseArray = root.optJSONArray("courseList");
             if (courseArray == null) courseArray = root.optJSONArray("studentRegisteredCourse");
             if (courseArray == null) courseArray = root.optJSONArray("timeTable");
@@ -370,6 +370,9 @@ public final class VTOPJsonParsers {
                     course.title = title.isEmpty() ? code : title;
                     course.type = typeStr.isEmpty() ? "Theory" : typeStr;
                     course.credits = credits;
+                    course.vtopClassId = emptyToNull(optString(obj, "classId", "CLASS_ID", "class_id", "classNbr", "classNumber", "crn"));
+                    course.semesterId = stagedData != null ? stagedData.semesterId : emptyToNull(optString(obj, "semesterId", "semesterSubId"));
+                    course.courseSystem = emptyToNull(optString(obj, "courseSystem", "COURSE_SYSTEM", "system"));
                     course.venue = venue;
                     course.faculty = faculty;
                     outCourses.add(course);
@@ -491,7 +494,7 @@ public final class VTOPJsonParsers {
         if (!isJson(jsonStr)) return attendances;
 
         try {
-            JSONObject root = new JSONObject(jsonStr);
+            JSONObject root = jsonStr.trim().startsWith("[") ? new JSONObject() : new JSONObject(jsonStr);
             JSONArray array = root.optJSONArray("attendanceList");
             if (array == null) array = root.optJSONArray("courseList");
             if (array == null) array = root.optJSONArray("studentRegisteredCourse");
@@ -507,22 +510,22 @@ public final class VTOPJsonParsers {
 
             if (array == null) return attendances;
 
-            Map<String, Course> courseByCode = new HashMap<>();
-            for (Course c : courses) {
-                if (c.code != null) courseByCode.put(c.code.toUpperCase(Locale.ROOT), c);
-            }
-
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.optJSONObject(i);
                 if (obj == null) continue;
 
                 String code = optString(obj, "courseCode", "code", "subCode").toUpperCase(Locale.ROOT);
-                Course matchedCourse = courseByCode.get(code);
+                Course matchedCourse = matchMarksCourse(obj, code, courses);
                 if (matchedCourse == null) continue;
 
                 String serverCourseId = optString(obj, "courseId", "classId", "COURSE_ID");
-                String classId = optString(obj, "classId", "CLASS_ID");
+                String classId = optString(obj, "classNbr", "classNumber", "classId", "CLASS_ID", "class_id", "crn");
                 String slotName = optString(obj, "slotName", "slot", "SLOT_NAME");
+
+                if (!classId.isEmpty()) {
+                    matchedCourse.vtopClassId = classId;
+                    if (stagedData != null) matchedCourse.semesterId = stagedData.semesterId;
+                }
 
                 if (stagedData != null) {
                     if (!serverCourseId.isEmpty()) {
@@ -669,7 +672,7 @@ public final class VTOPJsonParsers {
         }
 
         try {
-            JSONObject root = new JSONObject(jsonStr);
+            JSONObject root = jsonStr.trim().startsWith("[") ? new JSONObject() : new JSONObject(jsonStr);
             JSONArray markArray = root.optJSONArray("gradePageMarkBySemIdCourseId");
             if (markArray == null) markArray = root.optJSONArray("activeSemMarkView");
             if (markArray == null) markArray = root.optJSONArray("markView");
@@ -710,10 +713,10 @@ public final class VTOPJsonParsers {
                     title = "Assessment " + (i + 1);
                 }
 
-                double maxMark = optDouble(obj, 100.0, "maxMark", "maximumMarks", "maxScore", "maxMarks");
-                double marksGiven = optDouble(obj, 0.0, "marksGiven", "scoredMarks", "scoredMark", "marks", "score", "mark");
-                double weightage = optDouble(obj, 0.0, "weightageMarkView", "weightageMark", "weightage", "weight");
-                Double average = obj.has("average") ? obj.optDouble("average") : null;
+                Double maxMark = finiteNumberOrNull(obj, "maxMark", "maximumMarks", "maxScore", "maxMarks");
+                Double marksGiven = finiteNumberOrNull(obj, "marksGiven", "scoredMarks", "scoredMark", "marks", "score", "mark");
+                Double weightage = finiteNumberOrNull(obj, "weightageMarkView", "weightageMark", "weightage", "weight");
+                Double average = finiteNumberOrNull(obj, "average");
                 String status = optString(obj, "markModeCode", "status", "attendanceStatus", "Present");
 
                 Mark mark = new Mark();
@@ -722,6 +725,8 @@ public final class VTOPJsonParsers {
                 mark.maxScore = maxMark;
                 mark.score = marksGiven;
                 mark.weightage = weightage;
+                mark.maxWeightage = assessmentMaximumWeightage(obj);
+                captureClassNumber(obj, course);
                 mark.average = average;
                 mark.status = status;
                 mark.signature = (course.id + "_" + title).hashCode();
@@ -750,7 +755,7 @@ public final class VTOPJsonParsers {
         }
 
         try {
-            JSONObject root = new JSONObject(jsonStr);
+            JSONObject root = jsonStr.trim().startsWith("[") ? new JSONObject() : new JSONObject(jsonStr);
             JSONArray markArray = root.optJSONArray("activeSemMarkView");
             if (markArray == null) markArray = root.optJSONArray("gradeDetailsBySemId");
             if (markArray == null) markArray = root.optJSONArray("gradeView");
@@ -779,16 +784,6 @@ public final class VTOPJsonParsers {
                 return;
             }
 
-            Map<String, Course> courseByCode = new HashMap<>();
-            for (Course c : courses) {
-                if (c.code != null) {
-                    courseByCode.put(c.code.toUpperCase(Locale.ROOT), c);
-                    // Also map normalized code without spaces/hyphens
-                    String normalized = c.code.replaceAll("[^A-Za-z0-9]", "").toUpperCase(Locale.ROOT);
-                    courseByCode.put(normalized, c);
-                }
-            }
-
             for (int i = 0; i < markArray.length(); i++) {
                 JSONObject obj = markArray.optJSONObject(i);
                 if (obj == null) {
@@ -797,11 +792,7 @@ public final class VTOPJsonParsers {
                 }
 
                 String code = optString(obj, "courseCode", "code", "subCode", "subjectCode", "COURSE_CODE").toUpperCase(Locale.ROOT);
-                Course matched = courseByCode.get(code);
-                if (matched == null && !code.isEmpty()) {
-                    String normCode = code.replaceAll("[^A-Za-z0-9]", "");
-                    matched = courseByCode.get(normCode);
-                }
+                Course matched = matchMarksCourse(obj, code, courses);
 
                 // Check if this item is a COURSE container with nested marks
                 JSONArray nestedMarks = obj.optJSONArray("markList");
@@ -821,9 +812,9 @@ public final class VTOPJsonParsers {
                         String title = optString(mObj, "markTitle", "title", "assessmentName", "componentName");
                         if (title.isEmpty()) title = "Assessment " + (j + 1);
 
-                        double maxMark = optDouble(mObj, 100.0, "maxMark", "maximumMarks", "maxScore", "maxMarks");
-                        double marksGiven = optDouble(mObj, 0.0, "marksGiven", "scoredMarks", "scoredMark", "marks", "score", "mark");
-                        double weightage = optDouble(mObj, 0.0, "weightageMarkView", "weightageMark", "weightage", "weight");
+                        Double maxMark = finiteNumberOrNull(mObj, "maxMark", "maximumMarks", "maxScore", "maxMarks");
+                        Double marksGiven = finiteNumberOrNull(mObj, "marksGiven", "scoredMarks", "scoredMark", "marks", "score", "mark");
+                        Double weightage = finiteNumberOrNull(mObj, "weightageMarkView", "weightageMark", "weightage", "weight");
 
                         Mark mark = new Mark();
                         mark.courseId = matched.id;
@@ -831,9 +822,12 @@ public final class VTOPJsonParsers {
                         mark.maxScore = maxMark;
                         mark.score = marksGiven;
                         mark.weightage = weightage;
+                        mark.maxWeightage = assessmentMaximumWeightage(mObj);
+                        mark.status = optString(mObj, "markModeCode", "status", "attendanceStatus");
                         mark.signature = (matched.id + "_" + title).hashCode();
                         outMarks.add(mark);
                     }
+                    captureClassNumber(obj, matched);
                     continue;
                 }
 
@@ -846,9 +840,9 @@ public final class VTOPJsonParsers {
                 String title = optString(obj, "markTitle", "title", "assessmentName", "componentName");
                 if (title.isEmpty()) title = "Assessment " + (i + 1);
 
-                double maxMark = optDouble(obj, 100.0, "maxMark", "maximumMarks", "maxScore", "maxMarks");
-                double marksGiven = optDouble(obj, 0.0, "marksGiven", "scoredMarks", "scoredMark", "marks", "score", "mark");
-                double weightage = optDouble(obj, 0.0, "weightageMarkView", "weightageMark", "weightage", "weight");
+                Double maxMark = finiteNumberOrNull(obj, "maxMark", "maximumMarks", "maxScore", "maxMarks");
+                Double marksGiven = finiteNumberOrNull(obj, "marksGiven", "scoredMarks", "scoredMark", "marks", "score", "mark");
+                Double weightage = finiteNumberOrNull(obj, "weightageMarkView", "weightageMark", "weightage", "weight");
 
                 String status = optString(obj, "markModeCode", "status", "attendanceStatus", "Present");
 
@@ -858,6 +852,8 @@ public final class VTOPJsonParsers {
                 mark.maxScore = maxMark;
                 mark.score = marksGiven;
                 mark.weightage = weightage;
+                mark.maxWeightage = assessmentMaximumWeightage(obj);
+                captureClassNumber(obj, matched);
                 mark.status = status;
                 mark.signature = (matched.id + "_" + title).hashCode();
                 outMarks.add(mark);
@@ -872,51 +868,7 @@ public final class VTOPJsonParsers {
      * Parses exam schedule from /login/vitian/examScheduleView
      */
     public static List<Exam> parseExamSchedule(String jsonStr, Map<String, Integer> courseIdBySlot) {
-        List<Exam> exams = new ArrayList<>();
-        if (!isJson(jsonStr)) return exams;
-
-        try {
-            JSONObject root = new JSONObject(jsonStr);
-            JSONArray array = root.optJSONArray("examScheduleView");
-            if (array == null) array = root.optJSONArray("data");
-            if (array == null && jsonStr.trim().startsWith("[")) {
-                array = new JSONArray(jsonStr);
-            }
-
-            if (array == null) return exams;
-
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.optJSONObject(i);
-                if (obj == null) continue;
-
-                String slot = optString(obj, "slotName", "slot");
-                Integer courseId = courseIdBySlot.get(slot);
-                if (courseId == null) courseId = 0;
-
-                String dateStr = optString(obj, "examDate", "date");
-                long epoch = 0;
-                try {
-                    Date d = sdf.parse(dateStr);
-                    if (d != null) epoch = d.getTime();
-                } catch (Exception ignored) {
-                    epoch = System.currentTimeMillis();
-                }
-
-                Exam exam = new Exam();
-                exam.courseId = courseId;
-                exam.title = optString(obj, "examTitle", "examSession", "session", "Exam");
-                exam.startTime = epoch;
-                exam.endTime = epoch + 3 * 3600 * 1000L;
-                exam.venue = optString(obj, "venue", "examVenue", "roomNo");
-                exam.seatLocation = optString(obj, "seatLocation", "seatNo");
-                exams.add(exam);
-            }
-        } catch (Exception e) {
-            Log.w(TAG, "Error parsing exam schedule JSON: " + e.getMessage());
-        }
-        return exams;
+        return ExamScheduleParser.parse(jsonStr, Collections.emptyList(), courseIdBySlot).exams;
     }
 
     /**
@@ -1200,6 +1152,59 @@ public final class VTOPJsonParsers {
             }
         }
         return defaultValue;
+    }
+
+    private static String emptyToNull(String value) {
+        return value == null || value.trim().isEmpty() ? null : value.trim();
+    }
+
+    private static Double assessmentMaximumWeightage(JSONObject obj) {
+        double value = optDouble(obj, Double.NaN, "maxWeightage", "max_weightage", "maxWeightageMark",
+                "weightagePercent", "weightagePercentage", "weightagePercentView", "weightagePercentageView",
+                "maximumWeightage", "weightagePercentageMark");
+        if (!Double.isFinite(value) && hasAnyKey(obj, "weightageMarkView", "weightageMark")) {
+            value = optDouble(obj, Double.NaN, "weightage");
+        }
+        return Double.isFinite(value) && value >= 0 && value <= 100 ? value : null;
+    }
+
+    private static Double finiteNumberOrNull(JSONObject obj, String... keys) {
+        double value = optDouble(obj, Double.NaN, keys);
+        return Double.isFinite(value) ? value : null;
+    }
+
+    private static void captureClassNumber(JSONObject obj, Course course) {
+        String classNumber = optString(obj, "classNbr", "classNumber", "classId", "CLASS_ID", "class_id", "crn");
+        if (!classNumber.isEmpty()) course.vtopClassId = classNumber;
+        String semester = optString(obj, "semesterId", "semesterSubId");
+        if (!semester.isEmpty()) course.semesterId = semester;
+        String system = optString(obj, "courseSystem", "COURSE_SYSTEM");
+        if (!system.isEmpty()) course.courseSystem = system;
+    }
+
+    private static Course matchMarksCourse(JSONObject obj, String code, List<Course> courses) {
+        String classNumber = optString(obj, "classNbr", "classNumber", "classId", "CLASS_ID", "class_id", "crn");
+        if (!classNumber.isEmpty()) {
+            for (Course course : courses) {
+                if (classNumber.equals(course.vtopClassId)) return course;
+            }
+        }
+        String normalizedCode = code.replaceAll("[^A-Za-z0-9]", "").toUpperCase(Locale.ROOT);
+        String type = optString(obj, "courseType", "type", "COURSE_TYPE").toLowerCase(Locale.ROOT);
+        Course candidate = null;
+        int candidates = 0;
+        for (Course course : courses) {
+            if (course.code == null || !normalizedCode.equals(course.code.replaceAll("[^A-Za-z0-9]", "").toUpperCase(Locale.ROOT))) continue;
+            String courseType = course.type == null ? "" : course.type.toLowerCase(Locale.ROOT);
+            if (!type.isEmpty()) {
+                boolean lab = type.contains("lab");
+                boolean project = type.contains("project");
+                if (lab != courseType.contains("lab") || project != courseType.contains("project")) continue;
+            }
+            candidate = course;
+            candidates++;
+        }
+        return candidates == 1 ? candidate : null;
     }
 
     private static boolean hasAnyKey(JSONObject obj, String... keys) {

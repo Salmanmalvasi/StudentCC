@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.ChipGroup;
@@ -113,11 +114,7 @@ public class AllSemestersAnalyticsActivity extends AppCompatActivity {
         loadAnalyticsData();
 
         android.content.IntentFilter filter = new android.content.IntentFilter("com.salmanmalvasi.studentcc.ALL_SEMESTERS_SYNC_PROGRESS");
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(syncProgressReceiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            registerReceiver(syncProgressReceiver, filter);
-        }
+        ContextCompat.registerReceiver(this, syncProgressReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     @Override

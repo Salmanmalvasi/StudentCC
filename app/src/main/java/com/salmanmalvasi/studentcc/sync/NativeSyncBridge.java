@@ -285,12 +285,54 @@ public class NativeSyncBridge {
         return params;
     }
 
+    /** Optional cumulative summary; missing responses never overwrite a previously saved value. */
+    void fetchAcademicSummary(SyncContext context) {
+        if (context.getAuthorizedID() == null || context.getAuthorizedID().trim().isEmpty()) return;
+        Map<String, String> academic = new HashMap<>();
+        try {
+            VTOPOkHttpNetworkClient.HttpResponse response = networkClient.postAdaptive(
+                    VTOPEndpoints.CGPA_VIEW, buildApiParams(context), context.getCookieHeader());
+            if (response.isSuccessful && response.body != null && !response.isSessionExpired()) {
+                academic.putAll(VTOPJsonParsers.isJson(response.body)
+                        ? VTOPJsonParsers.parseCgpa(response.body) : VTOPHtmlParsers.parseCgpa(response.body));
+            }
+        } catch (Exception ignored) {
+            Log.w(TAG, "Optional native cumulative summary is unavailable; checking grade history.");
+        }
+        if (!academic.containsKey("cgpa") || !academic.containsKey("creditsEarned")) {
+            try {
+                VTOPOkHttpNetworkClient.HttpResponse response = networkClient.post(
+                        VTOPEndpoints.GRADE_HISTORY, buildApiParams(context), context.getCookieHeader());
+                if (response.isSuccessful && response.body != null && !response.isSessionExpired()) {
+                    Map<String, String> history = VTOPJsonParsers.isJson(response.body)
+                            ? VTOPJsonParsers.parseCgpa(response.body) : VTOPHtmlParsers.parseCgpa(response.body);
+                    for (Map.Entry<String, String> item : history.entrySet()) academic.putIfAbsent(item.getKey(), item.getValue());
+                }
+            } catch (Exception ignored) {
+                Log.w(TAG, "Optional grade history is unavailable; retaining any native summary.");
+            }
+        }
+        if (academic.containsKey("cgpa") || academic.containsKey("creditsEarned")) {
+            context.getStagedData().profileAttributes.putAll(academic);
+            context.getStagedData().profileAttributes.put("cgpaAccount", context.getAuthorizedID());
+        }
+    }
+
     private List<SyncTask> buildSyncTasks(SyncContext ctx,
                                          AtomicBoolean sessionExpiredFlag,
                                          AtomicInteger completedCounter,
                                          ProgressListener progressListener) {
         List<SyncTask> tasks = new ArrayList<>();
-        final int totalTasks = quickSyncOnly ? 4 : 12;
+        final int totalTasks = quickSyncOnly ? 5 : 13;
+
+        // CGPA is useful on both sync modes; quick sync previously skipped the full PROFILE task.
+        tasks.add(new NativeTask(SyncTaskId.CREDITS, Collections.emptySet(), completedCounter, totalTasks, progressListener, false) {
+            @Override public SyncTaskResult executeTask(SyncContext context) {
+                try { fetchAcademicSummary(context); }
+                catch (Exception ignored) { Log.w(TAG, "Optional cumulative summary unavailable; retaining saved CGPA."); }
+                return SyncTaskResult.success(10L);
+            }
+        });
 
         if (!quickSyncOnly) {
             // 1. Profile Task (independent: /login/vitian/myProfileInfo)
@@ -786,9 +828,11 @@ public class NativeSyncBridge {
                 @Override
                 public SyncTaskResult executeTask(SyncContext context) throws Exception {
                     try {
-                        Map<String, String> params = buildApiParams(context);
+                        Map<String, String> params = new LinkedHashMap<>();
+                        params.put("regNo", context.getAuthorizedID());
+                        params.put("semesterId", context.getSemesterID());
 
-                        VTOPOkHttpNetworkClient.HttpResponse res = networkClient.post(VTOPEndpoints.EXAM_SCHEDULE_VIEW, params, context.getCookieHeader());
+                        VTOPOkHttpNetworkClient.HttpResponse res = networkClient.postJson(VTOPEndpoints.EXAM_SCHEDULE_VIEW, params, context.getCookieHeader());
                         if (isSessionUnauthorizedOrExpired(res, sessionExpiredFlag)) {
                             return SyncTaskResult.failure("Session Expired", 401, 10L);
                         }
@@ -799,13 +843,11 @@ public class NativeSyncBridge {
                                 courseIdBySlot.put(s.slot, s.courseId);
                             }
 
-                            if (VTOPJsonParsers.isJson(res.body)) {
-                                List<Exam> exams = VTOPJsonParsers.parseExamSchedule(res.body, courseIdBySlot);
-                                context.getStagedData().exams.addAll(exams);
-                            } else {
-                                List<Exam> exams = VTOPHtmlParsers.parseExamSchedule(res.body, courseIdBySlot);
-                                context.getStagedData().exams.addAll(exams);
-                            }
+                            ExamScheduleParser.Result schedule = ExamScheduleParser.parse(res.body,
+                                    context.getStagedData().getEffectiveCourses(), courseIdBySlot);
+                            if (schedule.hasUsableSchedule()) context.getStagedData().exams.addAll(schedule.exams);
+                            Log.i(TAG, "Exam schedule: parsed=" + schedule.exams.size()
+                                    + ", rejected=" + schedule.rejectedRows + ", recognized=" + schedule.recognized);
                         }
                     } catch (Exception e) {
                         Log.w(TAG, "Optional EXAMS task notice: " + e.getMessage());

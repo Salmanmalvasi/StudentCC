@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
@@ -1332,11 +1333,7 @@ public class AttendanceCalculatorFragment extends Fragment {
         refreshAllData();
         IntentFilter filter = new IntentFilter("DATA_UPDATED");
         filter.addAction("OD_COUNT_UPDATED");
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            requireContext().registerReceiver(syncReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            requireContext().registerReceiver(syncReceiver, filter);
-        }
+        ContextCompat.registerReceiver(requireContext(), syncReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     @Override

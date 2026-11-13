@@ -489,11 +489,7 @@ public class SkipAdvisorFragment extends Fragment {
         refreshRecommendations();
         IntentFilter filter = new IntentFilter("DATA_UPDATED");
         filter.addAction("OD_COUNT_UPDATED");
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            requireContext().registerReceiver(syncReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            requireContext().registerReceiver(syncReceiver, filter);
-        }
+        ContextCompat.registerReceiver(requireContext(), syncReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     @Override

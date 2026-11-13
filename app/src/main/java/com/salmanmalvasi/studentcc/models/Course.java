@@ -24,6 +24,15 @@ public class Course {
     @ColumnInfo(name = "credits")
     public Double credits;
 
+    @ColumnInfo(name = "vtop_class_id")
+    public String vtopClassId;
+
+    @ColumnInfo(name = "semester_id")
+    public String semesterId;
+
+    @ColumnInfo(name = "course_system")
+    public String courseSystem;
+
     @ColumnInfo(name = "venue")
     public String venue;
 
@@ -41,9 +50,13 @@ public class Course {
 
     public static class AllData {
         public String courseTitle;
-    public Integer courseId;
+        public Integer courseId;
         public String courseCode;
         public String courseType;
+        public Double credits;
+        public String vtopClassId;
+        public String semesterId;
+        public String courseSystem;
         public String faculty;
         public String slot;
         public String venue;

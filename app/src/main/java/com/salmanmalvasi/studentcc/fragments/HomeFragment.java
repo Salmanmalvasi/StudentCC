@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.TooltipCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -115,12 +116,8 @@ public class HomeFragment extends Fragment {
 
         // Register in-app message receiver for real-time popups
         IntentFilter msgFilter = new IntentFilter("NEW_IN_APP_MESSAGE");
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            requireContext().registerReceiver(inAppMessageReceiver, msgFilter,
-                    android.content.Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            requireContext().registerReceiver(inAppMessageReceiver, msgFilter);
-        }
+        ContextCompat.registerReceiver(requireContext(), inAppMessageReceiver, msgFilter,
+                ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     @Override

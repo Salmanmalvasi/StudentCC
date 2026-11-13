@@ -18,6 +18,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import com.salmanmalvasi.studentcc.helpers.AppDatabase;
 import com.salmanmalvasi.studentcc.interfaces.ExamsDao;
 import com.salmanmalvasi.studentcc.models.Exam;
+import com.salmanmalvasi.studentcc.R;
 
 /**
  * ┬─── Staff Hierarchy
@@ -47,6 +48,7 @@ public class ExamsAdapter extends RecyclerView.Adapter<ExamsAdapter.ViewHolder> 
         examView.setLayoutParams(examViewParams);
         examView.setLayoutManager(new LinearLayoutManager(context));
         examView.setClipToPadding(false);
+        examView.setPadding(0, 0, 0, (int) (16 * context.getResources().getDisplayMetrics().density));
 
         return new ViewHolder(examView);
     }
@@ -54,26 +56,35 @@ public class ExamsAdapter extends RecyclerView.Adapter<ExamsAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ExamsAdapter.ViewHolder holder, int position) {
         RecyclerView examView = (RecyclerView) holder.itemView;
+        if (holder.request != null) holder.request.dispose();
+        String title = examTitles.get(position);
+        holder.boundTitle = title;
+        examView.setAdapter(null);
 
         AppDatabase appDatabase = AppDatabase.getInstance(this.applicationContext);
         ExamsDao examsDao = appDatabase.examsDao();
 
         examsDao
-                .getExams(examTitles.get(position))
+                .getExams(title)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<List<Exam.AllData>>() {
                     @Override
                     public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                        holder.request = d;
                     }
 
                     @Override
                     public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull List<Exam.AllData> exams) {
-                        examView.setAdapter(new ExamsItemAdapter(exams));
+                        if (!title.equals(holder.boundTitle)) return;
+                        examView.setAdapter(exams.isEmpty()
+                                ? new EmptyStateAdapter(EmptyStateAdapter.TYPE_NO_DATA, examView.getContext().getString(R.string.exam_schedule_page_empty))
+                                : new ExamsItemAdapter(exams));
                     }
 
                     @Override
                     public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                        if (!title.equals(holder.boundTitle)) return;
                         examView.setAdapter(new EmptyStateAdapter(EmptyStateAdapter.TYPE_ERROR, "Error: " + e.getLocalizedMessage()));
                     }
                 });
@@ -84,7 +95,16 @@ public class ExamsAdapter extends RecyclerView.Adapter<ExamsAdapter.ViewHolder> 
         return this.examTitles.size();
     }
 
+    @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        if (holder.request != null) holder.request.dispose();
+        holder.boundTitle = null;
+        super.onViewRecycled(holder);
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        Disposable request;
+        String boundTitle;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
         }

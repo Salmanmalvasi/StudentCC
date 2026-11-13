@@ -1,71 +1,41 @@
 package com.salmanmalvasi.studentcc.adapters;
 
-import android.app.Activity;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.badge.BadgeDrawable;
-import com.google.android.material.badge.BadgeUtils;
-import com.google.android.material.badge.ExperimentalBadgeUtils;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.card.MaterialCardView;
+import com.salmanmalvasi.studentcc.R;
+import com.salmanmalvasi.studentcc.models.Course;
+import com.salmanmalvasi.studentcc.models.Mark;
 
 import java.text.DecimalFormat;
 import java.util.List;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.SingleObserver;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-import com.salmanmalvasi.studentcc.R;
-import com.salmanmalvasi.studentcc.helpers.AppDatabase;
-import com.salmanmalvasi.studentcc.interfaces.ClassStatsDao;
-import com.salmanmalvasi.studentcc.models.ClassStats;
-import com.salmanmalvasi.studentcc.models.Course;
-import com.salmanmalvasi.studentcc.models.Mark;
-
-/**
- * ┬─── Marks Hierarchy
- * ├─ {@link com.salmanmalvasi.studentcc.fragments.PerformanceFragment}
- * ├─ {@link MarksAdapter} - ViewPager2
- * ├─ {@link MarksGroupAdapter} - RecyclerView
- * ╰→ {@link MarksItemAdapter} - RecyclerView (Current File)
- */
+/** Read-only assessment scores and VTOP averages, with explicit weighted values. */
 public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.ViewHolder> {
-    List<Mark.AllData> marks;
-    String courseCode;
-    Integer courseId;
+    private final List<Mark.AllData> marks;
 
     public MarksItemAdapter(List<Mark.AllData> marks, Course.AllData course) {
         this.marks = marks;
-        this.courseCode = course != null ? course.courseCode : null;
-        this.courseId = course != null ? course.courseId : null;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        com.google.android.material.card.MaterialCardView marksItem = (com.google.android.material.card.MaterialCardView) LayoutInflater
-                .from(parent.getContext())
-                .inflate(R.layout.layout_item_marks, parent, false);
-
-        return new ViewHolder(marksItem);
+        return new ViewHolder(LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.layout_item_marks, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.setMarksItem(marks.get(position), courseCode);
+        holder.bind(marks.get(position));
     }
 
     @Override
@@ -73,203 +43,68 @@ public class MarksItemAdapter extends RecyclerView.Adapter<MarksItemAdapter.View
         return marks.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        com.google.android.material.card.MaterialCardView marksItem;
-        String courseCode;
+    static final class ViewHolder extends RecyclerView.ViewHolder {
+        private final MaterialCardView card;
+        private final TextView title;
+        private final TextView average;
+        private final TextView status;
+        private final TextView score;
+        private final TextView scoreLabel;
+        private final TextView weighted;
+        private final ProgressBar progress;
 
-        public ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.marksItem = (com.google.android.material.card.MaterialCardView) itemView;
+            card = (MaterialCardView) itemView;
+            title = itemView.findViewById(R.id.text_view_title);
+            average = itemView.findViewById(R.id.text_view_average);
+            status = itemView.findViewById(R.id.text_view_status);
+            score = itemView.findViewById(R.id.text_view_score);
+            scoreLabel = itemView.findViewById(R.id.text_view_mark_type);
+            weighted = itemView.findViewById(R.id.text_view_weighted_detail);
+            progress = itemView.findViewById(R.id.progress_bar_score);
+            itemView.findViewById(R.id.chip_course_type).setVisibility(View.GONE);
+            card.setOnLongClickListener(null);
+            card.setLongClickable(false);
         }
 
-        public void setMarksItem(Mark.AllData marksItem, String courseCode) {
-            this.courseCode = courseCode;
-            AppCompatTextView markTitle = this.marksItem.findViewById(R.id.text_view_title);
-            AppCompatTextView averageText = this.marksItem.findViewById(R.id.text_view_average);
-            AppCompatTextView statusText = this.marksItem.findViewById(R.id.text_view_status);
-            AppCompatTextView scoreText = this.marksItem.findViewById(R.id.text_view_score);
-            ProgressBar scoreProgress = this.marksItem.findViewById(R.id.progress_bar_score);
-            AppCompatTextView markType = this.marksItem.findViewById(R.id.text_view_mark_type);
-            Chip courseType = this.marksItem.findViewById(R.id.chip_course_type);
-
-            markTitle.setText(marksItem.title);
-
-            // Add long press listener for entering class statistics
-            this.marksItem.setOnLongClickListener(v -> {
-                showClassStatsDialog(marksItem);
-                return true;
-            });
-
-            if (!marksItem.isRead) {
-                BadgeDrawable markBadge = BadgeDrawable.create(markTitle.getContext());
-                markBadge.setBadgeGravity(BadgeDrawable.TOP_START);
-
-                markTitle.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                    @OptIn(markerClass = ExperimentalBadgeUtils.class)
-                    @Override
-                    public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6,
-                            int i7) {
-                        markBadge.setHorizontalOffset(10 - ((View) markTitle.getParent()).getPaddingStart() / 2);
-                        markBadge.setVerticalOffset(10 + markTitle.getMeasuredHeight() / 2);
-
-                        BadgeUtils.attachBadgeDrawable(markBadge, markTitle);
-                        markTitle.removeOnLayoutChangeListener(this);
-                    }
-                });
+        void bind(Mark.AllData mark) {
+            title.setText(mark.title);
+            title.getOverlay().clear();
+            score.setOnClickListener(null);
+            scoreLabel.setText(R.string.score);
+            progress.setMax(1000);
+            progress.setProgress(0);
+            if (finite(mark.score) && finite(mark.maxScore) && mark.maxScore > 0) {
+                score.setText(number(mark.score) + "/" + number(mark.maxScore));
+                progress.setProgress((int) Math.max(0, Math.min(1000, mark.score / mark.maxScore * 1000)));
             } else {
-                // Remove the BadgeDrawable if any (Required because RecyclerView recycles
-                // layouts)
-                markTitle.getOverlay().clear();
+                score.setText("—");
+                scoreLabel.setText(R.string.marks_score_unavailable);
             }
-
-            if (marksItem.score != null && marksItem.maxScore != null && marksItem.weightage != null
-                    && marksItem.maxWeightage != null) {
-                String markTypeScore = this.marksItem.getContext().getString(R.string.score);
-                String score = new DecimalFormat("#.#").format(marksItem.score) + "/"
-                        + new DecimalFormat("#.#").format(marksItem.maxScore);
-                String weightage = new DecimalFormat("#.#").format(marksItem.weightage) + "/"
-                        + new DecimalFormat("#.#").format(marksItem.maxWeightage);
-
-                scoreText.setText(score);
-                scoreProgress.setProgress(marksItem.score.intValue());
-                scoreProgress.setMax(marksItem.maxScore.intValue());
-
-                scoreText.setOnClickListener(view -> {
-                    if (markType.getText().equals(markTypeScore)) {
-                        scoreText.setText(weightage);
-                        markType.setText(R.string.weightage);
-                    } else {
-                        scoreText.setText(score);
-                        markType.setText(R.string.score);
-                    }
-                });
-            }
-
-            if (marksItem.average != null) {
-                averageText.setText(
-                        Html.fromHtml(this.marksItem.getContext().getString(R.string.average, marksItem.average),
-                                Html.FROM_HTML_MODE_LEGACY));
-                averageText.setVisibility(View.VISIBLE);
-            } else {
-                averageText.setVisibility(View.GONE);
-            }
-
-            if (marksItem.status != null) {
-                statusText
-                        .setText(Html.fromHtml(this.marksItem.getContext().getString(R.string.status, marksItem.status),
-                                Html.FROM_HTML_MODE_LEGACY));
-                statusText.setVisibility(View.VISIBLE);
-            } else {
-                statusText.setVisibility(View.GONE);
-            }
-
-            if (marksItem.courseType.equals("lab")) {
-                courseType.setChipIconResource(R.drawable.ic_lab);
-                courseType.setText(R.string.lab);
-            } else if (marksItem.courseType.equals("project")) {
-                courseType.setChipIconResource(R.drawable.ic_project);
-                courseType.setText(R.string.project);
-            } else {
-                courseType.setChipIconResource(R.drawable.ic_theory);
-                courseType.setText(R.string.theory);
-            }
+            if (finite(mark.weightage) && finite(mark.maxWeightage) && mark.maxWeightage > 0) {
+                weighted.setText(card.getContext().getString(R.string.marks_weighted_detail,
+                        number(mark.weightage), number(mark.maxWeightage)));
+                weighted.setVisibility(View.VISIBLE);
+            } else weighted.setVisibility(View.GONE);
+            if (finite(mark.average)) {
+                average.setText(Html.fromHtml(card.getContext().getString(R.string.average, mark.average),
+                        Html.FROM_HTML_MODE_LEGACY));
+                average.setVisibility(View.VISIBLE);
+            } else average.setVisibility(View.GONE);
+            if (mark.status != null && !mark.status.trim().isEmpty()) {
+                status.setText(Html.fromHtml(card.getContext().getString(R.string.status, mark.status),
+                        Html.FROM_HTML_MODE_LEGACY));
+                status.setVisibility(View.VISIBLE);
+            } else status.setVisibility(View.GONE);
         }
 
-        private void showClassStatsDialog(Mark.AllData markData) {
-            Double maxReference = markData.maxScore != null ? markData.maxScore : markData.maxWeightage;
-            if (markData.score == null && markData.weightage == null) {
-                Toast.makeText(marksItem.getContext(), "Cannot add statistics for marks without any recorded score",
-                        Toast.LENGTH_SHORT).show();
-                return;
-            }
+        private static boolean finite(Double value) {
+            return value != null && !Double.isNaN(value) && !Double.isInfinite(value);
+        }
 
-            if (maxReference == null) {
-                Toast.makeText(marksItem.getContext(), "Cannot add statistics for marks without a maximum value",
-                        Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            View dialogView = LayoutInflater.from(marksItem.getContext()).inflate(R.layout.dialog_class_stats, null);
-
-            AppCompatTextView examInfo = dialogView.findViewById(R.id.text_view_exam_info);
-            TextInputEditText editAverage = dialogView.findViewById(R.id.edit_text_average);
-
-            examInfo.setText("Exam: " + markData.title + " (" + courseCode + ")");
-
-            // Pre-populate with existing data if available
-            AppDatabase appDatabase = AppDatabase.getInstance(marksItem.getContext());
-            ClassStatsDao classStatsDao = appDatabase.classStatsDao();
-
-            classStatsDao.getClassStats(courseCode, markData.title)
-                    .subscribeOn(Schedulers.single())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new SingleObserver<ClassStats>() {
-                        @Override
-                        public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-                        }
-
-                        @Override
-                        public void onSuccess(@io.reactivex.rxjava3.annotations.NonNull ClassStats classStats) {
-                            editAverage.setText(String.valueOf(classStats.classAverage));
-                        }
-
-                        @Override
-                        public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                            // No existing data, keep field empty
-                        }
-                    });
-
-            new MaterialAlertDialogBuilder(marksItem.getContext())
-                    .setTitle("Class Average")
-                    .setView(dialogView)
-                    .setPositiveButton("Save", (dialog, which) -> {
-                        try {
-                            String avgText = editAverage.getText().toString().trim();
-
-                            if (avgText.isEmpty()) {
-                                Toast.makeText(marksItem.getContext(), "Please enter the class average",
-                                        Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-
-                            double average = Double.parseDouble(avgText);
-
-                            // Use the exam's max score for calculations
-                            ClassStats classStats = new ClassStats(courseCode, markData.title, average, maxReference,
-                                    null);
-                            classStats.updatedAt = System.currentTimeMillis();
-
-                            classStatsDao.insertClassStats(classStats)
-                                    .subscribeOn(Schedulers.single())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(() -> {
-                                        Toast.makeText(marksItem.getContext(), "Class average saved",
-                                                Toast.LENGTH_SHORT).show();
-                                    }, throwable -> {
-                                        Toast.makeText(marksItem.getContext(),
-                                                "Error saving average: " + throwable.getMessage(), Toast.LENGTH_SHORT)
-                                                .show();
-                                    });
-
-                        } catch (NumberFormatException e) {
-                            Toast.makeText(marksItem.getContext(), "Please enter a valid number", Toast.LENGTH_SHORT)
-                                    .show();
-                        }
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .setNeutralButton("Delete", (dialog, which) -> {
-                        classStatsDao.deleteClassStatsForExam(courseCode, markData.title)
-                                .subscribeOn(Schedulers.single())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(() -> {
-                                    Toast.makeText(marksItem.getContext(), "Class average deleted", Toast.LENGTH_SHORT)
-                                            .show();
-                                }, throwable -> {
-                                    Toast.makeText(marksItem.getContext(), "Error deleting average", Toast.LENGTH_SHORT)
-                                            .show();
-                                });
-                    })
-                    .show();
+        private static String number(double value) {
+            return new DecimalFormat("0.##").format(value);
         }
     }
 }
